@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32328.378
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Decryptor", "Decryptor\Decryptor.csproj", "{200AE902-A7CB-412F-A64D-D7FF2F0CA980}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{F9E7CF2F-BA49-4A60-9B9D-D2C673A5637A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Decryptor.Wpf", "Decryptor.Wpf\Decryptor.Wpf.csproj", "{2660AE06-92C8-4A31-8266-DD2AEF25E4BF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{200AE902-A7CB-412F-A64D-D7FF2F0CA980}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{200AE902-A7CB-412F-A64D-D7FF2F0CA980}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{200AE902-A7CB-412F-A64D-D7FF2F0CA980}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{200AE902-A7CB-412F-A64D-D7FF2F0CA980}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9E7CF2F-BA49-4A60-9B9D-D2C673A5637A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9E7CF2F-BA49-4A60-9B9D-D2C673A5637A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9E7CF2F-BA49-4A60-9B9D-D2C673A5637A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9E7CF2F-BA49-4A60-9B9D-D2C673A5637A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2660AE06-92C8-4A31-8266-DD2AEF25E4BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2660AE06-92C8-4A31-8266-DD2AEF25E4BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2660AE06-92C8-4A31-8266-DD2AEF25E4BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2660AE06-92C8-4A31-8266-DD2AEF25E4BF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {49DFFAEA-1DF7-4C8D-B122-711B0719E7EC}
+	EndGlobalSection
+EndGlobal

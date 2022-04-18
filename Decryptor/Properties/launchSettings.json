@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Decryptor": {
+      "commandName": "Project",
+      "commandLineArgs": "-f D:\\Projects\\BakkesMod\\Tools\\Decryptor\\in -o out -g core.upk"
+    }
+  }
+}
