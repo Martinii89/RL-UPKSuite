@@ -3,48 +3,87 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ui="http://schemas.modernwpf.com/2019"
         xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:viewModel="clr-namespace:Decryptor.Wpf.MVVM.ViewModel"
-        xmlns:system="clr-namespace:System;assembly=System.Runtime"
         xmlns:converters="clr-namespace:Decryptor.Wpf.Converters"
+        xmlns:model="clr-namespace:Decryptor.Wpf.MVVM.Model"
         mc:Ignorable="d"
-        Title="RocketLeague Package Decryption" Height="300" Width="500">
+        ui:WindowHelper.UseModernWindowStyle="True"
+        Title="RocketLeague Package Decryption" Height="600" Width="900">
     <Window.Resources>
         <converters:FileDropEventArgsConverter x:Key="FileDropEventArgsConverter" />
+        <DataTemplate x:Key="FileListTemplate" DataType="model:FileReference">
+            <ui:SimpleStackPanel Orientation="Horizontal">
+                <StackPanel Orientation="Vertical">
+                    <TextBlock Text="{Binding FileName}"
+                               Style="{DynamicResource BaseTextBlockStyle}">
+                    </TextBlock>
+                    <TextBlock
+                        Text="{Binding FilePath}"
+                        Style="{DynamicResource CaptionTextBlockStyle}"
+                        Foreground="{DynamicResource SystemControlBackgroundBaseMediumLowBrush}">
+                    </TextBlock>
+                </StackPanel>
+                <Button HorizontalAlignment="Right" Content="Remove" Command="{Binding ElementName=FileListView, Path=DataContext.RemoveFileCommand}" CommandParameter="{Binding}"></Button>
+            </ui:SimpleStackPanel>
+        </DataTemplate>
     </Window.Resources>
     <Window.DataContext>
         <viewModel:MainWindowViewModel />
     </Window.DataContext>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition></RowDefinition>
+            <RowDefinition Height="5*"></RowDefinition>
+            <RowDefinition Height="141*"></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="75"></ColumnDefinition>
-            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition Width="100"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <Button Height="20"
-                Content="Select File"
-                Command="{Binding OpenFileDialogCommand}"
-                Margin="5" />
-        <TextBlock Grid.Row="0" Grid.Column="1" Margin="10, 0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left"
-                   AllowDrop="True" Text="OR drop here">
+        <ui:SimpleStackPanel Margin="6,6,6,6" Spacing="12" Grid.Row="1">
+            <Button Content="Select File" Command="{Binding OpenFileDialogCommand}" />
+            <Button Content="Flip Theme" Click="ButtonBase_OnClick"></Button>
+        </ui:SimpleStackPanel>
+
+
+        <ListView Grid.Row="1" Grid.Column="1"
+                  SelectionMode="Extended"
+                  Name="FileListView"
+                  ItemsSource="{Binding FilesAdded}"
+                  AllowDrop="True"
+                  ItemTemplate="{StaticResource FileListTemplate}" Margin="0,8,0,0">
             <behaviors:Interaction.Triggers>
                 <behaviors:EventTrigger EventName="Drop">
                     <behaviors:InvokeCommandAction
                         Command="{Binding AddFilesCommand}"
                         EventArgsConverter="{StaticResource FileDropEventArgsConverter}" />
+                    <behaviors:ChangePropertyAction TargetObject="{Binding ElementName=UnderlineRect}"
+                                                    PropertyName="Visibility" Value="Hidden" />
+                </behaviors:EventTrigger>
+                <behaviors:EventTrigger EventName="DragOver">
+                    <behaviors:ChangePropertyAction TargetObject="{Binding ElementName=UnderlineRect}"
+                                                    PropertyName="Visibility" Value="Visible">
+                    </behaviors:ChangePropertyAction>
+                </behaviors:EventTrigger>
+                <behaviors:EventTrigger EventName="DragLeave">
+                    <behaviors:ChangePropertyAction TargetObject="{Binding ElementName=UnderlineRect}"
+                                                    PropertyName="Visibility" Value="Hidden" />
                 </behaviors:EventTrigger>
             </behaviors:Interaction.Triggers>
-        </TextBlock>
-        <ListView Grid.Row="1" Grid.Column="1" ItemsSource="{Binding FilesAdded}">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Header="FileName" Width="100" DisplayMemberBinding="{Binding FileName}"></GridViewColumn>
-                    <GridViewColumn Header="FilePath" Width="200" DisplayMemberBinding="{Binding FilePath}"></GridViewColumn>
-                </GridView>
-            </ListView.View>
+
         </ListView>
+        <Rectangle
+            x:Name="UnderlineRect"
+            Stretch="UniformToFill"
+            Opacity="0.75"
+            Visibility="Hidden"
+            Fill="{DynamicResource SystemControlBackgroundBaseMediumLowBrush}"
+            Grid.Row="0"
+            Grid.Column="0"
+            Grid.RowSpan="2"
+            Grid.ColumnSpan="2"
+            IsHitTestVisible="False"
+            HorizontalAlignment="Stretch" />
     </Grid>
 </Window>

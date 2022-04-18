@@ -30,6 +30,12 @@ public partial class MainWindowViewModel : ObservableObject
     }
 
     [ICommand]
+    public void RemoveFile(FileReference fileReference)
+    {
+        FilesAdded.Remove(fileReference);
+    }
+
+    [ICommand]
     public void AddFiles(string[] files)
     {
         foreach (var file in files)
