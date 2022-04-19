@@ -1,0 +1,48 @@
+name: "tagged-release"
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+env:
+  PROJECT_FOLDER: Decryptor/Decryptor
+  PROJECT_FOLDER_WPF: Decryptor.Wpf/Decryptor.Wpf
+
+
+jobs:
+  tagged-release:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Setup .Net
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: 6.0.x
+
+      - name: Restore NugetPackages
+        run: | 
+          dotnet restore ${{ env.PROJECT_FOLDER }}.csproj
+          dotnet restore ${{ env.PROJECT_FOLDER_WPF }}.csproj
+
+      - name: Build Projects
+        run: | 
+          dotnet build ${{ env.PROJECT_FOLDER }}.csproj -c Release --no-restore
+          dotnet build ${{ env.PROJECT_FOLDER_WPF }}.csproj -c Release --no-restore
+
+      - name: Create Release Files 
+        run: | 
+          dotnet publish ${{ env.PROJECT_FOLDER }}.csproj -c Release -r win-x64 -p:PublishSingleFile=true --self-contained false -o ./${{ env.PROJECT_FOLDER }}/publish
+          dotnet publish ${{ env.PROJECT_FOLDER_WPF }}.csproj -c Release -r win-x64 -p:PublishSingleFile=true --self-contained false -o ./${{ env.PROJECT_FOLDER_WPF }}/publish
+
+
+      - name: Create Tagged Release
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+          files: | 
+              ${{ env.PROJECT_FOLDER }}/publish/*.exe
+              ${{ env.PROJECT_FOLDER_WPF }}/publish/*.exe
