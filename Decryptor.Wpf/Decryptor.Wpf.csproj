@@ -2,9 +2,10 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows10.0.18362.0</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,24 +14,12 @@
     <Folder Include="MVVM\ViewModel\" />
     <Folder Include="MVVM\View\" />
     <Folder Include="Converters\" />
+    <Folder Include="Properties\" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Toolkit.Mvvm" Version="7.1.2" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.39" />
-    <PackageReference Include="ModernWpfUI" Version="0.9.4" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Page Remove="Properties\DesignTimeResources.xaml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Resource Include="Properties\DesignTimeResources.xaml">
-      <ContainsDesignTimeResources>True</ContainsDesignTimeResources>
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Resource>
   </ItemGroup>
 
 </Project>

@@ -1,9 +1,4 @@
-﻿using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Media;
-using Decryptor.Wpf.MVVM.ViewModel;
-using ModernWpf;
+﻿using Decryptor.Wpf.MVVM.ViewModel;
 
 namespace Decryptor.Wpf;
 
@@ -30,19 +25,6 @@ public partial class MainWindow : Window
 
             // Assuming you have one file that you care about, pass it off to whatever
             // handling code you have defined.
-        }
-    }
-
-    private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
-    {
-        var themeManager = ThemeManager.Current;
-        if (themeManager.ApplicationTheme == ApplicationTheme.Dark)
-        {
-            themeManager.ApplicationTheme = ApplicationTheme.Light;
-        }
-        else
-        {
-            themeManager.ApplicationTheme = ApplicationTheme.Dark;
         }
     }
 }

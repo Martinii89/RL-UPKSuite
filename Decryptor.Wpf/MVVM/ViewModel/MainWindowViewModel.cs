@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Windows;
 using Decryptor.Wpf.MVVM.Model;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
@@ -38,14 +37,23 @@ public partial class MainWindowViewModel : ObservableObject
     [ICommand]
     public void AddFiles(string[] files)
     {
-        foreach (var file in files)
+        var validFiles = files.Where(file => Path.GetExtension(file) == ".upk"); 
+        foreach (var file in validFiles)
         {
+
             if (!File.Exists(file))
             {
                 MessageBox.Show("Error: File does not exist");
             }
+            
 
             FilesAdded.Add(new FileReference() { FilePath = file });
         }
+    }
+
+    [ICommand]
+    private void DecryptFiles(IEnumerable<FileReference> files)
+    {
+
     }
 }
