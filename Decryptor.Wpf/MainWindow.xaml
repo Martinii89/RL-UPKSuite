@@ -8,27 +8,21 @@
         xmlns:converters="clr-namespace:Decryptor.Wpf.Converters"
         xmlns:model="clr-namespace:Decryptor.Wpf.MVVM.Model"
         mc:Ignorable="d"
-        Title="RocketLeague Package Decryption" Height="600" Width="900">
+        Title="RocketLeague Package Unpacker" Height="600" Width="900"
+        WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <converters:FileDropEventArgsConverter x:Key="FileDropEventArgsConverter" />
         <DataTemplate x:Key="FileListTemplate" DataType="model:FileReference">
-            <Grid Margin="5 0 0 0 ">
-                <Grid.RowDefinitions>
-                    <RowDefinition />
-                    <RowDefinition />
-                </Grid.RowDefinitions>
+            <Grid Margin="0 0 0 0 ">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition SharedSizeGroup="Text" />
                     <ColumnDefinition SharedSizeGroup="Button" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Text="{Binding FileName}" FontSize="14" HorizontalAlignment="Left" FontWeight="Bold"
-                           MaxWidth="100" />
-                <TextBlock TextTrimming="CharacterEllipsis" Grid.Row="1" Grid.Column="0" FontSize="10" FontWeight="Light"
+                <TextBlock Text="{Binding FileName}"
+                           Style="{StaticResource NormalText}" />
+                <TextBlock Grid.Row="0" Grid.Column="1"
+                           FontWeight="Light"
                            Text="{Binding FilePath}" />
-                <Button Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" HorizontalAlignment="Right" Content="X" FontWeight="Bold" Margin="0 5 0 0" Padding="7 0 7 0"
-                        Command="{Binding ElementName=FileListView, Path=DataContext.RemoveFileCommand}"
-                        CommandParameter="{Binding}">
-                </Button>
             </Grid>
         </DataTemplate>
     </Window.Resources>
@@ -37,60 +31,78 @@
     </Window.DataContext>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="90*"></RowDefinition>
-            <RowDefinition Height="10*"></RowDefinition>
+            <!--file list-->
+            <RowDefinition Height="*" />
+            <!--intput,output,settngs data-->
+            <RowDefinition Height="Auto" />
+            <!--status line-->
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="100"></ColumnDefinition>
-            <ColumnDefinition Width="*"></ColumnDefinition>
-        </Grid.ColumnDefinitions>
 
-
-
-        <ListView Grid.Row="0" Grid.ColumnSpan="2"
+        <!--File table-->
+        <ListView Grid.Row="0" Grid.Column="0"
                   SelectionMode="Extended"
                   Name="FileListView"
                   ItemsSource="{Binding FilesAdded}"
                   AllowDrop="True"
-                  Grid.IsSharedSizeScope="False"
-                  ItemTemplate="{StaticResource FileListTemplate}" Margin="0,8,0,0">
-            <ListView.ItemContainerStyle>
-                <Style TargetType="ListBoxItem">
-                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                </Style>
-            </ListView.ItemContainerStyle>
+
+                  Margin="0,5,0,5">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn
+                        Header="Name"
+                        Width="600"
+                        DisplayMemberBinding="{Binding FileName}" />
+                    <GridViewColumn
+                        Width="Auto"
+                        Header="Status" />
+                </GridView>
+            </ListView.View>
             <behaviors:Interaction.Triggers>
                 <behaviors:EventTrigger EventName="Drop">
                     <behaviors:InvokeCommandAction
                         Command="{Binding AddFilesCommand}"
                         EventArgsConverter="{StaticResource FileDropEventArgsConverter}" />
-                    <behaviors:ChangePropertyAction TargetObject="{Binding ElementName=UnderlineRect}"
-                                                    PropertyName="Visibility" Value="Hidden" />
+                    <behaviors:ChangePropertyAction TargetObject="{Binding ElementName=FileListView}"
+                                                    PropertyName="Visibility" Value="Visible" />
                 </behaviors:EventTrigger>
                 <behaviors:EventTrigger EventName="DragOver">
-                    <behaviors:ChangePropertyAction TargetObject="{Binding ElementName=UnderlineRect}"
-                                                    PropertyName="Visibility" Value="Visible">
-                    </behaviors:ChangePropertyAction>
+                    <behaviors:ChangePropertyAction TargetObject="{Binding ElementName=FileListView}"
+                                                    PropertyName="Visibility" Value="Visible" />
                 </behaviors:EventTrigger>
                 <behaviors:EventTrigger EventName="DragLeave">
-                    <behaviors:ChangePropertyAction TargetObject="{Binding ElementName=UnderlineRect}"
-                                                    PropertyName="Visibility" Value="Hidden" />
+                    <behaviors:ChangePropertyAction TargetObject="{Binding ElementName=FileListView}"
+                                                    PropertyName="Visibility" Value="Visible" />
                 </behaviors:EventTrigger>
             </behaviors:Interaction.Triggers>
-
         </ListView>
-        <Rectangle
-            x:Name="UnderlineRect"
-            Stretch="UniformToFill"
-            Opacity="0.75"
-            Visibility="Hidden"
-            Fill="#FFF1C7BB"
-            Grid.Row="0"
-            Grid.Column="0"
-            Grid.ColumnSpan="2"
-            IsHitTestVisible="False"
-            HorizontalAlignment="Stretch" />
-        <Button Grid.Row="1" Margin="5" Content="Select Files" Command="{Binding OpenFileDialogCommand}" />
-        <Button Grid.Column="1" Grid.Row="1" Margin="5" Command="{Binding DecryptFilesCommand}">GO</Button>
+        <StackPanel Grid.Row="1">
+
+            <StackPanel Orientation="Horizontal">
+                <Button Content="Add" Margin="5" />
+                <Button Content="Remove" Margin="5" />
+                <Button Margin="5" Content="Start" MinWidth="25" />
+            </StackPanel>
+            <Grid Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Label Grid.Column="0" Content="Output Folder" />
+                <TextBox Grid.Column="1" />
+                <Button Grid.Column="2" Content="..." MinWidth="25" />
+            </Grid>
+        </StackPanel>
+
+        <!-- input,output,settings selection-->
+
+
+        <!--Status Bar-->
+        <StatusBar Grid.Row="3">
+            <StatusBarItem>
+                <TextBlock Text="The status bar" />
+            </StatusBarItem>
+        </StatusBar>
     </Grid>
 </Window>
