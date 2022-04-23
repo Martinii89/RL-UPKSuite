@@ -1,8 +1,9 @@
 ﻿using System.Text;
+using Core.Serialization;
 
 namespace Core.Types;
 
-public class FString
+public class FString: IBinaryDeserializableClass
 {
     public string InnerString { get; private set; } = string.Empty;
     private bool _bIsUnicode;

@@ -7,10 +7,18 @@
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>false</ImplicitUsings>
+    <PackageIcon>wizard-unlock.png</PackageIcon>
+    <ApplicationIcon>Images\wizard-unlock.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Images\icons8-wizard-50.png" />
+    <None Remove="icons8-wizard-50.png" />
+    <None Remove="Images\wizard-unlock.png" />
+    <None Remove="wizard-unlock.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Images\wizard-unlock.ico" />
   </ItemGroup>
 
   <ItemGroup>
@@ -31,7 +39,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Images\icons8-wizard-50.png" />
+    <Resource Include="icons8-wizard-50.png" />
+    <Resource Include="Images\wizard-unlock.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </Resource>
+    <Resource Include="wizard-unlock.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Images\icons8-wizard-50.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

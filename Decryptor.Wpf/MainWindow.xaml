@@ -8,23 +8,11 @@
         xmlns:converters="clr-namespace:Decryptor.Wpf.Converters"
         xmlns:model="clr-namespace:Decryptor.Wpf.MVVM.Model"
         mc:Ignorable="d"
-        Icon="Images/icons8-wizard-50.png"
+        Icon="Images/wizard-unlock.png"
         Title="RocketLeague Package Unpacker" Height="600" Width="900"
         WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <converters:FileDropEventArgsConverter x:Key="FileDropEventArgsConverter" />
-        <DataTemplate x:Key="FileListTemplate" DataType="model:FileReference">
-            <Grid Margin="0 0 0 0 ">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition SharedSizeGroup="Text" />
-                    <ColumnDefinition SharedSizeGroup="Button" />
-                </Grid.ColumnDefinitions>
-                <TextBlock Text="{Binding FileName}" />
-                <TextBlock Grid.Row="0" Grid.Column="1"
-                           FontWeight="Light"
-                           Text="{Binding FilePath}" />
-            </Grid>
-        </DataTemplate>
     </Window.Resources>
     <Window.DataContext>
         <viewModel:MainWindowViewModel />
@@ -43,7 +31,7 @@
         <ListView Grid.Row="0" Grid.Column="0"
                   SelectionMode="Extended"
                   Name="FileListView"
-                  ItemsSource="{Binding FilesAdded}"
+                  ItemsSource="{Binding  FilesAdded }"
                   AllowDrop="True"
                   Margin="0,5,0,5">
             <ListView.View>
@@ -51,34 +39,55 @@
                     <GridViewColumn
                         Header="Name"
                         Width="600"
-                        DisplayMemberBinding="{Binding FileName}" />
+                        DisplayMemberBinding="{Binding FileName}">
+                    </GridViewColumn>
                     <GridViewColumn
                         Width="150"
                         Header="Status"
-                        DisplayMemberBinding="{Binding UnpackResult, Converter={converters:UnpackResultValueConverter}}" />
+                        DisplayMemberBinding="{Binding UnpackResult}" />
                 </GridView>
             </ListView.View>
+            <!--fail success grouping-->
+            <ListView.GroupStyle>
+                <GroupStyle>
+                    <GroupStyle.ContainerStyle>
+                        <Style TargetType="{x:Type GroupItem}">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate>
+                                        <Expander IsExpanded="True">
+                                            <Expander.Header>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="{Binding Name}" FontWeight="Bold"
+                                                               Foreground="Gray" FontSize="14"
+                                                               VerticalAlignment="Bottom" />
+                                                    <TextBlock Text="{Binding ItemCount}" FontSize="14"
+                                                               Foreground="Green" FontWeight="Bold" FontStyle="Italic"
+                                                               Margin="10,0,0,0" VerticalAlignment="Bottom" />
+                                                    <TextBlock Text=" item(s)" FontSize="10" Foreground="Silver"
+                                                               FontStyle="Italic" VerticalAlignment="Bottom" />
+                                                </StackPanel>
+                                            </Expander.Header>
+                                            <ItemsPresenter />
+                                        </Expander>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </GroupStyle.ContainerStyle>
+                </GroupStyle>
+            </ListView.GroupStyle>
             <behaviors:Interaction.Triggers>
                 <behaviors:EventTrigger EventName="Drop">
                     <behaviors:InvokeCommandAction
                         Command="{Binding AddFilesCommand}"
                         EventArgsConverter="{StaticResource FileDropEventArgsConverter}" />
-                    <behaviors:ChangePropertyAction TargetObject="{Binding ElementName=FileListView}"
-                                                    PropertyName="Visibility" Value="Visible" />
-                </behaviors:EventTrigger>
-                <behaviors:EventTrigger EventName="DragOver">
-                    <behaviors:ChangePropertyAction TargetObject="{Binding ElementName=FileListView}"
-                                                    PropertyName="Visibility" Value="Visible" />
-                </behaviors:EventTrigger>
-                <behaviors:EventTrigger EventName="DragLeave">
-                    <behaviors:ChangePropertyAction TargetObject="{Binding ElementName=FileListView}"
-                                                    PropertyName="Visibility" Value="Visible" />
                 </behaviors:EventTrigger>
             </behaviors:Interaction.Triggers>
         </ListView>
         <StackPanel Grid.Row="1">
-
-            <StackPanel Orientation="Horizontal" >
+            <!--add - remove - unpack-->
+            <StackPanel Orientation="Horizontal">
                 <Button Content="Add"
                         Margin="5"
                         Padding="4"
@@ -94,6 +103,7 @@
                         MinWidth="25"
                         Command="{Binding DecryptFilesCommand}" />
             </StackPanel>
+            <!--output folder selection-->
             <Grid Margin="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -113,11 +123,11 @@
                 <ItemsPanelTemplate>
                     <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                     </Grid>
                 </ItemsPanelTemplate>
@@ -126,7 +136,7 @@
                 <TextBlock Text="{Binding StatusText}" />
             </StatusBarItem>
             <StatusBarItem Grid.Column="1" HorizontalContentAlignment="Stretch">
-                <ProgressBar Value="{Binding UnpackProgress}" Height="18"/>
+                <ProgressBar Value="{Binding UnpackProgress}" Height="18" />
             </StatusBarItem>
         </StatusBar>
     </Grid>

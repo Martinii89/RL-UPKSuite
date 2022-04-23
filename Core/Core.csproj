@@ -11,4 +11,10 @@
     <Folder Include="Streams\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="keys.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

@@ -4,18 +4,22 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Data;
 using System.Windows.Forms;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.RocketLeague;
 using Core.RocketLeague.Decryption;
 using Decryptor.Wpf.MVVM.Model;
+using Binding = System.Windows.Data.Binding;
 
 namespace Decryptor.Wpf.MVVM.ViewModel;
 
 public partial class MainWindowViewModel : ObservableObject
 {
     public ObservableCollection<FileReference> FilesAdded { get; } = new();
+
+    public ICollectionView FilesAddedView;
 
     [ObservableProperty]
     private string _statusText = "Ready";
@@ -28,6 +32,11 @@ public partial class MainWindowViewModel : ObservableObject
 
     private BackgroundWorker? _unpackBackgroundWorker;
 
+    public MainWindowViewModel()
+    {
+        FilesAddedView = CollectionViewSource.GetDefaultView(FilesAdded);
+        FilesAddedView.GroupDescriptions.Add(new PropertyGroupDescription("UnpackResult"));
+    }
 
     [ICommand]
     public void OpenFileDialog()
@@ -131,11 +140,10 @@ public partial class MainWindowViewModel : ObservableObject
             var unpacked = new PackageUnpacker(fileStream, decryptedStream, decryptionProvider);
             fileReference.UnpackResult = unpacked.DeserializationState switch
             {
-                DeserializationState.Success => UnpackResult.Success,
-                _ => UnpackResult.Fail
+                DeserializationState.Success => "Success",
+                _ => "Fail"
             };
             var counter = Interlocked.Increment(ref filesProcessed);
-            ////Thread.Sleep(1000);
             worker.ReportProgress((int) ((counter) / filesToProcess * 100), fileReference);
         });
 
@@ -148,6 +156,11 @@ public partial class MainWindowViewModel : ObservableObject
     {
         UnpackProgress = e.ProgressPercentage;
         StatusText = $"Unpacking: {e.ProgressPercentage}%";
+        //var fileRef = e.UserState as FileReference;
+        //if (fileRef != null)
+        //{
+        //    fileRef.
+        //}
     }
 
     private void WorkerWorkCompleted(object? sender, RunWorkerCompletedEventArgs e)
@@ -155,7 +168,7 @@ public partial class MainWindowViewModel : ObservableObject
         UnpackProgress = 0;
         StatusText = "Done";
         DecryptFilesCommand.NotifyCanExecuteChanged();
-
+        FilesAddedView.Refresh();
         Process.Start("explorer.exe", OutputDirectory);
     }
 }
