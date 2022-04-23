@@ -8,6 +8,7 @@
         xmlns:converters="clr-namespace:Decryptor.Wpf.Converters"
         xmlns:model="clr-namespace:Decryptor.Wpf.MVVM.Model"
         mc:Ignorable="d"
+        Icon="Images/icons8-wizard-50.png"
         Title="RocketLeague Package Unpacker" Height="600" Width="900"
         WindowStartupLocation="CenterScreen">
     <Window.Resources>
@@ -18,8 +19,7 @@
                     <ColumnDefinition SharedSizeGroup="Text" />
                     <ColumnDefinition SharedSizeGroup="Button" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Text="{Binding FileName}"
-                           Style="{StaticResource NormalText}" />
+                <TextBlock Text="{Binding FileName}" />
                 <TextBlock Grid.Row="0" Grid.Column="1"
                            FontWeight="Light"
                            Text="{Binding FilePath}" />
@@ -33,7 +33,7 @@
         <Grid.RowDefinitions>
             <!--file list-->
             <RowDefinition Height="*" />
-            <!--intput,output,settngs data-->
+            <!--input,output,settings-->
             <RowDefinition Height="Auto" />
             <!--status line-->
             <RowDefinition Height="Auto" />
@@ -45,7 +45,6 @@
                   Name="FileListView"
                   ItemsSource="{Binding FilesAdded}"
                   AllowDrop="True"
-
                   Margin="0,5,0,5">
             <ListView.View>
                 <GridView>
@@ -54,8 +53,9 @@
                         Width="600"
                         DisplayMemberBinding="{Binding FileName}" />
                     <GridViewColumn
-                        Width="Auto"
-                        Header="Status" />
+                        Width="150"
+                        Header="Status"
+                        DisplayMemberBinding="{Binding UnpackResult, Converter={converters:UnpackResultValueConverter}}" />
                 </GridView>
             </ListView.View>
             <behaviors:Interaction.Triggers>
@@ -78,10 +78,21 @@
         </ListView>
         <StackPanel Grid.Row="1">
 
-            <StackPanel Orientation="Horizontal">
-                <Button Content="Add" Margin="5" />
-                <Button Content="Remove" Margin="5" />
-                <Button Margin="5" Content="Start" MinWidth="25" />
+            <StackPanel Orientation="Horizontal" >
+                <Button Content="Add"
+                        Margin="5"
+                        Padding="4"
+                        Command="{Binding OpenFileDialogCommand}" />
+                <Button Content="Remove"
+                        Margin="5"
+                        Padding="4"
+                        Command="{Binding RemoveSelectedCommand}"
+                        CommandParameter="{Binding ElementName=FileListView, Path=SelectedItems}" />
+                <Button Margin="5"
+                        Padding="4"
+                        Content="Unpack"
+                        MinWidth="25"
+                        Command="{Binding DecryptFilesCommand}" />
             </StackPanel>
             <Grid Margin="5">
                 <Grid.ColumnDefinitions>
@@ -90,18 +101,32 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <Label Grid.Column="0" Content="Output Folder" />
-                <TextBox Grid.Column="1" />
-                <Button Grid.Column="2" Content="..." MinWidth="25" />
+                <TextBox Grid.Column="1" Text="{Binding OutputDirectory}" />
+                <Button Grid.Column="2" Content="..." MinWidth="25"
+                        Command="{Binding OpenFolderSelectionDialogCommand}" />
             </Grid>
         </StackPanel>
 
-        <!-- input,output,settings selection-->
-
-
         <!--Status Bar-->
-        <StatusBar Grid.Row="3">
+        <StatusBar Grid.Row="2">
+            <StatusBar.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                    </Grid>
+                </ItemsPanelTemplate>
+            </StatusBar.ItemsPanel>
             <StatusBarItem>
-                <TextBlock Text="The status bar" />
+                <TextBlock Text="{Binding StatusText}" />
+            </StatusBarItem>
+            <StatusBarItem Grid.Column="1" HorizontalContentAlignment="Stretch">
+                <ProgressBar Value="{Binding UnpackProgress}" Height="18"/>
             </StatusBarItem>
         </StatusBar>
     </Grid>

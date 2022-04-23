@@ -14,7 +14,8 @@ public enum DeserializationState
     None = 0,
     Header = 1,
     Decrypted = 2,
-    Inflated = 4
+    Inflated = 4,
+    Success = Header | Decrypted | Inflated
 }
 
 public class PackageUnpacker
