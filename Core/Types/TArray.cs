@@ -4,21 +4,36 @@ using Core.Serialization;
 
 namespace Core.Types;
 
-// List wrapper with Unreal array serialization methods
+
+/// <summary>
+/// List wrapper with Unreal array serialization methods
+/// </summary>
+/// <typeparam name="T"></typeparam>
 public class TArray<T> : List<T> where T : new()
 {
     private readonly Func<T>? _constructor;
 
+    /// <summary>
+    /// Constructs a empty array
+    /// </summary>
     public TArray()
     {
     }
 
+    /// <summary>
+    /// Constructs a empty array with a element constructor used when deserializing the elements
+    /// </summary>
+    /// <param name="inConstructor">Element constructor</param>
     public TArray(Func<T> inConstructor)
     {
         _constructor = inConstructor;
     }
 
-
+    /// <summary>
+    /// Deserialize the array from the stream. Starting with the element count, and then the elements. 
+    /// </summary>
+    /// <param name="reader"></param>
+    /// <exception cref="NotImplementedException">Thrown for unsupported elements</exception>
     public void Deserialize(BinaryReader reader)
     {
         var length = reader.ReadInt32();

@@ -8,20 +8,46 @@ using Core.Types.FileSummeryInner;
 
 namespace Core.RocketLeague;
 
+/// <summary>
+///     Indicates the result of a <see cref="PackageUnpacker" /> unpacking.
+/// </summary>
 [Flags]
 public enum DeserializationState
 {
+    /// <summary>
+    ///     No unpacking has been done
+    /// </summary>
     None = 0,
+
+    /// <summary>
+    ///     Header has been deserialized
+    /// </summary>
     Header = 1,
+
+    /// <summary>
+    ///     Encrypted data has been decrypted
+    /// </summary>
     Decrypted = 2,
+
+    /// <summary>
+    ///     Compressed data has been uncompressed
+    /// </summary>
     Inflated = 4,
+
+    /// <summary>
+    ///     Unpacking was successful
+    /// </summary>
     Success = Header | Decrypted | Inflated
 }
 
+/// <summary>
+///     Unpacks a Rocket League encrypted and compressed UnrealPackage.
+/// </summary>
 public class PackageUnpacker
 {
     /// <summary>
-    /// Starts unpacking the data from the input stream. It does little to no checks to verify it is a RocketLeague package. Check the Deserialization state or the Valid property to know if unpacking was successful
+    ///     Starts unpacking the data from the input stream. It does little to no checks to verify it is a RocketLeague
+    ///     package. Check the Deserialization state or the Valid property to know if unpacking was successful
     /// </summary>
     /// <param name="inputStream">The package content stream</param>
     /// <param name="outputStream">Unpacked package will be written to this</param>
@@ -29,25 +55,26 @@ public class PackageUnpacker
     public PackageUnpacker(Stream inputStream, Stream outputStream, IDecrypterProvider decrypterProvider)
     {
         var inputBinaryReader = new BinaryReader(inputStream);
+        var outputBinaryWriter = new BinaryWriter(outputStream);
 
-        ProcessFileSummary(outputStream, inputBinaryReader);
+        ProcessFileSummary(outputBinaryWriter, inputBinaryReader);
 
-        ProcessDecryptedData(outputStream, inputBinaryReader, decrypterProvider);
+        ProcessDecryptedData(outputBinaryWriter, inputBinaryReader, decrypterProvider);
         if (!DeserializationState.HasFlag(DeserializationState.Decrypted))
         {
             return;
         }
 
-        ProcessCompressedData(outputStream, inputBinaryReader);
+        ProcessCompressedData(outputBinaryWriter, inputBinaryReader);
     }
 
     /// <summary>
-    /// The Parsed FileSummary of this package
+    ///     The Parsed FileSummary of this package
     /// </summary>
     public FileSummary FileSummary { get; } = new();
 
     /// <summary>
-    /// The state of unpacking. Anything but DeserializationState.Inflated would indicate some kind of error.
+    ///     The state of unpacking. Anything but DeserializationState.Inflated would indicate some kind of error.
     /// </summary>
     public DeserializationState DeserializationState { get; private set; } = DeserializationState.None;
 
@@ -62,11 +89,11 @@ public class PackageUnpacker
     }
 
     /// <summary>
-    /// Returns true if we successfully unpacked the package
+    ///     Returns true if we successfully unpacked the package
     /// </summary>
     public bool Valid => DeserializationState.HasFlag(DeserializationState.Inflated);
 
-    private void ProcessCompressedData(Stream outputStream, BinaryReader inputBinaryReader)
+    private void ProcessCompressedData(BinaryWriter outputStream, BinaryReader inputBinaryReader)
     {
         var uncompressedDataBuffer = new byte[FileSummary.CompressedChunks.Sum(info => info.UncompressedSize)];
         var uncompressOutputStream = new MemoryStream(uncompressedDataBuffer);
@@ -106,11 +133,15 @@ public class PackageUnpacker
         DeserializationState |= DeserializationState.Inflated;
 
         Debug.Assert(uncompressOutputStream.Position == uncompressOutputStream.Length);
-        outputStream.Position = firstUncompressedOffset;
+        outputStream.BaseStream.Position = firstUncompressedOffset;
         outputStream.Write(uncompressedDataBuffer);
+
+        // Reset the compression flag to indicate this package is no longer compressed.
+        outputStream.BaseStream.Position = FileSummary.CompressionFlagsOffset;
+        outputStream.Write((int) ECompressionFlags.COMPRESS_None);
     }
 
-    private void ProcessDecryptedData(Stream outputStream, BinaryReader inputBinaryReader, IDecrypterProvider decrypterProvider)
+    private void ProcessDecryptedData(BinaryWriter outputStream, BinaryReader inputBinaryReader, IDecrypterProvider decrypterProvider)
     {
         byte[] decryptedData;
         try
@@ -132,7 +163,7 @@ public class PackageUnpacker
         DeserializationState |= DeserializationState.Decrypted;
     }
 
-    private void ProcessFileSummary(Stream outputStream, BinaryReader inputBinaryReader)
+    private void ProcessFileSummary(BinaryWriter outputStream, BinaryReader inputBinaryReader)
     {
         FileSummary.Deserialize(inputBinaryReader);
         inputBinaryReader.BaseStream.Position = 0;
@@ -145,7 +176,6 @@ public class PackageUnpacker
             throw new InvalidDataException("Package compression type is unsupported ");
         }
     }
-
 
     private byte[] DecryptData(BinaryReader reader, IDecrypterProvider decrypterProvider)
     {

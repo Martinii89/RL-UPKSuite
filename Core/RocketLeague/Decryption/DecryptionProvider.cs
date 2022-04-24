@@ -5,12 +5,18 @@ using System.Security.Cryptography;
 
 namespace Core.RocketLeague.Decryption;
 
+/// <summary>
+/// Interface for providing decryption keys and <see cref="ICryptoTransform"/> instances for decrypting rocket league packages
+/// </summary>
 public interface IDecrypterProvider
 {
     List<byte[]> DecryptionKeys { get; }
     ICryptoTransform GetCryptoTransform(byte[] key);
 }
 
+/// <summary>
+/// Basic decryption provider. It can read a file containing Base64 encoded decryption keys. It has a thread-safe caches of decryptors for optimizing reuse of the same keys.
+/// </summary>
 public class DecryptionProvider : IDecrypterProvider
 {
     private class ByteArrayEqualityComparer : EqualityComparer<byte[]>
@@ -20,7 +26,7 @@ public class DecryptionProvider : IDecrypterProvider
         public override int GetHashCode(byte[] obj) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(obj);
     }
 
-    public static readonly byte[] DefaultKey =
+    private static readonly byte[] DefaultKey =
     {
         0xC7, 0xDF, 0x6B, 0x13, 0x25, 0x2A, 0xCC, 0x71,
         0x47, 0xBB, 0x51, 0xC9, 0x8A, 0xD7, 0xE3, 0x4B,
@@ -30,8 +36,16 @@ public class DecryptionProvider : IDecrypterProvider
 
     private readonly ConcurrentDictionary<byte[], ICryptoTransform> _decryptorCache = new(new ByteArrayEqualityComparer());
 
+    /// <summary>
+    /// The list of decryption keys this provider knows about
+    /// </summary>
     public List<byte[]> DecryptionKeys { get; } = new() { DefaultKey };
 
+    /// <summary>
+    /// Return a decryptor instance. The instances are cached in a thread safe container.
+    /// </summary>
+    /// <param name="key">The key used for decryption</param>
+    /// <returns></returns>
     public ICryptoTransform GetCryptoTransform(byte[] key)
     {
         if (_decryptorCache.TryGetValue(key, out var cacheTransform))
@@ -51,6 +65,10 @@ public class DecryptionProvider : IDecrypterProvider
         return cryptoTransform;
     }
 
+    /// <summary>
+    /// Constructs the decryption provider. Taking in a path to a file with base64 encoded keys.
+    /// </summary>
+    /// <param name="keyFilePath">Path key file</param>
     public DecryptionProvider(string keyFilePath)
     {
         if (!File.Exists(keyFilePath))

@@ -8,7 +8,12 @@
 
   <ItemGroup>
     <Folder Include="Compression\" />
-    <Folder Include="Streams\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="ReachFramework">
+      <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\6.0.4\ref\net6.0\ReachFramework.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>

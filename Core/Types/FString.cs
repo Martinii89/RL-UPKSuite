@@ -3,11 +3,18 @@ using Core.Serialization;
 
 namespace Core.Types;
 
+/// <summary>
+/// Wrapper for strings stored in unreal packages.
+/// </summary>
 public class FString: IBinaryDeserializableClass
 {
-    public string InnerString { get; private set; } = string.Empty;
+    private string InnerString { get; set; } = string.Empty;
     private bool _bIsUnicode;
 
+    /// <summary>
+    /// Deserialize from the stream. Reads the string length as a int32 and then the string characters 
+    /// </summary>
+    /// <param name="reader"></param>
     public void Deserialize(BinaryReader reader)
     {
         var length = reader.ReadInt32();
@@ -28,18 +35,22 @@ public class FString: IBinaryDeserializableClass
         }
     }
 
-    public void DeserializeUnicode(BinaryReader reader, int length)
+    private void DeserializeUnicode(BinaryReader reader, int length)
     {
         var data = reader.ReadBytes(-length);
         InnerString = Encoding.Unicode.GetString(data, 0, data.Length - 2);
     }
 
-    public void DeserializeAscii(BinaryReader reader, int length)
+    private void DeserializeAscii(BinaryReader reader, int length)
     {
         var data = reader.ReadBytes(length);
         InnerString = Encoding.ASCII.GetString(data, 0, data.Length - 1);
     }
 
+    /// <summary>
+    /// Returns the deserialized string
+    /// </summary>
+    /// <returns></returns>
     public override string ToString()
     {
         return InnerString;
