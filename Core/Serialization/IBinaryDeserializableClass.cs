@@ -1,6 +1,4 @@
-﻿using Core.Streams;
-
-namespace Core.Serialization;
+﻿namespace Core.Serialization;
 
 /// <summary>
 /// This class can be deserialized from a specified stream.

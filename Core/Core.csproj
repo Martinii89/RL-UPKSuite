@@ -8,6 +8,12 @@
 
   <ItemGroup>
     <Folder Include="Compression\" />
+    <Folder Include="UnrealStream\" />
+    <Folder Include="Types\PackageTables\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Syroot.BinaryData" Version="5.2.2" />
   </ItemGroup>
 
   <ItemGroup>

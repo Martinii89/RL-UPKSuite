@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Core\Core.csproj", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Decryptor.Wpf", "Decryptor.Wpf\Decryptor.Wpf.csproj", "{2660AE06-92C8-4A31-8266-DD2AEF25E4BF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Test", "Core.Test\Core.Test.csproj", "{56923B81-5599-4595-A33C-0FD4754028AB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core.Test", "Core.Test\Core.Test.csproj", "{56923B81-5599-4595-A33C-0FD4754028AB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
