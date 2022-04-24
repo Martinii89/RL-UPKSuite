@@ -31,7 +31,16 @@ namespace Core.Types.Tests
             names.Count.Should().Be(unpacked.FileSummary.NameCount);
             names.First().Name.Should().Be("ArrayProperty");
 
-            throw new NotImplementedException("not done");
+            var imports = unrealPackage.ImportTable.Imports;
+            imports.Count.Should().Be(unpacked.FileSummary.ImportCount);
+            imports.First().ClassPackage.NameIndex.Should().Be(2);
+            imports[5].ObjectName.NameIndex.Should().Be(12);
+
+            var exports = unrealPackage.ExportTable.Exports;
+            exports.Count.Should().Be(unpacked.FileSummary.ExportCount);
+            exports[0].SerialSize.Should().Be(44);
+            exports[1].SerialSize.Should().Be(12);
+
 
         }
     }

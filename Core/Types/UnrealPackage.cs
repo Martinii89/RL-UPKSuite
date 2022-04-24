@@ -18,19 +18,21 @@ public class UnrealPackage: IBinaryDeserializableClass
     {
         Header.Deserialize(reader);
 
-        reader.BaseStream.Position = Header.NameOffset;
         NameTable = new NameTable(reader.BaseStream, Header.NameOffset, Header.NameCount);
+        ImportTable = new ImportTable(reader.BaseStream, Header.ImportOffset, Header.ImportCount);
+        ExportTable= new ExportTable(reader.BaseStream, Header.ExportOffset, Header.ExportCount);
 
-        //reader.BaseStream.Position = Header.ImportOffset;
-        //ImportTable.Deserialize(reader);
+        if (Header.CookerVersion == 0)
+        {
+            reader.BaseStream.Position = Header.DependsOffset;
+            DependsTable.InitializeSize(Header.ExportCount);
+            DependsTable.Deserialize(reader);
 
-        //reader.BaseStream.Position = Header.ExportOffset;
-        //ExportTable.Deserialize(reader);
+            reader.BaseStream.Position = Header.ThumbnailTableOffset;
+            ThumbnailTable.Deserialize(reader.BaseStream);
+        }
 
-        //reader.BaseStream.Position = Header.DependsOffset;
-        //DependsTable.Deserialize(reader);
 
-        //reader.BaseStream.Position = Header.ThumbnailTableOffset;
-        //ThumbnailTable.Deserialize(reader);
+
     }
 }

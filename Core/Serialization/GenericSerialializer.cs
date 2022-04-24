@@ -1,4 +1,5 @@
 ﻿using Core.Types;
+using Syroot.BinaryData;
 
 namespace Core.Serialization;
 
@@ -25,6 +26,24 @@ public static class GenericSerializer
                 return reader.ReadInt32();
             case ushort:
                 return reader.ReadUInt16();
+            default:
+                throw new NotImplementedException();
+        }
+    }
+
+    public static void Serialize<T>(T elem, Stream stream) where T : new()
+    {
+        switch (elem)
+        {
+            case IBinarySerializableClass serializable:
+                serializable.Serialize(stream);
+                break;
+            case int i:
+                stream.WriteInt32(i);
+                break;
+            case ushort s:
+                stream.WriteUInt16(s);
+                break;
             default:
                 throw new NotImplementedException();
         }

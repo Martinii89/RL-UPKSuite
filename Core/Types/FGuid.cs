@@ -1,4 +1,6 @@
-﻿namespace Core.Types;
+﻿using Syroot.BinaryData;
+
+namespace Core.Types;
 
 /// <summary>
 /// Unreal specific GUID struct.
@@ -31,5 +33,13 @@ public class FGuid
         B = reader.ReadUInt32();
         C = reader.ReadUInt32();
         D = reader.ReadUInt32();
+    }
+
+    public void Serialize(Stream stream)
+    {
+        stream.WriteUInt32(A);
+        stream.WriteUInt32(B);
+        stream.WriteUInt32(C);
+        stream.WriteUInt32(D);
     }
 }

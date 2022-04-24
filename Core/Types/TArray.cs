@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using System.Diagnostics;
 using Core.Serialization;
+using Syroot.BinaryData;
 
 namespace Core.Types;
 
@@ -47,6 +48,15 @@ public class TArray<T> : List<T> where T : new()
             Debug.Assert(elem != null, nameof(elem) + " != null");
             elem = (T) GenericSerializer.Deserialize(elem, reader);
             Add(elem);
+        }
+    }
+
+    public void Serialize(Stream stream)
+    {
+        stream.WriteInt32(Count);
+        foreach (var elem in this)
+        {
+            GenericSerializer.Serialize(elem, stream);
         }
     }
 }

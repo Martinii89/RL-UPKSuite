@@ -7,3 +7,11 @@ public interface IBinaryDeserializableClass
 {
     void Deserialize(BinaryReader reader);
 }
+
+/// <summary>
+/// This class can be serialized to a stream
+/// </summary>
+public interface IBinarySerializableClass
+{
+    void Serialize(Stream reader);
+}
