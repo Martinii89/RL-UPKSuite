@@ -56,6 +56,11 @@ public class SerializerCollection : ISerializerCollection
 
     private void AddSerializer(Type type, DuplicateImplementationResolution duplicateImplementationResolution)
     {
+        var possibleInterfaces = type.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == SerializerInterfaceType).ToList();
+        if (possibleInterfaces.Count > 1)
+        {
+            throw new NotImplementedException("Serializers implementing serialization for multiple types currently not supported");
+        }
         foreach (var implementedInterface in type.GetInterfaces())
         {
             if (!implementedInterface.IsGenericType || implementedInterface.GetGenericTypeDefinition() != SerializerInterfaceType)

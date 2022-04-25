@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using FluentAssertions;
 using Xunit;
 
@@ -96,7 +97,7 @@ namespace Core.Serialization.Tests
         }
 
         [Fact(Skip = "Inhertiance in serializers not supported")]
-        public void AddDefaultSerializersFromAssemblyTest_FindsInheritedUntaggedSerializer()
+        public void AddSerializersFromAssemblyTest_FindsInheritedUntaggedSerializer()
         {
             // Arrange
             var collection = new SerializerCollection();
@@ -107,6 +108,20 @@ namespace Core.Serialization.Tests
             // Assert 
             collection.Serializers.Should().NotBeEmpty();
             collection.Serializers.Should().ContainKey(typeof(InheritTest)).WhoseValue.Should().BeOfType<MyInheritTestSerializer>();
+        }
+
+        [Fact()]
+        public void AddtSerializersFromAssemblyTest_InheritedSerializers_ThrowsNotImplemented()
+        {
+            // Arrange
+            var collection = new SerializerCollection();
+
+            // Act
+            var action = () => collection.AddSerializersFromAssembly(typeof(SerializerCollectionTests).Assembly, "InheritGroup");
+
+            // Assert 
+            action.Should().ThrowExactly<NotImplementedException>()
+                .WithMessage("Serializers implementing serialization for multiple types currently not supported");
         }
     }
 
