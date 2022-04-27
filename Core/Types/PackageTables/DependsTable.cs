@@ -4,7 +4,7 @@ namespace Core.Types.PackageTables;
 
 /// <summary>
 ///     A Depends table contains a array of ints for every exported item.
-///     The ints are object indexes (just importa maybe?) to objects the export depends on.
+///     The ints are object indexes (just imports maybe?) to objects the export depends on.
 ///     This table is not present in cooked packages
 /// </summary>
 public class DependsTable : IBinaryDeserializableClass
@@ -20,9 +20,12 @@ public class DependsTable : IBinaryDeserializableClass
     ///     together with the depends table serial data.
     /// </summary>
     /// <param name="reader"></param>
-    public void Deserialize(BinaryReader reader)
+    public void Deserialize(Stream reader)
     {
-        foreach (var depend in Depends) depend.Deserialize(reader);
+        foreach (var depend in Depends)
+        {
+            depend.Deserialize(reader);
+        }
     }
 
     /// <summary>
@@ -31,6 +34,9 @@ public class DependsTable : IBinaryDeserializableClass
     /// <param name="exportCount"></param>
     public void InitializeSize(int exportCount)
     {
-        for (var i = 0; i < exportCount; i++) Depends.Add(new TArray<int>());
+        for (var i = 0; i < exportCount; i++)
+        {
+            Depends.Add(new TArray<int>());
+        }
     }
 }

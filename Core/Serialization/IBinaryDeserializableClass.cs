@@ -9,7 +9,7 @@ public interface IBinaryDeserializableClass
     ///     Reads values from the stream and sets serialized properties of the implementing class
     /// </summary>
     /// <param name="reader"></param>
-    void Deserialize(BinaryReader reader);
+    void Deserialize(Stream reader);
 }
 
 /// <summary>

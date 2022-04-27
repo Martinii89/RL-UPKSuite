@@ -1,6 +1,4 @@
-﻿using Syroot.BinaryData;
-
-namespace Core.Types.PackageTables;
+﻿namespace Core.Types.PackageTables;
 
 /// <summary>
 ///     References either a import or export object.

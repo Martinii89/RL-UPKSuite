@@ -9,7 +9,8 @@
 
   <ItemGroup>
     <Folder Include="Compression\" />
-    <Folder Include="UnrealStream\" />
+    <Folder Include="Serialization\Default\" />
+    <Folder Include="Serialization\RocketLeage\" />
     <Folder Include="Types\PackageTables\" />
   </ItemGroup>
 

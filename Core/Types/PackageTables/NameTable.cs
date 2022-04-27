@@ -1,5 +1,4 @@
-﻿using Core.UnrealStream;
-using Syroot.BinaryData;
+﻿using Core.Extensions;
 
 namespace Core.Types.PackageTables;
 
@@ -62,7 +61,7 @@ public class NameTableItem
     public string Name { get; set; } = string.Empty;
 
     /// <summary>
-    ///     A bitflag of unknown significance
+    ///     A bit-flag of unknown significance
     /// </summary>
     public ulong Flags { get; set; }
 

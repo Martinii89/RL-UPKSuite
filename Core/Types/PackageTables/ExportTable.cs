@@ -1,6 +1,4 @@
-﻿using Syroot.BinaryData;
-
-namespace Core.Types.PackageTables;
+﻿namespace Core.Types.PackageTables;
 
 /// <summary>
 ///     The Export table contains a <see cref="ExportTableItem" /> for every exported object in a package
@@ -74,7 +72,7 @@ public class ExportTableItem
     }
 
     /// <summary>
-    ///     Injects all the members in the constructor. Used for unittests and construction injection.
+    ///     Injects all the members in the constructor. Used for unit tests and construction injection.
     /// </summary>
     /// <param name="classIndex"></param>
     /// <param name="superIndex"></param>
@@ -182,10 +180,8 @@ public class ExportTableItem
         SerialSize = stream.ReadInt32();
         SerialOffset = stream.ReadInt64();
         ExportFlags = stream.ReadInt32();
-        // TODO fix that interface
-        var binaryReader = new BinaryReader(stream);
-        NetObjects.Deserialize(binaryReader);
-        PackageGuid.Deserialize(binaryReader);
+        NetObjects.Deserialize(stream);
+        PackageGuid.Deserialize(stream);
         PackageFlags = stream.ReadInt32();
     }
 

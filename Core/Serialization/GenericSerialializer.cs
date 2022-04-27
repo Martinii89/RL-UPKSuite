@@ -1,5 +1,4 @@
 ﻿using Core.Types;
-using Syroot.BinaryData;
 
 namespace Core.Serialization;
 
@@ -16,7 +15,7 @@ public static class GenericSerializer
     /// <param name="reader"></param>
     /// <returns></returns>
     /// <exception cref="NotImplementedException">Thrown for unsupported element types</exception>
-    public static object Deserialize(object o, BinaryReader reader)
+    public static object Deserialize(object o, Stream reader)
     {
         switch (o)
         {

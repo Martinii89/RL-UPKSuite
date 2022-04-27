@@ -1,30 +1,16 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using Core.Compression;
+using Core.Serialization.Default;
+using Core.Types;
 using FluentAssertions;
 using Xunit;
 
-namespace Core.Types.Tests;
+namespace Core.Serialization.RocketLeage.Tests;
 
-public class FileSummaryTests
+public class FileSummarySerializerTests
 {
     [Fact]
-    public void Deserialize_BadMagicTag_Throws()
-    {
-        // Arrange
-        var testStream = new MemoryStream(new byte[] { 0, 0, 0, 0, 0, 0 });
-        var sut = new FileSummary();
-        // Act
-
-        var act = () => sut.Deserialize(testStream);
-
-        // Assert 
-        act.Should().ThrowExactly<Exception>()
-            .WithMessage("Not a valid Unreal Engine package");
-    }
-
-    [Fact]
-    public void Deserialize_FullHeaderCheck_AllFieldsCorrect()
+    public void FileSummarySerializerTest_CanDeserializeCorrectData()
     {
         // Arrange
         // File    : D:\Projects\RL UPKSuite\Core.Test\TestData\RocketPass_Premium_T_SF.upk
@@ -45,10 +31,12 @@ public class FileSummaryTests
         };
         var reader = new MemoryStream(headerData);
 
-        var sut = new FileSummary();
+        var mainSerializer = new FileSummarySerializer(new FGuidSerializer(), new FGenerationsSerializer(), new FCompressedChunkInfoSerializer(),
+            new FStringArraySerializer(), new FTextureAllocationsSerializer(new IntArraySerializer()));
 
         // Act
-        sut.Deserialize(reader);
+        var sut = mainSerializer.Deserialize(reader);
+
         // Assert 
         sut.Tag.Should().Be(FileSummary.PackageFileTag);
         sut.FileVersion.Should().Be(868);

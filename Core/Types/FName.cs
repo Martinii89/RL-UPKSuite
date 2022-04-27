@@ -1,5 +1,4 @@
 ﻿using Core.Types.PackageTables;
-using Syroot.BinaryData;
 
 namespace Core.Types;
 

@@ -1,5 +1,4 @@
-﻿using Core.UnrealStream;
-using Syroot.BinaryData;
+﻿using Core.Extensions;
 
 namespace Core.Types.PackageTables;
 
@@ -126,6 +125,9 @@ public class ThumbnailData
         stream.Write(SizeX);
         stream.Write(SizeY);
         stream.Write(DataSize);
-        if (DataSize > 0) stream.Write(Data, 0, Data.Length);
+        if (DataSize > 0)
+        {
+            stream.Write(Data, 0, Data.Length);
+        }
     }
 }

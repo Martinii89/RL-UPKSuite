@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using Core.Serialization;
-using Syroot.BinaryData;
 
 namespace Core.Types;
 
@@ -33,7 +32,7 @@ public class TArray<T> : List<T> where T : new()
     /// </summary>
     /// <param name="reader"></param>
     /// <exception cref="NotImplementedException">Thrown for unsupported elements</exception>
-    public void Deserialize(BinaryReader reader)
+    public void Deserialize(Stream reader)
     {
         var length = reader.ReadInt32();
         Debug.Assert(length >= 0);
@@ -44,7 +43,7 @@ public class TArray<T> : List<T> where T : new()
         {
             var elem = _constructor != null ? _constructor() : new T();
             Debug.Assert(elem != null, nameof(elem) + " != null");
-            elem = (T)GenericSerializer.Deserialize(elem, reader);
+            elem = (T) GenericSerializer.Deserialize(elem, reader);
             Add(elem);
         }
     }
@@ -58,6 +57,9 @@ public class TArray<T> : List<T> where T : new()
     public void Serialize(Stream stream)
     {
         stream.WriteInt32(Count);
-        foreach (var elem in this) GenericSerializer.Serialize(elem, stream);
+        foreach (var elem in this)
+        {
+            GenericSerializer.Serialize(elem, stream);
+        }
     }
 }

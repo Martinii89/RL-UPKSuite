@@ -47,22 +47,22 @@ public class UnrealPackage : IBinaryDeserializableClass
     ///     them.
     /// </summary>
     /// <param name="reader"></param>
-    public void Deserialize(BinaryReader reader)
+    public void Deserialize(Stream reader)
     {
         Header.Deserialize(reader);
 
-        NameTable = new NameTable(reader.BaseStream, Header.NameOffset, Header.NameCount);
-        ImportTable = new ImportTable(reader.BaseStream, Header.ImportOffset, Header.ImportCount);
-        ExportTable = new ExportTable(reader.BaseStream, Header.ExportOffset, Header.ExportCount);
+        NameTable = new NameTable(reader, Header.NameOffset, Header.NameCount);
+        ImportTable = new ImportTable(reader, Header.ImportOffset, Header.ImportCount);
+        ExportTable = new ExportTable(reader, Header.ExportOffset, Header.ExportCount);
 
         if (Header.CookerVersion == 0)
         {
-            reader.BaseStream.Position = Header.DependsOffset;
+            reader.Position = Header.DependsOffset;
             DependsTable.InitializeSize(Header.ExportCount);
             DependsTable.Deserialize(reader);
 
-            reader.BaseStream.Position = Header.ThumbnailTableOffset;
-            ThumbnailTable.Deserialize(reader.BaseStream);
+            reader.Position = Header.ThumbnailTableOffset;
+            ThumbnailTable.Deserialize(reader);
         }
     }
 }

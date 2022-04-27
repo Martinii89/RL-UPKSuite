@@ -10,7 +10,7 @@ internal class FCompressedChunkHeader : IBinaryDeserializableClass
 
     public int BlockCount => (Summary.UncompressedSize + BlockSize + 1) / BlockSize;
 
-    public void Deserialize(BinaryReader reader)
+    public void Deserialize(Stream reader)
     {
         Tag = reader.ReadInt32();
         BlockSize = reader.ReadInt32();
@@ -23,7 +23,7 @@ internal class FCompressedChunkBlock : IBinaryDeserializableClass
     public int CompressedSize { get; private set; }
     public int UncompressedSize { get; private set; }
 
-    public void Deserialize(BinaryReader reader)
+    public void Deserialize(Stream reader)
     {
         CompressedSize = reader.ReadInt32();
         UncompressedSize = reader.ReadInt32();

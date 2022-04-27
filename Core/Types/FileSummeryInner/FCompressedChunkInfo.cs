@@ -4,13 +4,8 @@ namespace Core.Types.FileSummeryInner;
 
 // Compressed data info
 // Rocket League stores this in the encrypted data rather than in the file summary
-internal class FCompressedChunkInfo : IBinaryDeserializableClass
+public class FCompressedChunkInfo : IBinaryDeserializableClass
 {
-    public long UncompressedOffset { get; private set; }
-    public long CompressedOffset { get; private set; }
-    public int UncompressedSize { get; private set; }
-    public int CompressedSize { get; private set; }
-
     private readonly FileSummary _header;
 
 
@@ -24,7 +19,12 @@ internal class FCompressedChunkInfo : IBinaryDeserializableClass
         throw new NotImplementedException();
     }
 
-    public void Deserialize(BinaryReader reader)
+    public long UncompressedOffset { get; internal set; }
+    public long CompressedOffset { get; internal set; }
+    public int UncompressedSize { get; internal set; }
+    public int CompressedSize { get; internal set; }
+
+    public void Deserialize(Stream reader)
     {
         UncompressedOffset = _header.LicenseeVersion >= 22 ? reader.ReadInt64() : reader.ReadInt32();
         UncompressedSize = reader.ReadInt32();

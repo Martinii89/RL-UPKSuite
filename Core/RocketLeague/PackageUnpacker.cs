@@ -57,7 +57,7 @@ public class PackageUnpacker
         var inputBinaryReader = new BinaryReader(inputStream);
         var outputBinaryWriter = new BinaryWriter(outputStream);
 
-        ProcessFileSummary(outputBinaryWriter, inputBinaryReader);
+        ProcessFileSummary(outputBinaryWriter, inputStream);
 
         ProcessDecryptedData(outputBinaryWriter, inputBinaryReader, decrypterProvider);
         if (!DeserializationState.HasFlag(DeserializationState.Decrypted))
@@ -104,7 +104,7 @@ public class PackageUnpacker
         {
             inputBinaryReader.BaseStream.Position = chunk.CompressedOffset;
             var chunkHeader = new FCompressedChunkHeader();
-            chunkHeader.Deserialize(inputBinaryReader);
+            chunkHeader.Deserialize(inputBinaryReader.BaseStream);
 
             var sumUncompressedSize = 0;
             var blocks = new List<FCompressedChunkBlock>();
@@ -114,7 +114,7 @@ public class PackageUnpacker
             while (sumUncompressedSize < chunkHeader.Summary.UncompressedSize)
             {
                 var block = new FCompressedChunkBlock();
-                block.Deserialize(inputBinaryReader);
+                block.Deserialize(inputBinaryReader.BaseStream);
                 blocks.Add(block);
                 sumUncompressedSize += block.UncompressedSize;
             }
@@ -156,18 +156,18 @@ public class PackageUnpacker
         var decryptedDataReader = new BinaryReader(new MemoryStream(decryptedData));
 
         decryptedDataReader.BaseStream.Position = FileSummary.CompressedChunkInfoOffset;
-        FileSummary.CompressedChunks.Deserialize(decryptedDataReader);
+        FileSummary.CompressedChunks.Deserialize(decryptedDataReader.BaseStream);
         // The depends table is always empty. So The depends table marks the start of where the uncompressed data should go.
         Debug.Assert(FileSummary.CompressedChunks.First().UncompressedOffset == FileSummary.DependsOffset);
         outputStream.Write(decryptedData);
         DeserializationState |= DeserializationState.Decrypted;
     }
 
-    private void ProcessFileSummary(BinaryWriter outputStream, BinaryReader inputBinaryReader)
+    private void ProcessFileSummary(BinaryWriter outputStream, Stream inpuutStream)
     {
-        FileSummary.Deserialize(inputBinaryReader);
-        inputBinaryReader.BaseStream.Position = 0;
-        var fileSummaryBytes = inputBinaryReader.ReadBytes(FileSummary.NameOffset);
+        FileSummary.Deserialize(inpuutStream);
+        inpuutStream.Position = 0;
+        var fileSummaryBytes = inpuutStream.ReadBytes(FileSummary.NameOffset);
         outputStream.Write(fileSummaryBytes);
 
         DeserializationState |= DeserializationState.Header;

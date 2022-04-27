@@ -7,7 +7,11 @@ internal static class TypeLoaderExtensions
 {
     internal static IEnumerable<Type> GetLoadableTypes(this Assembly assembly)
     {
-        if (assembly == null) throw new ArgumentNullException(nameof(assembly));
+        if (assembly == null)
+        {
+            throw new ArgumentNullException(nameof(assembly));
+        }
+
         try
         {
             return assembly.GetTypes();
@@ -45,14 +49,16 @@ public class SerializerCollection : ISerializerCollection
     }
 
     /// <summary>
-    ///     Register a seralizer for a type
+    ///     Register a serializer for a type
     /// </summary>
     /// <typeparam name="T">The serializable type</typeparam>
     /// <param name="serializer">The serializer</param>
     public void AddSerializer<T>(IStreamSerializerFor<T> serializer)
     {
         if (_serializers.ContainsKey(typeof(T)))
+        {
             throw new InvalidOperationException($"Serializer for {typeof(T).Name} already registered");
+        }
 
         _serializers.Add(typeof(T), serializer);
     }
@@ -76,11 +82,16 @@ public class SerializerCollection : ISerializerCollection
         {
             if (!implementedInterface.IsGenericType ||
                 implementedInterface.GetGenericTypeDefinition() != SerializerInterfaceType)
+            {
                 continue;
+            }
 
             var serializableType = implementedInterface.GetGenericArguments()[0];
             var serializerInstance = Activator.CreateInstance(type);
-            if (serializerInstance == null) throw new NullReferenceException(nameof(serializerInstance));
+            if (serializerInstance == null)
+            {
+                throw new NullReferenceException(nameof(serializerInstance));
+            }
 
             if (_serializers.ContainsKey(serializableType))
             {
@@ -116,10 +127,16 @@ public class SerializerCollection : ISerializerCollection
     {
         foreach (var type in assembly.GetLoadableTypes())
         {
-            if (type.IsAbstract || type.IsInterface) continue;
+            if (type.IsAbstract || type.IsInterface)
+            {
+                continue;
+            }
 
             var versionTag = type.GetCustomAttribute<FileVersionAttribute>();
-            if (versionTag != null) continue;
+            if (versionTag != null)
+            {
+                continue;
+            }
 
             AddSerializer(type, DuplicateImplementationResolution.Skip);
         }
@@ -136,10 +153,16 @@ public class SerializerCollection : ISerializerCollection
     {
         foreach (var type in assembly.GetLoadableTypes())
         {
-            if (type.IsAbstract || type.IsInterface) continue;
+            if (type.IsAbstract || type.IsInterface)
+            {
+                continue;
+            }
 
             var versionTag = type.GetCustomAttribute<FileVersionAttribute>();
-            if (versionTag != null) continue;
+            if (versionTag != null)
+            {
+                continue;
+            }
 
             AddSerializer(type, DuplicateImplementationResolution.Throw);
         }
@@ -163,10 +186,16 @@ public class SerializerCollection : ISerializerCollection
 
         foreach (var type in assembly.GetLoadableTypes())
         {
-            if (type.IsAbstract || type.IsInterface) continue;
+            if (type.IsAbstract || type.IsInterface)
+            {
+                continue;
+            }
 
             var tagVersion = type.GetCustomAttribute<FileVersionAttribute>()?.FileVersion;
-            if (tagVersion != version) continue;
+            if (tagVersion != version)
+            {
+                continue;
+            }
 
             AddSerializer(type, DuplicateImplementationResolution.Throw);
         }

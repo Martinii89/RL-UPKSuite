@@ -1,7 +1,6 @@
 ﻿using Core.Types;
-using Syroot.BinaryData;
 
-namespace Core.UnrealStream;
+namespace Core.Extensions;
 
 /// <summary>
 ///     Extension methods for reading and writing strings from streams in the format of a FString
