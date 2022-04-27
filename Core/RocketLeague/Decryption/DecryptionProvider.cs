@@ -6,26 +6,30 @@ using System.Security.Cryptography;
 namespace Core.RocketLeague.Decryption;
 
 /// <summary>
-/// Interface for providing decryption keys and <see cref="ICryptoTransform"/> instances for decrypting rocket league packages
+///     Interface for providing decryption keys and <see cref="ICryptoTransform" /> instances for decrypting rocket league
+///     packages
 /// </summary>
 public interface IDecrypterProvider
 {
+    /// <summary>
+    ///     The list of decryption keys provided
+    /// </summary>
     List<byte[]> DecryptionKeys { get; }
+
+    /// <summary>
+    ///     Returns a <see cref="ICryptoTransform" /> instance for the given key capable of decrypting rocket league packages
+    /// </summary>
+    /// <param name="key"></param>
+    /// <returns></returns>
     ICryptoTransform GetCryptoTransform(byte[] key);
 }
 
 /// <summary>
-/// Basic decryption provider. It can read a file containing Base64 encoded decryption keys. It has a thread-safe caches of decryptors for optimizing reuse of the same keys.
+///     Basic decryption provider. It can read a file containing Base64 encoded decryption keys. It has a thread-safe
+///     caches of decryptors for optimizing reuse of the same keys.
 /// </summary>
 public class DecryptionProvider : IDecrypterProvider
 {
-    private class ByteArrayEqualityComparer : EqualityComparer<byte[]>
-    {
-        public override bool Equals(byte[]? x, byte[]? y) => StructuralComparisons.StructuralEqualityComparer.Equals(x, y);
-
-        public override int GetHashCode(byte[] obj) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(obj);
-    }
-
     private static readonly byte[] DefaultKey =
     {
         0xC7, 0xDF, 0x6B, 0x13, 0x25, 0x2A, 0xCC, 0x71,
@@ -34,24 +38,38 @@ public class DecryptionProvider : IDecrypterProvider
         0x93, 0xE2, 0xF2, 0x4E, 0x6B, 0x17, 0xE7, 0x79
     };
 
-    private readonly ConcurrentDictionary<byte[], ICryptoTransform> _decryptorCache = new(new ByteArrayEqualityComparer());
+    private readonly ConcurrentDictionary<byte[], ICryptoTransform> _decryptorCache =
+        new(new ByteArrayEqualityComparer());
 
     /// <summary>
-    /// The list of decryption keys this provider knows about
+    ///     Constructs the decryption provider. Taking in a path to a file with base64 encoded keys.
+    /// </summary>
+    /// <param name="keyFilePath">Path key file</param>
+    public DecryptionProvider(string keyFilePath)
+    {
+        if (!File.Exists(keyFilePath))
+        {
+            Console.WriteLine("Failed to load the key file. Using only the default key");
+            return;
+        }
+
+        var stringKeys = File.ReadAllLines(keyFilePath);
+        foreach (var key in stringKeys) DecryptionKeys.Add(Convert.FromBase64String(key));
+    }
+
+    /// <summary>
+    ///     The list of decryption keys this provider knows about
     /// </summary>
     public List<byte[]> DecryptionKeys { get; } = new() { DefaultKey };
 
     /// <summary>
-    /// Return a decryptor instance. The instances are cached in a thread safe container.
+    ///     Return a decryptor instance. The instances are cached in a thread safe container.
     /// </summary>
     /// <param name="key">The key used for decryption</param>
     /// <returns></returns>
     public ICryptoTransform GetCryptoTransform(byte[] key)
     {
-        if (_decryptorCache.TryGetValue(key, out var cacheTransform))
-        {
-            return cacheTransform;
-        }
+        if (_decryptorCache.TryGetValue(key, out var cacheTransform)) return cacheTransform;
 
         var decryptor = Aes.Create("AesManaged");
         Debug.Assert(decryptor != null, nameof(decryptor) + " != null");
@@ -65,21 +83,16 @@ public class DecryptionProvider : IDecrypterProvider
         return cryptoTransform;
     }
 
-    /// <summary>
-    /// Constructs the decryption provider. Taking in a path to a file with base64 encoded keys.
-    /// </summary>
-    /// <param name="keyFilePath">Path key file</param>
-    public DecryptionProvider(string keyFilePath)
+    private class ByteArrayEqualityComparer : EqualityComparer<byte[]>
     {
-        if (!File.Exists(keyFilePath))
+        public override bool Equals(byte[]? x, byte[]? y)
         {
-            Console.WriteLine("Failed to load the key file. Using only the default key");
-            return;
+            return StructuralComparisons.StructuralEqualityComparer.Equals(x, y);
         }
-        var stringKeys = File.ReadAllLines(keyFilePath);
-        foreach (var key in stringKeys)
+
+        public override int GetHashCode(byte[] obj)
         {
-            DecryptionKeys.Add(Convert.FromBase64String(key));
+            return StructuralComparisons.StructuralEqualityComparer.GetHashCode(obj);
         }
     }
 }

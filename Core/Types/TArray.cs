@@ -1,13 +1,11 @@
-﻿using System.Data;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using Core.Serialization;
 using Syroot.BinaryData;
 
 namespace Core.Types;
 
-
 /// <summary>
-/// List wrapper with Unreal array serialization methods
+///     List wrapper with Unreal array serialization methods
 /// </summary>
 /// <typeparam name="T"></typeparam>
 public class TArray<T> : List<T> where T : new()
@@ -15,14 +13,14 @@ public class TArray<T> : List<T> where T : new()
     private readonly Func<T>? _constructor;
 
     /// <summary>
-    /// Constructs a empty array
+    ///     Constructs a empty array
     /// </summary>
     public TArray()
     {
     }
 
     /// <summary>
-    /// Constructs a empty array with a element constructor used when deserializing the elements
+    ///     Constructs a empty array with a element constructor used when deserializing the elements
     /// </summary>
     /// <param name="inConstructor">Element constructor</param>
     public TArray(Func<T> inConstructor)
@@ -31,7 +29,7 @@ public class TArray<T> : List<T> where T : new()
     }
 
     /// <summary>
-    /// Deserialize the array from the stream. Starting with the element count, and then the elements. 
+    ///     Deserialize the array from the stream. Starting with the element count, and then the elements.
     /// </summary>
     /// <param name="reader"></param>
     /// <exception cref="NotImplementedException">Thrown for unsupported elements</exception>
@@ -46,17 +44,20 @@ public class TArray<T> : List<T> where T : new()
         {
             var elem = _constructor != null ? _constructor() : new T();
             Debug.Assert(elem != null, nameof(elem) + " != null");
-            elem = (T) GenericSerializer.Deserialize(elem, reader);
+            elem = (T)GenericSerializer.Deserialize(elem, reader);
             Add(elem);
         }
     }
 
+
+    /// <summary>
+    ///     Serialize the array. The array size is serialized first as a int32 value. then each element is serialized
+    ///     sequentially.
+    /// </summary>
+    /// <param name="stream"></param>
     public void Serialize(Stream stream)
     {
         stream.WriteInt32(Count);
-        foreach (var elem in this)
-        {
-            GenericSerializer.Serialize(elem, stream);
-        }
+        foreach (var elem in this) GenericSerializer.Serialize(elem, stream);
     }
 }

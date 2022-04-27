@@ -56,11 +56,10 @@ namespace Core.RocketLeague.Tests
             // Arrange
             var inputTest = File.OpenRead("TestData/RocketPass_Premium_T_SF.upk");
             var outputStream = new MemoryStream();
-            var decryptionProvider = NSubstitute.Substitute.For<IDecrypterProvider>();
+            var decryptionProvider = Substitute.For<IDecrypterProvider>();
             decryptionProvider.DecryptionKeys.Returns(new List<byte[]>());
 
             // Act
-
             var unpacked = new PackageUnpacker(inputTest, outputStream, decryptionProvider);
 
             // Assert 

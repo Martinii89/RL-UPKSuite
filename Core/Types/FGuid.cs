@@ -3,30 +3,34 @@
 namespace Core.Types;
 
 /// <summary>
-/// Unreal specific GUID struct.
+///     Unreal specific GUID struct.
 /// </summary>
 public class FGuid
 {
     /// <summary>
-    /// First GUID part
+    ///     First GUID part
     /// </summary>
     public uint A { get; private set; }
 
     /// <summary>
-    /// Second GUID part
+    ///     Second GUID part
     /// </summary>
     public uint B { get; private set; }
 
     /// <summary>
-    /// Third GUID part
+    ///     Third GUID part
     /// </summary>
     public uint C { get; private set; }
 
     /// <summary>
-    /// Fourth GUID part
+    ///     Fourth GUID part
     /// </summary>
     public uint D { get; private set; }
 
+    /// <summary>
+    ///     Reads the 16 bytes of a GUID from the stream as four Uint32 values.
+    /// </summary>
+    /// <param name="reader"></param>
     public void Deserialize(BinaryReader reader)
     {
         A = reader.ReadUInt32();
@@ -35,11 +39,15 @@ public class FGuid
         D = reader.ReadUInt32();
     }
 
-    public void Serialize(Stream stream)
+    /// <summary>
+    ///     Writesthe  16 bytes of the GUID to the stream as four Uint32 values
+    /// </summary>
+    /// <param name="writer"></param>
+    public void Serialize(Stream writer)
     {
-        stream.WriteUInt32(A);
-        stream.WriteUInt32(B);
-        stream.WriteUInt32(C);
-        stream.WriteUInt32(D);
+        writer.WriteUInt32(A);
+        writer.WriteUInt32(B);
+        writer.WriteUInt32(C);
+        writer.WriteUInt32(D);
     }
 }

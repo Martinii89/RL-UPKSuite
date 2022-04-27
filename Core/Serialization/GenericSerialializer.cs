@@ -4,12 +4,13 @@ using Syroot.BinaryData;
 namespace Core.Serialization;
 
 /// <summary>
-/// Interface used by <see cref="TArray{T}"/> deserialization to deserialize native and generic elements implementing the <see cref="IBinaryDeserializableClass"/> interface.
+///     Interface used by <see cref="TArray{T}" /> deserialization to deserialize native and generic elements implementing
+///     the <see cref="IBinaryDeserializableClass" /> interface.
 /// </summary>
 public static class GenericSerializer
 {
     /// <summary>
-    /// Deserialize a value or a generic object implementing the <see cref="IBinaryDeserializableClass"/> interface.
+    ///     Deserialize a value or a generic object implementing the <see cref="IBinaryDeserializableClass" /> interface.
     /// </summary>
     /// <param name="o"></param>
     /// <param name="reader"></param>
@@ -31,6 +32,13 @@ public static class GenericSerializer
         }
     }
 
+    /// <summary>
+    ///     Writes a element to the stream
+    /// </summary>
+    /// <typeparam name="T">The type to write</typeparam>
+    /// <param name="elem">The value to write</param>
+    /// <param name="stream">The stream to write to</param>
+    /// <exception cref="NotImplementedException">Thrown for unsupported types</exception>
     public static void Serialize<T>(T elem, Stream stream) where T : new()
     {
         switch (elem)

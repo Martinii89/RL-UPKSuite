@@ -4,6 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,12 +15,6 @@
 
   <ItemGroup>
     <PackageReference Include="Syroot.BinaryData" Version="5.2.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="ReachFramework">
-      <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\6.0.4\ref\net6.0\ReachFramework.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
   <ItemGroup>
