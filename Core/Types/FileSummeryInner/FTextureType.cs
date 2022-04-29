@@ -45,13 +45,9 @@ public class FTextureType : IBinaryDeserializableClass
     {
         SizeX = reader.ReadInt32();
         SizeY = reader.ReadInt32();
-        ;
         NumMips = reader.ReadInt32();
-        ;
         Format = reader.ReadInt32();
-        ;
         TexCreateFlags = reader.ReadInt32();
-        ;
         ExportIndices.Deserialize(reader);
     }
 }

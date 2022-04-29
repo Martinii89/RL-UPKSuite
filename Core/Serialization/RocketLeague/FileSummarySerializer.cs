@@ -1,30 +1,40 @@
-﻿using Core.Compression;
-using Core.Extensions;
+﻿using Core.Extensions;
 using Core.Types;
 using Core.Types.FileSummeryInner;
 
-namespace Core.Serialization.RocketLeage;
+namespace Core.Serialization.RocketLeague;
 
+/// <summary>
+///     Serializer for FileSummary specifically for cooked RocketLeague packages
+/// </summary>
 public class FileSummarySerializer : RocketLeagueBase, IStreamSerializerFor<FileSummary>
 {
-    private readonly IStreamSerializerFor<TArray<FCompressedChunkInfo>> _compressedChunkSerializer;
-    private readonly IStreamSerializerFor<TArray<FGenerationInfo>> _generationsSerializer;
+    private readonly IStreamSerializerFor<FCompressedChunkInfo> _compressedChunkSerializer;
+    private readonly IStreamSerializerFor<FGenerationInfo> _generationsSerializer;
     private readonly IStreamSerializerFor<FGuid> _guidSerializerFor;
-    private readonly IStreamSerializerFor<TArray<FString>> _stringArraySerializer;
-    private readonly IStreamSerializerFor<TArray<FTextureType>> _textureAllocationsSerializer;
+    private readonly IStreamSerializerFor<FString> _stringSerializer;
+    private readonly IStreamSerializerFor<FTextureType> _textureAllocationsSerializer;
 
+    /// <summary>
+    ///     Construct the serializer with all required sub serializers
+    /// </summary>
+    /// <param name="guidSerializerFor"></param>
+    /// <param name="compressedChunkSerializer"></param>
+    /// <param name="stringSerializer"></param>
+    /// <param name="textureAllocationsSerializer"></param>
+    /// <param name="generationsSerializer"></param>
     public FileSummarySerializer(IStreamSerializerFor<FGuid> guidSerializerFor,
-        IStreamSerializerFor<TArray<FGenerationInfo>> generationsSerializer,
-        IStreamSerializerFor<TArray<FCompressedChunkInfo>> compressedChunkSerializer, IStreamSerializerFor<TArray<FString>> stringArraySerializer,
-        IStreamSerializerFor<TArray<FTextureType>> textureAllocationsSerializer)
+        IStreamSerializerFor<FCompressedChunkInfo> compressedChunkSerializer, IStreamSerializerFor<FString> stringSerializer,
+        IStreamSerializerFor<FTextureType> textureAllocationsSerializer, IStreamSerializerFor<FGenerationInfo> generationsSerializer)
     {
         _guidSerializerFor = guidSerializerFor;
-        _generationsSerializer = generationsSerializer;
         _compressedChunkSerializer = compressedChunkSerializer;
-        _stringArraySerializer = stringArraySerializer;
+        _stringSerializer = stringSerializer;
         _textureAllocationsSerializer = textureAllocationsSerializer;
+        _generationsSerializer = generationsSerializer;
     }
 
+    /// <inheritdoc />
     public FileSummary Deserialize(Stream stream)
     {
         using (stream.TemporarySeek(stream.Position, SeekOrigin.Begin))
@@ -55,22 +65,20 @@ public class FileSummarySerializer : RocketLeagueBase, IStreamSerializerFor<File
         fileSummary.ExportGuidsCount = stream.ReadInt32();
         fileSummary.ThumbnailTableOffset = stream.ReadInt32();
         fileSummary.Guid = _guidSerializerFor.Deserialize(stream);
-        fileSummary.Generations = _generationsSerializer.Deserialize(stream);
+        fileSummary.Generations.AddRange(_generationsSerializer.ReadTArray(stream));
         fileSummary.EngineVersion = stream.ReadUInt32();
         fileSummary.CookerVersion = stream.ReadUInt32();
         fileSummary.CompressionFlagsOffset = (int) stream.Position;
         fileSummary.CompressionFlags = (ECompressionFlags) stream.ReadUInt32();
-        fileSummary.CompressedChunks = _compressedChunkSerializer.Deserialize(stream);
+        fileSummary.CompressedChunks.AddRange(_compressedChunkSerializer.ReadTArray(stream));
         fileSummary.Unknown5 = stream.ReadInt32();
-        fileSummary.AdditionalPackagesToCook = _stringArraySerializer.Deserialize(stream);
-        fileSummary.TextureAllocations = _textureAllocationsSerializer.Deserialize(stream);
-        fileSummary.GarbageSize = stream.ReadInt32();
-        fileSummary.CompressedChunkInfoOffset = stream.ReadInt32();
-        fileSummary.LastBlockSize = stream.ReadInt32();
+        fileSummary.AdditionalPackagesToCook.AddRange(_stringSerializer.ReadTArray(stream));
+        fileSummary.TextureAllocations.AddRange(_textureAllocationsSerializer.ReadTArray(stream));
 
         return fileSummary;
     }
 
+    /// <inheritdoc />
     public void Serialize(Stream stream, FileSummary value)
     {
         throw new NotImplementedException();

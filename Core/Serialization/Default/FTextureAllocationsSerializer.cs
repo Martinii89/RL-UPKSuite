@@ -1,41 +1,36 @@
-﻿using Core.Types;
-using Core.Types.FileSummeryInner;
+﻿using Core.Types.FileSummeryInner;
 
 namespace Core.Serialization.Default;
 
-public class FTextureAllocationsSerializer : IStreamSerializerFor<TArray<FTextureType>>
+/// <inheritdoc />
+public class FTextureAllocationsSerializer : IStreamSerializerFor<FTextureType>
 {
-    private readonly IStreamSerializerFor<TArray<int>> _intArraySerializer;
+    private readonly IStreamSerializerFor<int> _intSerializer;
 
-    public FTextureAllocationsSerializer(IStreamSerializerFor<TArray<int>> intArraySerializer)
+    /// <summary>
+    ///     Constructs a FTextureAllocationsSerializer. Requires a int serializers for the exportIndices
+    /// </summary>
+    /// <param name="intSerializer"></param>
+    public FTextureAllocationsSerializer(IStreamSerializerFor<int> intSerializer)
     {
-        _intArraySerializer = intArraySerializer;
+        _intSerializer = intSerializer;
     }
 
-    public TArray<FTextureType> Deserialize(Stream stream)
+    /// <inheritdoc />
+    public FTextureType Deserialize(Stream stream)
     {
-        var arraySize = stream.ReadInt32();
-        var textureTypes = new TArray<FTextureType>
-        {
-            Capacity = arraySize
-        };
-        for (var i = 0; i < arraySize; i++)
-        {
-            textureTypes.Add(new FTextureType
-            {
-                SizeX = stream.ReadInt32(),
-                SizeY = stream.ReadInt32(),
-                NumMips = stream.ReadInt32(),
-                Format = stream.ReadInt32(),
-                TexCreateFlags = stream.ReadInt32(),
-                ExportIndices = _intArraySerializer.Deserialize(stream)
-            });
-        }
-
-        return textureTypes;
+        var type = new FTextureType();
+        type.SizeX = stream.ReadInt32();
+        type.SizeY = stream.ReadInt32();
+        type.NumMips = stream.ReadInt32();
+        type.Format = stream.ReadInt32();
+        type.TexCreateFlags = stream.ReadInt32();
+        type.ExportIndices.AddRange(_intSerializer.ReadTArray(stream));
+        return type;
     }
 
-    public void Serialize(Stream stream, TArray<FTextureType> value)
+    /// <inheritdoc />
+    public void Serialize(Stream stream, FTextureType value)
     {
         throw new NotImplementedException();
     }

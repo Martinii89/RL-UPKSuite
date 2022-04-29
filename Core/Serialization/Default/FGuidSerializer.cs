@@ -2,8 +2,10 @@
 
 namespace Core.Serialization.Default;
 
+/// <inheritdoc />
 public class FGuidSerializer : IStreamSerializerFor<FGuid>
 {
+    /// <inheritdoc />
     public FGuid Deserialize(Stream stream)
     {
         return new FGuid
@@ -15,6 +17,7 @@ public class FGuidSerializer : IStreamSerializerFor<FGuid>
         };
     }
 
+    /// <inheritdoc />
     public void Serialize(Stream stream, FGuid value)
     {
         throw new NotImplementedException();

@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using Core.Compression;
 using Core.RocketLeague.Decryption;
 using Core.Types;
+using Core.Types.FileSummeryInner;
 using FluentAssertions;
 using NSubstitute;
 using Xunit;
@@ -47,7 +47,7 @@ public class PackageUnpackerTests
         fileSummery.Deserialize(outputStream);
 
         // Assert 
-        fileSummery.CompressionFlags.Should().Be(ECompressionFlags.COMPRESS_None);
+        fileSummery.CompressionFlags.Should().Be(ECompressionFlags.CompressNone);
     }
 
     [Fact]

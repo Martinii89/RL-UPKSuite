@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using Core.Compression;
+using Core.Types.FileSummeryInner;
 using FluentAssertions;
 using Xunit;
 
@@ -74,7 +74,7 @@ public class FileSummaryTests
         sut.Generations.Count.Should().Be(2);
         sut.EngineVersion.Should().Be(10897);
         sut.CookerVersion.Should().Be(136);
-        sut.CompressionFlags.Should().Be(ECompressionFlags.COMPRESS_ZLIB);
+        sut.CompressionFlags.Should().Be(ECompressionFlags.CompressZlib);
         sut.AdditionalPackagesToCook.Count.Should().Be(0);
         sut.TextureAllocations.Count.Should().Be(0);
     }

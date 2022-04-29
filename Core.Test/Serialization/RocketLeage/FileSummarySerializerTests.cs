@@ -1,11 +1,12 @@
 ﻿using System.IO;
-using Core.Compression;
 using Core.Serialization.Default;
 using Core.Types;
+using Core.Types.FileSummeryInner;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Core.Serialization.RocketLeage.Tests;
+namespace Core.Serialization.RocketLeague.Tests;
 
 public class FileSummarySerializerTests
 {
@@ -31,8 +32,9 @@ public class FileSummarySerializerTests
         };
         var reader = new MemoryStream(headerData);
 
-        var mainSerializer = new FileSummarySerializer(new FGuidSerializer(), new FGenerationsSerializer(), new FCompressedChunkInfoSerializer(),
-            new FStringArraySerializer(), new FTextureAllocationsSerializer(new IntArraySerializer()));
+        var mainSerializer = new FileSummarySerializer(new FGuidSerializer(), new FCompressedChunkInfoSerializer(),
+            new FStringSerializer(), new FTextureAllocationsSerializer(new Int32Serializer()),
+            new FGenerationInfoSerializer());
 
         // Act
         var sut = mainSerializer.Deserialize(reader);
@@ -60,10 +62,26 @@ public class FileSummarySerializerTests
         sut.Guid.C.Should().Be(3367493048);
         sut.Guid.D.Should().Be(1525578765);
         sut.Generations.Count.Should().Be(2);
+        sut.Generations[0].ExportCount.Should().Be(4);
         sut.EngineVersion.Should().Be(10897);
         sut.CookerVersion.Should().Be(136);
-        sut.CompressionFlags.Should().Be(ECompressionFlags.COMPRESS_ZLIB);
+        sut.CompressionFlags.Should().Be(ECompressionFlags.CompressZlib);
         sut.AdditionalPackagesToCook.Count.Should().Be(0);
         sut.TextureAllocations.Count.Should().Be(0);
+    }
+
+
+    [Fact]
+    public void AddSerializersTest_CanFindFileSummarySerializer()
+    {
+        // Arrange
+        var serviceColection = new ServiceCollection();
+        // Act
+        serviceColection.UseSerializers(typeof(FileSummarySerializer),
+            new SerializerOptions(RocketLeagueBase.FileVersion));
+        var services = serviceColection.BuildServiceProvider();
+        var testSerializer = services.GetRequiredService<IStreamSerializerFor<FileSummary>>();
+        // Assert
+        testSerializer.Should().NotBeNull();
     }
 }

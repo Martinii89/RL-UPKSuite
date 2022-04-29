@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using System.IO.Compression;
 using System.Security.Cryptography;
-using Core.Compression;
 using Core.RocketLeague.Decryption;
 using Core.Types;
 using Core.Types.FileSummeryInner;
@@ -73,6 +72,8 @@ public class PackageUnpacker
     /// </summary>
     public FileSummary FileSummary { get; } = new();
 
+    private FileCompressionMetaData FileCompressionMetaData { get; } = new();
+
     /// <summary>
     ///     The state of unpacking. Anything but DeserializationState.Inflated would indicate some kind of error.
     /// </summary>
@@ -82,7 +83,7 @@ public class PackageUnpacker
     {
         get
         {
-            var encryptedSize = FileSummary.TotalHeaderSize - FileSummary.GarbageSize - FileSummary.NameOffset;
+            var encryptedSize = FileSummary.TotalHeaderSize - FileCompressionMetaData.GarbageSize - FileSummary.NameOffset;
             encryptedSize = (encryptedSize + 15) & ~15; // Round up to the next block
             return encryptedSize;
         }
@@ -138,7 +139,7 @@ public class PackageUnpacker
 
         // Reset the compression flag to indicate this package is no longer compressed.
         outputStream.BaseStream.Position = FileSummary.CompressionFlagsOffset;
-        outputStream.Write((int) ECompressionFlags.COMPRESS_None);
+        outputStream.Write((int) ECompressionFlags.CompressNone);
     }
 
     private void ProcessDecryptedData(BinaryWriter outputStream, BinaryReader inputBinaryReader, IDecrypterProvider decrypterProvider)
@@ -155,7 +156,7 @@ public class PackageUnpacker
 
         var decryptedDataReader = new BinaryReader(new MemoryStream(decryptedData));
 
-        decryptedDataReader.BaseStream.Position = FileSummary.CompressedChunkInfoOffset;
+        decryptedDataReader.BaseStream.Position = FileCompressionMetaData.CompressedChunkInfoOffset;
         FileSummary.CompressedChunks.Deserialize(decryptedDataReader.BaseStream);
         // The depends table is always empty. So The depends table marks the start of where the uncompressed data should go.
         Debug.Assert(FileSummary.CompressedChunks.First().UncompressedOffset == FileSummary.DependsOffset);
@@ -166,12 +167,13 @@ public class PackageUnpacker
     private void ProcessFileSummary(BinaryWriter outputStream, Stream inpuutStream)
     {
         FileSummary.Deserialize(inpuutStream);
+        FileCompressionMetaData.Deserialize(inpuutStream);
         inpuutStream.Position = 0;
         var fileSummaryBytes = inpuutStream.ReadBytes(FileSummary.NameOffset);
         outputStream.Write(fileSummaryBytes);
 
         DeserializationState |= DeserializationState.Header;
-        if (!FileSummary.CompressionFlags.HasFlag(ECompressionFlags.COMPRESS_ZLIB))
+        if (!FileSummary.CompressionFlags.HasFlag(ECompressionFlags.CompressZlib))
         {
             throw new InvalidDataException("Package compression type is unsupported ");
         }
@@ -205,8 +207,8 @@ public class PackageUnpacker
     /// <returns></returns>
     private bool VerifyDecryptor(ICryptoTransform decryptor, byte[] encryptedData)
     {
-        var blockOffset = FileSummary.CompressedChunkInfoOffset % 16;
-        var blockStart = FileSummary.CompressedChunkInfoOffset - blockOffset;
+        var blockOffset = FileCompressionMetaData.CompressedChunkInfoOffset % 16;
+        var blockStart = FileCompressionMetaData.CompressedChunkInfoOffset - blockOffset;
         var chunkInfoBytes = new byte[32];
 
         decryptor.TransformBlock(encryptedData, blockStart, 32, chunkInfoBytes, 0);

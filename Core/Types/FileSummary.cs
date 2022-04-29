@@ -1,5 +1,4 @@
-﻿using Core.Compression;
-using Core.Extensions;
+﻿using Core.Extensions;
 using Core.Types.FileSummeryInner;
 
 namespace Core.Types;
@@ -147,21 +146,13 @@ public class FileSummary
     /// </summary>
     public TArray<FTextureType> TextureAllocations { get; set; } = new();
 
-    // Number of bytes of (pos % 0xFF) at the end of the decrypted data, I don't know why it's needed
-    internal int GarbageSize { get; set; }
-
-    // Offset to TArray<FCompressedChunkInfo> in decrypted data
-    internal int CompressedChunkInfoOffset { get; set; }
-
-    // Size of the last AES block in the encrypted data
-    internal int LastBlockSize { get; set; }
 
     /// <summary>
     ///     Deserialize the summary. Can throw if file tag is wrong.
     /// </summary>
     /// <param name="reader"></param>
     /// <exception cref="Exception">Thrown when the tag doesn't match</exception>
-    public void Deserialize(Stream reader)
+    public virtual void Deserialize(Stream reader)
     {
         Tag = reader.ReadUInt32();
         if (Tag != PackageFileTag)
@@ -209,9 +200,5 @@ public class FileSummary
 
         AdditionalPackagesToCook.Deserialize(reader);
         TextureAllocations.Deserialize(reader);
-
-        GarbageSize = reader.ReadInt32();
-        CompressedChunkInfoOffset = reader.ReadInt32();
-        LastBlockSize = reader.ReadInt32();
     }
 }
