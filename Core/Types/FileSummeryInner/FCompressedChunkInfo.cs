@@ -1,14 +1,12 @@
-﻿using Core.Serialization;
-
-namespace Core.Types.FileSummeryInner;
+﻿namespace Core.Types.FileSummeryInner;
 
 /// <summary>
 ///     Compressed data info
-///     Rocket League stores this in the encrypted data rather than in the file summary|
+///     Rocket League stores this in the encrypted data rather than in the file summary!
 /// </summary>
-public class FCompressedChunkInfo : IBinaryDeserializableClass
+public class FCompressedChunkInfo
 {
-    private readonly FileSummary _header;
+    private readonly int _licenseeVersion = 23;
 
 
     /// <summary>
@@ -18,20 +16,19 @@ public class FCompressedChunkInfo : IBinaryDeserializableClass
     /// <param name="header"></param>
     public FCompressedChunkInfo(FileSummary header)
     {
-        _header = header;
+        _licenseeVersion = header.LicenseeVersion;
     }
 
     /// <summary>
-    ///     Default constructible to be able to use with TArray
+    ///     Default constructable to be able to use with TArray
     /// </summary>
     /// <exception cref="NotImplementedException"></exception>
     public FCompressedChunkInfo()
     {
-        throw new NotImplementedException();
     }
 
     /// <summary>
-    ///     The offset into the datastream ince uncompressed
+    ///     The offset into the data stream once uncompressed
     /// </summary>
     public long UncompressedOffset { get; internal set; }
 
@@ -56,9 +53,9 @@ public class FCompressedChunkInfo : IBinaryDeserializableClass
     /// <param name="reader"></param>
     public void Deserialize(Stream reader)
     {
-        UncompressedOffset = _header.LicenseeVersion >= 22 ? reader.ReadInt64() : reader.ReadInt32();
+        UncompressedOffset = _licenseeVersion >= 22 ? reader.ReadInt64() : reader.ReadInt32();
         UncompressedSize = reader.ReadInt32();
-        CompressedOffset = _header.LicenseeVersion >= 22 ? reader.ReadInt64() : reader.ReadInt32();
+        CompressedOffset = _licenseeVersion >= 22 ? reader.ReadInt64() : reader.ReadInt32();
         CompressedSize = reader.ReadInt32();
     }
 }

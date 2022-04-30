@@ -6,14 +6,13 @@ namespace Core.Types.PackageTables;
 ///     A name table contains all the names for a package. The index for <see cref="FName" /> objects are referencing the
 ///     index of this table
 /// </summary>
-public class NameTable
+public class NameTable : List<NameTableItem>
 {
     /// <summary>
     ///     Construct a empty name table
     /// </summary>
     public NameTable()
     {
-        Names = new List<NameTableItem>();
     }
 
     /// <summary>
@@ -25,19 +24,16 @@ public class NameTable
     public NameTable(Stream stream, long namesOffset, int namesCount)
     {
         stream.Position = namesOffset;
-        Names = new List<NameTableItem>(namesCount);
+        Clear();
+        Capacity = namesCount;
         for (var index = 0; index < namesCount; index++)
         {
             var name = new NameTableItem();
             name.Deserialize(stream);
-            Names.Add(name);
+            Add(name);
         }
     }
 
-    /// <summary>
-    ///     The list of names. <see cref="FName" /> indexes are indexing into the list
-    /// </summary>
-    public List<NameTableItem> Names { get; set; }
 
     /// <summary>
     ///     Write the table data to the stream. Does not write the amount of exports, only the data for each
@@ -46,7 +42,7 @@ public class NameTable
     /// <param name="outStream"></param>
     public void Serialize(Stream outStream)
     {
-        Names.ForEach(n => n.Serialize(outStream));
+        ForEach(n => n.Serialize(outStream));
     }
 }
 
@@ -64,6 +60,7 @@ public class NameTableItem
     ///     A bit-flag of unknown significance
     /// </summary>
     public ulong Flags { get; set; }
+
 
     /// <summary>
     ///     Deserialize the name (as a FString) and the flag value from the stream

@@ -26,15 +26,25 @@ public class UnrealPackageSerializer : IStreamSerializerFor<UnrealPackage>
 
         stream.Seek(package.Header.NameOffset, SeekOrigin.Begin);
         var names = _nameTableItemSerializer.ReadTArray(stream, package.Header.NameCount);
-        package.NameTable.Names.AddRange(names);
+        package.NameTable.AddRange(names);
 
         stream.Seek(package.Header.ImportOffset, SeekOrigin.Begin);
         var imports = _importTableItemSerializer.ReadTArray(stream, package.Header.ImportCount);
-        package.ImportTable.Imports.AddRange(imports);
+        package.ImportTable.AddRange(imports);
 
         stream.Seek(package.Header.ExportOffset, SeekOrigin.Begin);
         var exports = _exportTablItemeSerializer.ReadTArray(stream, package.Header.ExportCount);
-        package.ExportTable.Exports.AddRange(exports);
+        package.ExportTable.AddRange(exports);
+
+        if (stream is FileStream fileStream)
+        {
+            var fileName = Path.GetFileNameWithoutExtension(fileStream.Name);
+            package.PackageName = fileName;
+            if (package.PackageName == "Core")
+            {
+                package.InitNativeImportClasses();
+            }
+        }
 
 
         return package;

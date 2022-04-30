@@ -29,7 +29,7 @@ public class ImportTableItemSerializer : IStreamSerializerFor<ImportTableItem>
         {
             ClassPackage = _nameSerializer.Deserialize(stream),
             ClassName = _nameSerializer.Deserialize(stream),
-            Outer = _objectIndexSerializer.Deserialize(stream),
+            OuterIndex = _objectIndexSerializer.Deserialize(stream),
             ObjectName = _nameSerializer.Deserialize(stream)
         };
     }
@@ -39,7 +39,7 @@ public class ImportTableItemSerializer : IStreamSerializerFor<ImportTableItem>
     {
         _nameSerializer.Serialize(stream, value.ClassPackage);
         _nameSerializer.Serialize(stream, value.ClassName);
-        _objectIndexSerializer.Serialize(stream, value.Outer);
+        _objectIndexSerializer.Serialize(stream, value.OuterIndex);
         _nameSerializer.Serialize(stream, value.ObjectName);
     }
 }

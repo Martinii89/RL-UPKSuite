@@ -1,12 +1,10 @@
-﻿using Core.Serialization;
-
-namespace Core.Types.FileSummeryInner;
+﻿namespace Core.Types.FileSummeryInner;
 
 /// <summary>
 ///     A FGenerationInfo is a member of a <see cref="FileSummary" /> If present it will give information about previous
 ///     versions of the package
 /// </summary>
-public class FGenerationInfo : IBinaryDeserializableClass
+public class FGenerationInfo
 {
     /// <summary>
     ///     How many Exports there was

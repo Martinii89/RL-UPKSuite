@@ -28,7 +28,7 @@ public class UnrealPackageSerializerTests
     {
         // Arrange
         var serviceColection = new ServiceCollection();
-        var inputTest = File.OpenRead("TestData/RocketPass_Premium_T_SF_decrypted.upk");
+        var inputTest = File.OpenRead(@"TestData/RocketPass_Premium_T_SF_decrypted.upk");
         serviceColection.UseSerializers(typeof(UnrealPackageSerializer), new SerializerOptions(RocketLeagueBase.FileVersion));
         var services = serviceColection.BuildServiceProvider();
         var testSerializer = services.GetRequiredService<IStreamSerializerFor<UnrealPackage>>();
@@ -37,16 +37,16 @@ public class UnrealPackageSerializerTests
         var unrealPackage = testSerializer.Deserialize(inputTest);
 
         // Assert
-        var names = unrealPackage.NameTable.Names;
+        var names = unrealPackage.NameTable;
         names.Should().HaveCount(13);
         names.First().Name.Should().Be("ArrayProperty");
 
-        var imports = unrealPackage.ImportTable.Imports;
+        var imports = unrealPackage.ImportTable;
         imports.Should().HaveCount(6);
         imports.First().ClassPackage.NameIndex.Should().Be(2);
         imports[5].ObjectName.NameIndex.Should().Be(12);
 
-        var exports = unrealPackage.ExportTable.Exports;
+        var exports = unrealPackage.ExportTable;
         exports.Should().HaveCount(4);
         exports[0].SerialSize.Should().Be(44);
         exports[1].SerialSize.Should().Be(12);
@@ -67,17 +67,17 @@ public class UnrealPackageSerializerTests
 
         // Assert
 
-        var names = unrealPackage.NameTable.Names;
+        var names = unrealPackage.NameTable;
         names.Should().HaveCount(14);
         names.First().Name.Should().Be("A");
         names[1].Name.Should().Be("ArrayProperty");
 
-        var imports = unrealPackage.ImportTable.Imports;
+        var imports = unrealPackage.ImportTable;
         imports.Should().HaveCount(2);
         imports[0].ClassPackage.NameIndex.Should().Be(4);
         imports[1].ClassPackage.NameIndex.Should().Be(4);
 
-        var exports = unrealPackage.ExportTable.Exports;
+        var exports = unrealPackage.ExportTable;
         exports.Should().HaveCount(2);
         exports[0].SerialSize.Should().Be(12);
         exports[1].SerialSize.Should().Be(120);

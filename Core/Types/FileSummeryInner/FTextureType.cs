@@ -1,11 +1,12 @@
 ﻿using Core.Serialization;
+using Core.Serialization.Default;
 
 namespace Core.Types.FileSummeryInner;
 
 /// <summary>
 ///     A FTextureType contains metadata about a texture stored in a package.
 /// </summary>
-public class FTextureType : IBinaryDeserializableClass
+public class FTextureType
 {
     /// <summary>
     ///     The width of the image in pixels
@@ -35,7 +36,7 @@ public class FTextureType : IBinaryDeserializableClass
     /// <summary>
     ///     Indexes into the export table. Probably the objects that reference this texture?
     /// </summary>
-    public TArray<int> ExportIndices { get; internal set; } = new();
+    public List<int> ExportIndices { get; internal set; } = new();
 
     /// <summary>
     ///     Deserialize the members from the stream
@@ -48,6 +49,6 @@ public class FTextureType : IBinaryDeserializableClass
         NumMips = reader.ReadInt32();
         Format = reader.ReadInt32();
         TexCreateFlags = reader.ReadInt32();
-        ExportIndices.Deserialize(reader);
+        ExportIndices.AddRange(new Int32Serializer().ReadTArray(reader));
     }
 }

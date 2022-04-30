@@ -1,4 +1,5 @@
 ﻿using Core.Serialization;
+using Core.Serialization.Default;
 
 namespace Core.Types.PackageTables;
 
@@ -7,12 +8,12 @@ namespace Core.Types.PackageTables;
 ///     The ints are object indexes (just imports maybe?) to objects the export depends on.
 ///     This table is not present in cooked packages
 /// </summary>
-public class DependsTable : IBinaryDeserializableClass
+public class DependsTable
 {
     /// <summary>
     ///     A Array of ints for every export
     /// </summary>
-    public TArray<TArray<int>> Depends { get; set; } = new();
+    public List<List<int>> Depends { get; set; } = new();
 
     /// <summary>
     ///     Iterates the arrays and deserializes them.
@@ -22,9 +23,10 @@ public class DependsTable : IBinaryDeserializableClass
     /// <param name="reader"></param>
     public void Deserialize(Stream reader)
     {
+        var intSerializer = new Int32Serializer();
         foreach (var depend in Depends)
         {
-            depend.Deserialize(reader);
+            depend.AddRange(intSerializer.ReadTArray(reader));
         }
     }
 
@@ -36,7 +38,7 @@ public class DependsTable : IBinaryDeserializableClass
     {
         for (var i = 0; i < exportCount; i++)
         {
-            Depends.Add(new TArray<int>());
+            Depends.Add(new List<int>());
         }
     }
 }

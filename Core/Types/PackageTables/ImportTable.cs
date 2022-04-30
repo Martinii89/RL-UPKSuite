@@ -6,24 +6,15 @@
 ///     These could be among other things: Classes, structs, textures, meshes.
 ///     Pretty much anything required to fully construct a instance of a export.
 /// </summary>
-public class ImportTable
+public class ImportTable : List<ImportTableItem>
 {
     /// <summary>
     ///     Initialized the table with a empty list
     /// </summary>
     public ImportTable()
     {
-        Imports = new List<ImportTableItem>();
     }
 
-    /// <summary>
-    ///     Initialize the table with a given list
-    /// </summary>
-    /// <param name="imports"></param>
-    public ImportTable(List<ImportTableItem> imports)
-    {
-        Imports = imports;
-    }
 
     /// <summary>
     ///     Initialize and deserialize the table from the stream. Requires the offset where the table data starts, and how many
@@ -35,19 +26,17 @@ public class ImportTable
     public ImportTable(Stream stream, long importsOffset, int importsCount)
     {
         stream.Position = importsOffset;
-        Imports = new List<ImportTableItem>(importsCount);
+        Capacity = importsCount;
         for (var index = 0; index < importsCount; index++)
         {
             var name = new ImportTableItem();
             name.Deserialize(stream);
-            Imports.Add(name);
+            Add(name);
         }
     }
 
-    /// <summary>
-    ///     The list of import items
-    /// </summary>
-    public List<ImportTableItem> Imports { get; set; }
+    internal UnrealPackage UnrealPackage { get; set; }
+
 
     /// <summary>
     ///     Serialize the imports to the stream. Does not write the amount of imports to the stream, only the table items are
@@ -56,7 +45,7 @@ public class ImportTable
     /// <param name="outStream"></param>
     public void Serialize(Stream outStream)
     {
-        Imports.ForEach(n => n.Serialize(outStream));
+        ForEach(n => n.Serialize(outStream));
     }
 }
 
@@ -64,7 +53,7 @@ public class ImportTable
 ///     A ImportTableItem contains the metadata about a import object. It's name, type, outer, and which package it is
 ///     exported from. It does not track it's own index in the import table.
 /// </summary>
-public class ImportTableItem
+public class ImportTableItem : IObjectResource
 {
     /// <summary>
     ///     A empty import item. It's main use is to have something to populate with Deserialize
@@ -78,13 +67,13 @@ public class ImportTableItem
     /// </summary>
     /// <param name="classPackage"></param>
     /// <param name="className"></param>
-    /// <param name="outer"></param>
+    /// <param name="outerIndex"></param>
     /// <param name="objectName"></param>
-    public ImportTableItem(FName classPackage, FName className, ObjectIndex outer, FName objectName)
+    public ImportTableItem(FName classPackage, FName className, ObjectIndex outerIndex, FName objectName)
     {
         ClassPackage = classPackage;
         ClassName = className;
-        Outer = outer;
+        OuterIndex = outerIndex;
         ObjectName = objectName;
     }
 
@@ -98,16 +87,16 @@ public class ImportTableItem
     /// </summary>
     public FName ClassName { get; set; } = new();
 
-    /// <summary>
-    ///     A reference to the outer object of this import
-    /// </summary>
-    public ObjectIndex Outer { get; set; } = new();
 
-    /// <summary>
-    ///     The name of the import object
-    /// </summary>
+    public UObject? ImportedObject { get; set; }
+
+
+    /// <inheritdoc />
+    public ObjectIndex OuterIndex { get; set; } = new();
+
+
+    /// <inheritdoc />
     public FName ObjectName { get; set; } = new();
-
 
     /// <summary>
     ///     Deserialize the import metadata from the stream
@@ -117,7 +106,7 @@ public class ImportTableItem
     {
         ClassPackage.Deserialize(stream);
         ClassName.Deserialize(stream);
-        Outer.Deserialize(stream);
+        OuterIndex.Deserialize(stream);
         ObjectName.Deserialize(stream);
     }
 
@@ -129,7 +118,7 @@ public class ImportTableItem
     {
         ClassPackage.Serialize(stream);
         ClassName.Serialize(stream);
-        Outer.Serialize(stream);
+        OuterIndex.Serialize(stream);
         ObjectName.Serialize(stream);
     }
 }

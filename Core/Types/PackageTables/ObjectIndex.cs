@@ -9,6 +9,27 @@
 public class ObjectIndex
 {
     /// <summary>
+    ///     From which table can you find the reference object
+    /// </summary>
+    public enum ReferencedTable
+    {
+        /// <summary>
+        ///     This is a null reference
+        /// </summary>
+        Null,
+
+        /// <summary>
+        ///     This is a import object reference
+        /// </summary>
+        Import,
+
+        /// <summary>
+        ///     This is a export object reference
+        /// </summary>
+        Export
+    }
+
+    /// <summary>
     ///     Constructs a null reference
     /// </summary>
     public ObjectIndex()
@@ -25,9 +46,36 @@ public class ObjectIndex
     }
 
     /// <summary>
-    ///     The reference index. Larger than zero is a export. Less than zero is a import
+    ///     The reference index. Larger than zero is a export. Less than zero is a import. Zero is a null reference
     /// </summary>
     public int Index { get; private set; }
+
+    /// <summary>
+    ///     Returns the index for the reference in the export table
+    /// </summary>
+    /// <returns></returns>
+    public int ExportIndex => Index - 1;
+
+    /// <summary>
+    ///     Returns the index for the reference in the import table
+    /// </summary>
+    /// <returns></returns>
+    public int ImportIndex => -Index - 1;
+
+    /// <summary>
+    ///     Which table does this object reference
+    /// </summary>
+    /// <returns></returns>
+    public ReferencedTable GetReferencedTable()
+    {
+        return Index switch
+        {
+            0 => ReferencedTable.Null,
+            < 0 => ReferencedTable.Import,
+            > 0 => ReferencedTable.Export
+        };
+    }
+
 
     /// <summary>
     ///     Reads a int32 value from the stream and assigns this as the Index

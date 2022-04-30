@@ -1,4 +1,6 @@
 ﻿using Core.Extensions;
+using Core.Serialization;
+using Core.Serialization.Default;
 using Core.Types.FileSummeryInner;
 
 namespace Core.Types;
@@ -112,7 +114,7 @@ public class FileSummary
     /// <summary>
     ///     Data about previous versions of this package
     /// </summary>
-    public TArray<FGenerationInfo> Generations { get; set; } = new();
+    public List<FGenerationInfo> Generations { get; set; } = new();
 
     /// <summary>
     ///     The version of the engine that serialized this package
@@ -134,17 +136,17 @@ public class FileSummary
     /// </summary>
     public int CompressionFlagsOffset { get; internal set; }
 
-    internal TArray<FCompressedChunkInfo> CompressedChunks { get; set; } = new();
+    internal List<FCompressedChunkInfo> CompressedChunks { get; set; } = new();
 
     /// <summary>
     ///     List of other packages required by this package
     /// </summary>
-    public TArray<FString> AdditionalPackagesToCook { get; set; } = new();
+    public List<FString> AdditionalPackagesToCook { get; set; } = new();
 
     /// <summary>
     ///     Textures stored in this package
     /// </summary>
-    public TArray<FTextureType> TextureAllocations { get; set; } = new();
+    public List<FTextureType> TextureAllocations { get; set; } = new();
 
 
     /// <summary>
@@ -184,8 +186,7 @@ public class FileSummary
         ThumbnailTableOffset = reader.ReadInt32();
 
         Guid.Deserialize(reader);
-
-        Generations.Deserialize(reader);
+        Generations.AddRange(new FGenerationInfoSerializer().ReadTArray(reader));
 
         EngineVersion = reader.ReadUInt32();
         CookerVersion = reader.ReadUInt32();
@@ -193,12 +194,12 @@ public class FileSummary
         CompressionFlagsOffset = (int) reader.Position;
         CompressionFlags = (ECompressionFlags) reader.ReadUInt32();
 
-        CompressedChunks = new TArray<FCompressedChunkInfo>(() => new FCompressedChunkInfo(this));
-        CompressedChunks.Deserialize(reader);
+        //CompressedChunks = new TArray<FCompressedChunkInfo>(() => new FCompressedChunkInfo(this));
+        CompressedChunks.AddRange(new FCompressedChunkInfoSerializer().ReadTArray(reader));
 
         Unknown5 = reader.ReadInt32();
 
-        AdditionalPackagesToCook.Deserialize(reader);
-        TextureAllocations.Deserialize(reader);
+        AdditionalPackagesToCook.AddRange(new FStringSerializer().ReadTArray(reader));
+        TextureAllocations.AddRange(new FTextureAllocationsSerializer(new Int32Serializer()).ReadTArray(reader));
     }
 }

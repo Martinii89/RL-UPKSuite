@@ -1,8 +1,6 @@
-﻿using Core.Serialization;
+﻿namespace Core.Types.FileSummeryInner;
 
-namespace Core.Types.FileSummeryInner;
-
-internal class FCompressedChunkHeader : IBinaryDeserializableClass
+internal class FCompressedChunkHeader
 {
     public int Tag { get; private set; }
     public int BlockSize { get; private set; }
@@ -18,7 +16,7 @@ internal class FCompressedChunkHeader : IBinaryDeserializableClass
     }
 }
 
-internal class FCompressedChunkBlock : IBinaryDeserializableClass
+internal class FCompressedChunkBlock
 {
     public int CompressedSize { get; private set; }
     public int UncompressedSize { get; private set; }

@@ -2,6 +2,8 @@
 using System.IO.Compression;
 using System.Security.Cryptography;
 using Core.RocketLeague.Decryption;
+using Core.Serialization;
+using Core.Serialization.Default;
 using Core.Types;
 using Core.Types.FileSummeryInner;
 
@@ -157,7 +159,9 @@ public class PackageUnpacker
         var decryptedDataReader = new BinaryReader(new MemoryStream(decryptedData));
 
         decryptedDataReader.BaseStream.Position = FileCompressionMetaData.CompressedChunkInfoOffset;
-        FileSummary.CompressedChunks.Deserialize(decryptedDataReader.BaseStream);
+        // TODO: use DI
+        var compressedChunksSerializer = new FCompressedChunkInfoSerializer();
+        FileSummary.CompressedChunks.AddRange(compressedChunksSerializer.ReadTArray(decryptedDataReader.BaseStream));
         // The depends table is always empty. So The depends table marks the start of where the uncompressed data should go.
         Debug.Assert(FileSummary.CompressedChunks.First().UncompressedOffset == FileSummary.DependsOffset);
         outputStream.Write(decryptedData);

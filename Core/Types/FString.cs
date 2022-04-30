@@ -1,12 +1,11 @@
 ﻿using System.Text;
-using Core.Serialization;
 
 namespace Core.Types;
 
 /// <summary>
 ///     Wrapper for strings stored in unreal packages.
 /// </summary>
-public class FString : IBinaryDeserializableClass
+public class FString
 {
     private bool _bIsUnicode;
     internal string InnerString { get; set; } = string.Empty;
