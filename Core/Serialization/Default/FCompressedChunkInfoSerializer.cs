@@ -1,9 +1,9 @@
 ﻿using Core.Types.FileSummeryInner;
 
-namespace Core.Serialization.RocketLeague;
+namespace Core.Serialization.Default;
 
 /// <inheritdoc />
-public class FCompressedChunkInfoSerializer : RocketLeagueBase, IStreamSerializerFor<FCompressedChunkInfo>
+public class FCompressedChunkInfoSerializer : IStreamSerializerFor<FCompressedChunkInfo>
 {
     /// <inheritdoc />
     public FCompressedChunkInfo Deserialize(Stream stream)

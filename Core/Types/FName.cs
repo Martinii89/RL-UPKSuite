@@ -40,12 +40,12 @@ public class FName
     /// <summary>
     ///     The index in the <see cref="NameTable" />
     /// </summary>
-    public int NameIndex { get; private set; }
+    public int NameIndex { get; set; }
 
     /// <summary>
     ///     Instance number
     /// </summary>
-    public int InstanceNumber { get; private set; }
+    public int InstanceNumber { get; set; }
 
     /// <summary>
     ///     Deserialize the FName from the stream

@@ -108,65 +108,65 @@ public class ExportTableItem
     /// <summary>
     ///     A reference to the UClass for this object. A value of zero indicates this is a UClass definition.
     /// </summary>
-    public ObjectIndex ClassIndex { get; } = new();
+    public ObjectIndex ClassIndex { get; set; } = new();
 
     /// <summary>
     ///     A reference to the base type of this object. If null this object has no base.
     /// </summary>
-    public ObjectIndex SuperIndex { get; } = new();
+    public ObjectIndex SuperIndex { get; set; } = new();
 
     /// <summary>
     ///     A reference to the outer object. If null this is a top level package.
     /// </summary>
-    public ObjectIndex OuterIndex { get; } = new();
+    public ObjectIndex OuterIndex { get; set; } = new();
 
     /// <summary>
     ///     The name of this object.
     /// </summary>
-    public FName ObjectName { get; } = new();
+    public FName ObjectName { get; set; } = new();
 
     /// <summary>
     ///     A reference to the archetype of this object. If null this object is not a archetype
     /// </summary>
-    public ObjectIndex ArchetypeIndex { get; } = new();
+    public ObjectIndex ArchetypeIndex { get; set; } = new();
 
     /// <summary>
     ///     ObjectFlags. Unsure what these are used for
     /// </summary>
-    public ulong ObjectFlags { get; private set; }
+    public ulong ObjectFlags { get; set; }
 
     /// <summary>
     ///     How many bytes are serialized to disk for this object
     /// </summary>
-    public int SerialSize { get; private set; }
+    public int SerialSize { get; set; }
 
     /// <summary>
     ///     Where the serialized data is located
     /// </summary>
-    public long SerialOffset { get; private set; }
+    public long SerialOffset { get; set; }
 
     /// <summary>
     ///     Export specific flags
     /// </summary>
-    public int ExportFlags { get; private set; }
+    public int ExportFlags { get; set; }
 
     /// <summary>
     ///     The number of net serializable objects contained within this object
     /// </summary>
-    public TArray<int> NetObjects { get; } = new();
+    public TArray<int> NetObjects { get; set; } = new();
 
     /// <summary>
     ///     The GUID of the original package
     /// </summary>
-    public FGuid PackageGuid { get; } = new();
+    public FGuid PackageGuid { get; set; } = new();
 
     /// <summary>
     ///     Flags of the original package.
     /// </summary>
-    public int PackageFlags { get; private set; }
+    public int PackageFlags { get; set; }
 
     /// <summary>
-    ///     Deserialze the members from the stream
+    ///     Deserialize the members from the stream
     /// </summary>
     /// <param name="stream"></param>
     public void Deserialize(Stream stream)

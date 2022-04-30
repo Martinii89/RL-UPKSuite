@@ -2,12 +2,12 @@
 using Core.Types;
 using Core.Types.FileSummeryInner;
 
-namespace Core.Serialization.RocketLeague;
+namespace Core.Serialization.Default;
 
 /// <summary>
-///     Serializer for FileSummary specifically for cooked RocketLeague packages
+///     Serializer for FileSummary
 /// </summary>
-public class FileSummarySerializer : RocketLeagueBase, IStreamSerializerFor<FileSummary>
+public class FileSummarySerializer : IStreamSerializerFor<FileSummary>
 {
     private readonly IStreamSerializerFor<FCompressedChunkInfo> _compressedChunkSerializer;
     private readonly IStreamSerializerFor<FGenerationInfo> _generationsSerializer;

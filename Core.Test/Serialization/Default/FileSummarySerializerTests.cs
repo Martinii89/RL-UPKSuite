@@ -1,12 +1,11 @@
 ﻿using System.IO;
-using Core.Serialization.Default;
 using Core.Types;
 using Core.Types.FileSummeryInner;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Core.Serialization.RocketLeague.Tests;
+namespace Core.Serialization.Default.Tests;
 
 public class FileSummarySerializerTests
 {
@@ -78,7 +77,7 @@ public class FileSummarySerializerTests
         var serviceColection = new ServiceCollection();
         // Act
         serviceColection.UseSerializers(typeof(FileSummarySerializer),
-            new SerializerOptions(RocketLeagueBase.FileVersion));
+            new SerializerOptions());
         var services = serviceColection.BuildServiceProvider();
         var testSerializer = services.GetRequiredService<IStreamSerializerFor<FileSummary>>();
         // Assert

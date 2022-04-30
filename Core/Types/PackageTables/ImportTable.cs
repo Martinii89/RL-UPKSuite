@@ -91,22 +91,22 @@ public class ImportTableItem
     /// <summary>
     ///     The name of the package this object can be found in
     /// </summary>
-    public FName ClassPackage { get; } = new();
+    public FName ClassPackage { get; set; } = new();
 
     /// <summary>
     ///     The name of the class
     /// </summary>
-    public FName ClassName { get; } = new();
+    public FName ClassName { get; set; } = new();
 
     /// <summary>
     ///     A reference to the outer object of this import
     /// </summary>
-    public ObjectIndex Outer { get; } = new();
+    public ObjectIndex Outer { get; set; } = new();
 
     /// <summary>
     ///     The name of the import object
     /// </summary>
-    public FName ObjectName { get; } = new();
+    public FName ObjectName { get; set; } = new();
 
 
     /// <summary>

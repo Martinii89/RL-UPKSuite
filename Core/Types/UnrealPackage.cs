@@ -12,7 +12,7 @@ public class UnrealPackage : IBinaryDeserializableClass
     /// <summary>
     ///     The header summarises what the package contains and where in the file the different parts are located
     /// </summary>
-    public FileSummary Header { get; } = new();
+    public FileSummary Header { get; set; } = new();
 
     /// <summary>
     ///     The name table contains all the names that this package references
