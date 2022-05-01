@@ -1,4 +1,6 @@
 ﻿using System.Text;
+using Core.Classes;
+using Core.Classes.Core;
 using Core.Types.PackageTables;
 using Core.Utility;
 
@@ -16,6 +18,8 @@ public class UnrealPackage
     public PackageLoader? RootLoader { get; set; }
 
     public string PackageName { get; set; } = string.Empty;
+
+    public UPackage? packageRoot { get; set; }
 
     //public UnrealPackage(IImportResolver importResolver)
     //{
@@ -279,6 +283,7 @@ public class UnrealPackage
             var newClass = new UClass(nativeClass.ObjectName, @class, rootPackage, this);
             PackageClasses.Add(newClass);
         }
+        //var structClass = new UClass()
     }
 
 
@@ -309,8 +314,70 @@ public class UnrealPackage
             var superRef = GetObjectReference(exportClass.SuperIndex);
 
             var superClass = superRef == null ? null : FindClass(GetName(superRef.ObjectName));
-            var newClass = new UClass(exportClass.ObjectName, @class, null, this, superClass);
+            var newClass = new UClass(exportClass.ObjectName, @class, packageRoot, this, superClass);
             PackageClasses.Add(newClass);
         }
+    }
+
+    public void AddNativeClasses()
+    {
+        if (PackageName != "Core")
+        {
+            return;
+        }
+
+        var corePackageImport = ImportTable.FirstOrDefault(x => GetName(x.ObjectName) == "Core" && GetName(x.ClassName) == "Package");
+        packageRoot = new UPackage(corePackageImport.ObjectName, null, null, this);
+        corePackageImport.ImportedObject = packageRoot;
+        var nativeClassHelper = new NativeClassRegistrationHelper(packageRoot);
+        var nativeClasses = nativeClassHelper.GetNativeClasses(this);
+
+        var coreFName = NameTable.FindIndex(x => x.Name == "Core");
+        var classFName = NameTable.FindIndex(x => x.Name == "Class");
+
+        foreach (var (className, @class) in nativeClasses)
+        {
+            PackageClasses.Add(@class);
+            var importItem = ImportTable.FirstOrDefault(x =>
+                GetName(x.ObjectName) == @class.Name && x.ClassName.NameIndex == classFName && x.ClassPackage.NameIndex == coreFName);
+            if (importItem != null)
+            {
+                importItem.ImportedObject = @class;
+            }
+        }
+    }
+
+    public FName GetOrAddName(string name)
+    {
+        var registeredName = NameTable.FindIndex(x => x.Name == name);
+        if (registeredName != -1)
+        {
+            return new FName(registeredName);
+        }
+
+        NameTable.Add(new NameTableItem
+        {
+            Name = name,
+            Flags = 0x7001000000000
+        }); //flag might be wrong, but all the flags seems to be set to this in the packages I've looked at
+        return new FName(NameTable.Count - 1);
+    }
+
+    private UPackage CreatePackageRoot(string packageName)
+    {
+        var fname = GetOrAddName(packageName);
+        return new UPackage(fname, UClass.StaticClass, null, this);
+    }
+
+    private class NativeClassRegistration
+    {
+        public NativeClassRegistration(Type type, NativeOnlyClassAttribute nativeOnlyClassAttribute)
+        {
+            Type = type;
+            NativeOnlyClassAttribute = nativeOnlyClassAttribute;
+        }
+
+        public Type Type { get; }
+        public NativeOnlyClassAttribute NativeOnlyClassAttribute { get; }
     }
 }

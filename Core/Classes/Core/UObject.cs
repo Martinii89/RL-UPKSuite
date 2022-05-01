@@ -1,5 +1,8 @@
-﻿namespace Core.Types;
+﻿using Core.Types;
 
+namespace Core.Classes.Core;
+
+[NativeOnlyClass("Core", "Object")]
 public class UObject
 {
     public UObject(FName name, UClass? @class, UObject? outer, UnrealPackage ownerPackage, UObject? objectArchetype = null)
@@ -11,7 +14,7 @@ public class UObject
         ObjectArchetype = objectArchetype;
     }
 
-    public UObject? Outer { get; init; }
+    public UObject? Outer { get; set; }
     private FName _name { get; }
 
     public string Name => OwnerPackage.GetName(_name);
@@ -21,15 +24,4 @@ public class UObject
     public UnrealPackage OwnerPackage { get; init; }
 
     public UObject? ObjectArchetype { get; init; }
-}
-
-public class UClass : UObject /* TODO: wrong base! */
-{
-    public UClass(FName name, UClass? @class, UObject? outer, UnrealPackage ownerPackage, UClass? superClass = null) : base(name, @class, outer,
-        ownerPackage)
-    {
-        SuperClass = superClass;
-    }
-
-    public UClass? SuperClass { get; init; }
 }

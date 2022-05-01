@@ -127,15 +127,35 @@ public class UnrealPackageTests : SerializerTestBase
     }
 
     [Theory]
-    [InlineData("Component")]
-    [InlineData("Interface")]
-    [InlineData("Subsystem")]
-    public void CanIntializeCoreExportClasses(string className)
+    [InlineData("Object")]
+    [InlineData("Field")]
+    [InlineData("Struct")]
+    [InlineData("Function")]
+    [InlineData("Property")]
+    [InlineData("BoolProperty")]
+    [InlineData("ByteProperty")]
+    [InlineData("QWordProperty")]
+    [InlineData("IntProperty")]
+    [InlineData("FloatProperty")]
+    [InlineData("StrProperty")]
+    [InlineData("NameProperty")]
+    [InlineData("DelegateProperty")]
+    [InlineData("ObjectProperty")]
+    [InlineData("ClassProperty")]
+    [InlineData("InterfaceProperty")]
+    [InlineData("StructProperty")]
+    [InlineData("ArrayProperty")]
+    [InlineData("MapProperty")]
+    [InlineData("Enum")]
+    [InlineData("Const")]
+    [InlineData("ScriptStruct")]
+    [InlineData("State")]
+    [InlineData("Class")]
+    public void CorePackage_InitializesNativeClasses(string className)
     {
         // Arrange
         var packageStream = File.OpenRead(@"TestData/UDK/Core.u");
         var package = _serializer.Deserialize(packageStream);
-        package.InitializeExportClasses();
         // Act
 
         var @class = package.FindClass(className);
@@ -143,6 +163,10 @@ public class UnrealPackageTests : SerializerTestBase
         // Assert 
         @class.Should().NotBeNull();
         @class.Name.Should().Be(className);
+        @class.Outer.Should().NotBeNull();
+        @class.Outer.Name.Should().Be("Core");
+        @class.Class.Should().NotBeNull();
+        @class.Class.Name.Should().Be("Class");
         _testOutputHelper.WriteLine($"Initialized {package.PackageClasses.Count} classes from Core");
         _testOutputHelper.WriteLine($"Initialized {string.Join(',', package.PackageClasses.Select(x => x.Name))}");
     }
@@ -155,7 +179,6 @@ public class UnrealPackageTests : SerializerTestBase
         var package = _serializer.Deserialize(packageStream);
         var importResolver = new ImportResolver(new ImportResolverOptions(_serializer)
             { Extensions = { "*.u", "*.upk" }, SearchPaths = { @"D:\UDK\Custom\UDKGame\Script" } });
-        package.ImportResolver = importResolver;
         package.ImportResolver = importResolver;
         // Act
 

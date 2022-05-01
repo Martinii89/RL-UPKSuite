@@ -1,4 +1,5 @@
-﻿using Core.Serialization;
+﻿using Core.Classes.Core;
+using Core.Serialization;
 using Core.Serialization.Default;
 
 namespace Core.Types.PackageTables;

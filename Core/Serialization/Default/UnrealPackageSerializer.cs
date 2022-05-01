@@ -42,7 +42,8 @@ public class UnrealPackageSerializer : IStreamSerializerFor<UnrealPackage>
             package.PackageName = fileName;
             if (package.PackageName == "Core")
             {
-                package.InitNativeImportClasses();
+                //package.InitNativeImportClasses();
+                package.AddNativeClasses();
             }
         }
 

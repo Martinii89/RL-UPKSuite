@@ -1,4 +1,6 @@
-﻿namespace Core.Types.PackageTables;
+﻿using Core.Classes.Core;
+
+namespace Core.Types.PackageTables;
 
 /// <summary>
 ///     The ImportTable contains a <see cref="ImportTableItem" /> for every imported item in a package.
