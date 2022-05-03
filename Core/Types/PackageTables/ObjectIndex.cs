@@ -63,6 +63,26 @@ public class ObjectIndex
     public int ImportIndex => -Index - 1;
 
     /// <summary>
+    ///     Converts a export table index to a object reference index
+    /// </summary>
+    /// <param name="exportIndex"></param>
+    /// <returns></returns>
+    public static int FromExportIndex(int exportIndex)
+    {
+        return exportIndex + 1;
+    }
+
+    /// <summary>
+    ///     Converts a import table index to a object reference index
+    /// </summary>
+    /// <param name="importIndex"></param>
+    /// <returns></returns>
+    public static int FromImportIndex(int importIndex)
+    {
+        return -importIndex - 1;
+    }
+
+    /// <summary>
     ///     Which table does this object reference
     /// </summary>
     /// <returns></returns>

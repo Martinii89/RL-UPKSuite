@@ -54,7 +54,6 @@ public class NativeClassRegistrationHelper
             var classFName = corePackage.GetOrAddName(className);
             var newClass = new UClass(classFName, UClass.StaticClass, OuterPackage, corePackage, superClass);
             registeredClasses[attribute.ClassName] = newClass;
-            corePackage.PackageClasses.Add(newClass);
             if (groupNativeBySuperClass.TryGetValue(className, out var derivedList))
             {
                 derivedList.ForEach(registerQueue.Enqueue);

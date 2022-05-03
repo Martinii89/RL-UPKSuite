@@ -82,8 +82,9 @@ public class UnrealPackageTests : SerializerTestBase
         // Arrange
         var packageStream = File.OpenRead(@"TestData/UDK/Core.u");
         var package = _serializer.Deserialize(packageStream);
+        package.LinkImports();
+        package.GraphLink();
         // Act
-        package.InitializeExportClasses();
         var @class = package.FindClass("Component");
 
         // Assert 
@@ -153,6 +154,19 @@ public class UnrealPackageTests : SerializerTestBase
     }
 
     [Fact]
+    public void CorePackage_InitializesNativeClasses_NoDuplicates()
+    {
+        // Arrange
+        var packageStream = File.OpenRead(@"TestData/UDK/Core.u");
+        // Act
+
+        var package = _serializer.Deserialize(packageStream);
+
+        // Assert 
+        package.PackageClasses.Should().OnlyHaveUniqueItems();
+    }
+
+    [Fact]
     public void CorePackage_InitializesUClassStaticClass()
     {
         // Arrange
@@ -217,7 +231,7 @@ public class UnrealPackageTests : SerializerTestBase
     }
 
     [Fact]
-    public void LinkExports_CorePackage_AllExportsLinked()
+    public void GraphLink_CorePackage_AllExportsLinked()
     {
         // Arrange
         var packageStream = File.OpenRead(@"TestData/UDK/Core.u");
@@ -225,7 +239,8 @@ public class UnrealPackageTests : SerializerTestBase
 
         // Act
         package.LinkImports();
-        package.LinkExports();
+        package.GraphLink();
+        //package.LinkExports();
 
         // Assert 
         package.ExportTable.Should().AllSatisfy(x =>

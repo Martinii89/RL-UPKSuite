@@ -1,7 +1,4 @@
-﻿using System.Text;
-using Core.Types.PackageTables;
-
-namespace Core.Utility;
+﻿namespace Core.Utility;
 
 internal class Node : IEquatable<Node>
 {
@@ -56,81 +53,98 @@ internal class Node : IEquatable<Node>
     }
 }
 
-public class ObjectDependencyGraph
+internal class Edge
 {
-    private readonly Dictionary<int, Node> _nodes = new();
-
-    public void AddExport(ExportTableItem exportTableItem, int index)
+    public Edge(int dest, EdgeType type)
     {
-        var outer = exportTableItem.OuterIndex.Index;
-        if (outer != 0)
-        {
-            AddDependancyEdge(outer, index, EdgeType.Outer);
-        }
-
-
-        var super = exportTableItem.SuperIndex.Index;
-        if (super != 0)
-        {
-            AddDependancyEdge(super, index, EdgeType.Super);
-        }
-
-        var archetype = exportTableItem.ArchetypeIndex.Index;
-        if (archetype != 0)
-        {
-            AddDependancyEdge(archetype, index, EdgeType.Archetype);
-        }
-
-        var @class = exportTableItem.ClassIndex.Index;
-        if (@class != 0)
-        {
-            AddDependancyEdge(@class, index, EdgeType.Class);
-        }
+        Dest = dest;
+        Type = type;
     }
 
-    internal Node GetOrAddNode(int key)
-    {
-        if (_nodes.TryGetValue(key, out var node))
-        {
-            return node;
-        }
+    public int Dest { get; set; }
+    public EdgeType Type { get; set; }
+}
 
-        var newNode = new Node(key);
-        _nodes.Add(key, newNode);
-        return newNode;
+public enum EdgeType
+{
+    Outer,
+    Super,
+    Archetype,
+    Class
+}
+
+public class Graph
+{
+    private readonly Dictionary<int, List<Edge>> _adj = new();
+    private int _nodeCount;
+
+    public void AddEdge(int from, int to, EdgeType edgeType)
+    {
+        var adjList = GetOrAddNodeEdges(from);
+        GetOrAddNodeEdges(to);
+        adjList.Add(new Edge(to, edgeType));
     }
 
-    internal void AddDependancyEdge(int super, int @base, EdgeType dependancyType)
+    // A recursive function used by topologicalSort
+    private void TopologicalSortUtil(int v, HashSet<int> visited,
+        Stack<int> stack)
     {
-        // TODO: Use edgetype
-        var superNode = GetOrAddNode(super);
-        var baseNode = GetOrAddNode(@base);
-        superNode.OutgoingEdges.Add(baseNode);
-        baseNode.IncomingEdges.Add(superNode);
-    }
+        // Mark the current node as visited.
+        visited.Add(v);
 
-    public string GetDotFile()
-    {
-        var sb = new StringBuilder();
-        sb.AppendLine("digraph graphname {");
-        foreach (var (key, node) in _nodes)
+        // Recur for all the vertices
+        // adjacent to this vertex
+        foreach (var vertex in _adj[v])
         {
-            foreach (var edge in node.OutgoingEdges)
+            if (!visited.Contains(vertex.Dest))
             {
-                sb.AppendLine($"\t{key} -> {edge.ObjectIndex};");
+                TopologicalSortUtil(vertex.Dest, visited, stack);
             }
         }
 
-        sb.AppendLine("}");
-
-        return sb.ToString();
+        // Push current vertex to
+        // stack which stores result
+        stack.Push(v);
     }
 
-    internal enum EdgeType
+    /// <summary>
+    ///     https://www.geeksforgeeks.org/topological-sorting/
+    ///     The function to do Topological Sort.
+    ///     It uses recursive topologicalSortUtil()
+    ///     MVN: I slightly modified the implementation to be compatible with my use case
+    /// </summary>
+    /// <returns></returns>
+    public List<int> TopologicalSort()
     {
-        Outer,
-        Super,
-        Archetype,
-        Class
+        Stack<int> stack = new();
+
+        // Mark all the vertices as not visited
+        var visited = new HashSet<int>();
+
+        // Call the recursive helper function
+        // to store Topological Sort starting
+        // from all vertices one by one
+        foreach (var (key, value) in _adj)
+        {
+            if (!visited.Contains(key))
+            {
+                TopologicalSortUtil(key, visited, stack);
+            }
+        }
+
+        return stack.ToList();
+    }
+
+    private List<Edge> GetOrAddNodeEdges(int from)
+    {
+        if (_adj.TryGetValue(from, out var adjList))
+        {
+            return adjList;
+        }
+
+        _nodeCount++;
+        adjList = new List<Edge>();
+        _adj.Add(from, adjList);
+        return adjList;
     }
 }

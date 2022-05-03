@@ -352,6 +352,15 @@ public class UnrealPackage
             {
                 importItem.ImportedObject = @class;
             }
+            else
+            {
+                var exportItem = ExportTable.FirstOrDefault(x =>
+                    GetName(x.ObjectName) == @class.Name && x.ClassIndex.Index == 0 && x.OuterIndex.Index == 0);
+                if (exportItem != null)
+                {
+                    exportItem.Object = @class;
+                }
+            }
         }
     }
 
@@ -389,24 +398,43 @@ public class UnrealPackage
     {
         for (var index = 0; index < ExportTable.Count; index++)
         {
-            var exportItem = ExportTable[index];
-            var exportClass = FindExportClass(exportItem);
-            var exportOuter = FindOuter(exportItem);
-            var exportArchetype = FindExportArchetype(exportItem);
-            UObject exportObject;
-            if (exportClass == UClass.StaticClass)
+            LinkExport(index);
+        }
+    }
+
+    private void LinkExport(int index)
+    {
+        var exportItem = ExportTable[index];
+        if (exportItem.Object is not null)
+        {
+            return;
+        }
+
+        var exportClass = FindExportClass(exportItem);
+        var exportOuter = FindOuter(exportItem);
+        var exportArchetype = FindExportArchetype(exportItem);
+        UObject exportObject;
+        if (exportClass == UClass.StaticClass)
+        {
+            var registeredClass = FindClass(GetName(exportItem.ObjectName));
+            if (registeredClass is not null)
+            {
+                exportObject = registeredClass;
+            }
+            else
             {
                 var superClass = FindSuperClass(exportItem);
                 var newClass = new UClass(exportItem.ObjectName, exportClass, exportOuter, this, superClass);
                 exportObject = newClass;
+                PackageClasses.Add(newClass);
             }
-            else
-            {
-                exportObject = new UObject(exportItem.ObjectName, exportClass, exportOuter, this, exportArchetype);
-            }
-
-            exportItem.Object = exportObject;
         }
+        else
+        {
+            exportObject = new UObject(exportItem.ObjectName, exportClass, exportOuter, this, exportArchetype);
+        }
+
+        exportItem.Object = exportObject;
     }
 
     private UClass? FindSuperClass(ExportTableItem exportItem)
@@ -471,8 +499,88 @@ public class UnrealPackage
             ExportTableItem export => export.Object as UClass,
             _ => throw new InvalidOperationException("Failed to find the class reference. Panic!")
         };
+    }
 
-        var @class = FindClass(GetName(classRef.ObjectName));
-        return @class;
+    public void GraphLink()
+    {
+        var graph = new Graph();
+
+        // Add imports to dependency graph
+        for (var index = 0; index < ImportTable.Count; index++)
+        {
+            var import = ImportTable[index];
+            var outerIndex = import.OuterIndex.Index;
+            if (outerIndex != 0)
+            {
+                graph.AddEdge(outerIndex, ObjectIndex.FromImportIndex(index), EdgeType.Outer);
+            }
+        }
+
+        // Add exports to dependency graph
+        for (var index = 0; index < ExportTable.Count; index++)
+        {
+            var export = ExportTable[index];
+            var outer = export.OuterIndex.Index;
+            if (outer != 0)
+            {
+                graph.AddEdge(outer, ObjectIndex.FromExportIndex(index), EdgeType.Outer);
+            }
+
+            var super = export.SuperIndex.Index;
+            if (super != 0)
+            {
+                graph.AddEdge(super, ObjectIndex.FromExportIndex(index), EdgeType.Super);
+            }
+
+            var archetype = export.ArchetypeIndex.Index;
+            if (archetype != 0)
+            {
+                graph.AddEdge(archetype, ObjectIndex.FromExportIndex(index), EdgeType.Archetype);
+            }
+
+            var @class = export.ClassIndex.Index;
+            if (@class != 0)
+            {
+                graph.AddEdge(@class, ObjectIndex.FromExportIndex(index), EdgeType.Class);
+            }
+        }
+
+        var topoSort = graph.TopologicalSort().Select(x => new ObjectIndex(x));
+        var visited = new HashSet<int>();
+        foreach (var i in topoSort)
+        {
+            var refObj = GetObjectReference(i);
+            switch (refObj)
+            {
+                case ExportTableItem export:
+                    visited.Add(i.Index);
+                    if (export.OuterIndex.Index != 0 && !visited.Contains(export.OuterIndex.Index))
+                    {
+                        throw new InvalidOperationException();
+                    }
+
+                    if (export.SuperIndex.Index != 0 && !visited.Contains(export.SuperIndex.Index))
+                    {
+                        throw new InvalidOperationException();
+                    }
+
+                    if (export.ArchetypeIndex.Index != 0 && !visited.Contains(export.ArchetypeIndex.Index))
+                    {
+                        throw new InvalidOperationException();
+                    }
+
+                    if (export.ClassIndex.Index != 0 && !visited.Contains(export.ClassIndex.Index))
+                    {
+                        throw new InvalidOperationException();
+                    }
+
+                    LinkExport(i.ExportIndex);
+
+                    break;
+                case ImportTableItem exportTable:
+                    visited.Add(i.Index);
+                    break;
+            }
+        }
     }
 }
