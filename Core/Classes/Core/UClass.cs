@@ -14,4 +14,9 @@ public class UClass : UObject /* TODO: wrong base! */
     public static UClass? StaticClass { get; set; }
 
     public UClass? SuperClass { get; init; }
+
+    private UObject ClassConstructor(FName name, UObject? outer, UnrealPackage ownerPackage, UObject? archetype)
+    {
+        return new UObject(name, this, outer, ownerPackage, archetype);
+    }
 }

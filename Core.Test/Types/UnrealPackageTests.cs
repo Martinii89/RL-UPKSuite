@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Linq;
+using Core.Classes.Core;
 using Core.RocketLeague;
 using Core.RocketLeague.Decryption;
 using Core.Serialization;
@@ -72,7 +73,7 @@ public class UnrealPackageTests : SerializerTestBase
         // Assert 
         @class.Should().NotBeNull();
         @class.Name.Should().Be("Class");
-        @class.Should().BeSameAs(package.ImportTable[3]);
+        @class.Should().BeSameAs(package.ImportTable[3].ImportedObject);
     }
 
     [Fact]
@@ -82,13 +83,13 @@ public class UnrealPackageTests : SerializerTestBase
         var packageStream = File.OpenRead(@"TestData/UDK/Core.u");
         var package = _serializer.Deserialize(packageStream);
         // Act
-
+        package.InitializeExportClasses();
         var @class = package.FindClass("Component");
 
         // Assert 
         @class.Should().NotBeNull();
         @class.Name.Should().Be("Component");
-        @class.Should().BeSameAs(package.ExportTable[2]);
+        @class.Should().BeSameAs(package.ExportTable[2].Object);
     }
 
     [Fact]
@@ -104,26 +105,6 @@ public class UnrealPackageTests : SerializerTestBase
         // Assert 
         @class.Should().NotBeNull();
         @class.Name.Should().Be("Package");
-    }
-
-    [Theory]
-    [InlineData("Package")]
-    [InlineData("Class")]
-    [InlineData("ArrayProperty")]
-    [InlineData("BoolProperty")]
-    [InlineData("ClassProperty")]
-    public void CanCreateNativeCoreClasses(string nativeClassName)
-    {
-        // Arrange
-        var packageStream = File.OpenRead(@"TestData/UDK/Core.u");
-        var package = _serializer.Deserialize(packageStream);
-        // Act
-
-        var @class = package.FindClass(nativeClassName);
-
-        // Assert 
-        @class.Should().NotBeNull();
-        @class.Name.Should().Be(nativeClassName);
     }
 
     [Theory]
@@ -162,13 +143,107 @@ public class UnrealPackageTests : SerializerTestBase
 
         // Assert 
         @class.Should().NotBeNull();
-        @class.Name.Should().Be(className);
+        @class!.Name.Should().Be(className);
         @class.Outer.Should().NotBeNull();
-        @class.Outer.Name.Should().Be("Core");
+        @class.Outer!.Name.Should().Be("Core");
         @class.Class.Should().NotBeNull();
-        @class.Class.Name.Should().Be("Class");
+        @class.Class!.Name.Should().Be("Class");
         _testOutputHelper.WriteLine($"Initialized {package.PackageClasses.Count} classes from Core");
         _testOutputHelper.WriteLine($"Initialized {string.Join(',', package.PackageClasses.Select(x => x.Name))}");
+    }
+
+    [Fact]
+    public void CorePackage_InitializesUClassStaticClass()
+    {
+        // Arrange
+        var packageStream = File.OpenRead(@"TestData/UDK/Core.u");
+        var package = _serializer.Deserialize(packageStream);
+        // Act
+
+        // Assert 
+        UClass.StaticClass.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void LinkImports_CorePackage_AllImportsCreated()
+    {
+        // Arrange
+        var packageStream = File.OpenRead(@"TestData/UDK/Core.u");
+        var package = _serializer.Deserialize(packageStream);
+
+        // Act
+        package.LinkImports();
+
+        // Assert 
+        package.ImportTable.Should().OnlyContain(item => item.ImportedObject != null);
+    }
+
+    [Fact]
+    public void LinkImports_CorePackage_AllImportsLinked()
+    {
+        // Arrange
+        var packageStream = File.OpenRead(@"TestData/UDK/Core.u");
+        var package = _serializer.Deserialize(packageStream);
+
+        // Act
+        package.LinkImports();
+        var importObjects = package.ImportTable.Select(x => x.ImportedObject).ToList();
+
+        // Assert 
+        importObjects.Should().AllSatisfy(x =>
+        {
+            x.Should().NotBeNull();
+            x!.Class.Should().NotBeNull();
+            if (x != package.packageRoot)
+            {
+                x.Outer.Should().NotBeNull();
+            }
+        });
+    }
+
+    [Fact]
+    public void LinkExports_CorePackage_AllExportsCreated()
+    {
+        // Arrange
+        var packageStream = File.OpenRead(@"TestData/UDK/Core.u");
+        var package = _serializer.Deserialize(packageStream);
+
+        // Act
+        package.LinkImports();
+        package.LinkExports();
+
+        // Assert 
+        package.ExportTable.Should().OnlyContain(item => item.Object != null);
+    }
+
+    [Fact]
+    public void LinkExports_CorePackage_AllExportsLinked()
+    {
+        // Arrange
+        var packageStream = File.OpenRead(@"TestData/UDK/Core.u");
+        var package = _serializer.Deserialize(packageStream);
+
+        // Act
+        package.LinkImports();
+        package.LinkExports();
+
+        // Assert 
+        package.ExportTable.Should().AllSatisfy(x =>
+        {
+            var obj = x.Object;
+            obj.Class.Should().NotBeNull();
+            if (x.OuterIndex.Index != 0)
+            {
+                obj.Outer.Should().NotBeNull();
+            }
+
+            if (x.ArchetypeIndex.Index != 0)
+            {
+                obj.ObjectArchetype.Should().NotBeNull();
+            }
+
+            obj.Outer.Should().NotBeNull();
+        });
     }
 
     [Fact]

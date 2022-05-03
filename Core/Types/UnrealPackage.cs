@@ -311,10 +311,17 @@ public class UnrealPackage
                 throw new NotImplementedException("Resolving import super classes not implemented yet");
             }
 
-            var superRef = GetObjectReference(exportClass.SuperIndex);
+            var registeredClas = FindClass(exportName);
+            if (registeredClas != null)
+            {
+                exportClass.Object = registeredClas;
+                continue;
+            }
 
+            var superRef = GetObjectReference(exportClass.SuperIndex);
             var superClass = superRef == null ? null : FindClass(GetName(superRef.ObjectName));
             var newClass = new UClass(exportClass.ObjectName, @class, packageRoot, this, superClass);
+            exportClass.Object = newClass;
             PackageClasses.Add(newClass);
         }
     }
@@ -334,6 +341,7 @@ public class UnrealPackage
 
         var coreFName = NameTable.FindIndex(x => x.Name == "Core");
         var classFName = NameTable.FindIndex(x => x.Name == "Class");
+        UClass.StaticClass = nativeClasses["Class"];
 
         foreach (var (className, @class) in nativeClasses)
         {
@@ -369,15 +377,102 @@ public class UnrealPackage
         return new UPackage(fname, UClass.StaticClass, null, this);
     }
 
-    private class NativeClassRegistration
+    public void LinkImports()
     {
-        public NativeClassRegistration(Type type, NativeOnlyClassAttribute nativeOnlyClassAttribute)
+        foreach (var import in ImportTable.Where(x => x.ImportedObject != null))
         {
-            Type = type;
-            NativeOnlyClassAttribute = nativeOnlyClassAttribute;
+            // link it
+        }
+    }
+
+    public void LinkExports()
+    {
+        for (var index = 0; index < ExportTable.Count; index++)
+        {
+            var exportItem = ExportTable[index];
+            var exportClass = FindExportClass(exportItem);
+            var exportOuter = FindOuter(exportItem);
+            var exportArchetype = FindExportArchetype(exportItem);
+            UObject exportObject;
+            if (exportClass == UClass.StaticClass)
+            {
+                var superClass = FindSuperClass(exportItem);
+                var newClass = new UClass(exportItem.ObjectName, exportClass, exportOuter, this, superClass);
+                exportObject = newClass;
+            }
+            else
+            {
+                exportObject = new UObject(exportItem.ObjectName, exportClass, exportOuter, this, exportArchetype);
+            }
+
+            exportItem.Object = exportObject;
+        }
+    }
+
+    private UClass? FindSuperClass(ExportTableItem exportItem)
+    {
+        if (exportItem.SuperIndex.Index == 0)
+        {
+            return null;
         }
 
-        public Type Type { get; }
-        public NativeOnlyClassAttribute NativeOnlyClassAttribute { get; }
+        var classRef = GetObjectReference(exportItem.SuperIndex);
+        return classRef switch
+        {
+            ImportTableItem import => import.ImportedObject as UClass,
+            ExportTableItem export => export.Object as UClass,
+            _ => throw new InvalidOperationException("Failed to find the class reference. Panic!")
+        };
+    }
+
+    private UObject? FindExportArchetype(ExportTableItem exportItem)
+    {
+        if (exportItem.ArchetypeIndex.Index == 0)
+        {
+            return null;
+        }
+
+        var outerRef = GetObjectReference(exportItem.ArchetypeIndex);
+        return outerRef switch
+        {
+            ImportTableItem import => import.ImportedObject,
+            ExportTableItem export => export.Object,
+            _ => null
+        };
+    }
+
+    private UObject? FindOuter(IObjectResource exportItem)
+    {
+        if (exportItem.OuterIndex.Index == 0)
+        {
+            return packageRoot;
+        }
+
+        var outerRef = GetObjectReference(exportItem.OuterIndex);
+        return outerRef switch
+        {
+            ImportTableItem import => import.ImportedObject,
+            ExportTableItem export => export.Object,
+            _ => null
+        };
+    }
+
+    private UClass? FindExportClass(ExportTableItem exportItem)
+    {
+        if (exportItem.ClassIndex.Index == 0)
+        {
+            return UClass.StaticClass;
+        }
+
+        var classRef = GetObjectReference(exportItem.ClassIndex);
+        return classRef switch
+        {
+            ImportTableItem import => import.ImportedObject as UClass,
+            ExportTableItem export => export.Object as UClass,
+            _ => throw new InvalidOperationException("Failed to find the class reference. Panic!")
+        };
+
+        var @class = FindClass(GetName(classRef.ObjectName));
+        return @class;
     }
 }
