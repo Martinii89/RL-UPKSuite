@@ -37,9 +37,6 @@ public class ImportTable : List<ImportTableItem>
         }
     }
 
-    internal UnrealPackage UnrealPackage { get; set; }
-
-
     /// <summary>
     ///     Serialize the imports to the stream. Does not write the amount of imports to the stream, only the table items are
     ///     written.
@@ -90,6 +87,9 @@ public class ImportTableItem : IObjectResource
     public FName ClassName { get; set; } = new();
 
 
+    /// <summary>
+    ///     The imported object. Null until after the later stages of package loading.
+    /// </summary>
     public UObject? ImportedObject { get; set; }
 
 

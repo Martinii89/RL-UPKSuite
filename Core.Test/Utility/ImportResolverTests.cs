@@ -2,18 +2,17 @@
 using Core.Test.TestUtilities;
 using Core.Types;
 using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Core.Utility.Tests;
 
-public class ImportResolverTests : SerializerTestBase
+public class ImportResolverTests : SerializerHelper
 {
     private readonly IStreamSerializerFor<UnrealPackage> _serializer;
 
     public ImportResolverTests()
     {
-        _serializer = GetSerializersCollection(typeof(UnrealPackage)).GetRequiredService<IStreamSerializerFor<UnrealPackage>>();
+        _serializer = GetSerializerFor<UnrealPackage>(typeof(UnrealPackage));
     }
 
     [Fact]

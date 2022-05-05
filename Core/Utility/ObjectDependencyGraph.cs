@@ -1,92 +1,84 @@
-﻿namespace Core.Utility;
+﻿using Core.Types.PackageTables;
 
-internal class Node : IEquatable<Node>
-{
-    internal Node(int objectIndex)
-    {
-        ObjectIndex = objectIndex;
-    }
-
-    internal List<Node> OutgoingEdges { get; set; } = new();
-    internal List<Node> IncomingEdges { get; set; } = new();
-
-    internal int ObjectIndex { get; }
-
-    public bool Equals(Node? other)
-    {
-        if (ReferenceEquals(null, other))
-        {
-            return false;
-        }
-
-        if (ReferenceEquals(this, other))
-        {
-            return true;
-        }
-
-        return ObjectIndex == other.ObjectIndex;
-    }
-
-    public override bool Equals(object? obj)
-    {
-        if (ReferenceEquals(null, obj))
-        {
-            return false;
-        }
-
-        if (ReferenceEquals(this, obj))
-        {
-            return true;
-        }
-
-        if (obj.GetType() != GetType())
-        {
-            return false;
-        }
-
-        return Equals((Node) obj);
-    }
-
-    public override int GetHashCode()
-    {
-        return ObjectIndex;
-    }
-}
+namespace Core.Utility;
 
 internal class Edge
 {
-    public Edge(int dest, EdgeType type)
+    public Edge(int dest)
     {
         Dest = dest;
-        Type = type;
     }
 
     public int Dest { get; set; }
-    public EdgeType Type { get; set; }
 }
 
-public enum EdgeType
-{
-    Outer,
-    Super,
-    Archetype,
-    Class
-}
-
-public class Graph
+/// <summary>
+///     Super simple graph class. Used to construct a dependancy graph that we can do a topological sort on. This gives us
+///     a good object initialization order.
+/// </summary>
+public class ObjectDependencyGraph
 {
     private readonly Dictionary<int, List<Edge>> _adj = new();
-    private int _nodeCount;
 
-    public void AddEdge(int from, int to, EdgeType edgeType)
+    /// <summary>
+    ///     Add a edge to the dependancy graph indicating that to depends on from.
+    /// </summary>
+    /// <param name="from"></param>
+    /// <param name="to"></param>
+    public void AddEdge(int from, int to)
     {
-        var adjList = GetOrAddNodeEdges(from);
-        GetOrAddNodeEdges(to);
-        adjList.Add(new Edge(to, edgeType));
+        var adjList = GetNodeEdges(from);
+        GetNodeEdges(to);
+        adjList.Add(new Edge(to));
+    }
+
+    public void AddImportTableDependencies(ImportTable importTable)
+    {
+        for (var index = 0; index < importTable.Count; index++)
+        {
+            var import = importTable[index];
+            var outerIndex = import.OuterIndex.Index;
+            if (outerIndex != 0)
+            {
+                AddEdge(outerIndex, ObjectIndex.FromImportIndex(index));
+            }
+        }
+    }
+
+    public void AddExportTableDependencies(ExportTable exportTable)
+    {
+        // Add exports to dependency graph
+        for (var index = 0; index < exportTable.Count; index++)
+        {
+            var export = exportTable[index];
+            var outer = export.OuterIndex.Index;
+            if (outer != 0)
+            {
+                AddEdge(outer, ObjectIndex.FromExportIndex(index));
+            }
+
+            var super = export.SuperIndex.Index;
+            if (super != 0)
+            {
+                AddEdge(super, ObjectIndex.FromExportIndex(index));
+            }
+
+            var archetype = export.ArchetypeIndex.Index;
+            if (archetype != 0)
+            {
+                AddEdge(archetype, ObjectIndex.FromExportIndex(index));
+            }
+
+            var @class = export.ClassIndex.Index;
+            if (@class != 0)
+            {
+                AddEdge(@class, ObjectIndex.FromExportIndex(index));
+            }
+        }
     }
 
     // A recursive function used by topologicalSort
-    private void TopologicalSortUtil(int v, HashSet<int> visited,
+    private void TopologicalSortUtil(int v, ISet<int> visited,
         Stack<int> stack)
     {
         // Mark the current node as visited.
@@ -124,7 +116,7 @@ public class Graph
         // Call the recursive helper function
         // to store Topological Sort starting
         // from all vertices one by one
-        foreach (var (key, value) in _adj)
+        foreach (var (key, _) in _adj)
         {
             if (!visited.Contains(key))
             {
@@ -135,16 +127,15 @@ public class Graph
         return stack.ToList();
     }
 
-    private List<Edge> GetOrAddNodeEdges(int from)
+    private List<Edge> GetNodeEdges(int nodeId)
     {
-        if (_adj.TryGetValue(from, out var adjList))
+        if (_adj.TryGetValue(nodeId, out var adjList))
         {
             return adjList;
         }
 
-        _nodeCount++;
         adjList = new List<Edge>();
-        _adj.Add(from, adjList);
+        _adj.Add(nodeId, adjList);
         return adjList;
     }
 }

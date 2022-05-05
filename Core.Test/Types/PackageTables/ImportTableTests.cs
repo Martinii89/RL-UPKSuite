@@ -47,7 +47,7 @@ public class ImportTableTests
         // Arrange
         var stream = new MemoryStream(_importData);
         // Act
-        var importTable = new ImportTable(stream, 0, ImportCount);
+        ImportTable importTable = new(stream, 0, ImportCount);
         // Assert 
         importTable.Should().BeEquivalentTo(_importTableItems);
     }

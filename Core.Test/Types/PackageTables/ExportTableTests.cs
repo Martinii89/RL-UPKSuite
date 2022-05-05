@@ -60,9 +60,9 @@ public class ExportTableTests
         // Arrange
         var stream = new MemoryStream(_exportData);
         // Act
-        var importTable = new ExportTable(stream, 0, ExportCount);
+        var exportTable = new ExportTable(stream, 0, ExportCount);
         // Assert 
-        importTable.Should().BeEquivalentTo(_exportTableItems);
+        exportTable.Should().BeEquivalentTo(_exportTableItems);
     }
 
     [Fact]
@@ -71,9 +71,9 @@ public class ExportTableTests
         // Arrange
         var stream = new MemoryStream();
         // Act
-        var importTable = new ExportTable();
-        importTable.AddRange(_exportTableItems);
-        importTable.Serialize(stream);
+        var exportTable = new ExportTable();
+        exportTable.AddRange(_exportTableItems);
+        exportTable.Serialize(stream);
         var streamBuffer = new ArraySegment<byte>(stream.GetBuffer(), 0, (int) stream.Length);
         // Assert 
         streamBuffer.Should().BeEquivalentTo(_exportData);

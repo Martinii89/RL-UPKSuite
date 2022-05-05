@@ -4,16 +4,16 @@ using Core.Classes.Core;
 using Core.RocketLeague;
 using Core.RocketLeague.Decryption;
 using Core.Serialization;
+using Core.Serialization.RocketLeague;
 using Core.Test.TestUtilities;
 using Core.Utility;
 using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace Core.Types.Tests;
 
-public class UnrealPackageTests : SerializerTestBase
+public class UnrealPackageTests : SerializerHelper
 {
     private readonly IStreamSerializerFor<UnrealPackage> _serializer;
     private readonly ITestOutputHelper _testOutputHelper;
@@ -21,7 +21,7 @@ public class UnrealPackageTests : SerializerTestBase
     public UnrealPackageTests(ITestOutputHelper testOutputHelper)
     {
         _testOutputHelper = testOutputHelper;
-        _serializer = GetSerializersCollection(typeof(UnrealPackage)).GetRequiredService<IStreamSerializerFor<UnrealPackage>>();
+        _serializer = GetSerializerFor<UnrealPackage>(typeof(UnrealPackage));
     }
 
     [Fact]
@@ -33,12 +33,12 @@ public class UnrealPackageTests : SerializerTestBase
         var decryptionProvider = new DecryptionProvider("keys.txt");
 
         var unpacked = new PackageUnpacker(inputTest, outputStream, decryptionProvider);
-        //var importResolver = new ImportResolver(new ImportResolverOptions() { Extensions = { "*.u", "*.upk" }, SearchPaths = { @"D:\UDK\Custom\UDKGame\Script" } });
-        var unrealPackage = new UnrealPackage();
         outputStream.Position = 0;
-        // Act
 
-        unrealPackage.Deserialize(outputStream);
+        var serializer = GetSerializerFor<UnrealPackage>(typeof(UnrealPackage), RocketLeagueBase.FileVersion);
+        // Act
+        var unrealPackage = serializer.Deserialize(outputStream);
+        //unrealPackage.Deserialize(outputStream);
 
         // Assert 
         var names = unrealPackage.NameTable;
@@ -54,10 +54,6 @@ public class UnrealPackageTests : SerializerTestBase
         exports.Count.Should().Be(unpacked.FileSummary.ExportCount);
         exports[0].SerialSize.Should().Be(44);
         exports[1].SerialSize.Should().Be(12);
-
-        var exportNames = unrealPackage.GetExportNamesAndOuters();
-
-        _testOutputHelper.WriteLine(string.Join("\n", exportNames));
     }
 
     [Fact]
@@ -208,7 +204,7 @@ public class UnrealPackageTests : SerializerTestBase
         {
             x.Should().NotBeNull();
             x!.Class.Should().NotBeNull();
-            if (x != package.packageRoot)
+            if (x != package.PackageRoot)
             {
                 x.Outer.Should().NotBeNull();
             }
@@ -224,7 +220,7 @@ public class UnrealPackageTests : SerializerTestBase
 
         // Act
         package.LinkImports();
-        package.LinkExports();
+        package.CreateExportObjects();
 
         // Assert 
         package.ExportTable.Should().OnlyContain(item => item.Object != null);
@@ -268,7 +264,7 @@ public class UnrealPackageTests : SerializerTestBase
         var packageStream = File.OpenRead(@"TestData/UDK/CustomGame.u");
         var package = _serializer.Deserialize(packageStream);
         var importResolver = new ImportResolver(new ImportResolverOptions(_serializer)
-            { Extensions = { "*.u", "*.upk" }, SearchPaths = { @"D:\UDK\Custom\UDKGame\Script" } });
+            { Extensions = { "*.u", "*.upk" }, SearchPaths = { @"TestData/UDK" } });
         package.ImportResolver = importResolver;
         // Act
 
