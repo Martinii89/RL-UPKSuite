@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using Core.Classes.Core;
 using Core.RocketLeague;
@@ -391,6 +392,29 @@ public class UnrealPackageTests : SerializerHelper
 
         var coreImports = package.ImportTable.Where(x => package.GetFullName(x).StartsWith("Core.")).ToList();
 
+        // Act
+
+        var imports = coreImports.Select(package.CreateImport);
+
+        // Assert 
+        imports.Should().AllSatisfy(x => { x.Should().NotBeNull(); });
+    }
+
+    [Fact]
+    public void CreateImport_EnginePackage_AllImportsResolves()
+    {
+        // Arrange
+        var packageStream = File.OpenRead(@"TestData/UDK/Engine.u");
+        var package = _serializer.Deserialize(packageStream);
+        package.PostDeserializeInitialize("CustomGame");
+        var importResolver = new ImportResolver(new ImportResolverOptions(_serializer)
+            { Extensions = { "*.u", "*.upk" }, SearchPaths = { @"TestData/UDK" } });
+        package.ImportResolver = importResolver;
+
+        var coreImports = package.ImportTable.Where(x => package.GetFullName(x).StartsWith("Core.")).ToList();
+        var engineImports = package.ImportTable.Where(x => package.GetFullName(x).StartsWith("Engine.")).Select(x => package.GetFullName(x)).ToList();
+        engineImports.Sort();
+        throw new NotImplementedException();
         // Act
 
         var imports = coreImports.Select(package.CreateImport);

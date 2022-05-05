@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using Core.Classes;
 using Core.Classes.Core;
+using Core.Serialization;
 using Core.Types.PackageTables;
 using Core.Utility;
 
@@ -61,6 +62,20 @@ public class UnrealPackage
     ///     a custom thumbnail, It will be defined here
     /// </summary>
     public ThumbnailTable ThumbnailTable { get; } = new();
+
+    /// <summary>
+    ///     Helper constructor to create and initialize a package from a <see cref="IStreamSerializerFor{T}" />
+    /// </summary>
+    /// <param name="stream">The package stream</param>
+    /// <param name="deserializer">A Serializer compatible with the stream</param>
+    /// <param name="packageName">The name of this package.</param>
+    /// <returns></returns>
+    public static UnrealPackage DeserializeAndInitialize(Stream stream, IStreamSerializerFor<UnrealPackage> deserializer, string packageName)
+    {
+        var package = deserializer.Deserialize(stream);
+        package.PostDeserializeInitialize(packageName);
+        return package;
+    }
 
     /// <summary>
     ///     Sets the package name and creates the root package object.

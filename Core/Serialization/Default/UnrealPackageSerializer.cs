@@ -3,6 +3,10 @@ using Core.Types.PackageTables;
 
 namespace Core.Serialization.Default;
 
+/// <summary>
+///     Serializes the UnrealPackage data. It does not link up or create any objects, just the header and table data is
+///     serialized.
+/// </summary>
 public class UnrealPackageSerializer : IStreamSerializerFor<UnrealPackage>
 {
     private readonly IStreamSerializerFor<ExportTableItem> _exportTablItemeSerializer;
