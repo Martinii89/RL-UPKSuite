@@ -36,16 +36,6 @@ public class UnrealPackageSerializer : IStreamSerializerFor<UnrealPackage>
         var exports = _exportTablItemeSerializer.ReadTArray(stream, package.Header.ExportCount);
         package.ExportTable.AddRange(exports);
 
-        if (stream is FileStream fileStream)
-        {
-            var fileName = Path.GetFileNameWithoutExtension(fileStream.Name);
-            package.PackageName = fileName;
-            if (package.PackageName == "Core")
-            {
-                package.AddNativeClasses();
-            }
-        }
-
 
         return package;
     }

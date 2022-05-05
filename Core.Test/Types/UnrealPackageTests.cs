@@ -62,6 +62,7 @@ public class UnrealPackageTests : SerializerHelper
         // Arrange
         var packageStream = File.OpenRead(@"TestData/UDK/Core.u");
         var package = _serializer.Deserialize(packageStream);
+        package.PostDeserializeInitialize("Core");
         // Act
 
         var @class = package.FindClass("Class");
@@ -95,6 +96,7 @@ public class UnrealPackageTests : SerializerHelper
         // Arrange
         var packageStream = File.OpenRead(@"TestData/UDK/Core.u");
         var package = _serializer.Deserialize(packageStream);
+        package.PostDeserializeInitialize("Core");
         // Act
 
         var @class = package.FindClass("Package");
@@ -134,6 +136,7 @@ public class UnrealPackageTests : SerializerHelper
         // Arrange
         var packageStream = File.OpenRead(@"TestData/UDK/Core.u");
         var package = _serializer.Deserialize(packageStream);
+        package.PostDeserializeInitialize("Core");
         // Act
 
         var @class = package.FindClass(className);
@@ -168,6 +171,7 @@ public class UnrealPackageTests : SerializerHelper
         // Arrange
         var packageStream = File.OpenRead(@"TestData/UDK/Core.u");
         var package = _serializer.Deserialize(packageStream);
+        package.PostDeserializeInitialize("Core");
         // Act
 
         // Assert 
@@ -180,6 +184,7 @@ public class UnrealPackageTests : SerializerHelper
         // Arrange
         var packageStream = File.OpenRead(@"TestData/UDK/Core.u");
         var package = _serializer.Deserialize(packageStream);
+        package.PostDeserializeInitialize("Core");
 
         // Act
         package.LinkImports();
@@ -194,6 +199,7 @@ public class UnrealPackageTests : SerializerHelper
         // Arrange
         var packageStream = File.OpenRead(@"TestData/UDK/Core.u");
         var package = _serializer.Deserialize(packageStream);
+        package.PostDeserializeInitialize("Core");
 
         // Act
         package.LinkImports();
@@ -232,6 +238,7 @@ public class UnrealPackageTests : SerializerHelper
         // Arrange
         var packageStream = File.OpenRead(@"TestData/UDK/Core.u");
         var package = _serializer.Deserialize(packageStream);
+        package.PostDeserializeInitialize("Core");
 
         // Act
         package.LinkImports();
@@ -258,11 +265,108 @@ public class UnrealPackageTests : SerializerHelper
     }
 
     [Fact]
-    public void CreateImport_CorePackage_ResolvesCorrectly()
+    public void GetFullName_CorePackage_AllImportsStartsWithCore()
+    {
+        // Arrange
+        var packageStream = File.OpenRead(@"TestData/UDK/Core.u");
+        var package = _serializer.Deserialize(packageStream);
+        package.PostDeserializeInitialize("Core");
+        // Act
+
+        var fullNames = package.ImportTable.Select(package.GetFullName);
+
+        // Assert 
+        fullNames.Should().OnlyContain(s => s.StartsWith("Core"));
+    }
+
+    [Fact]
+    public void GetFullName_CorePackage_CoreClass()
+    {
+        // Arrange
+        var packageStream = File.OpenRead(@"TestData/UDK/Core.u");
+        var package = _serializer.Deserialize(packageStream);
+        package.PostDeserializeInitialize("Core");
+        // Act
+
+        var coreObjectFullName = package.GetFullName(package.ImportTable[3]);
+
+        // Assert 
+        coreObjectFullName.Should().Be("Core.Class");
+    }
+
+    [Fact]
+    public void GetFullName_CorePackage_CoreObject()
+    {
+        // Arrange
+        var packageStream = File.OpenRead(@"TestData/UDK/Core.u");
+        var package = _serializer.Deserialize(packageStream);
+        package.PostDeserializeInitialize("Core");
+        // Act
+
+        var coreObjectFullName = package.GetFullName(package.ExportTable[0]);
+
+        // Assert 
+        coreObjectFullName.Should().Be("Core.Object");
+    }
+
+    [Fact]
+    public void GetFullName_CorePackage_AllExportsStartsWithCore()
+    {
+        // Arrange
+        var packageStream = File.OpenRead(@"TestData/UDK/Core.u");
+        var package = _serializer.Deserialize(packageStream);
+        package.PostDeserializeInitialize("Core");
+        // Act
+
+        var fullNames = package.ExportTable.Select(package.GetFullName);
+
+        // Assert 
+        fullNames.Should().OnlyContain(s => s.StartsWith("Core"));
+    }
+
+    [Fact]
+    public void CreateImport_CorePackage_ClassResolvesCorrectly()
     {
         // Arrange
         var packageStream = File.OpenRead(@"TestData/UDK/CustomGame.u");
         var package = _serializer.Deserialize(packageStream);
+        package.PostDeserializeInitialize("CustomGame");
+        var importResolver = new ImportResolver(new ImportResolverOptions(_serializer)
+            { Extensions = { "*.u", "*.upk" }, SearchPaths = { @"TestData/UDK" } });
+        package.ImportResolver = importResolver;
+        // Act
+
+        var obj = package.CreateImport(package.ImportTable[1]);
+
+        // Assert 
+        obj.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void CreateImport_CorePackage_ObjectResolvesCorrectly()
+    {
+        // Arrange
+        var packageStream = File.OpenRead(@"TestData/UDK/CustomGame.u");
+        var package = _serializer.Deserialize(packageStream);
+        package.PostDeserializeInitialize("CustomGame");
+        var importResolver = new ImportResolver(new ImportResolverOptions(_serializer)
+            { Extensions = { "*.u", "*.upk" }, SearchPaths = { @"TestData/UDK" } });
+        package.ImportResolver = importResolver;
+        // Act
+
+        var obj = package.CreateImport(package.ImportTable[2]);
+
+        // Assert 
+        obj.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void CreateImport_CorePackage_StateResolvesCorrectly()
+    {
+        // Arrange
+        var packageStream = File.OpenRead(@"TestData/UDK/CustomGame.u");
+        var package = _serializer.Deserialize(packageStream);
+        package.PostDeserializeInitialize("CustomGame");
         var importResolver = new ImportResolver(new ImportResolverOptions(_serializer)
             { Extensions = { "*.u", "*.upk" }, SearchPaths = { @"TestData/UDK" } });
         package.ImportResolver = importResolver;
@@ -272,5 +376,26 @@ public class UnrealPackageTests : SerializerHelper
 
         // Assert 
         obj.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void CreateImport_CorePackage_AllCoreImportsResolves()
+    {
+        // Arrange
+        var packageStream = File.OpenRead(@"TestData/UDK/CustomGame.u");
+        var package = _serializer.Deserialize(packageStream);
+        package.PostDeserializeInitialize("CustomGame");
+        var importResolver = new ImportResolver(new ImportResolverOptions(_serializer)
+            { Extensions = { "*.u", "*.upk" }, SearchPaths = { @"TestData/UDK" } });
+        package.ImportResolver = importResolver;
+
+        var coreImports = package.ImportTable.Where(x => package.GetFullName(x).StartsWith("Core.")).ToList();
+
+        // Act
+
+        var imports = coreImports.Select(package.CreateImport);
+
+        // Assert 
+        imports.Should().AllSatisfy(x => { x.Should().NotBeNull(); });
     }
 }

@@ -12,6 +12,8 @@ namespace Core.Types;
 /// </summary>
 public class UnrealPackage
 {
+    private const string CorePackageName = "Core";
+
     public readonly List<UClass> PackageClasses = new();
     public IImportResolver? ImportResolver { get; set; }
 
@@ -59,6 +61,26 @@ public class UnrealPackage
     ///     a custom thumbnail, It will be defined here
     /// </summary>
     public ThumbnailTable ThumbnailTable { get; } = new();
+
+    /// <summary>
+    ///     Sets the package name and creates the root package object.
+    ///     Additionally: If it the core package native classes will be injected.
+    /// </summary>
+    /// <param name="packageName"></param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public void PostDeserializeInitialize(string packageName)
+    {
+        PackageName = packageName;
+
+        PackageRoot = new UPackage(GetOrAddName(packageName), null, null, this);
+        if (PackageName == CorePackageName)
+        {
+            AddNativeClasses();
+        }
+
+        var packageClass = FindClass("Package");
+        PackageRoot.Class = packageClass;
+    }
 
 
     /// <summary>
@@ -116,6 +138,7 @@ public class UnrealPackage
         var stringBuilder = new StringBuilder();
         stringBuilder.Append(GetName(objectResource.ObjectName));
         var outer = GetObjectReference(objectResource.OuterIndex);
+
         while (outer != null)
         {
             var outerName = GetName(outer.ObjectName);
@@ -123,6 +146,13 @@ public class UnrealPackage
             stringBuilder.Insert(0, outerName);
             outer = GetObjectReference(outer.OuterIndex);
         }
+
+        if (objectResource is ExportTableItem)
+        {
+            stringBuilder.Insert(0, ".");
+            stringBuilder.Insert(0, PackageName);
+        }
+
 
         return stringBuilder.ToString();
     }
@@ -135,46 +165,66 @@ public class UnrealPackage
             throw new InvalidDataException("Can't resolve imports without a import resolver");
         }
 
-        var packageName = GetName(importTableItem.ClassPackage);
-        var importPackage = ImportResolver.ResolveExportPackage(packageName);
+        if (importTableItem.ImportedObject is not null)
+        {
+            return importTableItem.ImportedObject;
+        }
+
+        var importFullName = GetFullName(importTableItem);
+        var importPackageName = importFullName.Split(".")[0];
+
+        //var ClassPackageName = GetName(importTableItem.ClassPackage);
+        var importPackage = ImportResolver.ResolveExportPackage(importPackageName);
         if (importPackage == null)
         {
             return null;
         }
 
-        var className = GetName(importTableItem.ClassName);
-        var importClass = importPackage.FindClass(className);
-        //var @class = new UClass(importTableItem.ClassName, )
 
         var importOuter = GetObjectReference(importTableItem.OuterIndex);
+        if (importOuter is ImportTableItem { ImportedObject: null } import)
+        {
+            import.ImportedObject = CreateImport(import);
+        }
 
+        var className = GetName(importTableItem.ClassName);
+        if (className == "Class")
+        {
+            importTableItem.ImportedObject = importPackage.FindClass(className);
+        }
+        else
+        {
+            importTableItem.ImportedObject = importPackage.FindObject(importFullName);
+        }
 
-        // Data Required
-        // Name - yes
-        // Class - almost
-        // outer - almost
-        // Owner - yes
-        // Archetype - almost
-        //new UObject(importTableItem.ObjectName, new UClass())
+        return importTableItem.ImportedObject;
+    }
 
+    private UObject? FindObject(string importFullName)
+    {
+        var nameParts = importFullName.Split('.');
+        var exportFullNameMatch = ExportTable.FirstOrDefault(x => GetName(x.ObjectName) == nameParts[^1] && GetFullName(x) == importFullName);
+        if (exportFullNameMatch != null)
+        {
+            return exportFullNameMatch.Object;
+        }
 
-        //var export = importPackage.ExportTable.Exports.Where()
-
-
-        return null;
+        var importFullNameMatch = ImportTable.FirstOrDefault(x => GetName(x.ObjectName) == nameParts[^1] && GetFullName(x) == importFullName);
+        return importFullNameMatch?.ImportedObject;
     }
 
 
-    public void AddNativeClasses()
+    private void AddNativeClasses()
     {
         if (PackageName != "Core")
         {
             return;
         }
 
+        ArgumentNullException.ThrowIfNull(PackageRoot);
+
         var corePackageImport = ImportTable.FirstOrDefault(x => GetName(x.ObjectName) == "Core" && GetName(x.ClassName) == "Package");
-        // TODO initialize this in a post deserialize method
-        PackageRoot = new UPackage(corePackageImport.ObjectName, null, null, this);
+        ArgumentNullException.ThrowIfNull(corePackageImport);
         corePackageImport.ImportedObject = PackageRoot;
         var nativeClassHelper = new NativeClassRegistrationHelper(PackageRoot);
         var nativeClasses = nativeClassHelper.GetNativeClasses(this);
@@ -191,19 +241,23 @@ public class UnrealPackage
             if (importItem != null)
             {
                 importItem.ImportedObject = @class;
+                continue;
             }
-            else
+
+            var exportItem = ExportTable.FirstOrDefault(x =>
+                GetName(x.ObjectName) == @class.Name && x.ClassIndex.Index == 0 && x.OuterIndex.Index == 0);
+            if (exportItem != null)
             {
-                var exportItem = ExportTable.FirstOrDefault(x =>
-                    GetName(x.ObjectName) == @class.Name && x.ClassIndex.Index == 0 && x.OuterIndex.Index == 0);
-                if (exportItem != null)
-                {
-                    exportItem.Object = @class;
-                }
+                exportItem.Object = @class;
             }
         }
     }
 
+    /// <summary>
+    ///     Returns a FName referencing the given name. If no such name is found in the name table, it will be added.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <returns></returns>
     public FName GetOrAddName(string name)
     {
         var registeredName = NameTable.FindIndex(x => x.Name == name);
