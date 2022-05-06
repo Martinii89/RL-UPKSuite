@@ -56,7 +56,10 @@ public class ImportResolver : IImportResolver
         // TODO detect package type (UDK, Psyonix cooked)
 
         var package = _options.UnrealPackageSerializerFor.Deserialize(packageStream);
+        package.ImportResolver = this;
         package.PostDeserializeInitialize(packageName);
+        package.LinkImports();
+        package.GraphLink();
 
         _cachedPackages.Add(packageName, package);
 

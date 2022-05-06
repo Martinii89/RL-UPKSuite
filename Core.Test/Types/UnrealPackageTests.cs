@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Core.Classes.Core;
@@ -401,25 +401,42 @@ public class UnrealPackageTests : SerializerHelper
     }
 
     [Fact]
-    public void CreateImport_EnginePackage_AllImportsResolves()
+    public void CreateImport_EnginePackage_NativeClassesInjected()
     {
         // Arrange
         var packageStream = File.OpenRead(@"TestData/UDK/Engine.u");
         var package = _serializer.Deserialize(packageStream);
-        package.PostDeserializeInitialize("CustomGame");
+
+        var engineNativeClasses = new List<string>
+            { "ChildConnection", "Client", "FracturedStaticMesh", "Level", "Model", "NetConnection", "PendingLevel", "ShadowMap1D", "StaticMesh" };
+
+        // Act
+        package.PostDeserializeInitialize("Engine");
+
+        var classes = engineNativeClasses.Select(package.FindClass);
+
+        // Assert 
+        classes.Should().AllSatisfy(x => { x.Should().NotBeNull(); });
+    }
+
+    [Fact]
+    public void CreateImport_EnginePackage_AllCoreImportsResolves()
+    {
+        // Arrange
+        var packageStream = File.OpenRead(@"TestData/UDK/Engine.u");
+        var package = _serializer.Deserialize(packageStream);
         var importResolver = new ImportResolver(new ImportResolverOptions(_serializer)
             { Extensions = { "*.u", "*.upk" }, SearchPaths = { @"TestData/UDK" } });
         package.ImportResolver = importResolver;
+        package.PostDeserializeInitialize("Engine");
 
-        var coreImports = package.ImportTable.Where(x => package.GetFullName(x).StartsWith("Core.")).ToList();
-        var engineImports = package.ImportTable.Where(x => package.GetFullName(x).StartsWith("Engine.")).Select(x => package.GetFullName(x)).ToList();
-        engineImports.Sort();
-        throw new NotImplementedException();
+        var coreImports = package.ImportTable.Where(x => package.GetName(package.GetImportPackage(x).ObjectName) == "Core").ToList();
+
         // Act
-
-        var imports = coreImports.Select(package.CreateImport);
+        coreImports.ForEach(x => package.CreateImport(x));
+        var importObjects = coreImports.Select(x => x.ImportedObject);
 
         // Assert 
-        imports.Should().AllSatisfy(x => { x.Should().NotBeNull(); });
+        importObjects.Should().AllSatisfy(x => { x.Should().NotBeNull(); });
     }
 }

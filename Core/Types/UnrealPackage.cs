@@ -90,11 +90,50 @@ public class UnrealPackage
         PackageRoot = new UPackage(GetOrAddName(packageName), null, null, this);
         if (PackageName == CorePackageName)
         {
-            AddNativeClasses();
+            AddCoreNativeClasses();
+        }
+        else
+        {
+            AddCoreNativeClassesFromImports();
         }
 
         var packageClass = FindClass("Package");
         PackageRoot.Class = packageClass;
+    }
+
+    private void AddCoreNativeClassesFromImports()
+    {
+        var nativeObjects = GetNativeObjectsFromImportsInPackage();
+        var nativeClasses = nativeObjects.Where(x => GetName(x.ClassName) == "Class").ToList();
+
+        foreach (var nativeClass in nativeClasses)
+        {
+            nativeObjects.Remove(nativeClass);
+
+            var nativeUClass = new UClass(nativeClass.ObjectName, UClass.StaticClass, PackageRoot, this);
+            nativeClass.ImportedObject = nativeUClass;
+            PackageClasses.Add(nativeUClass);
+        }
+
+        foreach (var nativeObject in nativeObjects)
+        {
+            var classPackageName = GetName(nativeObject.ClassPackage);
+            ArgumentNullException.ThrowIfNull(ImportResolver);
+            var classPackage = ImportResolver.ResolveExportPackage(classPackageName);
+            ArgumentNullException.ThrowIfNull(classPackage);
+            var cls = classPackage.FindClass(GetName(nativeObject.ClassName));
+            // skip the outers for now. Link them up after creating the objects
+            var obj = new UObject(nativeObject.ObjectName, cls, null, this);
+            nativeObject.ImportedObject = obj;
+        }
+
+        foreach (var nativeObject in nativeObjects)
+        {
+            if (nativeObject.ImportedObject is not null)
+            {
+                nativeObject.ImportedObject.Outer = FindOuter(nativeObject);
+            }
+        }
     }
 
 
@@ -173,6 +212,31 @@ public class UnrealPackage
     }
 
 
+    /// <summary>
+    ///     Find the package where a import originates from
+    /// </summary>
+    /// <param name="objectResource"></param>
+    /// <returns></returns>
+    public IObjectResource GetImportPackage(ImportTableItem objectResource)
+    {
+        if (GetName(objectResource.ClassName) == "Package" && objectResource.OuterIndex.Index == 0)
+        {
+            return objectResource;
+        }
+
+        var outer = GetObjectReference(objectResource.OuterIndex);
+        ArgumentNullException.ThrowIfNull(outer);
+        var lastOuter = outer;
+        while (outer != null)
+        {
+            lastOuter = outer;
+            outer = GetObjectReference(outer.OuterIndex);
+        }
+
+        return lastOuter;
+    }
+
+
     public UObject? CreateImport(ImportTableItem importTableItem)
     {
         if (ImportResolver == null)
@@ -205,7 +269,7 @@ public class UnrealPackage
         var className = GetName(importTableItem.ClassName);
         if (className == "Class")
         {
-            importTableItem.ImportedObject = importPackage.FindClass(className);
+            importTableItem.ImportedObject = importPackage.FindClass(GetName(importTableItem.ObjectName));
         }
         else
         {
@@ -228,15 +292,27 @@ public class UnrealPackage
         return importFullNameMatch?.ImportedObject;
     }
 
-
-    private void AddNativeClasses()
+    /// <summary>
+    ///     Native objects in a package are where the source package is the same package
+    ///     where the import is defined (imported from itself)
+    /// </summary>
+    /// <returns></returns>
+    private List<ImportTableItem> GetNativeObjectsFromImportsInPackage()
     {
+        return ImportTable.Where(x =>
+            GetName(GetImportPackage(x).ObjectName) == PackageName).ToList();
+    }
+
+
+    private void AddCoreNativeClasses()
+    {
+        ArgumentNullException.ThrowIfNull(PackageRoot);
+
         if (PackageName != "Core")
         {
             return;
         }
 
-        ArgumentNullException.ThrowIfNull(PackageRoot);
 
         var corePackageImport = ImportTable.FirstOrDefault(x => GetName(x.ObjectName) == "Core" && GetName(x.ClassName) == "Package");
         ArgumentNullException.ThrowIfNull(corePackageImport);
