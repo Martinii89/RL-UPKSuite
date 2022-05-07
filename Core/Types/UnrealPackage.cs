@@ -69,10 +69,13 @@ public class UnrealPackage
     /// <param name="stream">The package stream</param>
     /// <param name="deserializer">A Serializer compatible with the stream</param>
     /// <param name="packageName">The name of this package.</param>
+    /// <param name="importResolver">Used to resolve import objects</param>
     /// <returns></returns>
-    public static UnrealPackage DeserializeAndInitialize(Stream stream, IStreamSerializerFor<UnrealPackage> deserializer, string packageName)
+    public static UnrealPackage DeserializeAndInitialize(Stream stream, IStreamSerializerFor<UnrealPackage> deserializer, string packageName,
+        IImportResolver? importResolver = null)
     {
         var package = deserializer.Deserialize(stream);
+        package.ImportResolver = importResolver;
         package.PostDeserializeInitialize(packageName);
         return package;
     }
@@ -118,8 +121,17 @@ public class UnrealPackage
         foreach (var nativeObject in nativeObjects)
         {
             var classPackageName = GetName(nativeObject.ClassPackage);
-            ArgumentNullException.ThrowIfNull(ImportResolver);
-            var classPackage = ImportResolver.ResolveExportPackage(classPackageName);
+            UnrealPackage? classPackage;
+            if (classPackageName != PackageName)
+            {
+                ArgumentNullException.ThrowIfNull(ImportResolver);
+                classPackage = ImportResolver.ResolveExportPackage(classPackageName);
+            }
+            else
+            {
+                classPackage = this;
+            }
+
             ArgumentNullException.ThrowIfNull(classPackage);
             var cls = classPackage.FindClass(GetName(nativeObject.ClassName));
             // skip the outers for now. Link them up after creating the objects
@@ -144,7 +156,7 @@ public class UnrealPackage
     /// <param name="index"></param>
     /// <returns></returns>
     /// <exception cref="IndexOutOfRangeException"></exception>
-    private IObjectResource? GetObjectReference(ObjectIndex index)
+    internal IObjectResource? GetObjectReference(ObjectIndex index)
     {
         return index.GetReferencedTable() switch
         {
@@ -279,7 +291,7 @@ public class UnrealPackage
         return importTableItem.ImportedObject;
     }
 
-    private UObject? FindObject(string importFullName)
+    internal UObject? FindObject(string importFullName)
     {
         var nameParts = importFullName.Split('.');
         var exportFullNameMatch = ExportTable.FirstOrDefault(x => GetName(x.ObjectName) == nameParts[^1] && GetFullName(x) == importFullName);

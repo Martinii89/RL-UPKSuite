@@ -6,7 +6,7 @@
 ///     Values less than zero are import objects. The real index in the import table will be ( - index - 1 )
 ///     Zero is a null reference
 /// </summary>
-public class ObjectIndex
+public class ObjectIndex : IEquatable<ObjectIndex>
 {
     /// <summary>
     ///     From which table can you find the reference object
@@ -62,6 +62,21 @@ public class ObjectIndex
     /// <returns></returns>
     public int ImportIndex => -Index - 1;
 
+    public bool Equals(ObjectIndex? other)
+    {
+        if (ReferenceEquals(null, other))
+        {
+            return false;
+        }
+
+        if (ReferenceEquals(this, other))
+        {
+            return true;
+        }
+
+        return Index == other.Index;
+    }
+
     /// <summary>
     ///     Converts a export table index to a object reference index
     /// </summary>
@@ -103,6 +118,7 @@ public class ObjectIndex
     /// <param name="stream"></param>
     public void Deserialize(Stream stream)
     {
+        // TODO remove so index can be a readonly field
         Index = stream.ReadInt32();
     }
 
@@ -113,5 +129,30 @@ public class ObjectIndex
     public void Serialize(Stream stream)
     {
         stream.WriteInt32(Index);
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (ReferenceEquals(null, obj))
+        {
+            return false;
+        }
+
+        if (ReferenceEquals(this, obj))
+        {
+            return true;
+        }
+
+        if (obj.GetType() != GetType())
+        {
+            return false;
+        }
+
+        return Equals((ObjectIndex) obj);
+    }
+
+    public override int GetHashCode()
+    {
+        return Index;
     }
 }

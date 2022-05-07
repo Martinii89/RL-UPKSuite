@@ -9,6 +9,7 @@ using Core.Serialization.RocketLeague;
 using Core.Test.TestUtilities;
 using Core.Utility;
 using FluentAssertions;
+using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -404,16 +405,21 @@ public class UnrealPackageTests : SerializerHelper
     public void CreateImport_EnginePackage_NativeClassesInjected()
     {
         // Arrange
-        var packageStream = File.OpenRead(@"TestData/UDK/Engine.u");
-        var package = _serializer.Deserialize(packageStream);
+        var serializer = GetSerializerFor<UnrealPackage>(typeof(UnrealPackage));
+
+        var corePackage = UnrealPackage.DeserializeAndInitialize(File.OpenRead(@"TestData/UDK/Core.u"), serializer, "Core");
+        var packageImportResolver = Substitute.For<IImportResolver>();
+        packageImportResolver.ResolveExportPackage("Core").Returns(corePackage);
+
 
         var engineNativeClasses = new List<string>
             { "ChildConnection", "Client", "FracturedStaticMesh", "Level", "Model", "NetConnection", "PendingLevel", "ShadowMap1D", "StaticMesh" };
 
         // Act
-        package.PostDeserializeInitialize("Engine");
+        var enginePackage = UnrealPackage.DeserializeAndInitialize(File.OpenRead(@"TestData/UDK/Engine.u"), serializer, "Engine", packageImportResolver);
+        packageImportResolver.ResolveExportPackage("Engine").Returns(enginePackage);
 
-        var classes = engineNativeClasses.Select(package.FindClass);
+        var classes = engineNativeClasses.Select(enginePackage.FindClass);
 
         // Assert 
         classes.Should().AllSatisfy(x => { x.Should().NotBeNull(); });
