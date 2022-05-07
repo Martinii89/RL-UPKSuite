@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Core.Serialization;
+using Core.Test.TestUtilities;
 using FluentAssertions;
 using Xunit;
 
@@ -43,6 +45,13 @@ public class NameTableTests
         0x00, 0x00, 0x10, 0x00, 0x07, 0x00
     };
 
+    private readonly IStreamSerializerFor<NameTableItem> _serializer;
+
+    public NameTableTests()
+    {
+        _serializer = SerializerHelper.GetSerializerFor<NameTableItem>(typeof(NameTableItem));
+    }
+
     [Fact]
     public void NameTableTest_DeserializeNameTable_RightAmountOfNames()
     {
@@ -51,7 +60,7 @@ public class NameTableTests
 
         // Act
 
-        var nameTable = new NameTable(tableStream, 0, NamesCountInTestData);
+        NameTable nameTable = new(_serializer, tableStream, NamesCountInTestData);
         // Assert 
 
         nameTable.Count.Should().Be(NamesCountInTestData);
@@ -64,7 +73,7 @@ public class NameTableTests
         var tableStream = new MemoryStream(_nameTableBytes);
 
         // Act
-        var nameTable = new NameTable(tableStream, 0, NamesCountInTestData);
+        var nameTable = new NameTable(_serializer, tableStream, NamesCountInTestData);
 
         // Assert 
         nameTable.Select(x => x.Name).Should().BeEquivalentTo(_names);
@@ -76,10 +85,10 @@ public class NameTableTests
         // Arrange
         var tableStream = new MemoryStream(_nameTableBytes);
         var serializedStream = new MemoryStream();
-        var nameTable = new NameTable(tableStream, 0, NamesCountInTestData);
+        var nameTable = new NameTable(_serializer, tableStream, NamesCountInTestData);
 
         // Act
-        nameTable.Serialize(serializedStream);
+        _serializer.WriteTArray(serializedStream, nameTable.ToArray(), StreamSerializerForExtension.ArraySizeSerialization.NoSize);
         serializedStream.Position = 0;
 
         // Assert 
