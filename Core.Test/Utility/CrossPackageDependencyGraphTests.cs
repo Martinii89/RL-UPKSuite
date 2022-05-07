@@ -12,20 +12,56 @@ using Xunit.Abstractions;
 
 namespace Core.Utility.Tests;
 
-public class CrossPackageDependencyGraphTests
+public class UdkPackages
 {
-    private readonly ITestOutputHelper _testOutputHelper;
+    public readonly UnrealPackage Core;
+    public readonly UnrealPackage CustomGame;
+    public readonly UnrealPackage Engine;
+    public readonly UnrealPackage GameFramework;
+    public readonly IImportResolver ImportResolver;
 
-    public CrossPackageDependencyGraphTests(ITestOutputHelper testOutputHelper)
+    public UdkPackages()
+    {
+        var core = new MemoryStream(File.ReadAllBytes(@"TestData/UDK/Core.u"));
+        var engine = new MemoryStream(File.ReadAllBytes(@"TestData/UDK/Engine.u"));
+        var customGame = new MemoryStream(File.ReadAllBytes(@"TestData/UDK/CustomGame.u"));
+        var gameFramework = new MemoryStream(File.ReadAllBytes(@"TestData/UDK/GameFramework.u"));
+
+        var serializer = SerializerHelper.GetSerializerFor<UnrealPackage>(typeof(UnrealPackage));
+        ImportResolver = Substitute.For<IImportResolver>();
+
+        Core = UnrealPackage.DeserializeAndInitialize(core, serializer, "Core");
+        ImportResolver.ResolveExportPackage("Core").Returns(Core);
+
+        Engine = UnrealPackage.DeserializeAndInitialize(engine, serializer, "Engine", ImportResolver);
+        ImportResolver.ResolveExportPackage("Engine").Returns(Engine);
+
+        GameFramework = UnrealPackage.DeserializeAndInitialize(customGame, serializer, "GameFramework", ImportResolver);
+        ImportResolver.ResolveExportPackage("GameFramework").Returns(GameFramework);
+
+        CustomGame = UnrealPackage.DeserializeAndInitialize(gameFramework, serializer, "CustomGame", ImportResolver);
+        ImportResolver.ResolveExportPackage("CustomGame").Returns(CustomGame);
+    }
+}
+
+public class CrossPackageDependencyGraphTests : IClassFixture<UdkPackages>
+{
+    private readonly IImportResolver _importResolver;
+    private readonly ITestOutputHelper _testOutputHelper;
+    private readonly UdkPackages _udkPackages;
+
+    public CrossPackageDependencyGraphTests(ITestOutputHelper testOutputHelper, UdkPackages udkPackages)
     {
         _testOutputHelper = testOutputHelper;
+        _udkPackages = udkPackages;
+        _importResolver = udkPackages.ImportResolver;
     }
 
     [Fact]
     public void AddNodeTest_AddNode_NoThrow()
     {
         // Arrange
-        var graph = new CrossPackageDependencyGraph(Substitute.For<IImportResolver>());
+        var graph = new CrossPackageDependencyGraph(_importResolver);
         var node = new PackageObjectReference("TestPAckage", new ObjectIndex(1));
 
         // Act
@@ -39,9 +75,8 @@ public class CrossPackageDependencyGraphTests
     public void AddNodeTest_AddNode_NodeCountIncreasesForNewNode()
     {
         // Arrange
-        var graph = new CrossPackageDependencyGraph(Substitute.For<IImportResolver>());
+        var graph = new CrossPackageDependencyGraph(_importResolver);
         var node = new PackageObjectReference("TestPAckage", new ObjectIndex(1));
-
         var startCount = graph.NodeCount;
 
         // Act
@@ -55,12 +90,12 @@ public class CrossPackageDependencyGraphTests
     public void AddNodeTest_AddNode_NodeCountConstantForDuplicateNode()
     {
         // Arrange
-        var graph = new CrossPackageDependencyGraph(Substitute.For<IImportResolver>());
+        var graph = new CrossPackageDependencyGraph(_importResolver);
         var node = new PackageObjectReference("TestPAckage", new ObjectIndex(1));
         graph.AddNode(node);
         var startCount = graph.NodeCount;
         // Act
-        var action = () => graph.AddNode(node);
+        graph.AddNode(node);
 
         // Assert 
         graph.NodeCount.Should().Be(startCount);
@@ -70,7 +105,7 @@ public class CrossPackageDependencyGraphTests
     public void GetEdgesTest_UnknownNode_ThrowsKeyNotFound()
     {
         // Arrange
-        var graph = new CrossPackageDependencyGraph(Substitute.For<IImportResolver>());
+        var graph = new CrossPackageDependencyGraph(_importResolver);
         var node = new PackageObjectReference("TestPAckage", new ObjectIndex(1));
         graph.AddNode(node);
 
@@ -86,7 +121,7 @@ public class CrossPackageDependencyGraphTests
     public void GetEdgesTest_KnownNode_NoThrow()
     {
         // Arrange
-        var graph = new CrossPackageDependencyGraph(Substitute.For<IImportResolver>());
+        var graph = new CrossPackageDependencyGraph(_importResolver);
         var node = new PackageObjectReference("TestPAckage", new ObjectIndex(1));
         graph.AddNode(node);
 
@@ -102,7 +137,7 @@ public class CrossPackageDependencyGraphTests
     public void AddEdgeTest_KnownNodesEdge_NoThrow()
     {
         // Arrange
-        var graph = new CrossPackageDependencyGraph(Substitute.For<IImportResolver>());
+        var graph = new CrossPackageDependencyGraph(_importResolver);
         var node = new PackageObjectReference("TestPAckage", new ObjectIndex(1));
         var node2 = new PackageObjectReference("TestPAckage", new ObjectIndex(2));
         graph.AddNode(node);
@@ -120,7 +155,7 @@ public class CrossPackageDependencyGraphTests
     public void AddEdgeTest_UnknownNodeEdge_AddsNewNode()
     {
         // Arrange
-        var graph = new CrossPackageDependencyGraph(Substitute.For<IImportResolver>());
+        var graph = new CrossPackageDependencyGraph(_importResolver);
         var node = new PackageObjectReference("TestPAckage", new ObjectIndex(1));
         var node2 = new PackageObjectReference("TestPAckage", new ObjectIndex(2));
         graph.AddNode(node);
@@ -137,7 +172,7 @@ public class CrossPackageDependencyGraphTests
     public void AddEdgeTest_FromToEqual_ThrowsArgumentException()
     {
         // Arrange
-        var graph = new CrossPackageDependencyGraph(Substitute.For<IImportResolver>());
+        var graph = new CrossPackageDependencyGraph(_importResolver);
         var node = new PackageObjectReference("TestPAckage", new ObjectIndex(1));
         var node2 = new PackageObjectReference("TestPAckage", new ObjectIndex(1));
 
@@ -152,7 +187,7 @@ public class CrossPackageDependencyGraphTests
     public void AddEdgeTest_AllUnknownNodes_AddsNewNodes()
     {
         // Arrange
-        var graph = new CrossPackageDependencyGraph(Substitute.For<IImportResolver>());
+        var graph = new CrossPackageDependencyGraph(_importResolver);
         var node = new PackageObjectReference("TestPAckage", new ObjectIndex(1));
         var node2 = new PackageObjectReference("TestPAckage", new ObjectIndex(2));
         var nodeCount = graph.NodeCount;
@@ -168,7 +203,7 @@ public class CrossPackageDependencyGraphTests
     public void AddEdgeTest_DuplicateEdge_NoThrow()
     {
         // Arrange
-        var graph = new CrossPackageDependencyGraph(Substitute.For<IImportResolver>());
+        var graph = new CrossPackageDependencyGraph(_importResolver);
         var node = new PackageObjectReference("TestPAckage", new ObjectIndex(1));
         var node2 = new PackageObjectReference("TestPAckage", new ObjectIndex(2));
         graph.AddNode(node);
@@ -186,15 +221,9 @@ public class CrossPackageDependencyGraphTests
     public void AddObjectDependencies_CoreObject_NoDependantNodes()
     {
         // Arrange
-        var serializer = SerializerHelper.GetSerializerFor<UnrealPackage>(typeof(UnrealPackage));
-        var packageStream = File.OpenRead(@"TestData/UDK/Core.u");
-        var package = UnrealPackage.DeserializeAndInitialize(packageStream, serializer, "Core");
 
-        var packageImportResolver = Substitute.For<IImportResolver>();
-        packageImportResolver.ResolveExportPackage("Core").Returns(package);
-
-        var graph = new CrossPackageDependencyGraph(packageImportResolver);
-        var coreObjectRef = new PackageObjectReference("Core", new ObjectIndex(ObjectIndex.FromExportIndex(0)));
+        var graph = new CrossPackageDependencyGraph(_importResolver);
+        var coreObjectRef = new PackageObjectReference(_udkPackages.Core.PackageName, new ObjectIndex(ObjectIndex.FromExportIndex(0)));
 
         // Act
 
@@ -208,18 +237,10 @@ public class CrossPackageDependencyGraphTests
     public void AddObjectDependencies_CoreDefaultObject_OneDependantNodes()
     {
         // Arrange
-        var serializer = SerializerHelper.GetSerializerFor<UnrealPackage>(typeof(UnrealPackage));
-        var packageStream = File.OpenRead(@"TestData/UDK/Core.u");
-        var package = UnrealPackage.DeserializeAndInitialize(packageStream, serializer, "Core");
-
-        var packageImportResolver = Substitute.For<IImportResolver>();
-        packageImportResolver.ResolveExportPackage("Core").Returns(package);
-
-        var graph = new CrossPackageDependencyGraph(packageImportResolver);
-        var coreDefaultObject = new PackageObjectReference("Core", new ObjectIndex(ObjectIndex.FromExportIndex(1)));
+        var graph = new CrossPackageDependencyGraph(_importResolver);
+        var coreDefaultObject = new PackageObjectReference(_udkPackages.Core.PackageName, new ObjectIndex(ObjectIndex.FromExportIndex(1)));
 
         // Act
-
         graph.AddObjectDependencies(coreDefaultObject);
 
         // Assert 
@@ -231,16 +252,8 @@ public class CrossPackageDependencyGraphTests
     public void AddObjectDependencies_CoreComponent_OneDependantNodes()
     {
         // Arrange
-        var serializer = SerializerHelper.GetSerializerFor<UnrealPackage>(typeof(UnrealPackage));
-        var packageStream = File.OpenRead(@"TestData/UDK/Core.u");
-        var package = UnrealPackage.DeserializeAndInitialize(packageStream, serializer, "Core");
-
-        var packageImportResolver = Substitute.For<IImportResolver>();
-        packageImportResolver.ResolveExportPackage("Core").Returns(package);
-
-        var graph = new CrossPackageDependencyGraph(packageImportResolver);
-        var coreDefaultObject = new PackageObjectReference("Core", new ObjectIndex(ObjectIndex.FromExportIndex(2)));
-
+        var graph = new CrossPackageDependencyGraph(_importResolver);
+        var coreDefaultObject = new PackageObjectReference(_udkPackages.Core.PackageName, new ObjectIndex(ObjectIndex.FromExportIndex(2)));
         // Act
 
         graph.AddObjectDependencies(coreDefaultObject);
@@ -253,15 +266,8 @@ public class CrossPackageDependencyGraphTests
     public void AddObjectDependencies_CoreDefaultComponent_FourDependantNodes()
     {
         // Arrange
-        var serializer = SerializerHelper.GetSerializerFor<UnrealPackage>(typeof(UnrealPackage));
-        var packageStream = File.OpenRead(@"TestData/UDK/Core.u");
-        var package = UnrealPackage.DeserializeAndInitialize(packageStream, serializer, "Core");
-
-        var packageImportResolver = Substitute.For<IImportResolver>();
-        packageImportResolver.ResolveExportPackage("Core").Returns(package);
-
-        var graph = new CrossPackageDependencyGraph(packageImportResolver);
-        var coreDefaultObject = new PackageObjectReference("Core", new ObjectIndex(ObjectIndex.FromExportIndex(3)));
+        var graph = new CrossPackageDependencyGraph(_importResolver);
+        var coreDefaultObject = new PackageObjectReference(_udkPackages.Core.PackageName, new ObjectIndex(ObjectIndex.FromExportIndex(3)));
 
         // Act
 
@@ -276,24 +282,12 @@ public class CrossPackageDependencyGraphTests
     public void AddObjectDependencies_EngineIsAReturnValue_TenDependantNodes()
     {
         // Arrange
-        var serializer = SerializerHelper.GetSerializerFor<UnrealPackage>(typeof(UnrealPackage));
-
-        var corePackage = UnrealPackage.DeserializeAndInitialize(File.OpenRead(@"TestData/UDK/Core.u"), serializer, "Core");
-        var packageImportResolver = Substitute.For<IImportResolver>();
-        packageImportResolver.ResolveExportPackage("Core").Returns(corePackage);
-        var enginePackage = UnrealPackage.DeserializeAndInitialize(File.OpenRead(@"TestData/UDK/Engine.u"), serializer, "Engine", packageImportResolver);
-        packageImportResolver.ResolveExportPackage("Engine").Returns(enginePackage);
-
-        var importFullName = enginePackage.GetFullName(enginePackage.ImportTable[2]);
-
-
-        var graph = new CrossPackageDependencyGraph(packageImportResolver);
+        var graph = new CrossPackageDependencyGraph(_importResolver);
         // Core.Object.IsA.ReturnValue
-        var IsAReturnValue = new PackageObjectReference("Engine", new ObjectIndex(ObjectIndex.FromImportIndex(2)));
+        var isAReturnValue = new PackageObjectReference(_udkPackages.Engine.PackageName, new ObjectIndex(ObjectIndex.FromImportIndex(2)));
 
         // Act
-
-        graph.AddObjectDependencies(IsAReturnValue);
+        graph.AddObjectDependencies(isAReturnValue);
 
         // Assert 
         graph.NodeCount.Should().Be(10);
@@ -303,24 +297,10 @@ public class CrossPackageDependencyGraphTests
     public void AddObjectDependencies_PendingMatch_NoThrow()
     {
         // Arrange
-        var serializer = SerializerHelper.GetSerializerFor<UnrealPackage>(typeof(UnrealPackage));
-
-        var corePackage = UnrealPackage.DeserializeAndInitialize(File.OpenRead(@"TestData/UDK/Core.u"), serializer, "Core");
-        var packageImportResolver = Substitute.For<IImportResolver>();
-        packageImportResolver.ResolveExportPackage("Core").Returns(corePackage);
-        var enginePackage = UnrealPackage.DeserializeAndInitialize(File.OpenRead(@"TestData/UDK/Engine.u"), serializer, "Engine", packageImportResolver);
-        packageImportResolver.ResolveExportPackage("Engine").Returns(enginePackage);
-        var customGamePackage =
-            UnrealPackage.DeserializeAndInitialize(File.OpenRead(@"TestData/UDK/CustomGame.u"), serializer, "CustomGame", packageImportResolver);
-        packageImportResolver.ResolveExportPackage("CustomGame").Returns(customGamePackage);
-
-        var graph = new CrossPackageDependencyGraph(packageImportResolver);
-
-        // Core.Object.IsA.ReturnValue
-        var pendingMatch = new PackageObjectReference("CustomGame", new ObjectIndex(ObjectIndex.FromExportIndex(0)));
+        var graph = new CrossPackageDependencyGraph(_importResolver);
+        var pendingMatch = new PackageObjectReference(_udkPackages.CustomGame.PackageName, new ObjectIndex(ObjectIndex.FromExportIndex(0)));
 
         // Act
-
         var action = () => graph.AddObjectDependencies(pendingMatch);
 
         // Assert 
@@ -334,28 +314,11 @@ public class CrossPackageDependencyGraphTests
     public void AddObjectDependencies_CustomPawn_NoThrow()
     {
         // Arrange
-        var serializer = SerializerHelper.GetSerializerFor<UnrealPackage>(typeof(UnrealPackage));
-
-        var corePackage = UnrealPackage.DeserializeAndInitialize(File.OpenRead(@"TestData/UDK/Core.u"), serializer, "Core");
-        var packageImportResolver = Substitute.For<IImportResolver>();
-        packageImportResolver.ResolveExportPackage("Core").Returns(corePackage);
-        var enginePackage = UnrealPackage.DeserializeAndInitialize(File.OpenRead(@"TestData/UDK/Engine.u"), serializer, "Engine", packageImportResolver);
-        packageImportResolver.ResolveExportPackage("Engine").Returns(enginePackage);
-        var gameFrameworkPackage =
-            UnrealPackage.DeserializeAndInitialize(File.OpenRead(@"TestData/UDK/GameFramework.u"), serializer, "GameFramework", packageImportResolver);
-        packageImportResolver.ResolveExportPackage("GameFramework").Returns(gameFrameworkPackage);
-        var customGamePackage =
-            UnrealPackage.DeserializeAndInitialize(File.OpenRead(@"TestData/UDK/CustomGame.u"), serializer, "CustomGame", packageImportResolver);
-        packageImportResolver.ResolveExportPackage("CustomGame").Returns(customGamePackage);
-
-        var graph = new CrossPackageDependencyGraph(packageImportResolver);
-
-        // Core.Object.IsA.ReturnValue
-        var pendingMatch = new PackageObjectReference("CustomGame", new ObjectIndex(ObjectIndex.FromExportIndex(3)));
+        var graph = new CrossPackageDependencyGraph(_importResolver);
+        var customPawn = new PackageObjectReference(_udkPackages.CustomGame.PackageName, new ObjectIndex(ObjectIndex.FromExportIndex(3)));
 
         // Act
-
-        var action = () => graph.AddObjectDependencies(pendingMatch);
+        var action = () => graph.AddObjectDependencies(customPawn);
 
         // Assert 
         action.Should().NotThrow();
@@ -368,28 +331,11 @@ public class CrossPackageDependencyGraphTests
     public void AddObjectDependencies_CustomPlayerController_NoThrow()
     {
         // Arrange
-        var serializer = SerializerHelper.GetSerializerFor<UnrealPackage>(typeof(UnrealPackage));
-
-        var corePackage = UnrealPackage.DeserializeAndInitialize(File.OpenRead(@"TestData/UDK/Core.u"), serializer, "Core");
-        var packageImportResolver = Substitute.For<IImportResolver>();
-        packageImportResolver.ResolveExportPackage("Core").Returns(corePackage);
-        var enginePackage = UnrealPackage.DeserializeAndInitialize(File.OpenRead(@"TestData/UDK/Engine.u"), serializer, "Engine", packageImportResolver);
-        packageImportResolver.ResolveExportPackage("Engine").Returns(enginePackage);
-        var gameFrameworkPackage =
-            UnrealPackage.DeserializeAndInitialize(File.OpenRead(@"TestData/UDK/GameFramework.u"), serializer, "GameFramework", packageImportResolver);
-        packageImportResolver.ResolveExportPackage("GameFramework").Returns(gameFrameworkPackage);
-        var customGamePackage =
-            UnrealPackage.DeserializeAndInitialize(File.OpenRead(@"TestData/UDK/CustomGame.u"), serializer, "CustomGame", packageImportResolver);
-        packageImportResolver.ResolveExportPackage("CustomGame").Returns(customGamePackage);
-
-        var graph = new CrossPackageDependencyGraph(packageImportResolver);
-
-        // Core.Object.IsA.ReturnValue
-        var pendingMatch = new PackageObjectReference("CustomGame", new ObjectIndex(ObjectIndex.FromExportIndex(5)));
+        var graph = new CrossPackageDependencyGraph(_importResolver);
+        var customPlayerController = new PackageObjectReference(_udkPackages.CustomGame.PackageName, new ObjectIndex(ObjectIndex.FromExportIndex(5)));
 
         // Act
-
-        var action = () => graph.AddObjectDependencies(pendingMatch);
+        var action = () => graph.AddObjectDependencies(customPlayerController);
 
         // Assert 
         action.Should().NotThrow();
@@ -402,28 +348,11 @@ public class CrossPackageDependencyGraphTests
     public void AddObjectDependencies_Sprite_NoThrow()
     {
         // Arrange
-        var serializer = SerializerHelper.GetSerializerFor<UnrealPackage>(typeof(UnrealPackage));
-
-        var corePackage = UnrealPackage.DeserializeAndInitialize(File.OpenRead(@"TestData/UDK/Core.u"), serializer, "Core");
-        var packageImportResolver = Substitute.For<IImportResolver>();
-        packageImportResolver.ResolveExportPackage("Core").Returns(corePackage);
-        var enginePackage = UnrealPackage.DeserializeAndInitialize(File.OpenRead(@"TestData/UDK/Engine.u"), serializer, "Engine", packageImportResolver);
-        var gameFrameworkPackage =
-            UnrealPackage.DeserializeAndInitialize(File.OpenRead(@"TestData/UDK/GameFramework.u"), serializer, "GameFramework", packageImportResolver);
-        packageImportResolver.ResolveExportPackage("GameFramework").Returns(gameFrameworkPackage);
-        packageImportResolver.ResolveExportPackage("Engine").Returns(enginePackage);
-        var customGamePackage =
-            UnrealPackage.DeserializeAndInitialize(File.OpenRead(@"TestData/UDK/CustomGame.u"), serializer, "CustomGame", packageImportResolver);
-        packageImportResolver.ResolveExportPackage("CustomGame").Returns(customGamePackage);
-
-        var graph = new CrossPackageDependencyGraph(packageImportResolver);
-
-        // Core.Object.IsA.ReturnValue
-        var pendingMatch = new PackageObjectReference("CustomGame", new ObjectIndex(ObjectIndex.FromExportIndex(10)));
+        var graph = new CrossPackageDependencyGraph(_importResolver);
+        var sprite = new PackageObjectReference(_udkPackages.CustomGame.PackageName, new ObjectIndex(ObjectIndex.FromExportIndex(10)));
 
         // Act
-
-        var action = () => graph.AddObjectDependencies(pendingMatch);
+        var action = () => graph.AddObjectDependencies(sprite);
 
         // Assert 
         action.Should().NotThrow();
