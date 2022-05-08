@@ -220,19 +220,26 @@ public class CrossPackageDependencyGraph
         {
             // Native imports has no export reference to resolve
             var outerReference = new PackageObjectReference(currentObj.PackageName, import.OuterIndex);
+            if (!_adj.ContainsKey(outerReference))
+            {
+                objQueue.Enqueue(outerReference);
+            }
+
             AddEdge(outerReference, currentObj);
-            objQueue.Enqueue(outerReference);
+
+
             if (ImportIsNative(import, objPackage))
             {
                 return;
             }
 
             var exportReference = ResolveImportObjectReference(import, objPackage);
-            AddEdge(exportReference, currentObj);
-            if (exportReference.NativeClass is null)
+            if (exportReference.NativeClass is null && !_adj.ContainsKey(exportReference))
             {
                 objQueue.Enqueue(exportReference);
             }
+
+            AddEdge(exportReference, currentObj);
         }
     }
 
@@ -241,29 +248,45 @@ public class CrossPackageDependencyGraph
         if (export.OuterIndex.Index != 0)
         {
             var outerReference = new PackageObjectReference(currentObj.PackageName, export.OuterIndex);
+            if (!_adj.ContainsKey(outerReference))
+            {
+                objQueue.Enqueue(outerReference);
+            }
+
             AddEdge(outerReference, currentObj);
-            objQueue.Enqueue(outerReference);
         }
 
         if (export.ClassIndex.Index != 0)
         {
             var classReference = new PackageObjectReference(currentObj.PackageName, export.ClassIndex);
+            if (!_adj.ContainsKey(classReference))
+            {
+                objQueue.Enqueue(classReference);
+            }
+
             AddEdge(classReference, currentObj);
-            objQueue.Enqueue(classReference);
         }
 
         if (export.SuperIndex.Index != 0)
         {
             var supereReference = new PackageObjectReference(currentObj.PackageName, export.SuperIndex);
+            if (!_adj.ContainsKey(supereReference))
+            {
+                objQueue.Enqueue(supereReference);
+            }
+
             AddEdge(supereReference, currentObj);
-            objQueue.Enqueue(supereReference);
         }
 
         if (export.ArchetypeIndex.Index != 0)
         {
             var archetypeReference = new PackageObjectReference(currentObj.PackageName, export.ArchetypeIndex);
+            if (!_adj.ContainsKey(archetypeReference))
+            {
+                objQueue.Enqueue(archetypeReference);
+            }
+
             AddEdge(archetypeReference, currentObj);
-            objQueue.Enqueue(archetypeReference);
         }
     }
 
