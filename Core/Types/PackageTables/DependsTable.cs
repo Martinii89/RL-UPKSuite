@@ -1,7 +1,4 @@
-﻿using Core.Serialization;
-using Core.Serialization.Default;
-
-namespace Core.Types.PackageTables;
+﻿namespace Core.Types.PackageTables;
 
 /// <summary>
 ///     A Depends table contains a array of ints for every exported item.
@@ -14,31 +11,4 @@ public class DependsTable
     ///     A Array of ints for every export
     /// </summary>
     public List<List<int>> Depends { get; set; } = new();
-
-    /// <summary>
-    ///     Iterates the arrays and deserializes them.
-    ///     You have to call InitializeSize first to set the number of arrays, because the number of arrays is not stored
-    ///     together with the depends table serial data.
-    /// </summary>
-    /// <param name="reader"></param>
-    public void Deserialize(Stream reader)
-    {
-        var intSerializer = new Int32Serializer();
-        foreach (var depend in Depends)
-        {
-            depend.AddRange(intSerializer.ReadTArray(reader));
-        }
-    }
-
-    /// <summary>
-    ///     Set the number of arrays. This will most likely always just be the number of exports.
-    /// </summary>
-    /// <param name="exportCount"></param>
-    public void InitializeSize(int exportCount)
-    {
-        for (var i = 0; i < exportCount; i++)
-        {
-            Depends.Add(new List<int>());
-        }
-    }
 }

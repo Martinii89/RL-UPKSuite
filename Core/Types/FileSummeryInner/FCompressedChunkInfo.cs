@@ -46,16 +46,4 @@ public class FCompressedChunkInfo
     ///     The size of the compressed data
     /// </summary>
     public int CompressedSize { get; internal set; }
-
-    /// <summary>
-    ///     Deserialize the data. Uses the header to decide between old and new format specification.
-    /// </summary>
-    /// <param name="reader"></param>
-    public void Deserialize(Stream reader)
-    {
-        UncompressedOffset = _licenseeVersion >= 22 ? reader.ReadInt64() : reader.ReadInt32();
-        UncompressedSize = reader.ReadInt32();
-        CompressedOffset = _licenseeVersion >= 22 ? reader.ReadInt64() : reader.ReadInt32();
-        CompressedSize = reader.ReadInt32();
-    }
 }

@@ -46,6 +46,10 @@ public enum DeserializationState
 /// </summary>
 public class PackageUnpacker
 {
+    private readonly FCompressedChunkBlockSerializer _blockSerializer;
+    private readonly FCompressedChunkHeaderSerializer _compressedChunkHeaderSerializer;
+    private readonly FCompressedChunkInfoSerializer _compressedChunkInfoSerializer;
+
     /// <summary>
     ///     Starts unpacking the data from the input stream. It does little to no checks to verify it is a RocketLeague
     ///     package. Check the Deserialization state or the Valid property to know if unpacking was successful
@@ -53,28 +57,33 @@ public class PackageUnpacker
     /// <param name="inputStream">The package content stream</param>
     /// <param name="outputStream">Unpacked package will be written to this</param>
     /// <param name="decrypterProvider">Required to unpack the decrypted data</param>
-    public PackageUnpacker(Stream inputStream, Stream outputStream, IDecrypterProvider decrypterProvider)
+    /// <param name="fileSummarySerializer">Serializer for the header data</param>
+    public PackageUnpacker(Stream inputStream, Stream outputStream, IDecrypterProvider decrypterProvider,
+        IStreamSerializerFor<FileSummary> fileSummarySerializer)
     {
-        var inputBinaryReader = new BinaryReader(inputStream);
-        var outputBinaryWriter = new BinaryWriter(outputStream);
+        // TODO: use DI
+        _compressedChunkInfoSerializer = new FCompressedChunkInfoSerializer();
+        _blockSerializer = new FCompressedChunkBlockSerializer();
+        _compressedChunkHeaderSerializer = new FCompressedChunkHeaderSerializer(_blockSerializer);
 
-        ProcessFileSummary(outputBinaryWriter, inputStream);
+        FileSummary = fileSummarySerializer.Deserialize(inputStream);
+        ProcessFileSummary(outputStream, inputStream);
 
-        ProcessDecryptedData(outputBinaryWriter, inputBinaryReader, decrypterProvider);
+        ProcessDecryptedData(outputStream, inputStream, decrypterProvider);
         if (!DeserializationState.HasFlag(DeserializationState.Decrypted))
         {
             return;
         }
 
-        ProcessCompressedData(outputBinaryWriter, inputBinaryReader);
+        ProcessCompressedData(outputStream, inputStream);
     }
 
     /// <summary>
     ///     The Parsed FileSummary of this package
     /// </summary>
-    public FileSummary FileSummary { get; } = new();
+    public FileSummary FileSummary { get; }
 
-    private FileCompressionMetaData FileCompressionMetaData { get; } = new();
+    private FileCompressionMetaData FileCompressionMetaData { get; set; } = new();
 
     /// <summary>
     ///     The state of unpacking. Anything but DeserializationState.Inflated would indicate some kind of error.
@@ -96,28 +105,24 @@ public class PackageUnpacker
     /// </summary>
     public bool Valid => DeserializationState.HasFlag(DeserializationState.Inflated);
 
-    private void ProcessCompressedData(BinaryWriter outputStream, BinaryReader inputBinaryReader)
+    private void ProcessCompressedData(Stream outputStream, Stream inputBinaryReader)
     {
-        var uncompressedDataBuffer = new byte[FileSummary.CompressedChunks.Sum(info => info.UncompressedSize)];
+        var uncompressedDataBuffer = new byte[FileSummary.CompressedChunkInfos.Sum(info => info.UncompressedSize)];
         var uncompressOutputStream = new MemoryStream(uncompressedDataBuffer);
-        var firstUncompressedOffset = FileSummary.CompressedChunks.First().UncompressedOffset;
+        var firstUncompressedOffset = FileSummary.CompressedChunkInfos.First().UncompressedOffset;
         var uncompressProgress = 0L;
         // Decompress compressed chunks
-        foreach (var chunk in FileSummary.CompressedChunks)
+        foreach (var chunk in FileSummary.CompressedChunkInfos)
         {
-            inputBinaryReader.BaseStream.Position = chunk.CompressedOffset;
-            var chunkHeader = new FCompressedChunkHeader();
-            chunkHeader.Deserialize(inputBinaryReader.BaseStream);
+            inputBinaryReader.Position = chunk.CompressedOffset;
+            var chunkHeader = _compressedChunkHeaderSerializer.Deserialize(inputBinaryReader);
 
             var sumUncompressedSize = 0;
             var blocks = new List<FCompressedChunkBlock>();
-            var blockCount = chunkHeader.BlockCount;
-
 
             while (sumUncompressedSize < chunkHeader.Summary.UncompressedSize)
             {
-                var block = new FCompressedChunkBlock();
-                block.Deserialize(inputBinaryReader.BaseStream);
+                var block = _blockSerializer.Deserialize(inputBinaryReader);
                 blocks.Add(block);
                 sumUncompressedSize += block.UncompressedSize;
             }
@@ -136,20 +141,20 @@ public class PackageUnpacker
         DeserializationState |= DeserializationState.Inflated;
 
         Debug.Assert(uncompressOutputStream.Position == uncompressOutputStream.Length);
-        outputStream.BaseStream.Position = firstUncompressedOffset;
+        outputStream.Position = firstUncompressedOffset;
         outputStream.Write(uncompressedDataBuffer);
 
         // Reset the compression flag to indicate this package is no longer compressed.
-        outputStream.BaseStream.Position = FileSummary.CompressionFlagsOffset;
+        outputStream.Position = FileSummary.CompressionFlagsOffset;
         outputStream.Write((int) ECompressionFlags.CompressNone);
     }
 
-    private void ProcessDecryptedData(BinaryWriter outputStream, BinaryReader inputBinaryReader, IDecrypterProvider decrypterProvider)
+    private void ProcessDecryptedData(Stream outputStream, Stream inputStream, IDecrypterProvider decrypterProvider)
     {
         byte[] decryptedData;
         try
         {
-            decryptedData = DecryptData(inputBinaryReader, decrypterProvider);
+            decryptedData = DecryptData(inputStream, decrypterProvider);
         }
         catch (InvalidDataException)
         {
@@ -159,19 +164,17 @@ public class PackageUnpacker
         var decryptedDataReader = new BinaryReader(new MemoryStream(decryptedData));
 
         decryptedDataReader.BaseStream.Position = FileCompressionMetaData.CompressedChunkInfoOffset;
-        // TODO: use DI
-        var compressedChunksSerializer = new FCompressedChunkInfoSerializer();
-        FileSummary.CompressedChunks.AddRange(compressedChunksSerializer.ReadTArray(decryptedDataReader.BaseStream));
+
+        FileSummary.CompressedChunkInfos.AddRange(_compressedChunkInfoSerializer.ReadTArray(decryptedDataReader.BaseStream));
         // The depends table is always empty. So The depends table marks the start of where the uncompressed data should go.
-        Debug.Assert(FileSummary.CompressedChunks.First().UncompressedOffset == FileSummary.DependsOffset);
+        Debug.Assert(FileSummary.CompressedChunkInfos.First().UncompressedOffset == FileSummary.DependsOffset);
         outputStream.Write(decryptedData);
         DeserializationState |= DeserializationState.Decrypted;
     }
 
-    private void ProcessFileSummary(BinaryWriter outputStream, Stream inpuutStream)
+    private void ProcessFileSummary(Stream outputStream, Stream inpuutStream)
     {
-        FileSummary.Deserialize(inpuutStream);
-        FileCompressionMetaData.Deserialize(inpuutStream);
+        FileCompressionMetaData = FileCompressionMetaData.Deserialize(inpuutStream);
         inpuutStream.Position = 0;
         var fileSummaryBytes = inpuutStream.ReadBytes(FileSummary.NameOffset);
         outputStream.Write(fileSummaryBytes);
@@ -183,10 +186,10 @@ public class PackageUnpacker
         }
     }
 
-    private byte[] DecryptData(BinaryReader reader, IDecrypterProvider decrypterProvider)
+    private byte[] DecryptData(Stream dataStream, IDecrypterProvider decrypterProvider)
     {
-        reader.BaseStream.Seek(FileSummary.NameOffset, SeekOrigin.Begin);
-        var encryptedData = reader.ReadBytes(EncryptedSize);
+        dataStream.Seek(FileSummary.NameOffset, SeekOrigin.Begin);
+        var encryptedData = dataStream.ReadBytes(EncryptedSize);
         if (encryptedData.Length != EncryptedSize)
         {
             throw new InvalidDataException("Failed to read the encrypted data from the stream");

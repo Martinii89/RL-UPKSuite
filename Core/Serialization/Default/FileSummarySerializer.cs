@@ -9,7 +9,7 @@ namespace Core.Serialization.Default;
 /// </summary>
 public class FileSummarySerializer : IStreamSerializerFor<FileSummary>
 {
-    private readonly IStreamSerializerFor<FCompressedChunkInfo> _compressedChunkSerializer;
+    private readonly IStreamSerializerFor<FCompressedChunkInfo> _compressedChunkInfoSerializer;
     private readonly IStreamSerializerFor<FGenerationInfo> _generationsSerializer;
     private readonly IStreamSerializerFor<FGuid> _guidSerializerFor;
     private readonly IStreamSerializerFor<FString> _stringSerializer;
@@ -19,16 +19,16 @@ public class FileSummarySerializer : IStreamSerializerFor<FileSummary>
     ///     Construct the serializer with all required sub serializers
     /// </summary>
     /// <param name="guidSerializerFor"></param>
-    /// <param name="compressedChunkSerializer"></param>
+    /// <param name="compressedChunkInfoSerializer"></param>
     /// <param name="stringSerializer"></param>
     /// <param name="textureAllocationsSerializer"></param>
     /// <param name="generationsSerializer"></param>
     public FileSummarySerializer(IStreamSerializerFor<FGuid> guidSerializerFor,
-        IStreamSerializerFor<FCompressedChunkInfo> compressedChunkSerializer, IStreamSerializerFor<FString> stringSerializer,
+        IStreamSerializerFor<FCompressedChunkInfo> compressedChunkInfoSerializer, IStreamSerializerFor<FString> stringSerializer,
         IStreamSerializerFor<FTextureType> textureAllocationsSerializer, IStreamSerializerFor<FGenerationInfo> generationsSerializer)
     {
         _guidSerializerFor = guidSerializerFor;
-        _compressedChunkSerializer = compressedChunkSerializer;
+        _compressedChunkInfoSerializer = compressedChunkInfoSerializer;
         _stringSerializer = stringSerializer;
         _textureAllocationsSerializer = textureAllocationsSerializer;
         _generationsSerializer = generationsSerializer;
@@ -45,6 +45,7 @@ public class FileSummarySerializer : IStreamSerializerFor<FileSummary>
                 throw new Exception("Not a valid Unreal Engine package");
             }
         }
+
 
         var fileSummary = new FileSummary();
         fileSummary.Tag = stream.ReadUInt32();
@@ -70,7 +71,7 @@ public class FileSummarySerializer : IStreamSerializerFor<FileSummary>
         fileSummary.CookerVersion = stream.ReadUInt32();
         fileSummary.CompressionFlagsOffset = (int) stream.Position;
         fileSummary.CompressionFlags = (ECompressionFlags) stream.ReadUInt32();
-        fileSummary.CompressedChunks.AddRange(_compressedChunkSerializer.ReadTArray(stream));
+        fileSummary.CompressedChunkInfos.AddRange(_compressedChunkInfoSerializer.ReadTArray(stream));
         fileSummary.Unknown5 = stream.ReadInt32();
         fileSummary.AdditionalPackagesToCook.AddRange(_stringSerializer.ReadTArray(stream));
         fileSummary.TextureAllocations.AddRange(_textureAllocationsSerializer.ReadTArray(stream));

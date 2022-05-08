@@ -1,5 +1,8 @@
 ﻿using System;
 using System.IO;
+using Core.Serialization;
+using Core.Serialization.RocketLeague;
+using Core.Test.TestUtilities;
 using Core.Types.FileSummeryInner;
 using FluentAssertions;
 using Xunit;
@@ -8,15 +11,21 @@ namespace Core.Types.Tests;
 
 public class FileSummaryTests
 {
+    private readonly IStreamSerializerFor<FileSummary> _serializer;
+
+    public FileSummaryTests()
+    {
+        _serializer = SerializerHelper.GetSerializerFor<FileSummary>(typeof(FileSummary), RocketLeagueBase.FileVersion);
+    }
+
     [Fact]
     public void Deserialize_BadMagicTag_Throws()
     {
         // Arrange
         var testStream = new MemoryStream(new byte[] { 0, 0, 0, 0, 0, 0 });
-        var sut = new FileSummary();
         // Act
 
-        var act = () => sut.Deserialize(testStream);
+        var act = () => _serializer.Deserialize(testStream);
 
         // Assert 
         act.Should().ThrowExactly<Exception>()
@@ -45,10 +54,8 @@ public class FileSummaryTests
         };
         var reader = new MemoryStream(headerData);
 
-        var sut = new FileSummary();
-
         // Act
-        sut.Deserialize(reader);
+        var sut = _serializer.Deserialize(reader);
         // Assert 
         sut.Tag.Should().Be(FileSummary.PackageFileTag);
         sut.FileVersion.Should().Be(868);

@@ -1,7 +1,7 @@
 ﻿namespace Core.RocketLeague;
 
 /// <summary>
-///     Compression data about where to find the compresed chunks in the compresed rocket league package
+///     Compression data about where to find the compressed chunks in the compressed rocket league package
 /// </summary>
 internal class FileCompressionMetaData
 {
@@ -17,13 +17,16 @@ internal class FileCompressionMetaData
 
     /// <summary>
     ///     Deserialize the fields. Will only give valid results when the stream is placed at the end of the conventional
-    ///     filesummary.
+    ///     fileSummary.
     /// </summary>
     /// <param name="reader"></param>
-    internal void Deserialize(Stream reader)
+    internal static FileCompressionMetaData Deserialize(Stream reader)
     {
-        GarbageSize = reader.ReadInt32();
-        CompressedChunkInfoOffset = reader.ReadInt32();
-        LastBlockSize = reader.ReadInt32();
+        return new FileCompressionMetaData
+        {
+            GarbageSize = reader.ReadInt32(),
+            CompressedChunkInfoOffset = reader.ReadInt32(),
+            LastBlockSize = reader.ReadInt32()
+        };
     }
 }

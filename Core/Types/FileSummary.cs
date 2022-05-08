@@ -1,7 +1,4 @@
-﻿using Core.Extensions;
-using Core.Serialization;
-using Core.Serialization.Default;
-using Core.Types.FileSummeryInner;
+﻿using Core.Types.FileSummeryInner;
 
 namespace Core.Types;
 
@@ -136,7 +133,7 @@ public class FileSummary
     /// </summary>
     public int CompressionFlagsOffset { get; internal set; }
 
-    internal List<FCompressedChunkInfo> CompressedChunks { get; set; } = new();
+    internal List<FCompressedChunkInfo> CompressedChunkInfos { get; set; } = new();
 
     /// <summary>
     ///     List of other packages required by this package
@@ -147,59 +144,4 @@ public class FileSummary
     ///     Textures stored in this package
     /// </summary>
     public List<FTextureType> TextureAllocations { get; set; } = new();
-
-
-    /// <summary>
-    ///     Deserialize the summary. Can throw if file tag is wrong.
-    /// </summary>
-    /// <param name="reader"></param>
-    /// <exception cref="Exception">Thrown when the tag doesn't match</exception>
-    public virtual void Deserialize(Stream reader)
-    {
-        Tag = reader.ReadUInt32();
-        if (Tag != PackageFileTag)
-        {
-            throw new Exception("Not a valid Unreal Engine package");
-        }
-
-        FileVersion = reader.ReadUInt16();
-        LicenseeVersion = reader.ReadUInt16();
-
-        TotalHeaderSize = reader.ReadInt32();
-        FolderName = reader.ReadFString();
-        PackageFlags = reader.ReadUInt32();
-
-        NameCount = reader.ReadInt32();
-        NameOffset = reader.ReadInt32();
-
-        ExportCount = reader.ReadInt32();
-        ExportOffset = reader.ReadInt32();
-
-        ImportCount = reader.ReadInt32();
-        ImportOffset = reader.ReadInt32();
-
-        DependsOffset = reader.ReadInt32();
-
-        ImportExportGuidsOffset = reader.ReadInt32();
-        ImportGuidsCount = reader.ReadInt32();
-        ExportGuidsCount = reader.ReadInt32();
-        ThumbnailTableOffset = reader.ReadInt32();
-
-        Guid.Deserialize(reader);
-        Generations.AddRange(new FGenerationInfoSerializer().ReadTArray(reader));
-
-        EngineVersion = reader.ReadUInt32();
-        CookerVersion = reader.ReadUInt32();
-
-        CompressionFlagsOffset = (int) reader.Position;
-        CompressionFlags = (ECompressionFlags) reader.ReadUInt32();
-
-        //CompressedChunks = new TArray<FCompressedChunkInfo>(() => new FCompressedChunkInfo(this));
-        CompressedChunks.AddRange(new FCompressedChunkInfoSerializer().ReadTArray(reader));
-
-        Unknown5 = reader.ReadInt32();
-
-        AdditionalPackagesToCook.AddRange(new FStringSerializer().ReadTArray(reader));
-        TextureAllocations.AddRange(new FTextureAllocationsSerializer(new Int32Serializer()).ReadTArray(reader));
-    }
 }

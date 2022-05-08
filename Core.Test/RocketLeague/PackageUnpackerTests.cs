@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using Core.RocketLeague.Decryption;
+using Core.Serialization;
+using Core.Serialization.RocketLeague;
+using Core.Test.TestUtilities;
 using Core.Types;
 using Core.Types.FileSummeryInner;
 using FluentAssertions;
@@ -11,6 +14,13 @@ namespace Core.RocketLeague.Tests;
 
 public class PackageUnpackerTests
 {
+    private readonly IStreamSerializerFor<FileSummary> _serializer;
+
+    public PackageUnpackerTests()
+    {
+        _serializer = SerializerHelper.GetSerializerFor<FileSummary>(typeof(FileSummary), RocketLeagueBase.FileVersion);
+    }
+
     [Fact]
     public void PackageUnpackerTest_UnpackKnownPackage_BinaryEqualToKnownOutput()
     {
@@ -21,7 +31,7 @@ public class PackageUnpackerTests
         var decryptionProvider = new DecryptionProvider("keys.txt");
         // Act
 
-        var unpacked = new PackageUnpacker(inputTest, outputStream, decryptionProvider);
+        var unpacked = new PackageUnpacker(inputTest, outputStream, decryptionProvider, _serializer);
         var outputBuffer = outputStream.ToArray();
 
         // Assert 
@@ -38,13 +48,11 @@ public class PackageUnpackerTests
         var inputTest = File.OpenRead("TestData/RocketPass_Premium_T_SF.upk");
         var outputStream = new MemoryStream();
         var decryptionProvider = new DecryptionProvider("keys.txt");
-
-        var fileSummery = new FileSummary();
         // Act
 
-        var unpacked = new PackageUnpacker(inputTest, outputStream, decryptionProvider);
+        var unpacked = new PackageUnpacker(inputTest, outputStream, decryptionProvider, _serializer);
         outputStream.Position = 0;
-        fileSummery.Deserialize(outputStream);
+        var fileSummery = _serializer.Deserialize(outputStream);
 
         // Assert 
         fileSummery.CompressionFlags.Should().Be(ECompressionFlags.CompressNone);
@@ -60,7 +68,7 @@ public class PackageUnpackerTests
         decryptionProvider.DecryptionKeys.Returns(new List<byte[]>());
 
         // Act
-        var unpacked = new PackageUnpacker(inputTest, outputStream, decryptionProvider);
+        var unpacked = new PackageUnpacker(inputTest, outputStream, decryptionProvider, _serializer);
 
         // Assert 
         unpacked.DeserializationState.Should().NotBe(DeserializationState.Success);

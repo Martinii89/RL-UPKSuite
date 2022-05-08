@@ -20,15 +20,4 @@ public class FGenerationInfo
     ///     How many NetObjects there were
     /// </summary>
     public int NetObjectCount { get; internal set; }
-
-    /// <summary>
-    ///     Deserialize the members from the stream
-    /// </summary>
-    /// <param name="reader"></param>
-    public void Deserialize(Stream reader)
-    {
-        ExportCount = reader.ReadInt32();
-        NameCount = reader.ReadInt32();
-        NetObjectCount = reader.ReadInt32();
-    }
 }

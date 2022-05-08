@@ -28,14 +28,6 @@ public class FName
         InstanceNumber = instanceNumber;
     }
 
-    /// <summary>
-    ///     Construct a FName from a stream. reading the name index and instance number from the stream
-    /// </summary>
-    /// <param name="reader"></param>
-    public FName(Stream reader)
-    {
-        Deserialize(reader);
-    }
 
     /// <summary>
     ///     The index in the <see cref="NameTable" />
@@ -46,24 +38,4 @@ public class FName
     ///     Instance number
     /// </summary>
     public int InstanceNumber { get; set; }
-
-    /// <summary>
-    ///     Deserialize the FName from the stream
-    /// </summary>
-    /// <param name="reader"></param>
-    public void Deserialize(Stream reader)
-    {
-        NameIndex = reader.ReadInt32();
-        InstanceNumber = reader.ReadInt32();
-    }
-
-    /// <summary>
-    ///     Serialize the FName to the stream
-    /// </summary>
-    /// <param name="writer"></param>
-    public void Serialize(Stream writer)
-    {
-        writer.WriteInt32(NameIndex);
-        writer.WriteInt32(InstanceNumber);
-    }
 }

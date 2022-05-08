@@ -48,7 +48,7 @@ public class ObjectIndex : IEquatable<ObjectIndex>
     /// <summary>
     ///     The reference index. Larger than zero is a export. Less than zero is a import. Zero is a null reference
     /// </summary>
-    public int Index { get; private set; }
+    public int Index { get; }
 
     /// <summary>
     ///     Returns the index for the reference in the export table
@@ -111,25 +111,6 @@ public class ObjectIndex : IEquatable<ObjectIndex>
         };
     }
 
-
-    /// <summary>
-    ///     Reads a int32 value from the stream and assigns this as the Index
-    /// </summary>
-    /// <param name="stream"></param>
-    public void Deserialize(Stream stream)
-    {
-        // TODO remove so index can be a readonly field
-        Index = stream.ReadInt32();
-    }
-
-    /// <summary>
-    ///     Writes the index to the stream as a in32 value
-    /// </summary>
-    /// <param name="stream"></param>
-    public void Serialize(Stream stream)
-    {
-        stream.WriteInt32(Index);
-    }
 
     public override bool Equals(object? obj)
     {
