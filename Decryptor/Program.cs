@@ -4,6 +4,7 @@ using System.Diagnostics;
 using CommandLine;
 using Core.RocketLeague;
 using Core.RocketLeague.Decryption;
+using Core.Serialization.Default;
 using Decryptor;
 
 var parseResult = Parser.Default.ParseArguments<BatchProcessOptions>(args);
@@ -42,7 +43,7 @@ void BatchProcess(BatchProcessOptions options)
 
         using var fileStream = File.Open(file, FileMode.Open, FileAccess.Read, FileShare.Read);
         using var decryptedStream = File.OpenWrite(outputFilePath);
-        var upkFile = new PackageUnpacker(fileStream, decryptedStream, decryptionProvider);
+        var upkFile = new PackageUnpacker(fileStream, decryptedStream, decryptionProvider, FileSummarySerializer.GetDefaultSerializer());
         if (!upkFile.Valid)
         {
             Console.WriteLine($"Failed decrypting {inputFileName} probably unknown decryption key");

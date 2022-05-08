@@ -3,9 +3,13 @@ using Core.Types;
 
 namespace Core.Classes;
 
+/// <summary>
+///     A base object for all fields on a unreal script object. Holds a reference to the next field on the object
+/// </summary>
 [NativeOnlyClass("Core", "Field", "Object")]
 public class UField : UObject
 {
+    /// <inheritdoc />
     public UField(FName name, UClass? @class, UObject? outer, UnrealPackage ownerPackage, UObject? objectArchetype = null) : base(name, @class, outer,
         ownerPackage, objectArchetype)
     {

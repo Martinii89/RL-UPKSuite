@@ -15,9 +15,20 @@ public class UnrealPackage
 {
     private const string CorePackageName = "Core";
 
+    /// <summary>
+    ///     A List of classes defined in this package.
+    ///     TODO: Reconsider this and instead use a shared common dictionary with full name classes
+    /// </summary>
     public readonly List<UClass> PackageClasses = new();
+
+    /// <summary>
+    ///     A Import resolver use to resolve the import objects
+    /// </summary>
     public IImportResolver? ImportResolver { get; set; }
 
+    /// <summary>
+    ///     The root. (May be removed)
+    /// </summary>
     public PackageLoader? RootLoader { get; set; }
 
     /// <summary>
@@ -248,7 +259,12 @@ public class UnrealPackage
         return lastOuter;
     }
 
-
+    /// <summary>
+    ///     Resolves and creates the object for a import.
+    /// </summary>
+    /// <param name="importTableItem"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidDataException"></exception>
     public UObject? CreateImport(ImportTableItem importTableItem)
     {
         if (ImportResolver == null)
@@ -336,7 +352,7 @@ public class UnrealPackage
         var classFName = NameTable.FindIndex(x => x.Name == "Class");
         UClass.StaticClass = nativeClasses["Class"];
 
-        foreach (var (className, @class) in nativeClasses)
+        foreach (var (_, @class) in nativeClasses)
         {
             PackageClasses.Add(@class);
             var importItem = ImportTable.FirstOrDefault(x =>
@@ -378,14 +394,9 @@ public class UnrealPackage
     }
 
 
-    public void LinkImports()
-    {
-        foreach (var import in ImportTable.Where(x => x.ImportedObject != null))
-        {
-            // link it
-        }
-    }
-
+    /// <summary>
+    ///     Iterates the export table and create all the export objects.
+    /// </summary>
     public void CreateExportObjects()
     {
         for (var index = 0; index < ExportTable.Count; index++)
@@ -493,6 +504,11 @@ public class UnrealPackage
         };
     }
 
+    /// <summary>
+    ///     Links all the objects defined in the package. Uses a ObjectDependencyGraph to make sure they are created and linked
+    ///     up in the correct order. (No object should be created before it's dependencies)
+    /// </summary>
+    /// <exception cref="InvalidOperationException"></exception>
     public void GraphLink()
     {
         var graph = new ObjectDependencyGraph();
@@ -531,7 +547,7 @@ public class UnrealPackage
                     CreateExport(i.ExportIndex);
 
                     break;
-                case ImportTableItem exportTable:
+                case ImportTableItem:
                     visited.Add(i.Index);
                     break;
             }

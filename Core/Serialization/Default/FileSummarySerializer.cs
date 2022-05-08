@@ -84,4 +84,15 @@ public class FileSummarySerializer : IStreamSerializerFor<FileSummary>
     {
         throw new NotImplementedException();
     }
+
+    /// <summary>
+    ///     Returns a FileSummarySerializer with all default sub serializers
+    /// </summary>
+    /// <returns></returns>
+    public static FileSummarySerializer GetDefaultSerializer()
+    {
+        return new FileSummarySerializer(new FGuidSerializer(), new FCompressedChunkInfoSerializer(),
+            new FStringSerializer(), new FTextureAllocationsSerializer(new Int32Serializer()),
+            new FGenerationInfoSerializer());
+    }
 }

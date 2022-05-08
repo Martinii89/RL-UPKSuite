@@ -13,7 +13,7 @@ internal class Edge
 }
 
 /// <summary>
-///     Super simple graph class. Used to construct a dependancy graph that we can do a topological sort on. This gives us
+///     Super simple graph class. Used to construct a dependency graph that we can do a topological sort on. This gives us
 ///     a good object initialization order.
 /// </summary>
 public class ObjectDependencyGraph
@@ -21,7 +21,7 @@ public class ObjectDependencyGraph
     private readonly Dictionary<int, List<Edge>> _adj = new();
 
     /// <summary>
-    ///     Add a edge to the dependancy graph indicating that to depends on from.
+    ///     Add a edge to the dependency graph indicating that to depends on from.
     /// </summary>
     /// <param name="from"></param>
     /// <param name="to"></param>
@@ -32,6 +32,10 @@ public class ObjectDependencyGraph
         adjList.Add(new Edge(to));
     }
 
+    /// <summary>
+    ///     Adds the dependencies for the whole <see cref="ImportTable" />
+    /// </summary>
+    /// <param name="importTable"></param>
     public void AddImportTableDependencies(ImportTable importTable)
     {
         for (var index = 0; index < importTable.Count; index++)
@@ -45,6 +49,10 @@ public class ObjectDependencyGraph
         }
     }
 
+    /// <summary>
+    ///     Adds the dependencies for the whole <see cref="ExportTable" />
+    /// </summary>
+    /// <param name="exportTable"></param>
     public void AddExportTableDependencies(ExportTable exportTable)
     {
         // Add exports to dependency graph

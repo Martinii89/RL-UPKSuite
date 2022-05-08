@@ -15,6 +15,12 @@ public class NameTable : List<NameTableItem>
     {
     }
 
+    /// <summary>
+    ///     Uses a given serializer to deserialize the names in the stream
+    /// </summary>
+    /// <param name="serializer"></param>
+    /// <param name="stream"></param>
+    /// <param name="nameCount"></param>
     public NameTable(IStreamSerializerFor<NameTableItem> serializer, Stream stream, int nameCount)
     {
         AddRange(serializer.ReadTArray(stream, nameCount));

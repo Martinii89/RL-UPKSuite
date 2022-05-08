@@ -1,10 +1,13 @@
-﻿using System.Text;
-using Core.Classes.Core;
+﻿using Core.Classes.Core;
 using Core.Types;
 using Core.Types.PackageTables;
 
 namespace Core.Utility;
 
+/// <summary>
+///     A PackageObjectReference points to a unique object in a package, or a native only class for self imported
+///     classes.
+/// </summary>
 public class PackageObjectReference : IEquatable<PackageObjectReference>
 {
     /// <summary>
@@ -130,7 +133,7 @@ public class CrossPackageDependencyGraph
         _adj[node] = new HashSet<Edge>();
     }
 
-    private bool ImportIsNative(ImportTableItem importItem, UnrealPackage package)
+    private static bool ImportIsNative(ImportTableItem importItem, UnrealPackage package)
     {
         return package.GetName(package.GetImportPackage(importItem).ObjectName) == package.PackageName;
     }
@@ -173,6 +176,11 @@ public class CrossPackageDependencyGraph
         throw new InvalidOperationException($"Failed to find the import object: {objPackage.GetFullName(import)}");
     }
 
+    /// <summary>
+    ///     Adds the given object to the dependency graph. Throw if any dependent objects fails to resolve
+    /// </summary>
+    /// <param name="objReference"></param>
+    /// <exception cref="InvalidOperationException"></exception>
     public void AddObjectDependencies(PackageObjectReference objReference)
     {
         var objQueue = new Queue<PackageObjectReference>();
@@ -189,56 +197,73 @@ public class CrossPackageDependencyGraph
             }
 
             var obj = objPackage.GetObjectReference(currentObj.ObjectIndex);
-            var fullName = objPackage.GetFullName(obj);
-            if (obj is ImportTableItem import)
+            switch (obj)
             {
-                if (import.OuterIndex.Index != 0)
+                case ImportTableItem import:
                 {
-                    // Native imports has no export reference to resolve
-                    var outerReference = new PackageObjectReference(currentObj.PackageName, import.OuterIndex);
-                    AddEdge(outerReference, currentObj);
-                    objQueue.Enqueue(outerReference);
-                    if (!ImportIsNative(import, objPackage))
-                    {
-                        var exportReference = ResolveImportObjectReference(import, objPackage);
-                        AddEdge(exportReference, currentObj);
-                        if (exportReference.NativeClass is null)
-                        {
-                            objQueue.Enqueue(exportReference);
-                        }
-                    }
+                    AddImportDependencies(import, currentObj, objQueue, objPackage);
+                    break;
+                }
+                case ExportTableItem export:
+                {
+                    AddImportDependencies(export, currentObj, objQueue);
+                    break;
                 }
             }
-            else if (obj is ExportTableItem export)
+        }
+    }
+
+    private void AddImportDependencies(ImportTableItem import, PackageObjectReference currentObj, Queue<PackageObjectReference> objQueue,
+        UnrealPackage objPackage)
+    {
+        if (import.OuterIndex.Index != 0)
+        {
+            // Native imports has no export reference to resolve
+            var outerReference = new PackageObjectReference(currentObj.PackageName, import.OuterIndex);
+            AddEdge(outerReference, currentObj);
+            objQueue.Enqueue(outerReference);
+            if (ImportIsNative(import, objPackage))
             {
-                if (export.OuterIndex.Index != 0)
-                {
-                    var outerReference = new PackageObjectReference(currentObj.PackageName, export.OuterIndex);
-                    AddEdge(outerReference, currentObj);
-                    objQueue.Enqueue(outerReference);
-                }
-
-                if (export.ClassIndex.Index != 0)
-                {
-                    var classReference = new PackageObjectReference(currentObj.PackageName, export.ClassIndex);
-                    AddEdge(classReference, currentObj);
-                    objQueue.Enqueue(classReference);
-                }
-
-                if (export.SuperIndex.Index != 0)
-                {
-                    var supereReference = new PackageObjectReference(currentObj.PackageName, export.SuperIndex);
-                    AddEdge(supereReference, currentObj);
-                    objQueue.Enqueue(supereReference);
-                }
-
-                if (export.ArchetypeIndex.Index != 0)
-                {
-                    var archetypeReference = new PackageObjectReference(currentObj.PackageName, export.ArchetypeIndex);
-                    AddEdge(archetypeReference, currentObj);
-                    objQueue.Enqueue(archetypeReference);
-                }
+                return;
             }
+
+            var exportReference = ResolveImportObjectReference(import, objPackage);
+            AddEdge(exportReference, currentObj);
+            if (exportReference.NativeClass is null)
+            {
+                objQueue.Enqueue(exportReference);
+            }
+        }
+    }
+
+    private void AddImportDependencies(ExportTableItem export, PackageObjectReference currentObj, Queue<PackageObjectReference> objQueue)
+    {
+        if (export.OuterIndex.Index != 0)
+        {
+            var outerReference = new PackageObjectReference(currentObj.PackageName, export.OuterIndex);
+            AddEdge(outerReference, currentObj);
+            objQueue.Enqueue(outerReference);
+        }
+
+        if (export.ClassIndex.Index != 0)
+        {
+            var classReference = new PackageObjectReference(currentObj.PackageName, export.ClassIndex);
+            AddEdge(classReference, currentObj);
+            objQueue.Enqueue(classReference);
+        }
+
+        if (export.SuperIndex.Index != 0)
+        {
+            var supereReference = new PackageObjectReference(currentObj.PackageName, export.SuperIndex);
+            AddEdge(supereReference, currentObj);
+            objQueue.Enqueue(supereReference);
+        }
+
+        if (export.ArchetypeIndex.Index != 0)
+        {
+            var archetypeReference = new PackageObjectReference(currentObj.PackageName, export.ArchetypeIndex);
+            AddEdge(archetypeReference, currentObj);
+            objQueue.Enqueue(archetypeReference);
         }
     }
 
@@ -292,12 +317,17 @@ public class CrossPackageDependencyGraph
         return stack.ToList();
     }
 
+    /// <summary>
+    ///     Returns the fullname of a object reference. For debugger use, it's not safe to use in production
+    /// </summary>
+    /// <param name="objectReference"></param>
+    /// <returns></returns>
     public string GetReferenceFullName(PackageObjectReference objectReference)
     {
         if (objectReference.NativeClass is not null)
         {
             return
-                $"{objectReference.PackageName} : ({objectReference.NativeClass.Class.Name}) {objectReference.PackageName}.{objectReference.NativeClass.Name}";
+                $"{objectReference.PackageName} : ({objectReference.NativeClass.Class!.Name}) {objectReference.PackageName}.{objectReference.NativeClass.Name}";
         }
 
         var importPackage = _packageImportResolver.ResolveExportPackage(objectReference.PackageName);
@@ -314,7 +344,7 @@ public class CrossPackageDependencyGraph
                 else
                 {
                     var objectResource = importPackage.GetObjectReference(exportTableItem.ClassIndex);
-                    objTypeName = importPackage.GetName(objectResource.ObjectName);
+                    objTypeName = importPackage.GetName(objectResource!.ObjectName);
                 }
 
                 break;
@@ -326,22 +356,7 @@ public class CrossPackageDependencyGraph
                 break;
         }
 
-        return obj == null ? "null" : $"{objectReference.PackageName}: ({objTypeName}) {importPackage?.GetFullName(obj) ?? "null"}";
-    }
-
-    public string GetGraphDebugLines()
-    {
-        var sb = new StringBuilder();
-        foreach (var (node, edges) in _adj)
-        {
-            sb.AppendLine($"{GetReferenceFullName(node)}");
-            foreach (var edge in edges)
-            {
-                sb.AppendLine($"\t{GetReferenceFullName(edge.Dest)}");
-            }
-        }
-
-        return sb.ToString();
+        return obj == null ? "null" : $"{objectReference.PackageName}: ({objTypeName}) {importPackage.GetFullName(obj)}";
     }
 
 
@@ -376,19 +391,19 @@ public class CrossPackageDependencyGraph
     /// </summary>
     /// <param name="node"></param>
     /// <returns></returns>
-    public List<Edge> GetEdges(PackageObjectReference node)
+    public List<PackageObjectReference> GetEdges(PackageObjectReference node)
     {
-        return _adj[node].ToList();
+        return _adj[node].Select(x => x.Dest).ToList();
     }
 
-    public class Edge : IEquatable<Edge>
+    internal class Edge : IEquatable<Edge>
     {
+        public readonly PackageObjectReference Dest;
+
         public Edge(PackageObjectReference dest)
         {
             Dest = dest;
         }
-
-        public PackageObjectReference Dest { get; set; }
 
         /// <inheritdoc />
         public bool Equals(Edge? other)

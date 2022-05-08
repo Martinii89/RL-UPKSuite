@@ -4,13 +4,24 @@ using Core.Types;
 
 namespace Core.Classes;
 
+/// <summary>
+///     This class is used by the unreal package to find and initialize the native only classes defined in the assembly
+/// </summary>
 public class NativeClassRegistrationHelper
 {
+    /// <summary>
+    ///     Constructs a NativeClassRegistrationHelper with a given outer that all the registered native classes should use as
+    ///     their outer
+    /// </summary>
+    /// <param name="outerPackage"></param>
     public NativeClassRegistrationHelper(UPackage outerPackage)
     {
         OuterPackage = outerPackage;
     }
 
+    /// <summary>
+    ///     The outer all the native classes should use
+    /// </summary>
     public UPackage OuterPackage { get; }
 
     private List<NativeClassRegistration> GetNativeClassesFromExecutingAssembly()
@@ -46,7 +57,6 @@ public class NativeClassRegistrationHelper
         while (registerQueue.Count > 0)
         {
             var typeToRegister = registerQueue.Dequeue();
-            var t = typeToRegister.Type;
             var attribute = typeToRegister.NativeOnlyClassAttribute;
 
             var className = attribute.ClassName;
@@ -80,7 +90,7 @@ public class NativeClassRegistrationHelper
             NativeOnlyClassAttribute = nativeOnlyClassAttribute;
         }
 
-        public Type Type { get; }
+        private Type Type { get; }
         public NativeOnlyClassAttribute NativeOnlyClassAttribute { get; }
     }
 }

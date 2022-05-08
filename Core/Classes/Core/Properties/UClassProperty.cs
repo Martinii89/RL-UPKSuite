@@ -2,9 +2,13 @@
 
 namespace Core.Classes.Core.Properties;
 
-[NativeOnlyClass("Core", "ClassProperty", "Property")]
-public class UClassProperty : UProperty
+/// <summary>
+///     A property for a class reference
+/// </summary>
+[NativeOnlyClass("Core", "ClassProperty", "ObjectProperty")]
+public class UClassProperty : UObjectProperty
 {
+    /// <inheritdoc />
     public UClassProperty(FName name, UClass? @class, UObject? outer, UnrealPackage ownerPackage, UObject? objectArchetype = null) : base(name, @class,
         outer,
         ownerPackage, objectArchetype)

@@ -101,7 +101,6 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
     {
         // Arrange
         var package = _udkPackageSerializer.Deserialize(_packageStreams.CoreStream);
-        package.LinkImports();
         package.GraphLink();
         // Act
         var @class = package.FindClass("Component");
@@ -204,7 +203,7 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
         package.PostDeserializeInitialize("Core");
 
         // Act
-        package.LinkImports();
+
 
         // Assert 
         package.ImportTable.Should().OnlyContain(item => item.ImportedObject != null);
@@ -218,7 +217,7 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
         package.PostDeserializeInitialize("Core");
 
         // Act
-        package.LinkImports();
+
         var importObjects = package.ImportTable.Select(x => x.ImportedObject).ToList();
 
         // Assert 
@@ -240,7 +239,7 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
         var package = _udkPackageSerializer.Deserialize(_packageStreams.CoreStream);
 
         // Act
-        package.LinkImports();
+
         package.CreateExportObjects();
 
         // Assert 
@@ -255,7 +254,7 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
         package.PostDeserializeInitialize("Core");
 
         // Act
-        package.LinkImports();
+
         package.GraphLink();
         //package.LinkExports();
 

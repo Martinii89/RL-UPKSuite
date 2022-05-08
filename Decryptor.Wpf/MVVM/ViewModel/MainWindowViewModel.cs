@@ -10,27 +10,27 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.RocketLeague;
 using Core.RocketLeague.Decryption;
+using Core.Serialization.Default;
 using Decryptor.Wpf.MVVM.Model;
-using Binding = System.Windows.Data.Binding;
+using MessageBox = System.Windows.MessageBox;
+using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 
 namespace Decryptor.Wpf.MVVM.ViewModel;
 
 public partial class MainWindowViewModel : ObservableObject
 {
-    public ObservableCollection<FileReference> FilesAdded { get; } = new();
-
-    public ICollectionView FilesAddedView;
+    [ObservableProperty]
+    private string _outputDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Unpacked");
 
     [ObservableProperty]
     private string _statusText = "Ready";
 
+    private BackgroundWorker? _unpackBackgroundWorker;
+
     [ObservableProperty]
     private double _unpackProgress;
 
-    [ObservableProperty]
-    private string _outputDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Unpacked");
-
-    private BackgroundWorker? _unpackBackgroundWorker;
+    public ICollectionView FilesAddedView;
 
     public MainWindowViewModel()
     {
@@ -38,10 +38,12 @@ public partial class MainWindowViewModel : ObservableObject
         FilesAddedView.GroupDescriptions.Add(new PropertyGroupDescription("UnpackResult"));
     }
 
+    public ObservableCollection<FileReference> FilesAdded { get; } = new();
+
     [ICommand]
     public void OpenFileDialog()
     {
-        var openFileDialog = new Microsoft.Win32.OpenFileDialog
+        var openFileDialog = new OpenFileDialog
         {
             Multiselect = true,
             Filter = "UPK files (*.upk)|*.upk"
@@ -87,11 +89,11 @@ public partial class MainWindowViewModel : ObservableObject
         {
             if (!File.Exists(file))
             {
-                System.Windows.MessageBox.Show("Error: File does not exist");
+                MessageBox.Show("Error: File does not exist");
             }
 
 
-            FilesAdded.Add(new FileReference() { FilePath = file });
+            FilesAdded.Add(new FileReference { FilePath = file });
         }
 
         DecryptFilesCommand.NotifyCanExecuteChanged();
@@ -128,7 +130,7 @@ public partial class MainWindowViewModel : ObservableObject
         var decryptionProvider = new DecryptionProvider("keys.txt");
         double filesToProcess = FilesAdded.Count;
         var filesProcessed = 0;
-        Parallel.ForEach(FilesAdded, parallelOptions: new ParallelOptions { MaxDegreeOfParallelism = -1 }, (fileReference) =>
+        Parallel.ForEach(FilesAdded, new ParallelOptions { MaxDegreeOfParallelism = -1 }, fileReference =>
         {
             var inputFileName = Path.GetFileNameWithoutExtension(fileReference.FilePath);
             var outputFilePath = Path.Combine(OutputDirectory, inputFileName + "_decrypted.upk");
@@ -137,14 +139,14 @@ public partial class MainWindowViewModel : ObservableObject
             directoryInfo.Create();
             using var fileStream = File.Open(fileReference.FilePath, FileMode.Open, FileAccess.Read, FileShare.Read);
             using var decryptedStream = File.OpenWrite(outputFilePath);
-            var unpacked = new PackageUnpacker(fileStream, decryptedStream, decryptionProvider);
+            var unpacked = new PackageUnpacker(fileStream, decryptedStream, decryptionProvider, FileSummarySerializer.GetDefaultSerializer());
             fileReference.UnpackResult = unpacked.DeserializationState switch
             {
                 DeserializationState.Success => "Success",
                 _ => "Fail"
             };
             var counter = Interlocked.Increment(ref filesProcessed);
-            worker.ReportProgress((int) ((counter) / filesToProcess * 100), fileReference);
+            worker.ReportProgress((int) (counter / filesToProcess * 100), fileReference);
         });
 
 

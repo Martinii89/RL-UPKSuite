@@ -1,8 +1,17 @@
 ﻿namespace Core.Classes;
 
+/// <summary>
+///     Marks a class for injection into it's owning package as a native only class
+/// </summary>
 [AttributeUsage(AttributeTargets.Class, Inherited = false)]
 public class NativeOnlyClassAttribute : Attribute
 {
+    /// <summary>
+    ///     Defined the name of the package, class and super class for this native only class
+    /// </summary>
+    /// <param name="packageName"></param>
+    /// <param name="className"></param>
+    /// <param name="superClass"></param>
     public NativeOnlyClassAttribute(string packageName, string className, string superClass = "")
     {
         ClassName = className;

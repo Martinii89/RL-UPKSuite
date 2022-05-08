@@ -62,6 +62,7 @@ public class ObjectIndex : IEquatable<ObjectIndex>
     /// <returns></returns>
     public int ImportIndex => -Index - 1;
 
+    /// <inheritdoc />
     public bool Equals(ObjectIndex? other)
     {
         if (ReferenceEquals(null, other))
@@ -112,6 +113,7 @@ public class ObjectIndex : IEquatable<ObjectIndex>
     }
 
 
+    /// <inheritdoc />
     public override bool Equals(object? obj)
     {
         if (ReferenceEquals(null, obj))
@@ -132,6 +134,7 @@ public class ObjectIndex : IEquatable<ObjectIndex>
         return Equals((ObjectIndex) obj);
     }
 
+    /// <inheritdoc />
     public override int GetHashCode()
     {
         return Index;

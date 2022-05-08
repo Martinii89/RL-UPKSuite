@@ -14,6 +14,13 @@ public class UnrealPackageSerializer : IStreamSerializerFor<UnrealPackage>
     private readonly IStreamSerializerFor<ImportTableItem> _importTableItemSerializer;
     private readonly IStreamSerializerFor<NameTableItem> _nameTableItemSerializer;
 
+    /// <summary>
+    ///     Constructs a serializer capable of serializing a UnrealPackage by giving it all the required sub serializers
+    /// </summary>
+    /// <param name="fileSummarySerializerFor"></param>
+    /// <param name="nameTableItemSerializer"></param>
+    /// <param name="importTableItemSerializer"></param>
+    /// <param name="exportTablItemeSerializer"></param>
     public UnrealPackageSerializer(IStreamSerializerFor<FileSummary> fileSummarySerializerFor, IStreamSerializerFor<NameTableItem> nameTableItemSerializer,
         IStreamSerializerFor<ImportTableItem> importTableItemSerializer, IStreamSerializerFor<ExportTableItem> exportTablItemeSerializer)
     {
@@ -23,6 +30,7 @@ public class UnrealPackageSerializer : IStreamSerializerFor<UnrealPackage>
         _exportTablItemeSerializer = exportTablItemeSerializer;
     }
 
+    /// <inheritdoc />
     public UnrealPackage Deserialize(Stream stream)
     {
         var package = new UnrealPackage();
@@ -44,6 +52,7 @@ public class UnrealPackageSerializer : IStreamSerializerFor<UnrealPackage>
         return package;
     }
 
+    /// <inheritdoc />
     public void Serialize(Stream stream, UnrealPackage value)
     {
         throw new NotImplementedException();
