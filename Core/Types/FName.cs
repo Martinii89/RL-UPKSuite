@@ -28,14 +28,16 @@ public class FName
         InstanceNumber = instanceNumber;
     }
 
+    public string? CachedName { get; set; }
+
 
     /// <summary>
     ///     The index in the <see cref="NameTable" />
     /// </summary>
-    public int NameIndex { get; set; }
+    public int NameIndex { get; init; }
 
     /// <summary>
     ///     Instance number
     /// </summary>
-    public int InstanceNumber { get; set; }
+    public int InstanceNumber { get; init; }
 }

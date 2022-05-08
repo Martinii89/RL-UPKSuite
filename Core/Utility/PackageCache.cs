@@ -5,7 +5,7 @@ using Microsoft.Extensions.FileSystemGlobbing;
 namespace Core.Utility;
 
 /// <summary>
-///     Configuration object for the <see cref="ImportResolver" />
+///     Configuration object for the <see cref="PackageCache" />
 /// </summary>
 public class ImportResolverOptions
 {
@@ -35,19 +35,19 @@ public class ImportResolverOptions
 }
 
 /// <summary>
-///     The ImportResolver can find and cache packages for reuse. Especially useful when resolving resolving import object
+///     The PackageCache can find and cache packages for reuse. Especially useful when resolving resolving import object
 ///     (hence the name)
 /// </summary>
-public class ImportResolver : IImportResolver
+public class PackageCache : IPackageCache
 {
     private readonly Dictionary<string, UnrealPackage> _cachedPackages = new();
     private readonly ImportResolverOptions _options;
 
     /// <summary>
-    ///     Constructs a configured ImportResolver
+    ///     Constructs a configured PackageCache
     /// </summary>
     /// <param name="options"></param>
-    public ImportResolver(ImportResolverOptions options)
+    public PackageCache(ImportResolverOptions options)
     {
         _options = options;
     }
@@ -94,5 +94,29 @@ public class ImportResolver : IImportResolver
         _cachedPackages.Add(packageName, package);
 
         return package;
+    }
+
+    /// <inheritdoc />
+    public UnrealPackage GetCachedPackage(string packageName)
+    {
+        return _cachedPackages[packageName];
+    }
+
+    /// <inheritdoc />
+    public void AddPackage(UnrealPackage package)
+    {
+        _cachedPackages.Add(package.PackageName, package);
+    }
+
+    /// <inheritdoc />
+    public List<string> GetCachedPackageNames()
+    {
+        return _cachedPackages.Keys.ToList();
+    }
+
+    /// <inheritdoc />
+    public bool IsPackageCached(string packageName)
+    {
+        return _cachedPackages.ContainsKey(packageName);
     }
 }

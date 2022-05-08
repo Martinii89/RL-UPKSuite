@@ -136,6 +136,7 @@ public class ExportTableItem : IObjectResource
     /// </summary>
     public ObjectIndex OuterIndex { get; set; } = new();
 
+
     /// <summary>
     ///     The name of this object.
     /// </summary>

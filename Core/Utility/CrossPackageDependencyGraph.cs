@@ -101,15 +101,15 @@ public class CrossPackageDependencyGraph
 {
     private readonly Dictionary<PackageObjectReference, HashSet<Edge>> _adj = new();
 
-    private readonly IImportResolver _packageImportResolver;
+    private readonly IPackageCache _packagePackageCache;
 
     /// <summary>
     ///     Create a package dependency graph. A import resolver is required to resolve import object dependencies correctly.
     /// </summary>
-    /// <param name="packageImportResolver"></param>
-    public CrossPackageDependencyGraph(IImportResolver packageImportResolver)
+    /// <param name="packagePackageCache"></param>
+    public CrossPackageDependencyGraph(IPackageCache packagePackageCache)
     {
-        _packageImportResolver = packageImportResolver;
+        _packagePackageCache = packagePackageCache;
     }
 
     /// <summary>
@@ -139,15 +139,16 @@ public class CrossPackageDependencyGraph
     }
 
 
-    private PackageObjectReference ResolveImportObjectReference(ImportTableItem import, UnrealPackage objPackage)
+    private PackageObjectReference? ResolveImportObjectReference(ImportTableItem import, UnrealPackage objPackage)
     {
         var importPackageReference = objPackage.GetImportPackage(import);
         var packageName = objPackage.GetName(importPackageReference.ObjectName);
-        var importPackage = _packageImportResolver.ResolveExportPackage(packageName);
+        var importPackage = _packagePackageCache.ResolveExportPackage(packageName);
         var fullName = objPackage.GetFullName(import);
         if (importPackage is null)
         {
-            throw new InvalidOperationException($"Can't find the package to resolve dependencies for {fullName}");
+            return null;
+            //throw new InvalidOperationException($"Can't find the package to resolve dependencies for {fullName}");
         }
 
         var nameParts = fullName.Split('.');
@@ -173,7 +174,8 @@ public class CrossPackageDependencyGraph
             return new PackageObjectReference(packageName, nativeClass);
         }
 
-        throw new InvalidOperationException($"Failed to find the import object: {objPackage.GetFullName(import)}");
+        return null;
+        //throw new InvalidOperationException($"Failed to find the import object: {objPackage.GetFullName(import)}");
     }
 
     /// <summary>
@@ -190,7 +192,7 @@ public class CrossPackageDependencyGraph
         while (objQueue.Count != 0)
         {
             var currentObj = objQueue.Dequeue();
-            var objPackage = _packageImportResolver.ResolveExportPackage(currentObj.PackageName);
+            var objPackage = _packagePackageCache.ResolveExportPackage(currentObj.PackageName);
             if (objPackage is null)
             {
                 throw new InvalidOperationException($"Can't find the package to resolve dependencies for {currentObj.PackageName}");
@@ -216,31 +218,38 @@ public class CrossPackageDependencyGraph
     private void AddImportDependencies(ImportTableItem import, PackageObjectReference currentObj, Queue<PackageObjectReference> objQueue,
         UnrealPackage objPackage)
     {
-        if (import.OuterIndex.Index != 0)
+        if (import.OuterIndex.Index == 0)
         {
-            // Native imports has no export reference to resolve
-            var outerReference = new PackageObjectReference(currentObj.PackageName, import.OuterIndex);
-            if (!_adj.ContainsKey(outerReference))
-            {
-                objQueue.Enqueue(outerReference);
-            }
-
-            AddEdge(outerReference, currentObj);
-
-
-            if (ImportIsNative(import, objPackage))
-            {
-                return;
-            }
-
-            var exportReference = ResolveImportObjectReference(import, objPackage);
-            if (exportReference.NativeClass is null && !_adj.ContainsKey(exportReference))
-            {
-                objQueue.Enqueue(exportReference);
-            }
-
-            AddEdge(exportReference, currentObj);
+            return;
         }
+
+        // Native imports has no export reference to resolve
+        var outerReference = new PackageObjectReference(currentObj.PackageName, import.OuterIndex);
+        if (!_adj.ContainsKey(outerReference))
+        {
+            objQueue.Enqueue(outerReference);
+        }
+
+        AddEdge(outerReference, currentObj);
+
+
+        if (ImportIsNative(import, objPackage))
+        {
+            return;
+        }
+
+        var exportReference = ResolveImportObjectReference(import, objPackage);
+        if (exportReference == null)
+        {
+            return;
+        }
+
+        if (exportReference.NativeClass is null && !_adj.ContainsKey(exportReference))
+        {
+            objQueue.Enqueue(exportReference);
+        }
+
+        AddEdge(exportReference, currentObj);
     }
 
     private void AddImportDependencies(ExportTableItem export, PackageObjectReference currentObj, Queue<PackageObjectReference> objQueue)
@@ -353,7 +362,7 @@ public class CrossPackageDependencyGraph
                 $"{objectReference.PackageName} : ({objectReference.NativeClass.Class!.Name}) {objectReference.PackageName}.{objectReference.NativeClass.Name}";
         }
 
-        var importPackage = _packageImportResolver.ResolveExportPackage(objectReference.PackageName);
+        var importPackage = _packagePackageCache.ResolveExportPackage(objectReference.PackageName);
         ArgumentNullException.ThrowIfNull(importPackage);
         var obj = importPackage.GetObjectReference(objectReference.ObjectIndex);
         string? objTypeName;

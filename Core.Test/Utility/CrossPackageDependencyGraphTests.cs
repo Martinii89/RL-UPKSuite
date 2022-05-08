@@ -18,7 +18,7 @@ public class UdkPackages
     public readonly UnrealPackage CustomGame;
     public readonly UnrealPackage Engine;
     public readonly UnrealPackage GameFramework;
-    public readonly IImportResolver ImportResolver;
+    public readonly IPackageCache PackageCache;
 
     public UdkPackages()
     {
@@ -28,25 +28,25 @@ public class UdkPackages
         var gameFramework = new MemoryStream(File.ReadAllBytes(@"TestData/UDK/GameFramework.u"));
 
         var serializer = SerializerHelper.GetSerializerFor<UnrealPackage>(typeof(UnrealPackage));
-        ImportResolver = Substitute.For<IImportResolver>();
+        PackageCache = Substitute.For<IPackageCache>();
 
         Core = UnrealPackage.DeserializeAndInitialize(core, serializer, "Core");
-        ImportResolver.ResolveExportPackage("Core").Returns(Core);
+        PackageCache.ResolveExportPackage("Core").Returns(Core);
 
-        Engine = UnrealPackage.DeserializeAndInitialize(engine, serializer, "Engine", ImportResolver);
-        ImportResolver.ResolveExportPackage("Engine").Returns(Engine);
+        Engine = UnrealPackage.DeserializeAndInitialize(engine, serializer, "Engine", PackageCache);
+        PackageCache.ResolveExportPackage("Engine").Returns(Engine);
 
-        GameFramework = UnrealPackage.DeserializeAndInitialize(customGame, serializer, "GameFramework", ImportResolver);
-        ImportResolver.ResolveExportPackage("GameFramework").Returns(GameFramework);
+        GameFramework = UnrealPackage.DeserializeAndInitialize(customGame, serializer, "GameFramework", PackageCache);
+        PackageCache.ResolveExportPackage("GameFramework").Returns(GameFramework);
 
-        CustomGame = UnrealPackage.DeserializeAndInitialize(gameFramework, serializer, "CustomGame", ImportResolver);
-        ImportResolver.ResolveExportPackage("CustomGame").Returns(CustomGame);
+        CustomGame = UnrealPackage.DeserializeAndInitialize(gameFramework, serializer, "CustomGame", PackageCache);
+        PackageCache.ResolveExportPackage("CustomGame").Returns(CustomGame);
     }
 }
 
 public class CrossPackageDependencyGraphTests : IClassFixture<UdkPackages>
 {
-    private readonly IImportResolver _importResolver;
+    private readonly IPackageCache _packageCache;
     private readonly ITestOutputHelper _testOutputHelper;
     private readonly UdkPackages _udkPackages;
 
@@ -54,14 +54,14 @@ public class CrossPackageDependencyGraphTests : IClassFixture<UdkPackages>
     {
         _testOutputHelper = testOutputHelper;
         _udkPackages = udkPackages;
-        _importResolver = udkPackages.ImportResolver;
+        _packageCache = udkPackages.PackageCache;
     }
 
     [Fact]
     public void AddNodeTest_AddNode_NoThrow()
     {
         // Arrange
-        var graph = new CrossPackageDependencyGraph(_importResolver);
+        var graph = new CrossPackageDependencyGraph(_packageCache);
         var node = new PackageObjectReference("TestPAckage", new ObjectIndex(1));
 
         // Act
@@ -75,7 +75,7 @@ public class CrossPackageDependencyGraphTests : IClassFixture<UdkPackages>
     public void AddNodeTest_AddNode_NodeCountIncreasesForNewNode()
     {
         // Arrange
-        var graph = new CrossPackageDependencyGraph(_importResolver);
+        var graph = new CrossPackageDependencyGraph(_packageCache);
         var node = new PackageObjectReference("TestPAckage", new ObjectIndex(1));
         var startCount = graph.NodeCount;
 
@@ -90,7 +90,7 @@ public class CrossPackageDependencyGraphTests : IClassFixture<UdkPackages>
     public void AddNodeTest_AddNode_NodeCountConstantForDuplicateNode()
     {
         // Arrange
-        var graph = new CrossPackageDependencyGraph(_importResolver);
+        var graph = new CrossPackageDependencyGraph(_packageCache);
         var node = new PackageObjectReference("TestPAckage", new ObjectIndex(1));
         graph.AddNode(node);
         var startCount = graph.NodeCount;
@@ -105,7 +105,7 @@ public class CrossPackageDependencyGraphTests : IClassFixture<UdkPackages>
     public void GetEdgesTest_UnknownNode_ThrowsKeyNotFound()
     {
         // Arrange
-        var graph = new CrossPackageDependencyGraph(_importResolver);
+        var graph = new CrossPackageDependencyGraph(_packageCache);
         var node = new PackageObjectReference("TestPAckage", new ObjectIndex(1));
         graph.AddNode(node);
 
@@ -121,7 +121,7 @@ public class CrossPackageDependencyGraphTests : IClassFixture<UdkPackages>
     public void GetEdgesTest_KnownNode_NoThrow()
     {
         // Arrange
-        var graph = new CrossPackageDependencyGraph(_importResolver);
+        var graph = new CrossPackageDependencyGraph(_packageCache);
         var node = new PackageObjectReference("TestPAckage", new ObjectIndex(1));
         graph.AddNode(node);
 
@@ -137,7 +137,7 @@ public class CrossPackageDependencyGraphTests : IClassFixture<UdkPackages>
     public void AddEdgeTest_KnownNodesEdge_NoThrow()
     {
         // Arrange
-        var graph = new CrossPackageDependencyGraph(_importResolver);
+        var graph = new CrossPackageDependencyGraph(_packageCache);
         var node = new PackageObjectReference("TestPAckage", new ObjectIndex(1));
         var node2 = new PackageObjectReference("TestPAckage", new ObjectIndex(2));
         graph.AddNode(node);
@@ -155,7 +155,7 @@ public class CrossPackageDependencyGraphTests : IClassFixture<UdkPackages>
     public void AddEdgeTest_UnknownNodeEdge_AddsNewNode()
     {
         // Arrange
-        var graph = new CrossPackageDependencyGraph(_importResolver);
+        var graph = new CrossPackageDependencyGraph(_packageCache);
         var node = new PackageObjectReference("TestPAckage", new ObjectIndex(1));
         var node2 = new PackageObjectReference("TestPAckage", new ObjectIndex(2));
         graph.AddNode(node);
@@ -172,7 +172,7 @@ public class CrossPackageDependencyGraphTests : IClassFixture<UdkPackages>
     public void AddEdgeTest_FromToEqual_ThrowsArgumentException()
     {
         // Arrange
-        var graph = new CrossPackageDependencyGraph(_importResolver);
+        var graph = new CrossPackageDependencyGraph(_packageCache);
         var node = new PackageObjectReference("TestPAckage", new ObjectIndex(1));
         var node2 = new PackageObjectReference("TestPAckage", new ObjectIndex(1));
 
@@ -187,7 +187,7 @@ public class CrossPackageDependencyGraphTests : IClassFixture<UdkPackages>
     public void AddEdgeTest_AllUnknownNodes_AddsNewNodes()
     {
         // Arrange
-        var graph = new CrossPackageDependencyGraph(_importResolver);
+        var graph = new CrossPackageDependencyGraph(_packageCache);
         var node = new PackageObjectReference("TestPAckage", new ObjectIndex(1));
         var node2 = new PackageObjectReference("TestPAckage", new ObjectIndex(2));
         var nodeCount = graph.NodeCount;
@@ -203,7 +203,7 @@ public class CrossPackageDependencyGraphTests : IClassFixture<UdkPackages>
     public void AddEdgeTest_DuplicateEdge_NoThrow()
     {
         // Arrange
-        var graph = new CrossPackageDependencyGraph(_importResolver);
+        var graph = new CrossPackageDependencyGraph(_packageCache);
         var node = new PackageObjectReference("TestPAckage", new ObjectIndex(1));
         var node2 = new PackageObjectReference("TestPAckage", new ObjectIndex(2));
         graph.AddNode(node);
@@ -222,7 +222,7 @@ public class CrossPackageDependencyGraphTests : IClassFixture<UdkPackages>
     {
         // Arrange
 
-        var graph = new CrossPackageDependencyGraph(_importResolver);
+        var graph = new CrossPackageDependencyGraph(_packageCache);
         var coreObjectRef = new PackageObjectReference(_udkPackages.Core.PackageName, new ObjectIndex(ObjectIndex.FromExportIndex(0)));
 
         // Act
@@ -237,7 +237,7 @@ public class CrossPackageDependencyGraphTests : IClassFixture<UdkPackages>
     public void AddObjectDependencies_CoreDefaultObject_OneDependantNodes()
     {
         // Arrange
-        var graph = new CrossPackageDependencyGraph(_importResolver);
+        var graph = new CrossPackageDependencyGraph(_packageCache);
         var coreDefaultObject = new PackageObjectReference(_udkPackages.Core.PackageName, new ObjectIndex(ObjectIndex.FromExportIndex(1)));
 
         // Act
@@ -252,7 +252,7 @@ public class CrossPackageDependencyGraphTests : IClassFixture<UdkPackages>
     public void AddObjectDependencies_CoreComponent_OneDependantNodes()
     {
         // Arrange
-        var graph = new CrossPackageDependencyGraph(_importResolver);
+        var graph = new CrossPackageDependencyGraph(_packageCache);
         var coreDefaultObject = new PackageObjectReference(_udkPackages.Core.PackageName, new ObjectIndex(ObjectIndex.FromExportIndex(2)));
         // Act
 
@@ -266,7 +266,7 @@ public class CrossPackageDependencyGraphTests : IClassFixture<UdkPackages>
     public void AddObjectDependencies_CoreDefaultComponent_FourDependantNodes()
     {
         // Arrange
-        var graph = new CrossPackageDependencyGraph(_importResolver);
+        var graph = new CrossPackageDependencyGraph(_packageCache);
         var coreDefaultObject = new PackageObjectReference(_udkPackages.Core.PackageName, new ObjectIndex(ObjectIndex.FromExportIndex(3)));
 
         // Act
@@ -282,7 +282,7 @@ public class CrossPackageDependencyGraphTests : IClassFixture<UdkPackages>
     public void AddObjectDependencies_EngineIsAReturnValue_TenDependantNodes()
     {
         // Arrange
-        var graph = new CrossPackageDependencyGraph(_importResolver);
+        var graph = new CrossPackageDependencyGraph(_packageCache);
         // Core.Object.IsA.ReturnValue
         var isAReturnValue = new PackageObjectReference(_udkPackages.Engine.PackageName, new ObjectIndex(ObjectIndex.FromImportIndex(2)));
 
@@ -297,7 +297,7 @@ public class CrossPackageDependencyGraphTests : IClassFixture<UdkPackages>
     public void AddObjectDependencies_PendingMatch_NoThrow()
     {
         // Arrange
-        var graph = new CrossPackageDependencyGraph(_importResolver);
+        var graph = new CrossPackageDependencyGraph(_packageCache);
         var pendingMatch = new PackageObjectReference(_udkPackages.CustomGame.PackageName, new ObjectIndex(ObjectIndex.FromExportIndex(0)));
 
         // Act
@@ -314,7 +314,7 @@ public class CrossPackageDependencyGraphTests : IClassFixture<UdkPackages>
     public void AddObjectDependencies_CustomPawn_NoThrow()
     {
         // Arrange
-        var graph = new CrossPackageDependencyGraph(_importResolver);
+        var graph = new CrossPackageDependencyGraph(_packageCache);
         var customPawn = new PackageObjectReference(_udkPackages.CustomGame.PackageName, new ObjectIndex(ObjectIndex.FromExportIndex(3)));
 
         // Act
@@ -331,7 +331,7 @@ public class CrossPackageDependencyGraphTests : IClassFixture<UdkPackages>
     public void AddObjectDependencies_CustomPlayerController_NoThrow()
     {
         // Arrange
-        var graph = new CrossPackageDependencyGraph(_importResolver);
+        var graph = new CrossPackageDependencyGraph(_packageCache);
         var customPlayerController = new PackageObjectReference(_udkPackages.CustomGame.PackageName, new ObjectIndex(ObjectIndex.FromExportIndex(5)));
 
         // Act
@@ -348,7 +348,7 @@ public class CrossPackageDependencyGraphTests : IClassFixture<UdkPackages>
     public void AddObjectDependencies_Sprite_NoThrow()
     {
         // Arrange
-        var graph = new CrossPackageDependencyGraph(_importResolver);
+        var graph = new CrossPackageDependencyGraph(_packageCache);
         var sprite = new PackageObjectReference(_udkPackages.CustomGame.PackageName, new ObjectIndex(ObjectIndex.FromExportIndex(10)));
 
         // Act

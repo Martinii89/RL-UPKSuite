@@ -60,6 +60,7 @@ public class ImportTableItem : IObjectResource
         ObjectName = objectName;
     }
 
+
     /// <summary>
     ///     The name of the package this object can be found in
     /// </summary>

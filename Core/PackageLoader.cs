@@ -1,5 +1,6 @@
 ﻿using Core.Serialization;
 using Core.Types;
+using Core.Types.PackageTables;
 using Core.Utility;
 
 namespace Core;
@@ -10,8 +11,7 @@ namespace Core;
 /// </summary>
 public class PackageLoader
 {
-    private readonly IImportResolver _packageResolver;
-    private readonly Dictionary<string, UnrealPackage> _packages = new();
+    private readonly IPackageCache _packageCache;
     private readonly IStreamSerializerFor<UnrealPackage> _packageSerializer;
 
     /// <summary>
@@ -19,11 +19,21 @@ public class PackageLoader
     ///     serializer you require
     /// </summary>
     /// <param name="packageSerializer"></param>
-    /// <param name="packageResolver"></param>
-    public PackageLoader(IStreamSerializerFor<UnrealPackage> packageSerializer, IImportResolver packageResolver)
+    /// <param name="packageCache"></param>
+    public PackageLoader(IStreamSerializerFor<UnrealPackage> packageSerializer, IPackageCache packageCache)
     {
         _packageSerializer = packageSerializer;
-        _packageResolver = packageResolver;
+        _packageCache = packageCache;
+    }
+
+    /// <summary>
+    ///     Returns a loaded package
+    /// </summary>
+    /// <param name="packageName"></param>
+    /// <returns></returns>
+    public UnrealPackage? GetPackage(string packageName)
+    {
+        return _packageCache.IsPackageCached(packageName) ? _packageCache.GetCachedPackage(packageName) : null;
     }
 
 
@@ -36,16 +46,40 @@ public class PackageLoader
     /// <returns></returns>
     public UnrealPackage LoadPackage(string packagePath, string packageName)
     {
-        if (_packages.TryGetValue(packageName, out var package))
+        if (_packageCache.IsPackageCached(packageName))
         {
-            return package;
+            return _packageCache.GetCachedPackage(packageName);
         }
 
-
         var packageStream = File.OpenRead(packagePath);
-        var unrealPackage = _packageSerializer.Deserialize(packageStream);
+
+        var unrealPackage = UnrealPackage.DeserializeAndInitialize(packageStream, _packageSerializer, packageName, _packageCache);
         unrealPackage.RootLoader = this;
-        _packages.Add(packageName, unrealPackage);
+        _packageCache.AddPackage(unrealPackage);
+
+        var dependencyGraph = new CrossPackageDependencyGraph(_packageCache);
+        for (var index = 0; index < unrealPackage.ExportTable.Count; index++)
+        {
+            dependencyGraph.AddObjectDependencies(new PackageObjectReference(packageName, new ObjectIndex(ObjectIndex.FromExportIndex(index))));
+        }
+
+        for (var index = 0; index < unrealPackage.ImportTable.Count; index++)
+        {
+            dependencyGraph.AddObjectDependencies(new PackageObjectReference(packageName, new ObjectIndex(ObjectIndex.FromImportIndex(index))));
+        }
+
+        var loadOrder = dependencyGraph.TopologicalSort();
+        foreach (var packageObjectReference in loadOrder)
+        {
+            var package = _packageCache.ResolveExportPackage(packageObjectReference.PackageName);
+            ArgumentNullException.ThrowIfNull(package);
+            var obj = package?.GetObjectReference(packageObjectReference.ObjectIndex);
+            if (obj != null)
+            {
+                package!.CreateObject(obj);
+            }
+        }
+
         return unrealPackage;
     }
 }

@@ -20,7 +20,7 @@ public class ImportResolverTests : SerializerHelper
     {
         // Arrange
         var options = new ImportResolverOptions(_serializer) { SearchPaths = { @"TestData/UDK/" } };
-        var resolver = new ImportResolver(options);
+        var resolver = new PackageCache(options);
         // Act
 
         var resolvedPackage = resolver.ResolveExportPackage("Core");

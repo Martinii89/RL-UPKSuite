@@ -24,7 +24,7 @@ public class UnrealPackage
     /// <summary>
     ///     A Import resolver use to resolve the import objects
     /// </summary>
-    public IImportResolver? ImportResolver { get; set; }
+    public IPackageCache? ImportResolver { get; set; }
 
     /// <summary>
     ///     The root. (May be removed)
@@ -83,7 +83,7 @@ public class UnrealPackage
     /// <param name="importResolver">Used to resolve import objects</param>
     /// <returns></returns>
     public static UnrealPackage DeserializeAndInitialize(Stream stream, IStreamSerializerFor<UnrealPackage> deserializer, string packageName,
-        IImportResolver? importResolver = null)
+        IPackageCache? importResolver = null)
     {
         var package = deserializer.Deserialize(stream);
         package.ImportResolver = importResolver;
@@ -186,12 +186,21 @@ public class UnrealPackage
     /// <exception cref="IndexOutOfRangeException"></exception>
     public string GetName(FName name)
     {
-        if (name.NameIndex >= NameTable.Count)
+        if (name.CachedName is not null)
+        {
+            return name.CachedName;
+        }
+
+        var count = NameTable.Count;
+        var index = name.NameIndex;
+        if (index >= count)
         {
             throw new IndexOutOfRangeException($"Invalid FName index {name.NameIndex}");
         }
 
-        return NameTable[name.NameIndex].Name;
+        var s = NameTable[name.NameIndex].Name;
+        name.CachedName = s;
+        return s;
     }
 
     /// <summary>
@@ -229,7 +238,6 @@ public class UnrealPackage
             stringBuilder.Insert(0, ".");
             stringBuilder.Insert(0, PackageName);
         }
-
 
         return stringBuilder.ToString();
     }
@@ -277,6 +285,12 @@ public class UnrealPackage
             return importTableItem.ImportedObject;
         }
 
+        if (importTableItem.OuterIndex.Index == 0 && GetName(importTableItem.ClassName) == "Package")
+        {
+            importTableItem.ImportedObject = new UPackage(importTableItem.ObjectName, FindClass("Package"), null, this);
+            return importTableItem.ImportedObject;
+        }
+
         var importFullName = GetFullName(importTableItem);
         var importPackageName = importFullName.Split(".")[0];
 
@@ -284,9 +298,9 @@ public class UnrealPackage
         var importPackage = ImportResolver.ResolveExportPackage(importPackageName);
         if (importPackage == null)
         {
-            return null;
+            importTableItem.ImportedObject = CreateInternalImport(importTableItem);
+            return importTableItem.ImportedObject;
         }
-
 
         var importOuter = GetObjectReference(importTableItem.OuterIndex);
         if (importOuter is ImportTableItem { ImportedObject: null } import)
@@ -304,7 +318,34 @@ public class UnrealPackage
             importTableItem.ImportedObject = importPackage.FindObject(importFullName);
         }
 
+        if (importTableItem.ImportedObject == null)
+        {
+            return null;
+        }
+
+
         return importTableItem.ImportedObject;
+    }
+
+    private UObject? CreateInternalImport(ImportTableItem import)
+    {
+        var classPackageName = GetName(import.ClassPackage);
+        var classPackage = ImportResolver!.ResolveExportPackage(classPackageName);
+        if (classPackage == null)
+        {
+            throw new InvalidOperationException();
+        }
+
+        var cls = classPackage.FindClass(GetName(import.ClassName));
+        var outerRef = GetObjectReference(import.OuterIndex);
+        var outer = outerRef switch
+        {
+            ImportTableItem importOuter => importOuter.ImportedObject,
+            ExportTableItem export => export.Object,
+            _ => null
+        };
+        var obj = new UObject(import.ObjectName, cls, outer, this);
+        return obj;
     }
 
     internal UObject? FindObject(string importFullName)
@@ -405,9 +446,8 @@ public class UnrealPackage
         }
     }
 
-    private void CreateExport(int index)
+    private void CreateExport(ExportTableItem exportItem)
     {
-        var exportItem = ExportTable[index];
         if (exportItem.Object is not null)
         {
             return;
@@ -438,6 +478,12 @@ public class UnrealPackage
         }
 
         exportItem.Object = exportObject;
+    }
+
+    private void CreateExport(int index)
+    {
+        var exportItem = ExportTable[index];
+        CreateExport(exportItem);
     }
 
     private UClass? FindSuperClass(ExportTableItem exportItem)
@@ -551,6 +597,20 @@ public class UnrealPackage
                     visited.Add(i.Index);
                     break;
             }
+        }
+    }
+
+
+    public void CreateObject(IObjectResource objectResource)
+    {
+        switch (objectResource)
+        {
+            case ExportTableItem export:
+                CreateExport(export);
+                break;
+            case ImportTableItem import:
+                CreateImport(import);
+                break;
         }
     }
 }

@@ -339,7 +339,7 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
         // Arrange
         var package = _udkPackageSerializer.Deserialize(_packageStreams.CustomGameStream);
         package.PostDeserializeInitialize("CustomGame");
-        var importResolver = new ImportResolver(new ImportResolverOptions(_udkPackageSerializer)
+        var importResolver = new PackageCache(new ImportResolverOptions(_udkPackageSerializer)
             { Extensions = { "*.u", "*.upk" }, SearchPaths = { @"TestData/UDK" } });
         package.ImportResolver = importResolver;
         // Act
@@ -356,7 +356,7 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
         // Arrange
         var package = _udkPackageSerializer.Deserialize(_packageStreams.CustomGameStream);
         package.PostDeserializeInitialize("CustomGame");
-        var importResolver = new ImportResolver(new ImportResolverOptions(_udkPackageSerializer)
+        var importResolver = new PackageCache(new ImportResolverOptions(_udkPackageSerializer)
             { Extensions = { "*.u", "*.upk" }, SearchPaths = { @"TestData/UDK" } });
         package.ImportResolver = importResolver;
         // Act
@@ -373,7 +373,7 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
         // Arrange
         var package = _udkPackageSerializer.Deserialize(_packageStreams.CustomGameStream);
         package.PostDeserializeInitialize("CustomGame");
-        var importResolver = new ImportResolver(new ImportResolverOptions(_udkPackageSerializer)
+        var importResolver = new PackageCache(new ImportResolverOptions(_udkPackageSerializer)
             { Extensions = { "*.u", "*.upk" }, SearchPaths = { @"TestData/UDK" } });
         package.ImportResolver = importResolver;
         // Act
@@ -390,7 +390,7 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
         // Arrange
         var package = _udkPackageSerializer.Deserialize(_packageStreams.CustomGameStream);
         package.PostDeserializeInitialize("CustomGame");
-        var importResolver = new ImportResolver(new ImportResolverOptions(_udkPackageSerializer)
+        var importResolver = new PackageCache(new ImportResolverOptions(_udkPackageSerializer)
             { Extensions = { "*.u", "*.upk" }, SearchPaths = { @"TestData/UDK" } });
         package.ImportResolver = importResolver;
 
@@ -410,7 +410,7 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
         // Arrange
 
         var corePackage = UnrealPackage.DeserializeAndInitialize(_packageStreams.CoreStream, _udkPackageSerializer, "Core");
-        var packageImportResolver = Substitute.For<IImportResolver>();
+        var packageImportResolver = Substitute.For<IPackageCache>();
         packageImportResolver.ResolveExportPackage("Core").Returns(corePackage);
 
 
@@ -432,7 +432,7 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
     {
         // Arrange
         var package = _udkPackageSerializer.Deserialize(_packageStreams.EngineStream);
-        var importResolver = new ImportResolver(new ImportResolverOptions(_udkPackageSerializer)
+        var importResolver = new PackageCache(new ImportResolverOptions(_udkPackageSerializer)
             { Extensions = { "*.u", "*.upk" }, SearchPaths = { @"TestData/UDK" } });
         package.ImportResolver = importResolver;
         package.PostDeserializeInitialize("Engine");
