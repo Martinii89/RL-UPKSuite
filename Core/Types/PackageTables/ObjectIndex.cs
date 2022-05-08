@@ -1,6 +1,4 @@
-﻿using Syroot.BinaryData;
-
-namespace Core.Types.PackageTables;
+﻿namespace Core.Types.PackageTables;
 
 /// <summary>
 ///     References either a import or export object.
@@ -8,8 +6,29 @@ namespace Core.Types.PackageTables;
 ///     Values less than zero are import objects. The real index in the import table will be ( - index - 1 )
 ///     Zero is a null reference
 /// </summary>
-public class ObjectIndex
+public class ObjectIndex : IEquatable<ObjectIndex>
 {
+    /// <summary>
+    ///     From which table can you find the reference object
+    /// </summary>
+    public enum ReferencedTable
+    {
+        /// <summary>
+        ///     This is a null reference
+        /// </summary>
+        Null,
+
+        /// <summary>
+        ///     This is a import object reference
+        /// </summary>
+        Import,
+
+        /// <summary>
+        ///     This is a export object reference
+        /// </summary>
+        Export
+    }
+
     /// <summary>
     ///     Constructs a null reference
     /// </summary>
@@ -27,25 +46,97 @@ public class ObjectIndex
     }
 
     /// <summary>
-    ///     The reference index. Larger than zero is a export. Less than zero is a import
+    ///     The reference index. Larger than zero is a export. Less than zero is a import. Zero is a null reference
     /// </summary>
-    public int Index { get; private set; }
+    public int Index { get; }
 
     /// <summary>
-    ///     Reads a int32 value from the stream and assigns this as the Index
+    ///     Returns the index for the reference in the export table
     /// </summary>
-    /// <param name="stream"></param>
-    public void Deserialize(Stream stream)
+    /// <returns></returns>
+    public int ExportIndex => Index - 1;
+
+    /// <summary>
+    ///     Returns the index for the reference in the import table
+    /// </summary>
+    /// <returns></returns>
+    public int ImportIndex => -Index - 1;
+
+    /// <inheritdoc />
+    public bool Equals(ObjectIndex? other)
     {
-        Index = stream.ReadInt32();
+        if (ReferenceEquals(null, other))
+        {
+            return false;
+        }
+
+        if (ReferenceEquals(this, other))
+        {
+            return true;
+        }
+
+        return Index == other.Index;
     }
 
     /// <summary>
-    ///     Writes the index to the stream as a in32 value
+    ///     Converts a export table index to a object reference index
     /// </summary>
-    /// <param name="stream"></param>
-    public void Serialize(Stream stream)
+    /// <param name="exportIndex"></param>
+    /// <returns></returns>
+    public static int FromExportIndex(int exportIndex)
     {
-        stream.WriteInt32(Index);
+        return exportIndex + 1;
+    }
+
+    /// <summary>
+    ///     Converts a import table index to a object reference index
+    /// </summary>
+    /// <param name="importIndex"></param>
+    /// <returns></returns>
+    public static int FromImportIndex(int importIndex)
+    {
+        return -importIndex - 1;
+    }
+
+    /// <summary>
+    ///     Which table does this object reference
+    /// </summary>
+    /// <returns></returns>
+    public ReferencedTable GetReferencedTable()
+    {
+        return Index switch
+        {
+            0 => ReferencedTable.Null,
+            < 0 => ReferencedTable.Import,
+            > 0 => ReferencedTable.Export
+        };
+    }
+
+
+    /// <inheritdoc />
+    public override bool Equals(object? obj)
+    {
+        if (ReferenceEquals(null, obj))
+        {
+            return false;
+        }
+
+        if (ReferenceEquals(this, obj))
+        {
+            return true;
+        }
+
+        if (obj.GetType() != GetType())
+        {
+            return false;
+        }
+
+        return Equals((ObjectIndex) obj);
+    }
+
+    /// <inheritdoc />
+    public override int GetHashCode()
+    {
+        return Index;
     }
 }

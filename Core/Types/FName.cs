@@ -1,5 +1,4 @@
 ﻿using Core.Types.PackageTables;
-using Syroot.BinaryData;
 
 namespace Core.Types;
 
@@ -29,42 +28,14 @@ public class FName
         InstanceNumber = instanceNumber;
     }
 
-    /// <summary>
-    ///     Construct a FName from a stream. reading the name index and instance number from the stream
-    /// </summary>
-    /// <param name="reader"></param>
-    public FName(Stream reader)
-    {
-        Deserialize(reader);
-    }
 
     /// <summary>
     ///     The index in the <see cref="NameTable" />
     /// </summary>
-    public int NameIndex { get; private set; }
+    public int NameIndex { get; set; }
 
     /// <summary>
     ///     Instance number
     /// </summary>
-    public int InstanceNumber { get; private set; }
-
-    /// <summary>
-    ///     Deserialize the FName from the stream
-    /// </summary>
-    /// <param name="reader"></param>
-    public void Deserialize(Stream reader)
-    {
-        NameIndex = reader.ReadInt32();
-        InstanceNumber = reader.ReadInt32();
-    }
-
-    /// <summary>
-    ///     Serialize the FName to the stream
-    /// </summary>
-    /// <param name="writer"></param>
-    public void Serialize(Stream writer)
-    {
-        writer.WriteInt32(NameIndex);
-        writer.WriteInt32(InstanceNumber);
-    }
+    public int InstanceNumber { get; set; }
 }

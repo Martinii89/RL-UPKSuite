@@ -1,7 +1,4 @@
-﻿using Core.UnrealStream;
-using Syroot.BinaryData;
-
-namespace Core.Types.PackageTables;
+﻿namespace Core.Types.PackageTables;
 
 /// <summary>
 ///     A Thumbnail table contains metadata about all the allocated textures in a package. This will not be present in a
@@ -13,17 +10,6 @@ public class ThumbnailTable
     ///     The list of thumbnail metadatas
     /// </summary>
     public List<ThumbnailTableItem> Thumbnails { get; } = new();
-
-
-    internal void Deserialize(Stream reader)
-    {
-        throw new NotImplementedException();
-    }
-
-    internal void Serialize(Stream reader)
-    {
-        throw new NotImplementedException();
-    }
 }
 
 /// <summary>
@@ -63,18 +49,6 @@ public class ThumbnailTableItem
     ///     The serial data of a thumbnail. Currently always null
     /// </summary>
     public ThumbnailData? ThumbnailData { get; set; }
-
-    internal void Deserialize(Stream reader)
-    {
-        throw new NotImplementedException();
-    }
-
-    internal void Serialize(Stream stream)
-    {
-        stream.WriteFString(Name);
-        stream.WriteFString(Group);
-        stream.WriteInt32(DataOffset);
-    }
 }
 
 /// <summary>
@@ -115,17 +89,4 @@ public class ThumbnailData
     ///     The image data
     /// </summary>
     public byte[] Data { get; }
-
-    internal void Deserialize(Stream reader)
-    {
-        throw new NotImplementedException();
-    }
-
-    internal void Serialize(Stream stream)
-    {
-        stream.Write(SizeX);
-        stream.Write(SizeY);
-        stream.Write(DataSize);
-        if (DataSize > 0) stream.Write(Data, 0, Data.Length);
-    }
 }
