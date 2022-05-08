@@ -1,5 +1,6 @@
 ﻿using Core.Serialization;
 using Core.Types;
+using Core.Utility;
 
 namespace Core;
 
@@ -9,6 +10,7 @@ namespace Core;
 /// </summary>
 public class PackageLoader
 {
+    private readonly IImportResolver _packageResolver;
     private readonly Dictionary<string, UnrealPackage> _packages = new();
     private readonly IStreamSerializerFor<UnrealPackage> _packageSerializer;
 
@@ -17,10 +19,13 @@ public class PackageLoader
     ///     serializer you require
     /// </summary>
     /// <param name="packageSerializer"></param>
-    public PackageLoader(IStreamSerializerFor<UnrealPackage> packageSerializer)
+    /// <param name="packageResolver"></param>
+    public PackageLoader(IStreamSerializerFor<UnrealPackage> packageSerializer, IImportResolver packageResolver)
     {
         _packageSerializer = packageSerializer;
+        _packageResolver = packageResolver;
     }
+
 
     /// <summary>
     ///     Loads a package from a given path and gives it a specific name. The packageName is required because the filename
@@ -35,6 +40,7 @@ public class PackageLoader
         {
             return package;
         }
+
 
         var packageStream = File.OpenRead(packagePath);
         var unrealPackage = _packageSerializer.Deserialize(packageStream);
