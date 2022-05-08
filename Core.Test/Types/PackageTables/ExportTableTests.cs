@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using Core.Serialization;
+using Core.Serialization.RocketLeague;
+using Core.Test.TestUtilities;
 using FluentAssertions;
 using Xunit;
 
@@ -24,6 +27,7 @@ public class ExportTableTests
     };
 
     private readonly List<ExportTableItem> _exportTableItems = new();
+    private readonly IStreamSerializerFor<ExportTableItem> _serializer;
 
     public ExportTableTests()
     {
@@ -52,6 +56,8 @@ public class ExportTableTests
             new List<int>(),
             new FGuid(),
             0x20000005));
+
+        _serializer = SerializerHelper.GetSerializerFor<ExportTableItem>(typeof(ExportTableItem), RocketLeagueBase.FileVersion);
     }
 
     [Fact]
@@ -60,7 +66,7 @@ public class ExportTableTests
         // Arrange
         var stream = new MemoryStream(_exportData);
         // Act
-        var exportTable = new ExportTable(stream, 0, ExportCount);
+        var exportTable = new ExportTable(_serializer, stream, ExportCount);
         // Assert 
         exportTable.Should().BeEquivalentTo(_exportTableItems);
     }
@@ -73,7 +79,7 @@ public class ExportTableTests
         // Act
         var exportTable = new ExportTable();
         exportTable.AddRange(_exportTableItems);
-        exportTable.Serialize(stream);
+        _serializer.WriteTArray(stream, exportTable.ToArray(), StreamSerializerForExtension.ArraySizeSerialization.NoSize);
         var streamBuffer = new ArraySegment<byte>(stream.GetBuffer(), 0, (int) stream.Length);
         // Assert 
         streamBuffer.Should().BeEquivalentTo(_exportData);

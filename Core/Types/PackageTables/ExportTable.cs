@@ -1,6 +1,5 @@
 ﻿using Core.Classes.Core;
 using Core.Serialization;
-using Core.Serialization.Default;
 
 namespace Core.Types.PackageTables;
 
@@ -19,30 +18,12 @@ public class ExportTable : List<ExportTableItem>
     /// <summary>
     ///     Initialize and deserialize the table from a stream
     /// </summary>
+    /// <param name="serializer"></param>
     /// <param name="stream">The stream to read from</param>
-    /// <param name="exportOffset">The offset in the stream where the table data starts</param>
     /// <param name="exportCount">The number of exports to deserialize</param>
-    public ExportTable(Stream stream, int exportOffset, int exportCount)
+    public ExportTable(IStreamSerializerFor<ExportTableItem> serializer, Stream stream, int exportCount)
     {
-        stream.Position = exportOffset;
-        Capacity = exportCount;
-        for (var index = 0; index < exportCount; index++)
-        {
-            var name = new ExportTableItem();
-            name.Deserialize(stream);
-            Add(name);
-        }
-    }
-
-
-    /// <summary>
-    ///     Write the table data to the stream. Does not write the amount of exports, only the data for each
-    ///     <see cref="ExportTableItem" />
-    /// </summary>
-    /// <param name="outStream"></param>
-    public void Serialize(Stream outStream)
-    {
-        ForEach(n => n.Serialize(outStream));
+        AddRange(serializer.ReadTArray(stream, exportCount));
     }
 }
 
@@ -95,6 +76,9 @@ public class ExportTableItem : IObjectResource
         PackageFlags = packageFlags;
     }
 
+    /// <summary>
+    ///     The constructed object for this export.
+    /// </summary>
     public UObject? Object { get; set; }
 
     /// <summary>
@@ -156,44 +140,4 @@ public class ExportTableItem : IObjectResource
     ///     The name of this object.
     /// </summary>
     public FName ObjectName { get; set; } = new();
-
-    /// <summary>
-    ///     Deserialize the members from the stream
-    /// </summary>
-    /// <param name="stream"></param>
-    public void Deserialize(Stream stream)
-    {
-        ClassIndex.Deserialize(stream);
-        SuperIndex.Deserialize(stream);
-        OuterIndex.Deserialize(stream);
-        ObjectName.Deserialize(stream);
-        ArchetypeIndex.Deserialize(stream);
-        ObjectFlags = stream.ReadUInt64();
-        SerialSize = stream.ReadInt32();
-        SerialOffset = stream.ReadInt64();
-        ExportFlags = stream.ReadInt32();
-        NetObjects.AddRange(new Int32Serializer().ReadTArray(stream));
-        PackageGuid.Deserialize(stream);
-        PackageFlags = stream.ReadInt32();
-    }
-
-    /// <summary>
-    ///     Serialize the members to the stream
-    /// </summary>
-    /// <param name="stream"></param>
-    public void Serialize(Stream stream)
-    {
-        ClassIndex.Serialize(stream);
-        SuperIndex.Serialize(stream);
-        OuterIndex.Serialize(stream);
-        ObjectName.Serialize(stream);
-        ArchetypeIndex.Serialize(stream);
-        stream.WriteUInt64(ObjectFlags);
-        stream.WriteInt32(SerialSize);
-        stream.WriteInt64(SerialOffset);
-        stream.WriteInt32(ExportFlags);
-        new Int32Serializer().WriteTArray(stream, NetObjects.ToArray());
-        PackageGuid.Serialize(stream);
-        stream.WriteInt32(PackageFlags);
-    }
 }

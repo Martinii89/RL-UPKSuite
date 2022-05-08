@@ -1,4 +1,5 @@
 ﻿using Core.Classes.Core;
+using Core.Serialization;
 
 namespace Core.Types.PackageTables;
 
@@ -17,34 +18,17 @@ public class ImportTable : List<ImportTableItem>
     {
     }
 
-
     /// <summary>
-    ///     Initialize and deserialize the table from the stream. Requires the offset where the table data starts, and how many
+    ///     Initialize and deserialize the table from the stream. Requires a serializer, the offset where the table data
+    ///     starts, and how many
     ///     items to deserialize
     /// </summary>
-    /// <param name="stream">The intput stream</param>
-    /// <param name="importsOffset">The offset into the stream where the serial data starts</param>
-    /// <param name="importsCount">How many import items to deserialize</param>
-    public ImportTable(Stream stream, long importsOffset, int importsCount)
+    /// <param name="serializer"></param>
+    /// <param name="stream"></param>
+    /// <param name="importCount"></param>
+    public ImportTable(IStreamSerializerFor<ImportTableItem> serializer, Stream stream, int importCount)
     {
-        stream.Position = importsOffset;
-        Capacity = importsCount;
-        for (var index = 0; index < importsCount; index++)
-        {
-            var name = new ImportTableItem();
-            name.Deserialize(stream);
-            Add(name);
-        }
-    }
-
-    /// <summary>
-    ///     Serialize the imports to the stream. Does not write the amount of imports to the stream, only the table items are
-    ///     written.
-    /// </summary>
-    /// <param name="outStream"></param>
-    public void Serialize(Stream outStream)
-    {
-        ForEach(n => n.Serialize(outStream));
+        AddRange(serializer.ReadTArray(stream, importCount));
     }
 }
 
@@ -99,28 +83,4 @@ public class ImportTableItem : IObjectResource
 
     /// <inheritdoc />
     public FName ObjectName { get; set; } = new();
-
-    /// <summary>
-    ///     Deserialize the import metadata from the stream
-    /// </summary>
-    /// <param name="stream"></param>
-    public void Deserialize(Stream stream)
-    {
-        ClassPackage.Deserialize(stream);
-        ClassName.Deserialize(stream);
-        OuterIndex.Deserialize(stream);
-        ObjectName.Deserialize(stream);
-    }
-
-    /// <summary>
-    ///     Serialize the object metadata to the stream.
-    /// </summary>
-    /// <param name="stream"></param>
-    public void Serialize(Stream stream)
-    {
-        ClassPackage.Serialize(stream);
-        ClassName.Serialize(stream);
-        OuterIndex.Serialize(stream);
-        ObjectName.Serialize(stream);
-    }
 }

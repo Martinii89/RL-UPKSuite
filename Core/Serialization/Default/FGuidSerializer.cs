@@ -20,6 +20,9 @@ public class FGuidSerializer : IStreamSerializerFor<FGuid>
     /// <inheritdoc />
     public void Serialize(Stream stream, FGuid value)
     {
-        throw new NotImplementedException();
+        stream.WriteUInt32(value.A);
+        stream.WriteUInt32(value.B);
+        stream.WriteUInt32(value.C);
+        stream.WriteUInt32(value.D);
     }
 }

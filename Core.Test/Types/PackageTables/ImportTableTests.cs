@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using Core.Serialization;
+using Core.Test.TestUtilities;
 using FluentAssertions;
 using Xunit;
 
@@ -26,6 +28,7 @@ public class ImportTableTests
     };
 
     private readonly List<ImportTableItem> _importTableItems;
+    private readonly IStreamSerializerFor<ImportTableItem> _serializer;
 
     public ImportTableTests()
     {
@@ -38,6 +41,7 @@ public class ImportTableTests
             new(new FName(2), new FName(6), new ObjectIndex(0), new FName(3)),
             new(new FName(2), new FName(6), new ObjectIndex(0), new FName(12))
         };
+        _serializer = SerializerHelper.GetSerializerFor<ImportTableItem>(typeof(ImportTableItem));
     }
 
 
@@ -47,7 +51,7 @@ public class ImportTableTests
         // Arrange
         var stream = new MemoryStream(_importData);
         // Act
-        ImportTable importTable = new(stream, 0, ImportCount);
+        ImportTable importTable = new(_serializer, stream, ImportCount);
         // Assert 
         importTable.Should().BeEquivalentTo(_importTableItems);
     }
@@ -57,10 +61,10 @@ public class ImportTableTests
     {
         // Arrange
         var stream = new MemoryStream();
-        // Act
         var importTable = new ImportTable();
+        // Act
         importTable.AddRange(_importTableItems);
-        importTable.Serialize(stream);
+        _serializer.WriteTArray(stream, importTable.ToArray(), StreamSerializerForExtension.ArraySizeSerialization.NoSize);
         var streamBuffer = new ArraySegment<byte>(stream.GetBuffer(), 0, (int) stream.Length);
         // Assert 
         streamBuffer.Should().BeEquivalentTo(_importData);
