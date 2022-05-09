@@ -6,7 +6,7 @@ namespace Core.Types;
 ///     A name stored as a index and a instance number. the index maps to a item in the <see cref="NameTable" /> of the
 ///     package
 /// </summary>
-public class FName
+public readonly struct FName
 {
     /// <summary>
     ///     Default constructor.
@@ -15,6 +15,8 @@ public class FName
     /// </summary>
     public FName()
     {
+        NameIndex = 0;
+        InstanceNumber = 0;
     }
 
     /// <summary>
@@ -27,8 +29,6 @@ public class FName
         NameIndex = nameIndex;
         InstanceNumber = instanceNumber;
     }
-
-    public string? CachedName { get; set; }
 
 
     /// <summary>

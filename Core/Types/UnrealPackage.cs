@@ -186,11 +186,6 @@ public class UnrealPackage
     /// <exception cref="IndexOutOfRangeException"></exception>
     public string GetName(FName name)
     {
-        if (name.CachedName is not null)
-        {
-            return name.CachedName;
-        }
-
         var count = NameTable.Count;
         var index = name.NameIndex;
         if (index >= count)
@@ -198,9 +193,7 @@ public class UnrealPackage
             throw new IndexOutOfRangeException($"Invalid FName index {name.NameIndex}");
         }
 
-        var s = NameTable[name.NameIndex].Name;
-        name.CachedName = s;
-        return s;
+        return NameTable[name.NameIndex].Name;
     }
 
     /// <summary>

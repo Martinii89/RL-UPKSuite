@@ -6,7 +6,7 @@
 ///     Values less than zero are import objects. The real index in the import table will be ( - index - 1 )
 ///     Zero is a null reference
 /// </summary>
-public class ObjectIndex : IEquatable<ObjectIndex>
+public readonly struct ObjectIndex : IEquatable<ObjectIndex>
 {
     /// <summary>
     ///     From which table can you find the reference object
@@ -34,6 +34,7 @@ public class ObjectIndex : IEquatable<ObjectIndex>
     /// </summary>
     public ObjectIndex()
     {
+        Index = 0;
     }
 
     /// <summary>
@@ -62,21 +63,6 @@ public class ObjectIndex : IEquatable<ObjectIndex>
     /// <returns></returns>
     public int ImportIndex => -Index - 1;
 
-    /// <inheritdoc />
-    public bool Equals(ObjectIndex? other)
-    {
-        if (ReferenceEquals(null, other))
-        {
-            return false;
-        }
-
-        if (ReferenceEquals(this, other))
-        {
-            return true;
-        }
-
-        return Index == other.Index;
-    }
 
     /// <summary>
     ///     Converts a export table index to a object reference index
@@ -112,29 +98,16 @@ public class ObjectIndex : IEquatable<ObjectIndex>
         };
     }
 
-
-    /// <inheritdoc />
-    public override bool Equals(object? obj)
+    public bool Equals(ObjectIndex other)
     {
-        if (ReferenceEquals(null, obj))
-        {
-            return false;
-        }
-
-        if (ReferenceEquals(this, obj))
-        {
-            return true;
-        }
-
-        if (obj.GetType() != GetType())
-        {
-            return false;
-        }
-
-        return Equals((ObjectIndex) obj);
+        return Index == other.Index;
     }
 
-    /// <inheritdoc />
+    public override bool Equals(object? obj)
+    {
+        return obj is ObjectIndex other && Equals(other);
+    }
+
     public override int GetHashCode()
     {
         return Index;

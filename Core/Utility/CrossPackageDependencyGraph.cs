@@ -8,7 +8,7 @@ namespace Core.Utility;
 ///     A PackageObjectReference points to a unique object in a package, or a native only class for self imported
 ///     classes.
 /// </summary>
-public class PackageObjectReference : IEquatable<PackageObjectReference>
+public readonly struct PackageObjectReference : IEquatable<PackageObjectReference>
 {
     /// <summary>
     ///     This references a native only class in a specific package
@@ -25,6 +25,15 @@ public class PackageObjectReference : IEquatable<PackageObjectReference>
     /// </summary>
     public readonly string PackageName;
 
+    /// <summary>
+    ///     Creates a null reference
+    /// </summary>
+    public PackageObjectReference()
+    {
+        ObjectIndex = new ObjectIndex(0);
+        PackageName = string.Empty;
+        NativeClass = null;
+    }
 
     /// <summary>
     ///     References a unique object in a package
@@ -50,47 +59,41 @@ public class PackageObjectReference : IEquatable<PackageObjectReference>
         NativeClass = nativeClass;
     }
 
-    /// <inheritdoc />
-    public bool Equals(PackageObjectReference? other)
+    /// <summary>
+    ///     Check for a null reference
+    /// </summary>
+    /// <returns></returns>
+    public bool IsNull()
     {
-        if (ReferenceEquals(null, other))
-        {
-            return false;
-        }
+        return string.IsNullOrEmpty(PackageName) && ObjectIndex.Index == 0;
+    }
 
-        if (ReferenceEquals(this, other))
-        {
-            return true;
-        }
-
+    /// <inheritdoc />
+    public bool Equals(PackageObjectReference other)
+    {
         return Equals(NativeClass, other.NativeClass) && ObjectIndex.Equals(other.ObjectIndex) && PackageName == other.PackageName;
     }
 
     /// <inheritdoc />
     public override bool Equals(object? obj)
     {
-        if (ReferenceEquals(null, obj))
-        {
-            return false;
-        }
-
-        if (ReferenceEquals(this, obj))
-        {
-            return true;
-        }
-
-        if (obj.GetType() != GetType())
-        {
-            return false;
-        }
-
-        return Equals((PackageObjectReference) obj);
+        return obj is PackageObjectReference other && Equals(other);
     }
 
     /// <inheritdoc />
     public override int GetHashCode()
     {
         return HashCode.Combine(NativeClass, ObjectIndex, PackageName);
+    }
+
+    public static bool operator ==(PackageObjectReference left, PackageObjectReference right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(PackageObjectReference left, PackageObjectReference right)
+    {
+        return !(left == right);
     }
 }
 
@@ -139,7 +142,7 @@ public class CrossPackageDependencyGraph
     }
 
 
-    private PackageObjectReference? ResolveImportObjectReference(ImportTableItem import, UnrealPackage objPackage)
+    private PackageObjectReference ResolveImportObjectReference(ImportTableItem import, UnrealPackage objPackage)
     {
         var importPackageReference = objPackage.GetImportPackage(import);
         var packageName = objPackage.GetName(importPackageReference.ObjectName);
@@ -147,7 +150,7 @@ public class CrossPackageDependencyGraph
         var fullName = objPackage.GetFullName(import);
         if (importPackage is null)
         {
-            return null;
+            return new PackageObjectReference();
             //throw new InvalidOperationException($"Can't find the package to resolve dependencies for {fullName}");
         }
 
@@ -174,7 +177,7 @@ public class CrossPackageDependencyGraph
             return new PackageObjectReference(packageName, nativeClass);
         }
 
-        return null;
+        return new PackageObjectReference();
         //throw new InvalidOperationException($"Failed to find the import object: {objPackage.GetFullName(import)}");
     }
 
@@ -239,7 +242,7 @@ public class CrossPackageDependencyGraph
         }
 
         var exportReference = ResolveImportObjectReference(import, objPackage);
-        if (exportReference == null)
+        if (exportReference.IsNull())
         {
             return;
         }
@@ -428,7 +431,7 @@ public class CrossPackageDependencyGraph
         return _adj[node].Select(x => x.Dest).ToList();
     }
 
-    internal class Edge : IEquatable<Edge>
+    internal readonly struct Edge : IEquatable<Edge>
     {
         public readonly PackageObjectReference Dest;
 
@@ -437,44 +440,16 @@ public class CrossPackageDependencyGraph
             Dest = dest;
         }
 
-        /// <inheritdoc />
-        public bool Equals(Edge? other)
+        public bool Equals(Edge other)
         {
-            if (ReferenceEquals(null, other))
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-
             return Dest.Equals(other.Dest);
         }
 
-        /// <inheritdoc />
         public override bool Equals(object? obj)
         {
-            if (ReferenceEquals(null, obj))
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-
-            if (obj.GetType() != GetType())
-            {
-                return false;
-            }
-
-            return Equals((Edge) obj);
+            return obj is Edge other && Equals(other);
         }
 
-        /// <inheritdoc />
         public override int GetHashCode()
         {
             return Dest.GetHashCode();
