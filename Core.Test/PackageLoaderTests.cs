@@ -19,7 +19,7 @@ public class PackageLoaderTests
     {
         // Arrange
         var serializer = SerializerHelper.GetSerializerFor<UnrealPackage>(typeof(UnrealPackage));
-        var options = new ImportResolverOptions(serializer) { SearchPaths = { @"TestData/UDK/" } };
+        var options = new ImportResolverOptions(serializer) { SearchPaths = { @"TestData/UDK/" }, GraphLinkPackages = false };
         var packageCache = new PackageCache(options);
         var loader = new PackageLoader(serializer, packageCache);
 

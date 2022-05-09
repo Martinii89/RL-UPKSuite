@@ -11,11 +11,12 @@ public class NameTableItemSerializer : IStreamSerializerFor<NameTableItem>
     /// <inheritdoc />
     public NameTableItem Deserialize(Stream stream)
     {
-        return new NameTableItem
-        {
-            Name = stream.ReadFString(),
-            Flags = stream.ReadUInt64()
-        };
+        return new NameTableItem(stream.ReadFString(), stream.ReadUInt64());
+        //return new NameTableItem
+        //{
+        //    Name = stream.ReadFString(),
+        //    Flags = stream.ReadUInt64()
+        //};
     }
 
     /// <inheritdoc />

@@ -2,14 +2,14 @@
 
 namespace Core.Utility;
 
-internal class Edge
+internal readonly struct Edge
 {
     public Edge(int dest)
     {
         Dest = dest;
     }
 
-    public int Dest { get; set; }
+    public int Dest { get; }
 }
 
 /// <summary>

@@ -15,11 +15,11 @@ var nameTableItemSerializer = new NameTableItemSerializer();
 var importTableItemSerializer = new ImportTableItemSerializer(new FNameSerializer(), new ObjectIndexSerializer());
 var exportTablItemeSerializer = new ExportTableItemSerializer(new FNameSerializer(), new ObjectIndexSerializer(), new Int32Serializer(), new FGuidSerializer());
 var serializer = new UnrealPackageSerializer(fileSummarySerializerFor, nameTableItemSerializer, importTableItemSerializer, exportTablItemeSerializer);
-var options = new ImportResolverOptions(serializer) { SearchPaths = { @"D:\Projects\RL UPKSuite\Core.Test\TestData\UDK\" } };
+var options = new ImportResolverOptions(serializer) { SearchPaths = { @"D:\Projects\RL UPKSuite\Core.Test\TestData\UDK\" }, GraphLinkPackages = false };
 
 var stopwatch = new Stopwatch();
 stopwatch.Start();
-for (var i = 0; i < 50; i++)
+for (var i = 0; i < 100; i++)
 {
     var packageCache = new PackageCache(options);
     var loader = new PackageLoader(serializer, packageCache);
@@ -27,7 +27,7 @@ for (var i = 0; i < 50; i++)
     var tagame = loader.GetPackage("TAGame");
 }
 
-Console.WriteLine($"CrossPackage Load took {stopwatch.Elapsed.TotalMilliseconds / 50} ms");
+Console.WriteLine($"CrossPackage Load took {stopwatch.Elapsed.TotalMilliseconds / 100} ms");
 return;
 // Act
 

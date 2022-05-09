@@ -30,15 +30,27 @@ public class NameTable : List<NameTableItem>
 /// <summary>
 ///     A NameTableItem contains a name as a string and some related flag data. I don't know what the flags are used for
 /// </summary>
-public class NameTableItem
+public readonly struct NameTableItem
 {
     /// <summary>
     ///     The name as a string
     /// </summary>
-    public string Name { get; set; } = string.Empty;
+    public string Name { get; }
 
     /// <summary>
     ///     A bit-flag of unknown significance
     /// </summary>
-    public ulong Flags { get; set; }
+    public ulong Flags { get; }
+
+
+    /// <summary>
+    ///     Construct a public name
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="flags"></param>
+    public NameTableItem(string name, ulong flags)
+    {
+        Name = name;
+        Flags = flags;
+    }
 }

@@ -98,16 +98,19 @@ public readonly struct ObjectIndex : IEquatable<ObjectIndex>
         };
     }
 
+    /// <inheritdoc />
     public bool Equals(ObjectIndex other)
     {
         return Index == other.Index;
     }
 
+    /// <inheritdoc />
     public override bool Equals(object? obj)
     {
         return obj is ObjectIndex other && Equals(other);
     }
 
+    /// <inheritdoc />
     public override int GetHashCode()
     {
         return Index;

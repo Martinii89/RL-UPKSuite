@@ -86,11 +86,23 @@ public readonly struct PackageObjectReference : IEquatable<PackageObjectReferenc
         return HashCode.Combine(NativeClass, ObjectIndex, PackageName);
     }
 
+    /// <summary>
+    ///     Uses the Equals method to overload the == operator
+    /// </summary>
+    /// <param name="left"></param>
+    /// <param name="right"></param>
+    /// <returns></returns>
     public static bool operator ==(PackageObjectReference left, PackageObjectReference right)
     {
         return left.Equals(right);
     }
 
+    /// <summary>
+    ///     Uses the == operator to overload the != operator
+    /// </summary>
+    /// <param name="left"></param>
+    /// <param name="right"></param>
+    /// <returns></returns>
     public static bool operator !=(PackageObjectReference left, PackageObjectReference right)
     {
         return !(left == right);
@@ -147,29 +159,39 @@ public class CrossPackageDependencyGraph
         var importPackageReference = objPackage.GetImportPackage(import);
         var packageName = objPackage.GetName(importPackageReference.ObjectName);
         var importPackage = _packagePackageCache.ResolveExportPackage(packageName);
-        var fullName = objPackage.GetFullName(import);
         if (importPackage is null)
         {
+            // null reference
             return new PackageObjectReference();
-            //throw new InvalidOperationException($"Can't find the package to resolve dependencies for {fullName}");
         }
 
-        var nameParts = fullName.Split('.');
-        var exportFullNameMatch =
-            importPackage.ExportTable.FirstOrDefault(x => importPackage.GetName(x.ObjectName) == nameParts[^1] && importPackage.GetFullName(x) == fullName);
-        if (exportFullNameMatch is not null)
+        var objName = objPackage.GetName(import.ObjectName);
+        var fullName = objPackage.GetFullName(import);
+
+        for (var index = 0; index < importPackage.ExportTable.Count; index++)
         {
-            var exportIndex = new ObjectIndex(ObjectIndex.FromExportIndex(importPackage.ExportTable.IndexOf(exportFullNameMatch)));
+            var exportTableItem = importPackage.ExportTable[index];
+            if (importPackage.GetName(exportTableItem.ObjectName) != objName || importPackage.GetFullName(exportTableItem) != fullName)
+            {
+                continue;
+            }
+
+            var exportIndex = new ObjectIndex(ObjectIndex.FromExportIndex(index));
             return new PackageObjectReference(packageName, exportIndex);
         }
 
-        var importFullNameMatch =
-            importPackage.ImportTable.FirstOrDefault(x => importPackage.GetName(x.ObjectName) == nameParts[^1] && importPackage.GetFullName(x) == fullName);
-        if (importFullNameMatch is not null)
+        for (var index = 0; index < importPackage.ImportTable.Count; index++)
         {
-            var importIndex = new ObjectIndex(ObjectIndex.FromImportIndex(importPackage.ImportTable.IndexOf(importFullNameMatch)));
+            var x = importPackage.ImportTable[index];
+            if (importPackage.GetName(x.ObjectName) != objName || importPackage.GetFullName(x) != fullName)
+            {
+                continue;
+            }
+
+            var importIndex = new ObjectIndex(ObjectIndex.FromImportIndex(index));
             return new PackageObjectReference(packageName, importIndex);
         }
+
 
         var nativeClass = importPackage.FindClass(objPackage.GetName(import.ObjectName));
         if (nativeClass is not null)
@@ -177,8 +199,8 @@ public class CrossPackageDependencyGraph
             return new PackageObjectReference(packageName, nativeClass);
         }
 
+        // null reference
         return new PackageObjectReference();
-        //throw new InvalidOperationException($"Failed to find the import object: {objPackage.GetFullName(import)}");
     }
 
     /// <summary>

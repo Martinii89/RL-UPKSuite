@@ -186,13 +186,12 @@ public class UnrealPackage
     /// <exception cref="IndexOutOfRangeException"></exception>
     public string GetName(FName name)
     {
-        var count = NameTable.Count;
-        var index = name.NameIndex;
-        if (index >= count)
+#if DEBUG
+        if (name.NameIndex >= NameTable.Count)
         {
             throw new IndexOutOfRangeException($"Invalid FName index {name.NameIndex}");
         }
-
+#endif
         return NameTable[name.NameIndex].Name;
     }
 
@@ -450,11 +449,7 @@ public class UnrealPackage
             return new FName(registeredName);
         }
 
-        NameTable.Add(new NameTableItem
-        {
-            Name = name,
-            Flags = 0x7001000000000
-        }); //flag might be wrong, but all the flags seems to be set to this in the packages I've looked at
+        NameTable.Add(new NameTableItem(name, 0x7001000000000)); //flag might be wrong, but all the flags seems to be set to this in the packages I've looked at
         return new FName(NameTable.Count - 1);
     }
 

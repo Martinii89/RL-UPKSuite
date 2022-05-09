@@ -29,6 +29,11 @@ public class ImportResolverOptions
     public List<string> Extensions { get; init; } = new() { "u", "upk" };
 
     /// <summary>
+    ///     If the loader should auto link all packages or not
+    /// </summary>
+    public bool GraphLinkPackages { get; set; } = true;
+
+    /// <summary>
     ///     The serializer to use when loading packages
     /// </summary>
     public IStreamSerializerFor<UnrealPackage> UnrealPackageSerializerFor { get; init; }
@@ -89,7 +94,10 @@ public class PackageCache : IPackageCache
         package.PostDeserializeInitialize(packageName);
 
         // TODO: Reconsider if the import resolver should link the objects.
-        package.GraphLink();
+        if (_options.GraphLinkPackages)
+        {
+            package.GraphLink();
+        }
 
         _cachedPackages.Add(packageName, package);
 
