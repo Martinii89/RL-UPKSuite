@@ -273,11 +273,13 @@ public class UnrealPackage
             throw new InvalidDataException("Can't resolve imports without a import resolver");
         }
 
+        // Already created
         if (importTableItem.ImportedObject is not null)
         {
             return importTableItem.ImportedObject;
         }
 
+        // Top level package import
         if (importTableItem.OuterIndex.Index == 0 && GetName(importTableItem.ClassName) == "Package")
         {
             importTableItem.ImportedObject = new UPackage(importTableItem.ObjectName, FindClass("Package"), null, this);
@@ -287,20 +289,23 @@ public class UnrealPackage
         var importFullName = GetFullName(importTableItem);
         var importPackageName = importFullName.Split(".")[0];
 
-        //var ClassPackageName = GetName(importTableItem.ClassPackage);
         var importPackage = ImportResolver.ResolveExportPackage(importPackageName);
+        // Object contained in a self imported package? Not sure what these really are.
+        // Maybe it's a package defined in a unknown file somewhere else. 
         if (importPackage == null)
         {
             importTableItem.ImportedObject = CreateInternalImport(importTableItem);
             return importTableItem.ImportedObject;
         }
 
+        // Recursively import the outer objects
         var importOuter = GetObjectReference(importTableItem.OuterIndex);
         if (importOuter is ImportTableItem { ImportedObject: null } import)
         {
             import.ImportedObject = CreateImport(import);
         }
 
+        // Fetch the object\class from the package that defines it.
         var className = GetName(importTableItem.ClassName);
         if (className == "Class")
         {
@@ -311,6 +316,7 @@ public class UnrealPackage
             importTableItem.ImportedObject = importPackage.FindObject(importFullName);
         }
 
+        // We failed :(
         if (importTableItem.ImportedObject == null)
         {
             return null;
@@ -320,13 +326,19 @@ public class UnrealPackage
         return importTableItem.ImportedObject;
     }
 
-    private UObject? CreateInternalImport(ImportTableItem import)
+    /// <summary>
+    ///     Creates a stub import object for a object that we failed to resolve the exporting package for
+    /// </summary>
+    /// <param name="import"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    private UObject CreateInternalImport(ImportTableItem import)
     {
         var classPackageName = GetName(import.ClassPackage);
         var classPackage = ImportResolver!.ResolveExportPackage(classPackageName);
         if (classPackage == null)
         {
-            throw new InvalidOperationException();
+            throw new InvalidOperationException("Make sure the class is resolved before the object that needs it");
         }
 
         var cls = classPackage.FindClass(GetName(import.ClassName));
@@ -344,14 +356,33 @@ public class UnrealPackage
     internal UObject? FindObject(string importFullName)
     {
         var nameParts = importFullName.Split('.');
-        var exportFullNameMatch = ExportTable.FirstOrDefault(x => GetName(x.ObjectName) == nameParts[^1] && GetFullName(x) == importFullName);
-        if (exportFullNameMatch != null)
+        foreach (var exportItem in ExportTable)
         {
-            return exportFullNameMatch.Object;
+            if (GetName(exportItem.ObjectName) != nameParts[^1])
+            {
+                continue;
+            }
+
+            if (GetFullName(exportItem) == importFullName)
+            {
+                return exportItem.Object;
+            }
         }
 
-        var importFullNameMatch = ImportTable.FirstOrDefault(x => GetName(x.ObjectName) == nameParts[^1] && GetFullName(x) == importFullName);
-        return importFullNameMatch?.ImportedObject;
+        foreach (var importTableItem in ImportTable)
+        {
+            if (GetName(importTableItem.ObjectName) != nameParts[^1])
+            {
+                continue;
+            }
+
+            if (GetFullName(importTableItem) == importFullName)
+            {
+                return importTableItem.ImportedObject;
+            }
+        }
+
+        return null;
     }
 
     /// <summary>
@@ -594,6 +625,10 @@ public class UnrealPackage
     }
 
 
+    /// <summary>
+    ///     Create the object for a import\export table item
+    /// </summary>
+    /// <param name="objectResource"></param>
     public void CreateObject(IObjectResource objectResource)
     {
         switch (objectResource)
