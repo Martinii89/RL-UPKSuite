@@ -31,13 +31,14 @@ public class PackageUnpackerTests
         var decryptionProvider = new DecryptionProvider("keys.txt");
         // Act
 
-        var unpacked = new PackageUnpacker(inputTest, outputStream, decryptionProvider, _serializer);
+        var packedFile = new RLPackageUnpacker(inputTest, decryptionProvider, _serializer);
+        packedFile.Unpack(outputStream);
         var outputBuffer = outputStream.ToArray();
 
         // Assert 
 
         outputBuffer.Length.Should().Be(outputExpected.Length);
-        unpacked.DeserializationState.Should().Be(DeserializationState.Success);
+        packedFile.UnpackResult.Should().Be(UnpackResult.Success);
         outputBuffer.Should().Equal(outputExpected);
     }
 
@@ -50,7 +51,8 @@ public class PackageUnpackerTests
         var decryptionProvider = new DecryptionProvider("keys.txt");
         // Act
 
-        var unpacked = new PackageUnpacker(inputTest, outputStream, decryptionProvider, _serializer);
+        var packedFile = new RLPackageUnpacker(inputTest, decryptionProvider, _serializer);
+        packedFile.Unpack(outputStream);
         outputStream.Position = 0;
         var fileSummery = _serializer.Deserialize(outputStream);
 
@@ -68,10 +70,10 @@ public class PackageUnpackerTests
         decryptionProvider.DecryptionKeys.Returns(new List<byte[]>());
 
         // Act
-        var unpacked = new PackageUnpacker(inputTest, outputStream, decryptionProvider, _serializer);
+        var unpacked = new RLPackageUnpacker(inputTest, decryptionProvider, _serializer);
 
         // Assert 
-        unpacked.DeserializationState.Should().NotBe(DeserializationState.Success);
+        unpacked.UnpackResult.Should().NotBe(UnpackResult.Success);
         unpacked.Valid.Should().Be(false);
     }
 }

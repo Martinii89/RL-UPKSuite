@@ -56,7 +56,8 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
         var outputStream = new MemoryStream();
         var decryptionProvider = new DecryptionProvider("keys.txt");
 
-        var unpacked = new PackageUnpacker(inputTest, outputStream, decryptionProvider, _fileSummarySerializer);
+        var packedFile = new RLPackageUnpacker(inputTest, decryptionProvider, _fileSummarySerializer);
+        packedFile.Unpack(outputStream);
         outputStream.Position = 0;
 
         var serializer = GetSerializerFor<UnrealPackage>(typeof(UnrealPackage), RocketLeagueBase.FileVersion);
@@ -66,16 +67,16 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
 
         // Assert 
         var names = unrealPackage.NameTable;
-        names.Count.Should().Be(unpacked.FileSummary.NameCount);
+        names.Count.Should().Be(packedFile.FileSummary.NameCount);
         names.First().Name.Should().Be("ArrayProperty");
 
         var imports = unrealPackage.ImportTable;
-        imports.Count.Should().Be(unpacked.FileSummary.ImportCount);
+        imports.Count.Should().Be(packedFile.FileSummary.ImportCount);
         imports.First().ClassPackage.NameIndex.Should().Be(2);
         imports[5].ObjectName.NameIndex.Should().Be(12);
 
         var exports = unrealPackage.ExportTable;
-        exports.Count.Should().Be(unpacked.FileSummary.ExportCount);
+        exports.Count.Should().Be(packedFile.FileSummary.ExportCount);
         exports[0].SerialSize.Should().Be(44);
         exports[1].SerialSize.Should().Be(12);
     }
@@ -339,7 +340,7 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
         // Arrange
         var package = _udkPackageSerializer.Deserialize(_packageStreams.CustomGameStream);
         package.PostDeserializeInitialize("CustomGame");
-        var importResolver = new PackageCache(new ImportResolverOptions(_udkPackageSerializer)
+        var importResolver = new PackageCache(new PackageCacheOptions(_udkPackageSerializer)
             { Extensions = { "*.u", "*.upk" }, SearchPaths = { @"TestData/UDK" } });
         package.ImportResolver = importResolver;
         // Act
@@ -356,7 +357,7 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
         // Arrange
         var package = _udkPackageSerializer.Deserialize(_packageStreams.CustomGameStream);
         package.PostDeserializeInitialize("CustomGame");
-        var importResolver = new PackageCache(new ImportResolverOptions(_udkPackageSerializer)
+        var importResolver = new PackageCache(new PackageCacheOptions(_udkPackageSerializer)
             { Extensions = { "*.u", "*.upk" }, SearchPaths = { @"TestData/UDK" } });
         package.ImportResolver = importResolver;
         // Act
@@ -373,7 +374,7 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
         // Arrange
         var package = _udkPackageSerializer.Deserialize(_packageStreams.CustomGameStream);
         package.PostDeserializeInitialize("CustomGame");
-        var importResolver = new PackageCache(new ImportResolverOptions(_udkPackageSerializer)
+        var importResolver = new PackageCache(new PackageCacheOptions(_udkPackageSerializer)
             { Extensions = { "*.u", "*.upk" }, SearchPaths = { @"TestData/UDK" } });
         package.ImportResolver = importResolver;
         // Act
@@ -390,7 +391,7 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
         // Arrange
         var package = _udkPackageSerializer.Deserialize(_packageStreams.CustomGameStream);
         package.PostDeserializeInitialize("CustomGame");
-        var importResolver = new PackageCache(new ImportResolverOptions(_udkPackageSerializer)
+        var importResolver = new PackageCache(new PackageCacheOptions(_udkPackageSerializer)
             { Extensions = { "*.u", "*.upk" }, SearchPaths = { @"TestData/UDK" } });
         package.ImportResolver = importResolver;
 
@@ -432,7 +433,7 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
     {
         // Arrange
         var package = _udkPackageSerializer.Deserialize(_packageStreams.EngineStream);
-        var importResolver = new PackageCache(new ImportResolverOptions(_udkPackageSerializer)
+        var importResolver = new PackageCache(new PackageCacheOptions(_udkPackageSerializer)
             { Extensions = { "*.u", "*.upk" }, SearchPaths = { @"TestData/UDK" } });
         package.ImportResolver = importResolver;
         package.PostDeserializeInitialize("Engine");

@@ -13,6 +13,7 @@ public class PackageLoader
 {
     private readonly IPackageCache _packageCache;
     private readonly IStreamSerializerFor<UnrealPackage> _packageSerializer;
+    private readonly IPackageUnpacker _packageUnpacker;
 
     /// <summary>
     ///     Constructs a package loader with a given package serializer. Only do this if you already know what type of
@@ -20,10 +21,12 @@ public class PackageLoader
     /// </summary>
     /// <param name="packageSerializer"></param>
     /// <param name="packageCache"></param>
-    public PackageLoader(IStreamSerializerFor<UnrealPackage> packageSerializer, IPackageCache packageCache)
+    /// <param name="packageUnpacker"></param>
+    public PackageLoader(IStreamSerializerFor<UnrealPackage> packageSerializer, IPackageCache packageCache, IPackageUnpacker packageUnpacker)
     {
         _packageSerializer = packageSerializer;
         _packageCache = packageCache;
+        _packageUnpacker = packageUnpacker;
     }
 
     /// <summary>
@@ -52,8 +55,7 @@ public class PackageLoader
         }
 
         var packageStream = File.OpenRead(packagePath);
-
-        var unrealPackage = UnrealPackage.DeserializeAndInitialize(packageStream, _packageSerializer, packageName, _packageCache);
+        var unrealPackage = DeserializePackage(packageName, packageStream);
         unrealPackage.RootLoader = this;
         _packageCache.AddPackage(unrealPackage);
 
@@ -78,6 +80,24 @@ public class PackageLoader
             {
                 package!.CreateObject(obj);
             }
+        }
+
+        return unrealPackage;
+    }
+
+    private UnrealPackage DeserializePackage(string packageName, FileStream packageStream)
+    {
+        UnrealPackage unrealPackage;
+        if (_packageUnpacker.IsPackagePacked(packageStream))
+        {
+            var unpackedStream = new MemoryStream();
+            _packageUnpacker.Unpack(packageStream, unpackedStream);
+            unpackedStream.Position = 0;
+            unrealPackage = UnrealPackage.DeserializeAndInitialize(unpackedStream, _packageSerializer, packageName, _packageCache);
+        }
+        else
+        {
+            unrealPackage = UnrealPackage.DeserializeAndInitialize(packageStream, _packageSerializer, packageName, _packageCache);
         }
 
         return unrealPackage;

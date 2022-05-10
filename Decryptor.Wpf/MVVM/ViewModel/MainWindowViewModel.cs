@@ -8,6 +8,7 @@ using System.Windows.Data;
 using System.Windows.Forms;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core;
 using Core.RocketLeague;
 using Core.RocketLeague.Decryption;
 using Core.Serialization.Default;
@@ -139,10 +140,11 @@ public partial class MainWindowViewModel : ObservableObject
             directoryInfo.Create();
             using var fileStream = File.Open(fileReference.FilePath, FileMode.Open, FileAccess.Read, FileShare.Read);
             using var decryptedStream = File.OpenWrite(outputFilePath);
-            var unpacked = new PackageUnpacker(fileStream, decryptedStream, decryptionProvider, FileSummarySerializer.GetDefaultSerializer());
-            fileReference.UnpackResult = unpacked.DeserializationState switch
+            var unpacked = new RLPackageUnpacker(fileStream, decryptionProvider, FileSummarySerializer.GetDefaultSerializer());
+            unpacked.Unpack(decryptedStream);
+            fileReference.UnpackResult = unpacked.UnpackResult switch
             {
-                DeserializationState.Success => "Success",
+                UnpackResult.Success => "Success",
                 _ => "Fail"
             };
             var counter = Interlocked.Increment(ref filesProcessed);

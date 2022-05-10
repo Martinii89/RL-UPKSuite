@@ -309,6 +309,14 @@ public class UnrealPackage
         if (className == "Class")
         {
             importTableItem.ImportedObject = importPackage.FindClass(GetName(importTableItem.ObjectName));
+            if (importTableItem.ImportedObject == null)
+            {
+                //most likely a native class. Stub it
+                var cls = new UClass(importTableItem.ObjectName, UClass.StaticClass, importPackage.PackageRoot, this);
+                importTableItem.ImportedObject = cls;
+                importPackage.PackageClasses.Add(cls);
+                //panic
+            }
         }
         else
         {
@@ -318,7 +326,8 @@ public class UnrealPackage
         // We failed :(
         if (importTableItem.ImportedObject == null)
         {
-            return null;
+            //probably a native class field?
+            importTableItem.ImportedObject = CreateInternalImport(importTableItem);
         }
 
 

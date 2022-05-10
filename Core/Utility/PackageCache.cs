@@ -7,13 +7,13 @@ namespace Core.Utility;
 /// <summary>
 ///     Configuration object for the <see cref="PackageCache" />
 /// </summary>
-public class ImportResolverOptions
+public class PackageCacheOptions
 {
     /// <summary>
     ///     The serializer is required. The other members are optional
     /// </summary>
     /// <param name="unrealPackageSerializerFor"></param>
-    public ImportResolverOptions(IStreamSerializerFor<UnrealPackage> unrealPackageSerializerFor)
+    public PackageCacheOptions(IStreamSerializerFor<UnrealPackage> unrealPackageSerializerFor)
     {
         UnrealPackageSerializerFor = unrealPackageSerializerFor;
     }
@@ -37,6 +37,11 @@ public class ImportResolverOptions
     ///     The serializer to use when loading packages
     /// </summary>
     public IStreamSerializerFor<UnrealPackage> UnrealPackageSerializerFor { get; init; }
+
+    /// <summary>
+    ///     Optional. Use a package unpacker to enable auto-loading of packed\compressed packages
+    /// </summary>
+    public IPackageUnpacker PackageUnpacker { get; set; } = new NeverUnpackUnpacker();
 }
 
 /// <summary>
@@ -46,13 +51,13 @@ public class ImportResolverOptions
 public class PackageCache : IPackageCache
 {
     private readonly Dictionary<string, UnrealPackage> _cachedPackages = new();
-    private readonly ImportResolverOptions _options;
+    private readonly PackageCacheOptions _options;
 
     /// <summary>
     ///     Constructs a configured PackageCache
     /// </summary>
     /// <param name="options"></param>
-    public PackageCache(ImportResolverOptions options)
+    public PackageCache(PackageCacheOptions options)
     {
         _options = options;
     }
@@ -89,19 +94,30 @@ public class PackageCache : IPackageCache
         }
 
         var packageStream = File.OpenRead(matchedFiles[0]);
-        var package = _options.UnrealPackageSerializerFor.Deserialize(packageStream);
-        package.ImportResolver = this;
-        package.PostDeserializeInitialize(packageName);
+
+        UnrealPackage unrealPackage;
+        if (_options.PackageUnpacker.IsPackagePacked(packageStream))
+        {
+            var unpackedStream = new MemoryStream();
+            _options.PackageUnpacker.Unpack(packageStream, unpackedStream);
+            unpackedStream.Position = 0;
+            unrealPackage = UnrealPackage.DeserializeAndInitialize(unpackedStream, _options.UnrealPackageSerializerFor, packageName, this);
+        }
+        else
+        {
+            unrealPackage = UnrealPackage.DeserializeAndInitialize(packageStream, _options.UnrealPackageSerializerFor, packageName, this);
+        }
+
 
         // TODO: Reconsider if the import resolver should link the objects.
         if (_options.GraphLinkPackages)
         {
-            package.GraphLink();
+            unrealPackage.GraphLink();
         }
 
-        _cachedPackages.Add(packageName, package);
+        _cachedPackages.Add(packageName, unrealPackage);
 
-        return package;
+        return unrealPackage;
     }
 
     /// <inheritdoc />
