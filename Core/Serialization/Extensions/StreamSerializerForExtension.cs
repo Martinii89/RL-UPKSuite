@@ -32,9 +32,10 @@ public static class StreamSerializerForExtension
     /// <returns></returns>
     public static List<T> ReadTArrayToList<T>(this IStreamSerializerFor<T> serializer, Stream stream, int? size = null)
     {
+        size ??= stream.ReadInt32();
         var result = new List<T>
         {
-            Capacity = size ?? stream.ReadInt32()
+            Capacity = size.Value
         };
 
         for (var i = 0; i < size; i++)
@@ -54,10 +55,11 @@ public static class StreamSerializerForExtension
     /// <param name="stream"></param>
     /// <param name="output"></param>
     /// <param name="size"></param>
-    public static void ReadTArrayToList<T>(this IStreamSerializerFor<T> serializer, Stream stream, IList<T> output, int? size = null)
+    public static void ReadTArrayToList<T>(this IStreamSerializerFor<T> serializer, Stream stream, List<T> output, int? size = null)
     {
         output.Clear();
         size ??= stream.ReadInt32();
+        output.EnsureCapacity(size.Value);
         for (var i = 0; i < size; i++)
         {
             output.Add(serializer.Deserialize(stream));

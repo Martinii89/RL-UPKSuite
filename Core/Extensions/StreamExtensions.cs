@@ -1,4 +1,5 @@
-﻿using Core.Types;
+﻿using System.Text;
+using Core.Types;
 
 namespace Core.Extensions;
 
@@ -15,9 +16,12 @@ public static class StreamExtensions
     public static string ReadFString(this Stream stream)
     {
         var length = stream.ReadInt32();
-        var fstring = stream.ReadString(length - 1);
+        var stringBytes = stream.ReadBytes(length - 1);
         stream.Move(1); //skip the zero termination
-        return fstring;
+        return Encoding.UTF8.GetString(stringBytes);
+        //var fstring = stream.ReadString(length - 1);
+        //stream.Move(1); //skip the zero termination
+        //return fstring;
     }
 
     /// <summary>

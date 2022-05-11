@@ -84,17 +84,17 @@ public class ExportTableItem : IObjectResource
     /// <summary>
     ///     A reference to the UClass for this object. A value of zero indicates this is a UClass definition.
     /// </summary>
-    public ObjectIndex ClassIndex { get; set; } = new();
+    public ObjectIndex ClassIndex { get; set; }
 
     /// <summary>
     ///     A reference to the base type of this object. If null this object has no base.
     /// </summary>
-    public ObjectIndex SuperIndex { get; set; } = new();
+    public ObjectIndex SuperIndex { get; set; }
 
     /// <summary>
     ///     A reference to the archetype of this object. If null this object is not a archetype
     /// </summary>
-    public ObjectIndex ArchetypeIndex { get; set; } = new();
+    public ObjectIndex ArchetypeIndex { get; set; }
 
     /// <summary>
     ///     ObjectFlags. Unsure what these are used for
@@ -119,12 +119,12 @@ public class ExportTableItem : IObjectResource
     /// <summary>
     ///     The number of net serializable objects contained within this object
     /// </summary>
-    public List<int> NetObjects { get; set; } = new();
+    public List<int> NetObjects { get; set; }
 
     /// <summary>
     ///     The GUID of the original package
     /// </summary>
-    public FGuid PackageGuid { get; set; } = new();
+    public FGuid PackageGuid { get; set; }
 
     /// <summary>
     ///     Flags of the original package.
@@ -134,11 +134,11 @@ public class ExportTableItem : IObjectResource
     /// <summary>
     ///     A reference to the outer object. If null this is a top level package.
     /// </summary>
-    public ObjectIndex OuterIndex { get; set; } = new();
+    public ObjectIndex OuterIndex { get; set; }
 
 
     /// <summary>
     ///     The name of this object.
     /// </summary>
-    public FName ObjectName { get; set; } = new();
+    public FName ObjectName { get; set; }
 }
