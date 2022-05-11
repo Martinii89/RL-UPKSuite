@@ -66,15 +66,15 @@ public class FileSummarySerializer : IStreamSerializerFor<FileSummary>
         fileSummary.ExportGuidsCount = stream.ReadInt32();
         fileSummary.ThumbnailTableOffset = stream.ReadInt32();
         fileSummary.Guid = _guidSerializerFor.Deserialize(stream);
-        fileSummary.Generations.AddRange(_generationsSerializer.ReadTArray(stream));
+        _generationsSerializer.ReadTArrayToList(stream, fileSummary.Generations);
         fileSummary.EngineVersion = stream.ReadUInt32();
         fileSummary.CookerVersion = stream.ReadUInt32();
         fileSummary.CompressionFlagsOffset = (int) stream.Position;
         fileSummary.CompressionFlags = (ECompressionFlags) stream.ReadUInt32();
-        fileSummary.CompressedChunkInfos.AddRange(_compressedChunkInfoSerializer.ReadTArray(stream));
+        _compressedChunkInfoSerializer.ReadTArrayToList(stream, fileSummary.CompressedChunkInfos);
         fileSummary.Unknown5 = stream.ReadInt32();
-        fileSummary.AdditionalPackagesToCook.AddRange(_stringSerializer.ReadTArray(stream));
-        fileSummary.TextureAllocations.AddRange(_textureAllocationsSerializer.ReadTArray(stream));
+        _stringSerializer.ReadTArrayToList(stream, fileSummary.AdditionalPackagesToCook);
+        _textureAllocationsSerializer.ReadTArrayToList(stream, fileSummary.TextureAllocations);
 
         return fileSummary;
     }

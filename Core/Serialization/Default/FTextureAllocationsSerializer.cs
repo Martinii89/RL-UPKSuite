@@ -25,7 +25,7 @@ public class FTextureAllocationsSerializer : IStreamSerializerFor<FTextureType>
         type.NumMips = stream.ReadInt32();
         type.Format = stream.ReadInt32();
         type.TexCreateFlags = stream.ReadInt32();
-        type.ExportIndices.AddRange(_intSerializer.ReadTArray(stream));
+        _intSerializer.ReadTArrayToList(stream, type.ExportIndices);
         return type;
     }
 

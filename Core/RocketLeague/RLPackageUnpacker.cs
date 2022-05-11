@@ -145,7 +145,7 @@ public class RLPackageUnpacker
 
         decryptedDataReader.BaseStream.Position = FileCompressionMetaData.CompressedChunkInfoOffset;
 
-        FileSummary.CompressedChunkInfos.AddRange(_compressedChunkInfoSerializer.ReadTArray(decryptedDataReader.BaseStream));
+        _compressedChunkInfoSerializer.ReadTArrayToList(decryptedDataReader.BaseStream, FileSummary.CompressedChunkInfos);
         // The depends table is always empty. So The depends table marks the start of where the uncompressed data should go.
         Debug.Assert(FileSummary.CompressedChunkInfos.First().UncompressedOffset == FileSummary.DependsOffset);
         outputStream.Write(decryptedData);

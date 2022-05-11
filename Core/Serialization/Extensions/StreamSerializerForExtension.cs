@@ -21,25 +21,47 @@ public static class StreamSerializerForExtension
         NoSize
     }
 
+
     /// <summary>
-    ///     Read a array of values from the stream using the typed serializer. If the size is given that will be used. If not
-    ///     the size will be read from the stream.
+    ///     Reads a tarray from the stream and returns it as a List
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    /// <param name="stream"></param>
     /// <param name="serializer"></param>
-    /// <param name="size">The number of elements to read. if null the value will be read from the stream </param>
+    /// <param name="stream"></param>
+    /// <param name="size"></param>
     /// <returns></returns>
-    public static T[] ReadTArray<T>(this IStreamSerializerFor<T> serializer, Stream stream, int? size = null)
+    public static List<T> ReadTArrayToList<T>(this IStreamSerializerFor<T> serializer, Stream stream, int? size = null)
     {
-        var result = new T[size ?? stream.ReadInt32()];
-
-        for (var i = 0; i < result.Length; i++)
+        var result = new List<T>
         {
-            result[i] = serializer.Deserialize(stream);
+            Capacity = size ?? stream.ReadInt32()
+        };
+
+        for (var i = 0; i < size; i++)
+        {
+            result.Add(serializer.Deserialize(stream));
         }
 
         return result;
+    }
+
+    /// <summary>
+    ///     Reads a tarray from the stream and adds it to the output list. The output list is cleared before adding values
+    ///     ///
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="serializer"></param>
+    /// <param name="stream"></param>
+    /// <param name="output"></param>
+    /// <param name="size"></param>
+    public static void ReadTArrayToList<T>(this IStreamSerializerFor<T> serializer, Stream stream, IList<T> output, int? size = null)
+    {
+        output.Clear();
+        size ??= stream.ReadInt32();
+        for (var i = 0; i < size; i++)
+        {
+            output.Add(serializer.Deserialize(stream));
+        }
     }
 
 

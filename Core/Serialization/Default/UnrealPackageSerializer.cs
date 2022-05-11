@@ -37,16 +37,13 @@ public class UnrealPackageSerializer : IStreamSerializerFor<UnrealPackage>
         package.Header = _fileSummarySerializerFor.Deserialize(stream);
 
         stream.Seek(package.Header.NameOffset, SeekOrigin.Begin);
-        var names = _nameTableItemSerializer.ReadTArray(stream, package.Header.NameCount);
-        package.NameTable.AddRange(names);
+        _nameTableItemSerializer.ReadTArrayToList(stream, package.NameTable, package.Header.NameCount);
 
         stream.Seek(package.Header.ImportOffset, SeekOrigin.Begin);
-        var imports = _importTableItemSerializer.ReadTArray(stream, package.Header.ImportCount);
-        package.ImportTable.AddRange(imports);
+        _importTableItemSerializer.ReadTArrayToList(stream, package.ImportTable, package.Header.ImportCount);
 
         stream.Seek(package.Header.ExportOffset, SeekOrigin.Begin);
-        var exports = _exportTablItemeSerializer.ReadTArray(stream, package.Header.ExportCount);
-        package.ExportTable.AddRange(exports);
+        _exportTablItemeSerializer.ReadTArrayToList(stream, package.ExportTable, package.Header.ExportCount);
 
 
         return package;

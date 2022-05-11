@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Core.Serialization;
 using Core.Test.TestUtilities;
 using FluentAssertions;
@@ -37,7 +36,7 @@ public class FNameTests
         var stream = new MemoryStream(_nameBytes);
         // Act
 
-        var names = _serializer.ReadTArray(stream, NameCount).ToList();
+        var names = _serializer.ReadTArrayToList(stream, NameCount);
 
         // Assert 
         names.Count.Should().Be(3);

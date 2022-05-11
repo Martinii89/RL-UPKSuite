@@ -23,7 +23,7 @@ public class ExportTable : List<ExportTableItem>
     /// <param name="exportCount">The number of exports to deserialize</param>
     public ExportTable(IStreamSerializerFor<ExportTableItem> serializer, Stream stream, int exportCount)
     {
-        AddRange(serializer.ReadTArray(stream, exportCount));
+        serializer.ReadTArrayToList(stream, this, exportCount);
     }
 }
 

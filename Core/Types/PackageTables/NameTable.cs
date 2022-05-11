@@ -23,7 +23,8 @@ public class NameTable : List<NameTableItem>
     /// <param name="nameCount"></param>
     public NameTable(IStreamSerializerFor<NameTableItem> serializer, Stream stream, int nameCount)
     {
-        AddRange(serializer.ReadTArray(stream, nameCount));
+        serializer.ReadTArrayToList(stream, this, nameCount);
+        //AddRange(serializer.ReadTArray(stream, nameCount));
     }
 }
 

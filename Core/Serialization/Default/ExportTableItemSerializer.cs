@@ -43,7 +43,7 @@ public class ExportTableItemSerializer : IStreamSerializerFor<ExportTableItem>
         item.SerialSize = stream.ReadInt32();
         item.SerialOffset = stream.ReadInt32();
         item.ExportFlags = stream.ReadInt32();
-        item.NetObjects.AddRange(_intSerializer.ReadTArray(stream));
+        _intSerializer.ReadTArrayToList(stream, item.NetObjects);
         item.PackageGuid = _guidSerializer.Deserialize(stream);
         item.PackageFlags = stream.ReadInt32();
         return item;
