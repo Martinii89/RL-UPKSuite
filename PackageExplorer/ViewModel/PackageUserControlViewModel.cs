@@ -1,32 +1,107 @@
 ﻿using System.Collections.ObjectModel;
+using System.Linq;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Core.Types;
 using PackageExplorer.Model;
+using Syncfusion.UI.Xaml.TreeView.Engine;
 
 namespace PackageExplorer.ViewModel;
 
-public class PackageUserControlViewModel
+public partial class PackageUserControlViewModel : ObservableObject
 {
-    public PackageUserControlViewModel()
-    {
-        var obj1 = new PackageObject { Name = "Obj1", TypeName = "class1" };
-        var obj2 = new PackageObject { Name = "Obj2", TypeName = "class2" };
-        var obj3 = new PackageObject { Name = "Obj3", TypeName = "class3" };
-        var obj4 = new PackageObject { Name = "Obj4", TypeName = "class4" };
-        var obj5 = new PackageObject { Name = "Obj5", TypeName = "class5" };
-        var obj6 = new PackageObject { Name = "Obj6", TypeName = "class5" };
+    private readonly UnrealPackage _package;
 
-        TopLevelObjects.Add(obj1);
-        TopLevelObjects.Add(obj2);
-        TopLevelObjects.Add(obj3);
-        obj1.Children.Add(obj4);
-        obj1.Children.Add(obj5);
-        obj4.Children.Add(obj6);
-        for (var i = 0; i < 100; i++)
+    [ObservableProperty]
+    private PackageObject? _selectedNode;
+
+    public PackageUserControlViewModel(UnrealPackage package)
+    {
+        _package = package;
+        foreach (var export in package.ExportTable.Where(x => x.OuterIndex.Index == 0))
         {
-            TopLevelObjects.Add(new PackageObject { Name = $"obj{i}", TypeName = $"class{i}" });
+            var exportedObject = export.Object;
+
+            if (exportedObject is null || exportedObject.Class?.Name == "Class")
+            {
+                continue;
+            }
+
+            var obj = new PackageObject(exportedObject);
+            AddTopLevelObject(obj);
         }
     }
 
-    public string TestContent { get; set; } = "asss";
+    public string PackageName => _package.PackageName;
 
     public ObservableCollection<PackageObject> TopLevelObjects { get; set; } = new();
+
+    [ICommand(CanExecute = nameof(CanExecuteOnDemandLoading))]
+    private void ExecuteOnDemandLoading(TreeViewNode node)
+    {
+        //if (obj is not TreeViewNode node)
+        //{
+        //    return;
+        //}
+
+        if (node.ChildNodes.Count > 0)
+        {
+            node.IsExpanded = true;
+            return;
+        }
+
+        if (node.Content is not PackageObject packageObject)
+        {
+            return;
+        }
+
+        //PopulateChildren(packageObject);
+
+        if (packageObject.Children.Count == 0)
+        {
+            node.HasChildNodes = false;
+            return;
+        }
+
+        foreach (var child in packageObject.Children)
+        {
+            PopulateChildren(child);
+        }
+
+        node.PopulateChildNodes(packageObject.Children);
+        //foreach (var childNode in node.ChildNodes)
+        //{
+        //    if (childNode.Content is not PackageObject subObj)
+        //    {
+        //        continue;
+        //    }
+
+        //    PopulateChildren(subObj);
+        //    if (subObj.Children.Count == 0)
+        //    {
+        //        childNode.HasChildNodes = false;
+        //    }
+        //}
+
+        node.IsExpanded = true;
+    }
+
+    public void AddTopLevelObject(PackageObject obj)
+    {
+        PopulateChildren(obj);
+        TopLevelObjects.Add(obj);
+    }
+
+    private bool CanExecuteOnDemandLoading(TreeViewNode node)
+    {
+        return (node.Content as PackageObject).HasSubObjects;
+    }
+
+    private void PopulateChildren(PackageObject packageObject)
+    {
+        foreach (var subObject in _package.ExportTable.Where(x => x.Object?.Outer == packageObject.Object))
+        {
+            packageObject.Children.Add(new PackageObject(subObject.Object!));
+        }
+    }
 }

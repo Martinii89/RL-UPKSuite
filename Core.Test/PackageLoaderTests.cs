@@ -1,5 +1,4 @@
-﻿using System;
-using Core.RocketLeague;
+﻿using Core.RocketLeague;
 using Core.RocketLeague.Decryption;
 using Core.Serialization.RocketLeague;
 using Core.Test.TestUtilities;
@@ -50,7 +49,7 @@ public class PackageLoaderTests
         var action = () => loader.LoadPackage("TestData\\RocketPass_Premium_T_SF.upk", "RocketPass_Premium_T_SF");
         var pckg = loader.GetPackage("RocketPass_Premium_T_SF");
         // Assert 
-        action.Should().ThrowExactly<InvalidOperationException>().WithMessage("Make sure the class is resolved before the object that needs it");
+        action.Should().NotThrow();
     }
 
     [Fact]

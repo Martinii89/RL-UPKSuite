@@ -242,7 +242,8 @@ public class UnrealPackage
     /// <returns></returns>
     public IObjectResource GetImportPackage(ImportTableItem objectResource)
     {
-        if (GetName(objectResource.ClassName) == "Package" && objectResource.OuterIndex.Index == 0)
+        var name = GetName(objectResource.ClassName);
+        if ((name == "Package" || name == "None") && objectResource.OuterIndex.Index == 0)
         {
             return objectResource;
         }
@@ -344,12 +345,12 @@ public class UnrealPackage
     {
         var classPackageName = GetName(import.ClassPackage);
         var classPackage = ImportResolver!.ResolveExportPackage(classPackageName);
-        if (classPackage == null)
+        UClass? cls = null;
+        if (classPackage != null)
         {
-            throw new InvalidOperationException("Make sure the class is resolved before the object that needs it");
+            cls = classPackage.FindClass(GetName(import.ClassName));
         }
 
-        var cls = classPackage.FindClass(GetName(import.ClassName));
         var outerRef = GetObjectReference(import.OuterIndex);
         var outer = outerRef switch
         {

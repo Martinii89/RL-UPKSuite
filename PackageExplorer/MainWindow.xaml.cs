@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
+using PackageExplorer.ViewModel;
 using Syncfusion.SfSkinManager;
 using Syncfusion.Windows.Shared;
 
@@ -23,6 +24,8 @@ public partial class MainWindow : ChromelessWindow
         SfSkinManager.SetVisualStyle(this, VisualStyles.FluentDark);
         SfSkinManager.ApplyStylesOnApplication = false;
         InitializeComponent();
+
+        DataContext = new MainWindowViewModel();
         //Loaded += OnLoaded;
         //var headeritems = LeftHeaderItemsSource.Cast<TabControlExt>().FirstOrDefault();
         //if (headeritems is not null)

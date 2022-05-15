@@ -13,6 +13,12 @@
   </ItemGroup>
   <ItemGroup>
 
+<PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0-preview3" />
+
+<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+
+<PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.39" />
+
 <PackageReference Include="Syncfusion.SfInput.WPF" Version="20.1.0.55" />
 
 <PackageReference Include="Syncfusion.SfTreeView.WPF" Version="20.1.0.55" />
@@ -33,6 +39,11 @@
   </ItemGroup>
   
   <ItemGroup>
+    <Folder Include="Utils\" />
     <Folder Include="ViewModel\" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Core.csproj" />
   </ItemGroup>
 </Project>
