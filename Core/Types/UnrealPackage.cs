@@ -506,6 +506,7 @@ public class UnrealPackage
             exportObject = new UObject(exportItem.ObjectName, exportClass, exportOuter, this, exportArchetype);
         }
 
+        exportObject.ExportTableItem = exportItem;
         exportItem.Object = exportObject;
     }
 

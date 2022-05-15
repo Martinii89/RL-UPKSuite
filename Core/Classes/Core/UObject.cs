@@ -1,4 +1,5 @@
 ﻿using Core.Types;
+using Core.Types.PackageTables;
 
 namespace Core.Classes.Core;
 
@@ -29,6 +30,11 @@ public class UObject
         OwnerPackage = ownerPackage;
         ObjectArchetype = objectArchetype;
     }
+
+    /// <summary>
+    ///     The exportable item that was used to construct this object. May be null for unresolved import objects
+    /// </summary>
+    public ExportTableItem? ExportTableItem { get; set; }
 
     /// <summary>
     ///     The parent object

@@ -47,4 +47,10 @@ public class PackageObject
     public ObservableCollection<PackageObject> Children { get; set; } = new();
 
     public bool HasSubObjects => Children.Count > 0;
+
+    public ulong ObjectFlags => Object.ExportTableItem?.ObjectFlags ?? 0L;
+
+    public bool IsDefaultObject => (ObjectFlags & 0x200) != 0;
+
+    public bool IsArchetypeObject => (ObjectFlags & 0x400) != 0;
 }

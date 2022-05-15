@@ -82,4 +82,24 @@ public class UnrealPackageSerializerTests
         exports[0].SerialSize.Should().Be(12);
         exports[1].SerialSize.Should().Be(120);
     }
+
+
+    [Fact]
+    public void SerializeTest_SerializeUDKTestFile_AllExportsHasExportTableItem()
+    {
+        // Arrange
+        var serviceColection = new ServiceCollection();
+        var inputTest = File.OpenRead(@"TestData/UDK/UDKTestPackage.upk");
+        serviceColection.UseSerializers(typeof(UnrealPackageSerializer), new SerializerOptions());
+        var services = serviceColection.BuildServiceProvider();
+        var testSerializer = services.GetRequiredService<IStreamSerializerFor<UnrealPackage>>();
+        // Act
+
+        var unrealPackage = testSerializer.Deserialize(inputTest);
+        unrealPackage.GraphLink();
+        var exportTable = unrealPackage.ExportTable;
+        // Assert
+
+        exportTable.Should().AllSatisfy(x => { x.Object.ExportTableItem.Should().NotBeNull(); });
+    }
 }

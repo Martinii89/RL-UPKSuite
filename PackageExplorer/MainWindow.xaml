@@ -9,7 +9,7 @@
         xmlns:vm="clr-namespace:PackageExplorer.ViewModel"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d"
         ResizeMode="CanResize"
-        Title="MainWindow" Height="600" Width="900" Icon="App.ico" d:DataContext="{d:DesignInstance vm:MainWindowViewModel }">
+        Title="MainWindow" Height="900" Width="1400" Icon="App.ico" d:DataContext="{d:DesignInstance vm:MainWindowViewModel }">
     <!--<syncfusion:ChromelessWindow.Resources>
         <packageExplorer:MyObservableCollection x:Key="leftHeaderItems">
             <syncfusion:TabControlExt x:Name="tabControlExt2" IsNewButtonEnabled="True">
