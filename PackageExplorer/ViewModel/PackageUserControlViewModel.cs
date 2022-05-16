@@ -52,14 +52,17 @@ public partial class PackageUserControlViewModel : ObservableObject
 
         foreach (var rootObject in rootObjects)
         {
-            if (rootObject.Class?.Name == "Class")
-            {
-                continue;
-            }
-
-            var obj = new PackageObject(rootObject);
             var subObjects = _packageGraph.ContainsKey(rootObject) ? _packageGraph[rootObject] : new List<UObject>();
-            AddTopLevelObject(obj, subObjects);
+            var obj = new PackageObject(rootObject);
+            switch (rootObject.Class?.Name)
+            {
+                case "Class":
+                    AddPackageClass(obj, subObjects);
+                    break;
+                default:
+                    AddTopLevelObject(obj, subObjects);
+                    break;
+            }
         }
 
         PackageView = new ListCollectionView(TopLevelObjects)
@@ -84,6 +87,7 @@ public partial class PackageUserControlViewModel : ObservableObject
     public string PackageName => _package.PackageName;
 
     public ObservableCollection<PackageObject> TopLevelObjects { get; set; } = new();
+    public ObservableCollection<PackageObject> PackageClasses { get; set; } = new();
 
     public ListCollectionView PackageView { get; set; }
 
@@ -151,6 +155,16 @@ public partial class PackageUserControlViewModel : ObservableObject
         }
 
         TopLevelObjects.Add(obj);
+    }
+
+    public void AddPackageClass(PackageObject clsObj, List<UObject> classSubObjects)
+    {
+        foreach (var subObject in classSubObjects)
+        {
+            clsObj.Children.Add(new PackageObject(subObject));
+        }
+
+        PackageClasses.Add(clsObj);
     }
 
     private bool CanExecuteOnDemandLoading(TreeViewNode node)

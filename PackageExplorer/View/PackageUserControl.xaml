@@ -17,7 +17,7 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" MaxWidth="600" />
             <ColumnDefinition Width="Auto" />
-            <ColumnDefinition MinWidth="300" />
+            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
         <Grid Grid.Column="0">
@@ -27,22 +27,44 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
+            <!--package filters-->
             <StackPanel Grid.Row="0">
                 <CheckBox IsChecked="{Binding ShowDefaultObjects}" Command="{Binding OnShowDefaultChangedCommand}" CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}">Show Default Objects</CheckBox>
             </StackPanel>
-            <Syncfusion:SfTreeView Grid.Column="0" Grid.Row="1" x:Name="PackageTreeView"
-                                   ChildPropertyName="Children"
-                                   ShowLines="True"
-                                   LoadOnDemandCommand="{Binding ExecuteOnDemandLoadingCommand}"
-                                   SelectedItem="{Binding SelectedNode, Mode=TwoWay}"
-                                   ItemsSource="{Binding PackageView}">
-                <Syncfusion:SfTreeView.ItemTemplate>
-                    <DataTemplate DataType="model:PackageObject">
-                        <TextBlock Text="{Binding NameWithType}" />
-                    </DataTemplate>
-                </Syncfusion:SfTreeView.ItemTemplate>
-            </Syncfusion:SfTreeView>
+            <!--package content-->
+            <Syncfusion:TabControlExt Grid.Column="0" Grid.Row="1" TabStripPlacement="Top" CloseButtonType="Hide">
+                <Syncfusion:TabItemExt Header="Objects">
+                    <Syncfusion:SfTreeView 
+                                           ChildPropertyName="Children"
+                                           ShowLines="True"
+                                           LoadOnDemandCommand="{Binding ExecuteOnDemandLoadingCommand}"
+                                           SelectedItem="{Binding SelectedNode, Mode=TwoWay}"
+                                           ItemsSource="{Binding PackageView}">
+                        <Syncfusion:SfTreeView.ItemTemplate>
+                            <DataTemplate DataType="model:PackageObject">
+                                <TextBlock Text="{Binding NameWithType}" />
+                            </DataTemplate>
+                        </Syncfusion:SfTreeView.ItemTemplate>
+                    </Syncfusion:SfTreeView>
+                </Syncfusion:TabItemExt>
+                <Syncfusion:TabItemExt Header="Classes">
+                    <Syncfusion:SfTreeView  
+                                           ChildPropertyName="Children"
+                                           ShowLines="True"
+                                           LoadOnDemandCommand="{Binding ExecuteOnDemandLoadingCommand}"
+                                           SelectedItem="{Binding SelectedNode, Mode=TwoWay}"
+                                           ItemsSource="{Binding PackageClasses}">
+                        <Syncfusion:SfTreeView.ItemTemplate>
+                            <DataTemplate DataType="model:PackageObject">
+                                <TextBlock Text="{Binding NameWithType}" />
+                            </DataTemplate>
+                        </Syncfusion:SfTreeView.ItemTemplate>
+                    </Syncfusion:SfTreeView>
+                </Syncfusion:TabItemExt>
+            </Syncfusion:TabControlExt>
+
             <GridSplitter Grid.Row="2" Height="2" HorizontalAlignment="Stretch" />
+            <!--selected meta data-->
             <StackPanel Grid.Row="3" Grid.Column="0">
                 <TextBlock Text="{Binding SelectedNode.FullName, StringFormat=FullName: {0}}" />
                 <TextBlock Text="{Binding SelectedNode.ArchetypeName, StringFormat=ArchetypeName: {0}}" />
@@ -51,8 +73,9 @@
                 <TextBlock Text="{Binding SelectedNode.IsArchetypeObject, StringFormat=Archetype: {0}}" />
             </StackPanel>
         </Grid>
-        <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Stretch" />
+        <GridSplitter Grid.Column="1" Width="2" HorizontalAlignment="Stretch" />
 
+        <!--selected object content-->
         <StackPanel Grid.Column="2">
             <TextBlock Text="object content..:" />
         </StackPanel>
