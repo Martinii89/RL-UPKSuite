@@ -14,4 +14,7 @@ public class UStruct : UField
         ownerPackage, objectArchetype)
     {
     }
+
+    public UField? Children { get; set; }
+    public UStruct? SuperStruct { get; set; }
 }

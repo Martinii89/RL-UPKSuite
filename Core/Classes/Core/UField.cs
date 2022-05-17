@@ -14,4 +14,9 @@ public class UField : UObject
         ownerPackage, objectArchetype)
     {
     }
+
+    /// <summary>
+    ///     Reference to the next field
+    /// </summary>
+    public UObject? Next { get; set; }
 }

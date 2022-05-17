@@ -167,13 +167,31 @@ public class UnrealPackage
     /// <param name="index"></param>
     /// <returns></returns>
     /// <exception cref="IndexOutOfRangeException"></exception>
-    internal IObjectResource? GetObjectReference(ObjectIndex index)
+    public IObjectResource? GetObjectReference(ObjectIndex index)
     {
         return index.GetReferencedTable() switch
         {
             ObjectIndex.ReferencedTable.Null => null,
             ObjectIndex.ReferencedTable.Import => ImportTable[index.ImportIndex],
             ObjectIndex.ReferencedTable.Export => ExportTable[index.ExportIndex],
+            _ => throw new IndexOutOfRangeException(index.GetReferencedTable().ToString())
+        };
+    }
+
+    /// <summary>
+    ///     Returns the ObjectResource of the ObjectIndex. This will either be a <see cref="ImportTableItem" /> from the import
+    ///     table or a <see cref="ExportTableItem" /> from the export table
+    /// </summary>
+    /// <param name="index"></param>
+    /// <returns></returns>
+    /// <exception cref="IndexOutOfRangeException"></exception>
+    public UObject? GetObject(ObjectIndex index)
+    {
+        return index.GetReferencedTable() switch
+        {
+            ObjectIndex.ReferencedTable.Null => null,
+            ObjectIndex.ReferencedTable.Import => ImportTable[index.ImportIndex].ImportedObject,
+            ObjectIndex.ReferencedTable.Export => ExportTable[index.ExportIndex].Object,
             _ => throw new IndexOutOfRangeException(index.GetReferencedTable().ToString())
         };
     }

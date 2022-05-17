@@ -60,4 +60,9 @@ public class UObject
     ///     The instance this object is based on. Values from the archetype will be coped over on construction
     /// </summary>
     public UObject? ObjectArchetype { get; init; }
+
+    /// <summary>
+    ///     Index related to network replication. From serial data
+    /// </summary>
+    public int NetIndex { get; set; }
 }
