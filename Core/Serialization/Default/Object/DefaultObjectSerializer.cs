@@ -1,4 +1,5 @@
 ﻿using Core.Classes.Core;
+using Core.Serialization.Abstraction;
 
 namespace Core.Serialization.Default.Object;
 

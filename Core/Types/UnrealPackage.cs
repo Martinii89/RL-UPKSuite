@@ -108,14 +108,14 @@ public class UnrealPackage
         }
         else
         {
-            AddCoreNativeClassesFromImports();
+            AddNativeClassesFromImports();
         }
 
         var packageClass = FindClass("Package");
         PackageRoot.Class = packageClass;
     }
 
-    private void AddCoreNativeClassesFromImports()
+    private void AddNativeClassesFromImports()
     {
         var nativeObjects = GetNativeObjectsFromImportsInPackage();
         var nativeClasses = nativeObjects.Where(x => GetName(x.ClassName) == "Class").ToList();
@@ -521,7 +521,14 @@ public class UnrealPackage
         }
         else
         {
-            exportObject = new UObject(exportItem.ObjectName, exportClass, exportOuter, this, exportArchetype);
+            if (exportClass?.InstanceConstructor is null)
+            {
+                exportObject = new UObject(exportItem.ObjectName, exportClass, exportOuter, this, exportArchetype);
+            }
+            else
+            {
+                exportObject = exportClass.InstanceConstructor(exportItem.ObjectName, exportOuter, this, exportArchetype);
+            }
         }
 
         exportObject.ExportTableItem = exportItem;

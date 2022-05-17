@@ -1,4 +1,5 @@
 ﻿using Core.Classes;
+using Core.Serialization.Abstraction;
 using Core.Types.PackageTables;
 
 namespace Core.Serialization.Default.Object;
@@ -15,15 +16,17 @@ public class DefaultStructSerializer : IObjectSerializer<UStruct>
         _objectIndexSerialiser = objectIndexSerialiser;
     }
 
+    /// <inheritdoc />
     public void DeserializeObject(UStruct obj, Stream objectStream)
     {
         _fieldSerializer.DeserializeObject(obj, objectStream);
 
         obj.SuperStruct = obj.OwnerPackage.GetObject(_objectIndexSerialiser.Deserialize(objectStream)) as UStruct;
-        
+
         obj.Children = obj.OwnerPackage.GetObject(_objectIndexSerialiser.Deserialize(objectStream)) as UField;
     }
 
+    /// <inheritdoc />
     public void SerializeObject(UStruct obj, Stream objectStream)
     {
         throw new NotImplementedException();

@@ -1,5 +1,6 @@
 ﻿using Core.Classes;
 using Core.Classes.Core;
+using Core.Serialization.Abstraction;
 using Core.Types.PackageTables;
 
 namespace Core.Serialization.Default.Object;

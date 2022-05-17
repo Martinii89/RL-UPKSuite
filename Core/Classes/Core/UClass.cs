@@ -32,8 +32,28 @@ public class UClass : UState
     /// </summary>
     public UClass? SuperClass { get; init; }
 
-    private UObject ClassConstructor(FName name, UObject? outer, UnrealPackage ownerPackage, UObject? archetype)
+    /// <summary>
+    ///     Custom constructor for special native types
+    /// </summary>
+    public Func<FName, UObject?, UnrealPackage, UObject?, UObject>? InstanceConstructor { get; set; }
+
+    /// <summary>
+    ///     Constructs a UObject with this as their class.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="outer"></param>
+    /// <param name="ownerPackage"></param>
+    /// <param name="archetype"></param>
+    /// <returns></returns>
+    public UObject NewInstance(FName name, UObject? outer, UnrealPackage ownerPackage, UObject? archetype)
     {
-        return new UObject(name, this, outer, ownerPackage, archetype);
+        if (InstanceConstructor is null)
+        {
+            return new UObject(name, this, outer, ownerPackage, archetype);
+        }
+
+        var obj = InstanceConstructor(name, outer, ownerPackage, archetype);
+        obj.Class = this;
+        return obj;
     }
 }
