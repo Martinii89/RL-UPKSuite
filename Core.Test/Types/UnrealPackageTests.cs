@@ -391,9 +391,9 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
     public void CreateImport_EnginePackage_NativeClassesInjected()
     {
         // Arrange
-
-        var corePackage = UnrealPackage.DeserializeAndInitialize(_packageStreams.CoreStream, _udkPackageSerializer, "Core");
         var packageImportResolver = Substitute.For<IPackageCache>();
+        var loadOptions = new UnrealPackageOptions(_udkPackageSerializer, "Core", packageImportResolver);
+        var corePackage = UnrealPackage.DeserializeAndInitialize(_packageStreams.CoreStream, loadOptions);
         packageImportResolver.ResolveExportPackage("Core").Returns(corePackage);
 
 
@@ -401,7 +401,8 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
             { "ChildConnection", "Client", "FracturedStaticMesh", "Level", "Model", "NetConnection", "PendingLevel", "ShadowMap1D", "StaticMesh" };
 
         // Act
-        var enginePackage = UnrealPackage.DeserializeAndInitialize(_packageStreams.EngineStream, _udkPackageSerializer, "Engine", packageImportResolver);
+        var enginePackage = UnrealPackage.DeserializeAndInitialize(_packageStreams.EngineStream,
+            new UnrealPackageOptions(_udkPackageSerializer, "Engine", packageImportResolver));
         packageImportResolver.ResolveExportPackage("Engine").Returns(enginePackage);
 
         var classes = engineNativeClasses.Select(enginePackage.FindClass);
@@ -428,5 +429,18 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
 
         // Assert 
         importObjects.Should().AllSatisfy(x => { x.Should().NotBeNull(); });
+    }
+
+    [Fact]
+    public void CreateImport_CorePackage_AllClassSerializersNonNull()
+    {
+        // Arrange
+        var package = UnrealPackage.DeserializeAndInitialize(_packageStreams.CoreStream, new UnrealPackageOptions(_udkPackageSerializer, "Core", null));
+
+        // Act
+        var classes = package.PackageClasses;
+
+        // Assert 
+        classes.Should().AllSatisfy(x => { x.Serializer.Should().NotBeNull(); });
     }
 }

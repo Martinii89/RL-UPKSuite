@@ -2,7 +2,6 @@
 using Core.Types;
 using Core.Types.FileSummeryInner;
 using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Core.Serialization.Default.Tests;
@@ -67,20 +66,5 @@ public class FileSummarySerializerTests
         sut.CompressionFlags.Should().Be(ECompressionFlags.CompressZlib);
         sut.AdditionalPackagesToCook.Count.Should().Be(0);
         sut.TextureAllocations.Count.Should().Be(0);
-    }
-
-
-    [Fact]
-    public void AddSerializersTest_CanFindFileSummarySerializer()
-    {
-        // Arrange
-        var serviceColection = new ServiceCollection();
-        // Act
-        serviceColection.UseSerializers(typeof(FileSummarySerializer),
-            new SerializerOptions());
-        var services = serviceColection.BuildServiceProvider();
-        var testSerializer = services.GetRequiredService<IStreamSerializerFor<FileSummary>>();
-        // Assert
-        testSerializer.Should().NotBeNull();
     }
 }

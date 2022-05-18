@@ -88,16 +88,17 @@ public class PackageLoader
     private UnrealPackage DeserializePackage(string packageName, FileStream packageStream)
     {
         UnrealPackage unrealPackage;
+        var loadOptions = new UnrealPackageOptions(_packageSerializer, packageName, _packageCache);
         if (_packageUnpacker.IsPackagePacked(packageStream))
         {
             var unpackedStream = new MemoryStream();
             _packageUnpacker.Unpack(packageStream, unpackedStream);
             unpackedStream.Position = 0;
-            unrealPackage = UnrealPackage.DeserializeAndInitialize(unpackedStream, _packageSerializer, packageName, _packageCache);
+            unrealPackage = UnrealPackage.DeserializeAndInitialize(unpackedStream, loadOptions);
         }
         else
         {
-            unrealPackage = UnrealPackage.DeserializeAndInitialize(packageStream, _packageSerializer, packageName, _packageCache);
+            unrealPackage = UnrealPackage.DeserializeAndInitialize(packageStream, loadOptions);
         }
 
         return unrealPackage;

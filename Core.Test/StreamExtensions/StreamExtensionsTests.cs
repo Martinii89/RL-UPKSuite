@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Core.Extensions;
+using Core.Serialization.Extensions;
 using FluentAssertions;
 using Syroot.BinaryData;
 using Xunit;

@@ -30,16 +30,16 @@ public class UdkPackages
         var serializer = SerializerHelper.GetSerializerFor<UnrealPackage>(typeof(UnrealPackage));
         PackageCache = Substitute.For<IPackageCache>();
 
-        Core = UnrealPackage.DeserializeAndInitialize(core, serializer, "Core");
+        Core = UnrealPackage.DeserializeAndInitialize(core, new UnrealPackageOptions(serializer, "Core", null));
         PackageCache.ResolveExportPackage("Core").Returns(Core);
 
-        Engine = UnrealPackage.DeserializeAndInitialize(engine, serializer, "Engine", PackageCache);
+        Engine = UnrealPackage.DeserializeAndInitialize(engine, new UnrealPackageOptions(serializer, "Engine", PackageCache));
         PackageCache.ResolveExportPackage("Engine").Returns(Engine);
 
-        GameFramework = UnrealPackage.DeserializeAndInitialize(customGame, serializer, "GameFramework", PackageCache);
+        GameFramework = UnrealPackage.DeserializeAndInitialize(customGame, new UnrealPackageOptions(serializer, "GameFramework", PackageCache));
         PackageCache.ResolveExportPackage("GameFramework").Returns(GameFramework);
 
-        CustomGame = UnrealPackage.DeserializeAndInitialize(gameFramework, serializer, "CustomGame", PackageCache);
+        CustomGame = UnrealPackage.DeserializeAndInitialize(gameFramework, new UnrealPackageOptions(serializer, "CustomGame", PackageCache));
         PackageCache.ResolveExportPackage("CustomGame").Returns(CustomGame);
     }
 }

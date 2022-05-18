@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using Core.Types;
 
-namespace Core.Extensions;
+namespace Core.Serialization.Extensions;
 
 /// <summary>
 ///     Extension methods for reading and writing strings from streams in the format of a FString

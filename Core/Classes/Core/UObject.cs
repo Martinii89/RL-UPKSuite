@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Core.Serialization.Abstraction;
 using Core.Types;
 using Core.Types.PackageTables;
 
@@ -31,6 +32,8 @@ public class UObject
         OwnerPackage = ownerPackage;
         ObjectArchetype = objectArchetype;
     }
+
+    public IObjectSerializer<UObject>? Serializer { get; set; }
 
     /// <summary>
     ///     The exportable item that was used to construct this object. May be null for unresolved import objects
@@ -66,6 +69,17 @@ public class UObject
     ///     Index related to network replication. From serial data
     /// </summary>
     public int NetIndex { get; set; }
+
+    public void Deserialize(Stream stream)
+    {
+        // Can't deserialize without a export table item or a serializer 
+        if (Serializer is null || ExportTableItem is null)
+        {
+            return;
+        }
+
+        Serializer.DeserializeObject(this, stream);
+    }
 
     public override string ToString()
     {

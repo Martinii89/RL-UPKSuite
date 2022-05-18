@@ -1,4 +1,4 @@
-﻿using Core.Extensions;
+﻿using Core.Serialization.Extensions;
 using Core.Types;
 using Core.Types.FileSummeryInner;
 

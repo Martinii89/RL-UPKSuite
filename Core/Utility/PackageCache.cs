@@ -96,16 +96,17 @@ public class PackageCache : IPackageCache
         var packageStream = File.OpenRead(matchedFiles[0]);
 
         UnrealPackage unrealPackage;
+        var loadOptions = new UnrealPackageOptions(_options.UnrealPackageSerializerFor, packageName, this);
         if (_options.PackageUnpacker.IsPackagePacked(packageStream))
         {
             var unpackedStream = new MemoryStream();
             _options.PackageUnpacker.Unpack(packageStream, unpackedStream);
             unpackedStream.Position = 0;
-            unrealPackage = UnrealPackage.DeserializeAndInitialize(unpackedStream, _options.UnrealPackageSerializerFor, packageName, this);
+            unrealPackage = UnrealPackage.DeserializeAndInitialize(unpackedStream, loadOptions);
         }
         else
         {
-            unrealPackage = UnrealPackage.DeserializeAndInitialize(packageStream, _options.UnrealPackageSerializerFor, packageName, this);
+            unrealPackage = UnrealPackage.DeserializeAndInitialize(packageStream, loadOptions);
         }
 
 

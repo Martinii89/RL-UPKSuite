@@ -7,6 +7,31 @@ using Core.Utility;
 
 namespace Core.Types;
 
+public class UnrealPackageOptions
+{
+    public UnrealPackageOptions(IStreamSerializerFor<UnrealPackage> serializer, string packageName, IPackageCache? packageCache)
+    {
+        Serializer = serializer;
+        PackageName = packageName;
+        PackageCache = packageCache;
+    }
+
+    /// <summary>
+    ///     Serializer to use with the package
+    /// </summary>
+    public IStreamSerializerFor<UnrealPackage> Serializer { get; set; }
+
+    /// <summary>
+    ///     The name of the package
+    /// </summary>
+    public string PackageName { get; set; }
+
+    /// <summary>
+    ///     Cache used to resolve\cache import packages
+    /// </summary>
+    public IPackageCache? PackageCache { get; set; }
+}
+
 /// <summary>
 ///     A UnrealPackage is the deserialized data from a UPK file. These files can contain all kinds of unreal object for a
 ///     game or specific maps..
@@ -78,16 +103,13 @@ public class UnrealPackage
     ///     Helper constructor to create and initialize a package from a <see cref="IStreamSerializerFor{T}" />
     /// </summary>
     /// <param name="stream">The package stream</param>
-    /// <param name="deserializer">A Serializer compatible with the stream</param>
-    /// <param name="packageName">The name of this package.</param>
-    /// <param name="importResolver">Used to resolve import objects</param>
+    /// <param name="options"></param>
     /// <returns></returns>
-    public static UnrealPackage DeserializeAndInitialize(Stream stream, IStreamSerializerFor<UnrealPackage> deserializer, string packageName,
-        IPackageCache? importResolver = null)
+    public static UnrealPackage DeserializeAndInitialize(Stream stream, UnrealPackageOptions options)
     {
-        var package = deserializer.Deserialize(stream);
-        package.ImportResolver = importResolver;
-        package.PostDeserializeInitialize(packageName);
+        var package = options.Serializer.Deserialize(stream);
+        package.ImportResolver = options.PackageCache;
+        package.PostDeserializeInitialize(options.PackageName);
         return package;
     }
 
@@ -521,13 +543,13 @@ public class UnrealPackage
         }
         else
         {
-            if (exportClass?.InstanceConstructor is null)
+            if (exportClass is null)
             {
                 exportObject = new UObject(exportItem.ObjectName, exportClass, exportOuter, this, exportArchetype);
             }
             else
             {
-                exportObject = exportClass.InstanceConstructor(exportItem.ObjectName, exportOuter, this, exportArchetype);
+                exportObject = exportClass.NewInstance(exportItem.ObjectName, exportOuter, this, exportArchetype);
             }
         }
 

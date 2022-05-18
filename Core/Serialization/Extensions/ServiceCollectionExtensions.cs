@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using Core.Serialization;
+using Core.Serialization.Abstraction;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 
@@ -69,8 +70,9 @@ public class SerializerOptions
 public static class SerializerExtensions
 {
     private static readonly Type SerializerInterfaceType = typeof(IStreamSerializerFor<>);
+    private static readonly Type ObjectSerializers = typeof(IObjectSerializer<>);
 
-    private static IEnumerable<Type> GetLoadableTypes(Assembly assembly)
+    public static IEnumerable<Type> GetLoadableTypes(Assembly assembly)
     {
         if (assembly == null)
         {
@@ -90,7 +92,8 @@ public static class SerializerExtensions
     private static List<Type> GetImplementedSerializersOnType(Type type)
     {
         return type.GetInterfaces()
-            .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == SerializerInterfaceType).ToList();
+            .Where(i => i.IsGenericType && (i.GetGenericTypeDefinition() == SerializerInterfaceType || i.GetGenericTypeDefinition() == ObjectSerializers))
+            .ToList();
     }
 
     private static List<Tuple<Type, string>> GetSerializersFromAssembly(Assembly assembly, string tag)

@@ -1,4 +1,9 @@
-﻿using Core.Serialization.Tests.TestClasses;
+﻿using Core.Classes.Core;
+using Core.Serialization.Abstraction;
+using Core.Serialization.Default;
+using Core.Serialization.Default.Object;
+using Core.Serialization.Tests.TestClasses;
+using Core.Types;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -50,5 +55,33 @@ public class SerializerExtensionsTests
 
         testSerializer2.Should().NotBeNull();
         testSerializer2.Should().BeOfType<MySerializeTestOnlyDefaultSerializer>();
+    }
+
+    [Fact]
+    public void AddSerializersTest_CanFindFileSummarySerializer()
+    {
+        // Arrange
+        var serviceColection = new ServiceCollection();
+        // Act
+        serviceColection.UseSerializers(typeof(FileSummarySerializer),
+            new SerializerOptions());
+        var services = serviceColection.BuildServiceProvider();
+        var testSerializer = services.GetRequiredService<IStreamSerializerFor<FileSummary>>();
+        // Assert
+        testSerializer.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void AddSerializersTest_CanFindObjectSerializer()
+    {
+        // Arrange
+        var serviceColection = new ServiceCollection();
+        // Act
+        serviceColection.UseSerializers(typeof(DefaultObjectSerializer),
+            new SerializerOptions());
+        var services = serviceColection.BuildServiceProvider();
+        var testSerializer = services.GetRequiredService<IObjectSerializer<UObject>>();
+        // Assert
+        testSerializer.Should().NotBeNull();
     }
 }

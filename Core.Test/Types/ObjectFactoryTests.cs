@@ -24,7 +24,7 @@ public class ObjectFactoryTests : IClassFixture<PackageStreamFixture>
     public void CorePackageLink_ExportedClassesShouldBeUClassObjects()
     {
         // Arrange
-        var package = UnrealPackage.DeserializeAndInitialize(_packageStreams.CoreStream, _udkPackageSerializer, "Core");
+        var package = UnrealPackage.DeserializeAndInitialize(_packageStreams.CoreStream, new UnrealPackageOptions(_udkPackageSerializer, "Core", null));
 
         // Act
         package.GraphLink();
@@ -39,7 +39,7 @@ public class ObjectFactoryTests : IClassFixture<PackageStreamFixture>
     public void CorePackageLink_ExportedEnumsShouldBeUEnumObjects()
     {
         // Arrange
-        var package = UnrealPackage.DeserializeAndInitialize(_packageStreams.CoreStream, _udkPackageSerializer, "Core");
+        var package = UnrealPackage.DeserializeAndInitialize(_packageStreams.CoreStream, new UnrealPackageOptions(_udkPackageSerializer, "Core", null));
 
         // Act
         package.GraphLink();
@@ -55,7 +55,7 @@ public class ObjectFactoryTests : IClassFixture<PackageStreamFixture>
     public void CorePackageLink_ExportedFunctionsShouldBeUFunctionObjects()
     {
         // Arrange
-        var package = UnrealPackage.DeserializeAndInitialize(_packageStreams.CoreStream, _udkPackageSerializer, "Core");
+        var package = UnrealPackage.DeserializeAndInitialize(_packageStreams.CoreStream, new UnrealPackageOptions(_udkPackageSerializer, "Core", null));
 
         // Act
         package.GraphLink();
@@ -70,7 +70,7 @@ public class ObjectFactoryTests : IClassFixture<PackageStreamFixture>
     public void CorePackageLink_ExportedFunctionsShouldBeUFloatPropertyObjects()
     {
         // Arrange
-        var package = UnrealPackage.DeserializeAndInitialize(_packageStreams.CoreStream, _udkPackageSerializer, "Core");
+        var package = UnrealPackage.DeserializeAndInitialize(_packageStreams.CoreStream, new UnrealPackageOptions(_udkPackageSerializer, "Core", null));
 
         // Act
         package.GraphLink();
