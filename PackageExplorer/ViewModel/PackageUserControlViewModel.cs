@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Windows.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -15,6 +16,9 @@ public partial class PackageUserControlViewModel : ObservableObject
     private readonly UnrealPackage _package;
 
     private readonly Dictionary<UObject, List<UObject>> _packageGraph = new();
+
+    [ObservableProperty]
+    private ICollectionView _packageView;
 
     [ObservableProperty]
     private PackageObject? _selectedNode;
@@ -89,8 +93,6 @@ public partial class PackageUserControlViewModel : ObservableObject
     public ObservableCollection<PackageObject> TopLevelObjects { get; set; } = new();
     public ObservableCollection<PackageObject> PackageClasses { get; set; } = new();
 
-    public ListCollectionView PackageView { get; set; }
-
     private bool FilterPackageObjects(object o)
     {
         if (_showDefaultObjects)
@@ -138,7 +140,14 @@ public partial class PackageUserControlViewModel : ObservableObject
     [ICommand]
     private void OnShowDefaultChanged(bool isChecked)
     {
-        PackageView.Refresh();
+        //PackageView.Refresh();
+        //OnPropertyChanged(nameof(PackageView));
+        // if someone can tell me why refresh doesn't work. I'm all ears..
+
+        PackageView = new ListCollectionView(TopLevelObjects)
+        {
+            Filter = FilterPackageObjects
+        };
     }
 
     public void AddTopLevelObject(PackageObject obj)

@@ -1,4 +1,5 @@
-﻿using Core.Types;
+﻿using System.Text;
+using Core.Types;
 using Core.Types.PackageTables;
 
 namespace Core.Classes.Core;
@@ -65,4 +66,21 @@ public class UObject
     ///     Index related to network replication. From serial data
     /// </summary>
     public int NetIndex { get; set; }
+
+    public override string ToString()
+    {
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append(Name);
+        var outer = Outer;
+        while (outer != null)
+        {
+            var outerName = outer.Name;
+            stringBuilder.Insert(0, ".");
+            stringBuilder.Insert(0, outerName);
+            outer = outer.Outer;
+        }
+
+
+        return stringBuilder.ToString();
+    }
 }
