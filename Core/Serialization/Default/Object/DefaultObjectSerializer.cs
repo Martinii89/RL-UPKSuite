@@ -3,14 +3,19 @@ using Core.Serialization.Abstraction;
 
 namespace Core.Serialization.Default.Object;
 
-public class DefaultObjectSerializer : IObjectSerializer<UObject>
+/// <summary>
+///     Default implementation for a UObject serializer
+/// </summary>
+public class DefaultObjectSerializer : BaseObjectSerializer<UObject>
 {
-    public void DeserializeObject(UObject obj, Stream objectStream)
+    /// <inheritdoc />
+    public override void DeserializeObject(UObject obj, Stream objectStream)
     {
         obj.NetIndex = objectStream.ReadInt32();
     }
 
-    public void SerializeObject(UObject obj, Stream objectStream)
+    /// <inheritdoc />
+    public override void SerializeObject(UObject obj, Stream objectStream)
     {
         throw new NotImplementedException();
     }

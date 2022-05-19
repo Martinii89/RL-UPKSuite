@@ -4,12 +4,19 @@ using Core.Types.PackageTables;
 
 namespace Core.Serialization.Default.Object;
 
-/// <inheritdoc />
-public class DefaultStructSerializer : IObjectSerializer<UStruct>
+/// <summary>
+///     Default implementation for a UStruct serializer
+/// </summary>
+public class DefaultStructSerializer : BaseObjectSerializer<UStruct>
 {
     private readonly IObjectSerializer<UField> _fieldSerializer;
     private readonly IStreamSerializerFor<ObjectIndex> _objectIndexSerialiser;
 
+    /// <summary>
+    ///     Construct a DefaultStructSerializer with the required field serializers
+    /// </summary>
+    /// <param name="fieldSerializer"></param>
+    /// <param name="objectIndexSerialiser"></param>
     public DefaultStructSerializer(IObjectSerializer<UField> fieldSerializer, IStreamSerializerFor<ObjectIndex> objectIndexSerialiser)
     {
         _fieldSerializer = fieldSerializer;
@@ -17,7 +24,7 @@ public class DefaultStructSerializer : IObjectSerializer<UStruct>
     }
 
     /// <inheritdoc />
-    public void DeserializeObject(UStruct obj, Stream objectStream)
+    public override void DeserializeObject(UStruct obj, Stream objectStream)
     {
         _fieldSerializer.DeserializeObject(obj, objectStream);
 
@@ -27,7 +34,7 @@ public class DefaultStructSerializer : IObjectSerializer<UStruct>
     }
 
     /// <inheritdoc />
-    public void SerializeObject(UStruct obj, Stream objectStream)
+    public override void SerializeObject(UStruct obj, Stream objectStream)
     {
         throw new NotImplementedException();
     }
