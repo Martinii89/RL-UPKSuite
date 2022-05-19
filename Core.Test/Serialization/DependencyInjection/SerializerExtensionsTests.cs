@@ -1,4 +1,6 @@
-﻿using Core.Classes.Core;
+﻿using System.Linq;
+using Core.Classes;
+using Core.Classes.Core;
 using Core.Serialization.Abstraction;
 using Core.Serialization.Default;
 using Core.Serialization.Default.Object;
@@ -72,7 +74,7 @@ public class SerializerExtensionsTests
     }
 
     [Fact]
-    public void AddSerializersTest_CanFindObjectSerializer()
+    public void AddSerializersTest_CanFindObjectSerializers()
     {
         // Arrange
         var serviceColection = new ServiceCollection();
@@ -80,8 +82,27 @@ public class SerializerExtensionsTests
         serviceColection.UseSerializers(typeof(DefaultObjectSerializer),
             new SerializerOptions());
         var services = serviceColection.BuildServiceProvider();
-        var testSerializer = services.GetRequiredService<IObjectSerializer<UObject>>();
+        var testSerializer1 = services.GetService<IObjectSerializer<UObject>>();
+        var testSerializer2 = services.GetService<IObjectSerializer<UField>>();
+        var testSerializer3 = services.GetService<IObjectSerializer<UStruct>>();
         // Assert
-        testSerializer.Should().NotBeNull();
+        testSerializer1.Should().NotBeNull();
+        testSerializer2.Should().NotBeNull();
+        testSerializer3.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void AddSerializersTest_CanFindObjectSerializerList()
+    {
+        // Arrange
+        var serviceColection = new ServiceCollection();
+        // Act
+        serviceColection.UseSerializers(typeof(DefaultObjectSerializer),
+            new SerializerOptions());
+        var services = serviceColection.BuildServiceProvider();
+        var testSerializer1 = services.GetServices<IObjectSerializer>().ToList();
+        // Assert
+        testSerializer1.Should().NotBeNull();
+        testSerializer1.Should().HaveCountGreaterThan(2);
     }
 }
