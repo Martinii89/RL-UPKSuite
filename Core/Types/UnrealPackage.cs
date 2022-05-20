@@ -2,6 +2,7 @@
 using Core.Classes;
 using Core.Classes.Core;
 using Core.Serialization;
+using Core.Serialization.Abstraction;
 using Core.Types.PackageTables;
 using Core.Utility;
 
@@ -9,11 +10,13 @@ namespace Core.Types;
 
 public class UnrealPackageOptions
 {
-    public UnrealPackageOptions(IStreamSerializerFor<UnrealPackage> serializer, string packageName, IPackageCache? packageCache)
+    public UnrealPackageOptions(IStreamSerializerFor<UnrealPackage> serializer, string packageName, IPackageCache? packageCache = null,
+        IObjectSerializerFactory? objectSerializerFactory = null)
     {
         Serializer = serializer;
         PackageName = packageName;
         PackageCache = packageCache;
+        ObjectSerializerFactory = objectSerializerFactory;
     }
 
     /// <summary>
@@ -30,6 +33,11 @@ public class UnrealPackageOptions
     ///     Cache used to resolve\cache import packages
     /// </summary>
     public IPackageCache? PackageCache { get; set; }
+
+    /// <summary>
+    ///     Factory used to create serializers for all UObjects in the package
+    /// </summary>
+    public IObjectSerializerFactory? ObjectSerializerFactory { get; set; }
 }
 
 /// <summary>
@@ -50,6 +58,11 @@ public class UnrealPackage
     ///     A Import resolver use to resolve the import objects
     /// </summary>
     public IPackageCache? ImportResolver { get; set; }
+
+    /// <summary>
+    ///     Factory used to create serializers for all UObjects in the package
+    /// </summary>
+    public IObjectSerializerFactory? ObjectSerializerFactory { get; set; }
 
     /// <summary>
     ///     The root. (May be removed)
@@ -109,6 +122,7 @@ public class UnrealPackage
     {
         var package = options.Serializer.Deserialize(stream);
         package.ImportResolver = options.PackageCache;
+        package.ObjectSerializerFactory = options.ObjectSerializerFactory;
         package.PostDeserializeInitialize(options.PackageName);
         return package;
     }

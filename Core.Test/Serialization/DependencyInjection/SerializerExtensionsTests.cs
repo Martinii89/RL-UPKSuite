@@ -105,4 +105,22 @@ public class SerializerExtensionsTests
         testSerializer1.Should().NotBeNull();
         testSerializer1.Should().HaveCountGreaterThan(2);
     }
+
+    [Fact]
+    public void AddSerializersTest_FactoryCanFindObjectSerializer()
+    {
+        // Arrange
+        var serviceColection = new ServiceCollection();
+        // Act
+        serviceColection.UseSerializers(typeof(DefaultObjectSerializer),
+            new SerializerOptions());
+        serviceColection.AddSingleton<IObjectSerializerFactory, ObjectSerializerFactory>();
+        var services = serviceColection.BuildServiceProvider();
+        var factory = services.GetService<IObjectSerializerFactory>();
+        var objectSerializer = factory!.GetSerializer(typeof(UObject));
+        // Assert
+        factory.Should().NotBeNull();
+        objectSerializer.Should().NotBeNull();
+        objectSerializer.Should().BeOfType<DefaultObjectSerializer>();
+    }
 }

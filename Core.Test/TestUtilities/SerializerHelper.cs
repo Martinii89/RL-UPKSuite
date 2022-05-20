@@ -1,5 +1,6 @@
 ﻿using System;
 using Core.Serialization;
+using Core.Serialization.Abstraction;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Core.Test.TestUtilities;
@@ -10,6 +11,7 @@ public class SerializerHelper
     {
         var serviceCollection = new ServiceCollection();
         serviceCollection.UseSerializers(assembly, new SerializerOptions(tag));
+        serviceCollection.AddSingleton<IObjectSerializerFactory, ObjectSerializerFactory>();
         var services = serviceCollection.BuildServiceProvider();
         return services;
     }
@@ -17,5 +19,10 @@ public class SerializerHelper
     public static IStreamSerializerFor<T> GetSerializerFor<T>(Type type, string tag = "")
     {
         return GetSerializersCollection(type, tag).GetRequiredService<IStreamSerializerFor<T>>();
+    }
+
+    public static T GetService<T>(Type type, string tag = "")
+    {
+        return GetSerializersCollection(type, tag).GetRequiredService<T>();
     }
 }

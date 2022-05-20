@@ -33,7 +33,7 @@ public class UObject
         ObjectArchetype = objectArchetype;
     }
 
-    public IObjectSerializer? Serializer { get; set; }
+    public IObjectSerializer? Serializer => Class?.GetInstanceSerializer();
 
     /// <summary>
     ///     The exportable item that was used to construct this object. May be null for unresolved import objects

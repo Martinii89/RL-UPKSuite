@@ -16,7 +16,7 @@ public interface IObjectSerializer
     ///     Returns the type this serializer is compatible with
     /// </summary>
     /// <returns></returns>
-    Type SerializerFor();
+    Type GetSerializerFor();
 
     /// <summary>
     ///     Read the object properties from the stream
@@ -67,7 +67,7 @@ public abstract class BaseObjectSerializer<T> : IObjectSerializer<T>, IObjectSer
     }
 
     /// <inheritdoc />
-    public Type SerializerFor()
+    public Type GetSerializerFor()
     {
         return typeof(T);
     }

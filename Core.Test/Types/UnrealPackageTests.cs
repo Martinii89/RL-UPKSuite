@@ -5,6 +5,7 @@ using Core.Classes.Core;
 using Core.RocketLeague;
 using Core.RocketLeague.Decryption;
 using Core.Serialization;
+using Core.Serialization.Abstraction;
 using Core.Serialization.RocketLeague;
 using Core.Test.TestUtilities;
 using Core.Utility;
@@ -432,15 +433,20 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
     }
 
     [Fact]
-    public void CreateImport_CorePackage_AllClassSerializersNonNull()
+    public void CreateImport_CorePackage_AllClassAndObjectSerializersNonNull()
     {
         // Arrange
-        var package = UnrealPackage.DeserializeAndInitialize(_packageStreams.CoreStream, new UnrealPackageOptions(_udkPackageSerializer, "Core", null));
+        var serializerFactory = GetService<IObjectSerializerFactory>(typeof(UnrealPackage));
+        var package = UnrealPackage.DeserializeAndInitialize(_packageStreams.CoreStream,
+            new UnrealPackageOptions(_udkPackageSerializer, "Core", null, serializerFactory));
+        package.GraphLink();
 
         // Act
         var classes = package.PackageClasses;
+        var objects = package.ExportTable.Select(x => x.Object);
 
         // Assert 
-        classes.Should().AllSatisfy(x => { x.Serializer.Should().NotBeNull(); });
+        classes.Should().AllSatisfy(x => { x.GetInstanceSerializer().Should().NotBeNull(); });
+        objects.Should().AllSatisfy(x => { x.Serializer.Should().NotBeNull(); });
     }
 }

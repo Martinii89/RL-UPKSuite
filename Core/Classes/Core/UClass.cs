@@ -1,4 +1,5 @@
-﻿using Core.Types;
+﻿using Core.Serialization.Abstraction;
+using Core.Types;
 
 namespace Core.Classes.Core;
 
@@ -33,9 +34,39 @@ public class UClass : UState
     public UClass? SuperClass { get; init; }
 
     /// <summary>
+    ///     Serializer compatible with instances of this class
+    /// </summary>
+    public IObjectSerializer? InstanceSerializer { get; set; }
+
+    /// <summary>
     ///     Custom constructor for special native types
     /// </summary>
     public Func<FName, UObject?, UnrealPackage, UObject?, UObject>? InstanceConstructor { get; set; }
+
+    /// <summary>
+    ///     Returns the first instance serializer found. Walking up the SuperClass chain until one is found, or null if no
+    ///     SuperClasses has one
+    /// </summary>
+    /// <returns></returns>
+    public IObjectSerializer? GetInstanceSerializer()
+    {
+        return GetSuperClassIterator().FirstOrDefault(x => x.InstanceSerializer is not null)?.InstanceSerializer;
+    }
+
+    /// <summary>
+    ///     Returns a Iterator that iterates the class hierarchy. The first returns is itself
+    /// </summary>
+    /// <returns></returns>
+    public IEnumerable<UClass> GetSuperClassIterator()
+    {
+        yield return this;
+        var super = SuperClass;
+        while (super is not null)
+        {
+            yield return super;
+            super = super.SuperClass;
+        }
+    }
 
     /// <summary>
     ///     Constructs a UObject with this as their class.

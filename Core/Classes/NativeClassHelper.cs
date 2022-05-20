@@ -63,6 +63,8 @@ public class NativeClassRegistrationHelper
             var superClass = attribute.SuperClass == string.Empty ? null : registeredClasses[attribute.SuperClass];
             var classFName = corePackage.GetOrAddName(className);
             var newClass = new UClass(classFName, UClass.StaticClass, OuterPackage, corePackage, superClass);
+            var objectSerializer = corePackage.ObjectSerializerFactory?.GetSerializer(typeToRegister.Type) ?? null;
+            newClass.InstanceSerializer = objectSerializer;
             newClass.InstanceConstructor = (name, outer, package, objArchetype) =>
                 (UObject) Activator.CreateInstance(typeToRegister.Type, name, newClass, outer, package, objArchetype);
             registeredClasses[attribute.ClassName] = newClass;
