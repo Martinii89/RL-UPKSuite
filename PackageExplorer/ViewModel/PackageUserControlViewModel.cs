@@ -104,6 +104,16 @@ public partial class PackageUserControlViewModel : ObservableObject
         return !obj.IsDefaultObject;
     }
 
+    partial void OnSelectedNodeChanged(PackageObject? value)
+    {
+        if (value == null)
+        {
+            return;
+        }
+
+        value.Object.Deserialize();
+    }
+
 
     [ICommand(CanExecute = nameof(CanExecuteOnDemandLoading))]
     private void ExecuteOnDemandLoading(TreeViewNode node)

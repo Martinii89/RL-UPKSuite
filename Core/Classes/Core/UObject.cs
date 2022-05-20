@@ -70,15 +70,20 @@ public class UObject
     /// </summary>
     public int NetIndex { get; set; }
 
-    public void Deserialize(Stream stream)
+    /// <summary>
+    ///     Deserialize this object using the owner package data stream
+    /// </summary>
+    public void Deserialize()
     {
         // Can't deserialize without a export table item or a serializer 
-        if (Serializer is null || ExportTableItem is null)
+        if (Serializer is null || ExportTableItem is null || OwnerPackage.PackageStream is null)
         {
             return;
         }
 
-        Serializer.DeserializeObject(this, stream);
+        var streamPosition = ExportTableItem.SerialOffset;
+        OwnerPackage.PackageStream.Position = streamPosition;
+        Serializer.DeserializeObject(this, OwnerPackage.PackageStream);
     }
 
     public override string ToString()

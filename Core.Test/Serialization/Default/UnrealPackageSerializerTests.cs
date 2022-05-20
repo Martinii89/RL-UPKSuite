@@ -2,8 +2,10 @@
 using System.Linq;
 using Core.Serialization.RocketLeague;
 using Core.Types;
+using Core.Utility;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using NSubstitute;
 using Xunit;
 
 namespace Core.Serialization.Default.Tests;
@@ -96,6 +98,48 @@ public class UnrealPackageSerializerTests
         // Act
 
         var unrealPackage = testSerializer.Deserialize(inputTest);
+        unrealPackage.GraphLink();
+        var exportTable = unrealPackage.ExportTable;
+        // Assert
+
+        exportTable.Should().AllSatisfy(x => { x.Object.ExportTableItem.Should().NotBeNull(); });
+    }
+
+    [Fact]
+    public void SerializeTest_SerializeCore_AllExportsHasExportTableItem()
+    {
+        // Arrange
+        var serviceColection = new ServiceCollection();
+        var inputTest = File.OpenRead(@"TestData/UDK/Core.u");
+        serviceColection.UseSerializers(typeof(UnrealPackageSerializer), new SerializerOptions());
+        var services = serviceColection.BuildServiceProvider();
+        var testSerializer = services.GetRequiredService<IStreamSerializerFor<UnrealPackage>>();
+        // Act
+
+        var unrealPackage = UnrealPackage.DeserializeAndInitialize(inputTest, new UnrealPackageOptions(testSerializer, "Core"));
+        unrealPackage.GraphLink();
+        var exportTable = unrealPackage.ExportTable;
+        // Assert
+
+        exportTable.Should().AllSatisfy(x => { x.Object.ExportTableItem.Should().NotBeNull(); });
+    }
+
+    [Fact]
+    public void SerializeTest_SerializEngine_AllExportsHasExportTableItem()
+    {
+        // Arrange
+        var serviceColection = new ServiceCollection();
+        var inputTest = File.OpenRead(@"TestData/UDK/Engine.u");
+        serviceColection.UseSerializers(typeof(UnrealPackageSerializer), new SerializerOptions());
+        var services = serviceColection.BuildServiceProvider();
+        var testSerializer = services.GetRequiredService<IStreamSerializerFor<UnrealPackage>>();
+
+        var corePackage = UnrealPackage.DeserializeAndInitialize(File.OpenRead(@"TestData/UDK/Core.u"), new UnrealPackageOptions(testSerializer, "Core"));
+        var importResolver = Substitute.For<IPackageCache>();
+        importResolver.ResolveExportPackage("Core").Returns(corePackage);
+        // Act
+
+        var unrealPackage = UnrealPackage.DeserializeAndInitialize(inputTest, new UnrealPackageOptions(testSerializer, "Engine", importResolver));
         unrealPackage.GraphLink();
         var exportTable = unrealPackage.ExportTable;
         // Assert

@@ -4,6 +4,7 @@ using Core;
 using Core.RocketLeague;
 using Core.RocketLeague.Decryption;
 using Core.Serialization;
+using Core.Serialization.Abstraction;
 using Core.Serialization.RocketLeague;
 using Core.Types;
 using Core.Utility;
@@ -24,10 +25,12 @@ public class PackageLoader
 
         var serviceCollection = new ServiceCollection();
         serviceCollection.UseSerializers(typeof(UnrealPackage), new SerializerOptions(version));
+        serviceCollection.AddSingleton<IObjectSerializerFactory, ObjectSerializerFactory>();
         var services = serviceCollection.BuildServiceProvider();
 
         var serializer = services.GetRequiredService<IStreamSerializerFor<UnrealPackage>>();
         var fileSummaryserializer = services.GetRequiredService<IStreamSerializerFor<FileSummary>>();
+        var objectSerializerFactory = services.GetService<IObjectSerializerFactory>();
 
         IPackageUnpacker unpacker = version == RocketLeagueBase.FileVersion
             ? new PackageUnpacker(fileSummaryserializer, new DecryptionProvider("keys.txt"))
@@ -35,9 +38,12 @@ public class PackageLoader
         searchPaths ??= new List<string> { Path.GetDirectoryName(packageFilePath) ?? string.Empty };
         packageExtensions ??= new List<string> { "upk", "u" };
         var options = new PackageCacheOptions(serializer)
-            { SearchPaths = searchPaths, Extensions = packageExtensions, GraphLinkPackages = false, PackageUnpacker = unpacker };
+        {
+            SearchPaths = searchPaths, Extensions = packageExtensions, GraphLinkPackages = false, PackageUnpacker = unpacker,
+            ObjectSerializerFactory = objectSerializerFactory
+        };
         var packageCache = new PackageCache(options);
-        var loader = new Core.PackageLoader(serializer, packageCache, unpacker);
+        var loader = new Core.PackageLoader(serializer, packageCache, unpacker, objectSerializerFactory);
 
         loader.LoadPackage(packageFilePath, packageName);
         return loader.GetPackage(packageName);

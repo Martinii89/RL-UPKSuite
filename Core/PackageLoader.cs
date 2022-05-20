@@ -1,4 +1,5 @@
 ﻿using Core.Serialization;
+using Core.Serialization.Abstraction;
 using Core.Types;
 using Core.Types.PackageTables;
 using Core.Utility;
@@ -11,6 +12,7 @@ namespace Core;
 /// </summary>
 public class PackageLoader
 {
+    private readonly IObjectSerializerFactory? _ObjectSerializerFactory;
     private readonly IPackageCache _packageCache;
     private readonly IStreamSerializerFor<UnrealPackage> _packageSerializer;
     private readonly IPackageUnpacker _packageUnpacker;
@@ -22,11 +24,14 @@ public class PackageLoader
     /// <param name="packageSerializer"></param>
     /// <param name="packageCache"></param>
     /// <param name="packageUnpacker"></param>
-    public PackageLoader(IStreamSerializerFor<UnrealPackage> packageSerializer, IPackageCache packageCache, IPackageUnpacker packageUnpacker)
+    /// <param name="objectSerializerFactory"></param>
+    public PackageLoader(IStreamSerializerFor<UnrealPackage> packageSerializer, IPackageCache packageCache, IPackageUnpacker packageUnpacker,
+        IObjectSerializerFactory? objectSerializerFactory = null)
     {
         _packageSerializer = packageSerializer;
         _packageCache = packageCache;
         _packageUnpacker = packageUnpacker;
+        _ObjectSerializerFactory = objectSerializerFactory;
     }
 
     /// <summary>
@@ -88,7 +93,7 @@ public class PackageLoader
     private UnrealPackage DeserializePackage(string packageName, FileStream packageStream)
     {
         UnrealPackage unrealPackage;
-        var loadOptions = new UnrealPackageOptions(_packageSerializer, packageName, _packageCache);
+        var loadOptions = new UnrealPackageOptions(_packageSerializer, packageName, _packageCache, _ObjectSerializerFactory);
         if (_packageUnpacker.IsPackagePacked(packageStream))
         {
             var unpackedStream = new MemoryStream();

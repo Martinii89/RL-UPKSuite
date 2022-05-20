@@ -17,4 +17,5 @@ public class UStruct : UField
 
     public UField? Children { get; set; }
     public UStruct? SuperStruct { get; set; }
+    public UTextBuffer? ScriptText { get; set; }
 }

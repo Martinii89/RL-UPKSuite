@@ -1,4 +1,5 @@
 ﻿using Core.Serialization;
+using Core.Serialization.Abstraction;
 using Core.Types;
 using Microsoft.Extensions.FileSystemGlobbing;
 
@@ -42,6 +43,12 @@ public class PackageCacheOptions
     ///     Optional. Use a package unpacker to enable auto-loading of packed\compressed packages
     /// </summary>
     public IPackageUnpacker PackageUnpacker { get; set; } = new NeverUnpackUnpacker();
+
+
+    /// <summary>
+    ///     Factory used to create serializers for all UObjects in the package
+    /// </summary>
+    public IObjectSerializerFactory? ObjectSerializerFactory { get; set; }
 }
 
 /// <summary>
@@ -96,7 +103,7 @@ public class PackageCache : IPackageCache
         var packageStream = File.OpenRead(matchedFiles[0]);
 
         UnrealPackage unrealPackage;
-        var loadOptions = new UnrealPackageOptions(_options.UnrealPackageSerializerFor, packageName, this);
+        var loadOptions = new UnrealPackageOptions(_options.UnrealPackageSerializerFor, packageName, this, _options.ObjectSerializerFactory);
         if (_options.PackageUnpacker.IsPackagePacked(packageStream))
         {
             var unpackedStream = new MemoryStream();

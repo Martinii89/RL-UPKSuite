@@ -113,6 +113,11 @@ public class UnrealPackage
     public ThumbnailTable ThumbnailTable { get; } = new();
 
     /// <summary>
+    ///     The original data stream of the package
+    /// </summary>
+    public Stream? PackageStream { get; set; }
+
+    /// <summary>
     ///     Helper constructor to create and initialize a package from a <see cref="IStreamSerializerFor{T}" />
     /// </summary>
     /// <param name="stream">The package stream</param>
@@ -121,6 +126,7 @@ public class UnrealPackage
     public static UnrealPackage DeserializeAndInitialize(Stream stream, UnrealPackageOptions options)
     {
         var package = options.Serializer.Deserialize(stream);
+        package.PackageStream = stream;
         package.ImportResolver = options.PackageCache;
         package.ObjectSerializerFactory = options.ObjectSerializerFactory;
         package.PostDeserializeInitialize(options.PackageName);
@@ -493,10 +499,13 @@ public class UnrealPackage
 
             var exportItem = ExportTable.FirstOrDefault(x =>
                 GetName(x.ObjectName) == @class.Name && x.ClassIndex.Index == 0 && x.OuterIndex.Index == 0);
-            if (exportItem != null)
+            if (exportItem == null)
             {
-                exportItem.Object = @class;
+                continue;
             }
+
+            exportItem.Object = @class;
+            @class.ExportTableItem = exportItem;
         }
     }
 

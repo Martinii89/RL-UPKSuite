@@ -29,6 +29,8 @@ public class DefaultStructSerializer : BaseObjectSerializer<UStruct>
         _fieldSerializer.DeserializeObject(obj, objectStream);
 
         obj.SuperStruct = obj.OwnerPackage.GetObject(_objectIndexSerialiser.Deserialize(objectStream)) as UStruct;
+        obj.ScriptText = obj.OwnerPackage.GetObject(_objectIndexSerialiser.Deserialize(objectStream)) as UTextBuffer;
+
 
         obj.Children = obj.OwnerPackage.GetObject(_objectIndexSerialiser.Deserialize(objectStream)) as UField;
     }
