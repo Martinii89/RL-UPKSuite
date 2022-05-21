@@ -1,4 +1,5 @@
 ﻿using Core.Classes.Core;
+using Core.Classes.Core.Properties;
 using Core.Serialization.Abstraction;
 using Core.Types;
 
@@ -26,8 +27,39 @@ public class DefaultObjectSerializer : BaseObjectSerializer<UObject>
             return;
         }
 
-        while (SerializeScriptProperties(obj, objectStream))
+        obj.ScriptProperties.AddRange(GetScriptProperties(obj, objectStream));
+    }
+
+    private IEnumerable<FProperty> GetScriptProperties(UObject uObject, Stream objectStream)
+    {
+        while (true)
         {
+            var fName = _fnameSerializer.Deserialize(objectStream);
+            var name = uObject.OwnerPackage.GetName(fName);
+
+            if (name == "None")
+            {
+                yield break;
+            }
+
+            FProperty property = new()
+            {
+                Package = uObject.OwnerPackage,
+                FName = fName,
+                TypeFName = _fnameSerializer.Deserialize(objectStream),
+                Size = objectStream.ReadInt32(),
+                ArrayIndex = objectStream.ReadInt32()
+            };
+            if (property.TypeName == "BoolProperty")
+            {
+                objectStream.Move(1);
+            }
+            else
+            {
+                objectStream.Move(property.Size);
+            }
+
+            yield return property;
         }
     }
 

@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Core.Classes.Core.Properties;
 using Core.Serialization.Abstraction;
 using Core.Types;
 using Core.Types.PackageTables;
@@ -71,6 +72,8 @@ public class UObject
     ///     Index related to network replication. From serial data
     /// </summary>
     public int NetIndex { get; set; }
+
+    public List<FProperty> ScriptProperties { get; set; } = new();
 
     /// <summary>
     ///     Deserialize this object using the owner package data stream

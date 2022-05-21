@@ -30,9 +30,12 @@ public class DefaultStructSerializer : BaseObjectSerializer<UStruct>
 
         obj.SuperStruct = obj.OwnerPackage.GetObject(_objectIndexSerialiser.Deserialize(objectStream)) as UStruct;
         obj.ScriptText = obj.OwnerPackage.GetObject(_objectIndexSerialiser.Deserialize(objectStream)) as UTextBuffer;
-
-
         obj.Children = obj.OwnerPackage.GetObject(_objectIndexSerialiser.Deserialize(objectStream)) as UField;
+        obj.CppText = obj.OwnerPackage.GetObject(_objectIndexSerialiser.Deserialize(objectStream)) as UTextBuffer;
+        obj.Line = objectStream.ReadInt32();
+        obj.TextPos = objectStream.ReadInt32();
+        obj.ScriptBytecodeSize = objectStream.ReadInt32();
+        obj.DataScriptSize = objectStream.ReadInt32();
     }
 
     /// <inheritdoc />
