@@ -16,6 +16,8 @@ public class UObject
     /// </summary>
     private readonly FName _name;
 
+    private bool IsDeserialized;
+
     /// <summary>
     ///     Constructs a engine object
     /// </summary>
@@ -76,7 +78,7 @@ public class UObject
     public void Deserialize()
     {
         // Can't deserialize without a export table item or a serializer 
-        if (Serializer is null || ExportTableItem is null || OwnerPackage.PackageStream is null)
+        if (IsDeserialized || Serializer is null || ExportTableItem is null || OwnerPackage.PackageStream is null)
         {
             return;
         }
@@ -84,8 +86,10 @@ public class UObject
         var streamPosition = ExportTableItem.SerialOffset;
         OwnerPackage.PackageStream.Position = streamPosition;
         Serializer.DeserializeObject(this, OwnerPackage.PackageStream);
+        IsDeserialized = true;
     }
 
+    /// <inheritdoc />
     public override string ToString()
     {
         var stringBuilder = new StringBuilder();
