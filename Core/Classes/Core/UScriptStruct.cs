@@ -14,4 +14,6 @@ public class UScriptStruct : UStruct
         outer, ownerPackage, objectArchetype)
     {
     }
+
+    public int StructFlags { get; set; }
 }

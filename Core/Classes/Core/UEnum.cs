@@ -14,4 +14,6 @@ public class UEnum : UField
         ownerPackage, objectArchetype)
     {
     }
+
+    public List<string> Names { get; set; } = new();
 }

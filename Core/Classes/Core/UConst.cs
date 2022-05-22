@@ -14,4 +14,6 @@ public class UConst : UField
         ownerPackage, objectArchetype)
     {
     }
+
+    public string Value { get; set; } = string.Empty;
 }

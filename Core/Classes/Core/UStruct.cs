@@ -23,4 +23,5 @@ public class UStruct : UField
     public int TextPos { get; set; }
     public int ScriptBytecodeSize { get; set; }
     public int DataScriptSize { get; set; }
+    public long ScriptOffset { get; set; }
 }

@@ -14,4 +14,9 @@ public class UTextBuffer : UObject
         ownerPackage, objectArchetype)
     {
     }
+
+    public uint Pos { get; set; }
+    public uint Top { get; set; }
+
+    public string ScriptText { get; set; } = string.Empty;
 }

@@ -24,7 +24,7 @@ public class DefaultComponentSerializer : BaseObjectSerializer<UComponent>
     public override void DeserializeObject(UComponent obj, Stream objectStream)
     {
         obj.TemplateOwnerClass = obj.OwnerPackage.GetObject(_objectIndexSerialiser.Deserialize(objectStream)) as UClass;
-        if (obj.GetOuterEnumerable().Any(x => x.IsDefaultObject))
+        if (obj.IsDefaultObject || obj.GetOuterEnumerable().Any(x => x.IsDefaultObject))
         {
             obj.TemplateName = obj.OwnerPackage.GetName(_fnameSerializer.Deserialize(objectStream));
         }

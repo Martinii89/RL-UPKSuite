@@ -46,6 +46,16 @@ public class PackageLoader
         var loader = new Core.PackageLoader(serializer, packageCache, unpacker, objectSerializerFactory);
 
         loader.LoadPackage(packageFilePath, packageName);
-        return loader.GetPackage(packageName);
+        var unrealPackage = loader.GetPackage(packageName);
+
+        //foreach (var obj in unrealPackage.ExportTable)
+        //{
+        //    if (!obj.Object?.IsDefaultObject ?? true)
+        //    {
+        //        obj.Object?.Deserialize();
+        //    }
+        //}
+
+        return unrealPackage;
     }
 }

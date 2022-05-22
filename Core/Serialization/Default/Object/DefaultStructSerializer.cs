@@ -36,6 +36,11 @@ public class DefaultStructSerializer : BaseObjectSerializer<UStruct>
         obj.TextPos = objectStream.ReadInt32();
         obj.ScriptBytecodeSize = objectStream.ReadInt32();
         obj.DataScriptSize = objectStream.ReadInt32();
+        if (obj.DataScriptSize > 0)
+        {
+            obj.ScriptOffset = objectStream.Position;
+            objectStream.Move(obj.DataScriptSize);
+        }
     }
 
     /// <inheritdoc />

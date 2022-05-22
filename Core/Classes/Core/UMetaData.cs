@@ -14,4 +14,19 @@ public class UMetaData : UObject
         ownerPackage, objectArchetype)
     {
     }
+
+    public List<MetaDataEntry> MetaData { get; set; } = new();
+
+    public class MetaDataEntry
+    {
+        public UObject Object { get; set; }
+
+        public List<MetaDataValue> Values { get; set; } = new();
+
+        public class MetaDataValue
+        {
+            public string key { get; set; }
+            public string value { get; set; }
+        }
+    }
 }
