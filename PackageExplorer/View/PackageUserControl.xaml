@@ -73,7 +73,6 @@
             <StackPanel Grid.Row="3" Grid.Column="0">
                 <TextBlock Text="{Binding SelectedNode.FullName, StringFormat=FullName: {0}}" />
                 <TextBlock Text="{Binding SelectedNode.ArchetypeName, StringFormat=ArchetypeName: {0}}" />
-                <TextBlock Text="{Binding SelectedNode.ObjectFlags, StringFormat=ObjectFlags: 0x{0:X8}}" />
                 <TextBlock Text="{Binding SelectedNode.IsDefaultObject, StringFormat=DefaultObject: {0}}" />
                 <TextBlock Text="{Binding SelectedNode.IsArchetypeObject, StringFormat=Archetype: {0}}" />
             </StackPanel>
@@ -81,7 +80,7 @@
         <GridSplitter Grid.Column="1" Width="2" HorizontalAlignment="Stretch" />
 
         <!--selected object content-->
-        <ScrollViewer Grid.Row="0" Grid.Column="2">
+        <ScrollViewer Grid.Row="0" Grid.Column="2" Padding="10, 0">
             <StackPanel Grid.Row="0" Grid.Column="2">
                 <Syncfusion:PropertyGrid
                     SelectedObject="{Binding SelectedNode.Object}"
