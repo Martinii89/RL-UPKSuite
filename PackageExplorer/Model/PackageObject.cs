@@ -48,9 +48,8 @@ public class PackageObject
 
     public bool HasSubObjects => Children.Count > 0;
 
-    public ulong ObjectFlags => Object.ExportTableItem?.ObjectFlags ?? 0L;
 
-    public bool IsDefaultObject => (ObjectFlags & 0x200) != 0;
+    public bool IsDefaultObject => Object.IsDefaultObject;
 
-    public bool IsArchetypeObject => (ObjectFlags & 0x400) != 0;
+    public bool IsArchetypeObject => Object.IsArchetypeObject;
 }

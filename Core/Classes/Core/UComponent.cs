@@ -14,4 +14,7 @@ public class UComponent : UObject
         ownerPackage, objectArchetype)
     {
     }
+
+    public UClass? TemplateOwnerClass { get; set; } = null;
+    public string TemplateName { get; set; } = string.Empty;
 }

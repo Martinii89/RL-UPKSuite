@@ -75,6 +75,12 @@ public class UObject
 
     public List<FProperty> ScriptProperties { get; set; } = new();
 
+    public ulong ObjectFlags => ExportTableItem?.ObjectFlags ?? 0L;
+
+    public bool IsDefaultObject => (ObjectFlags & 0x200) != 0;
+
+    public bool IsArchetypeObject => (ObjectFlags & 0x400) != 0;
+
     /// <summary>
     ///     Deserialize this object using the owner package data stream
     /// </summary>
@@ -90,6 +96,20 @@ public class UObject
         OwnerPackage.PackageStream.Position = streamPosition;
         Serializer.DeserializeObject(this, OwnerPackage.PackageStream);
         IsDeserialized = true;
+    }
+
+    /// <summary>
+    ///     Enumerator for the outer chain
+    /// </summary>
+    /// <returns></returns>
+    public IEnumerable<UObject> GetOuterEnumerable()
+    {
+        var outer = Outer;
+        while (outer != null)
+        {
+            yield return outer;
+            outer = outer.Outer;
+        }
     }
 
     /// <inheritdoc />

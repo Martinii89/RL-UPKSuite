@@ -42,22 +42,33 @@ public class DefaultObjectSerializer : BaseObjectSerializer<UObject>
                 yield break;
             }
 
+            var typeFName = _fnameSerializer.Deserialize(objectStream);
+            var propType = Enum.Parse<PropertyType>(uObject.OwnerPackage.GetName(typeFName));
+
             FProperty property = new()
             {
                 Package = uObject.OwnerPackage,
-                FName = fName,
-                TypeFName = _fnameSerializer.Deserialize(objectStream),
+                Name = name,
+                Type = propType,
                 Size = objectStream.ReadInt32(),
                 ArrayIndex = objectStream.ReadInt32()
             };
-            if (property.TypeName == "BoolProperty")
+            switch (property.Type)
             {
-                objectStream.Move(1);
+                case PropertyType.BoolProperty:
+                    objectStream.Move(1);
+                    break;
+                case PropertyType.StructProperty:
+                    property.StructName = property.Package.GetName(_fnameSerializer.Deserialize(objectStream));
+                    break;
+                case PropertyType.ByteProperty:
+                    property.EnumName = property.Package.GetName(_fnameSerializer.Deserialize(objectStream));
+                    break;
             }
-            else
-            {
-                objectStream.Move(property.Size);
-            }
+
+            property.ValueStart = objectStream.Position;
+            objectStream.Move(property.Size);
+
 
             yield return property;
         }

@@ -78,12 +78,13 @@ public class UClass : UState
     /// <returns></returns>
     public UObject NewInstance(FName name, UObject? outer, UnrealPackage ownerPackage, UObject? archetype)
     {
-        if (InstanceConstructor is null)
+        var firstClassWithConstructor = GetSuperClassIterator().FirstOrDefault(x => x.InstanceConstructor is not null);
+        if (firstClassWithConstructor?.InstanceConstructor is null)
         {
             return new UObject(name, this, outer, ownerPackage, archetype);
         }
 
-        var obj = InstanceConstructor(name, outer, ownerPackage, archetype);
+        var obj = firstClassWithConstructor.InstanceConstructor(name, outer, ownerPackage, archetype);
         obj.Class = this;
         return obj;
     }
