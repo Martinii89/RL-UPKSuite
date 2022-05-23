@@ -43,6 +43,12 @@ public class UClass : UState
     /// </summary>
     public Func<FName, UObject?, UnrealPackage, UObject?, UObject>? InstanceConstructor { get; set; }
 
+    public ulong ClassFlags { get; set; }
+    public UObject? Within { get; set; }
+    public string ConfigName { get; set; }
+
+    public Dictionary<string, UComponent> ComponentsMap { get; set; } = new();
+
     /// <summary>
     ///     Returns the first instance serializer found. Walking up the SuperClass chain until one is found, or null if no
     ///     SuperClasses has one
