@@ -48,13 +48,13 @@ public class PackageLoader
         loader.LoadPackage(packageFilePath, packageName);
         var unrealPackage = loader.GetPackage(packageName);
 
-        //foreach (var obj in unrealPackage.ExportTable)
-        //{
-        //    if (!obj.Object?.IsDefaultObject ?? true)
-        //    {
-        //        obj.Object?.Deserialize();
-        //    }
-        //}
+        foreach (var obj in unrealPackage.ExportTable)
+        {
+            if (!obj.Object?.IsDefaultObject ?? true)
+            {
+                obj.Object?.Deserialize();
+            }
+        }
 
         return unrealPackage;
     }

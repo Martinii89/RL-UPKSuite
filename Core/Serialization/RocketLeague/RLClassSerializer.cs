@@ -4,16 +4,17 @@ using Core.Serialization.Abstraction;
 using Core.Types;
 using Core.Types.PackageTables;
 
-namespace Core.Serialization.Default.Object;
+namespace Core.Serialization.RocketLeague;
 
-public class DefaultClassSerializer : BaseObjectSerializer<UClass>
+[FileVersion(RocketLeagueBase.FileVersion)]
+public class RLClassSerializer : BaseObjectSerializer<UClass>
 {
     private readonly IStreamSerializerFor<FName> _fnameSerializer;
     private readonly IStreamSerializerFor<ObjectIndex> _objectIndexSerializer;
 
     private readonly IObjectSerializer<UState> _stateSerializer;
 
-    public DefaultClassSerializer(IObjectSerializer<UState> stateSerializer, IStreamSerializerFor<FName> fnameSerializer,
+    public RLClassSerializer(IObjectSerializer<UState> stateSerializer, IStreamSerializerFor<FName> fnameSerializer,
         IStreamSerializerFor<ObjectIndex> objectIndexSerializer)
     {
         _stateSerializer = stateSerializer;
@@ -26,6 +27,9 @@ public class DefaultClassSerializer : BaseObjectSerializer<UClass>
     {
         _stateSerializer.DeserializeObject(obj, objectStream);
         obj.ClassFlags = objectStream.ReadUInt32();
+        // RL specific
+        objectStream.Move(4);
+
         obj.Within = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream));
         obj.ConfigName = obj.OwnerPackage.GetName(_fnameSerializer.Deserialize(objectStream));
 

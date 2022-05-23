@@ -37,7 +37,7 @@ public interface IObjectSerializer
 ///     Generic version of a IObjectSerializer.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public interface IObjectSerializer<in T>
+public interface IObjectSerializer<in T> : IObjectSerializer
 {
     /// <summary>
     ///     Read the object properties from the stream
@@ -58,7 +58,7 @@ public interface IObjectSerializer<in T>
 ///     Base object serializer that forwards the typeless methods to the generic methods.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public abstract class BaseObjectSerializer<T> : IObjectSerializer<T>, IObjectSerializer
+public abstract class BaseObjectSerializer<T> : IObjectSerializer<T>
 {
     /// <inheritdoc />
     public bool ValidForType(Type type)

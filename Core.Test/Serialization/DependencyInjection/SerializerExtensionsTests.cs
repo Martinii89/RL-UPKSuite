@@ -4,6 +4,7 @@ using Core.Classes.Core;
 using Core.Serialization.Abstraction;
 using Core.Serialization.Default;
 using Core.Serialization.Default.Object;
+using Core.Serialization.RocketLeague;
 using Core.Serialization.Tests.TestClasses;
 using Core.Types;
 using FluentAssertions;
@@ -122,5 +123,23 @@ public class SerializerExtensionsTests
         factory.Should().NotBeNull();
         objectSerializer.Should().NotBeNull();
         objectSerializer.Should().BeOfType<DefaultObjectSerializer>();
+    }
+
+    [Fact]
+    public void AddSerializersTest_FactoryCanFindTaggedObjectSerializer()
+    {
+        // Arrange
+        var serviceColection = new ServiceCollection();
+        // Act
+        serviceColection.UseSerializers(typeof(DefaultObjectSerializer),
+            new SerializerOptions { FileVersion = RocketLeagueBase.FileVersion });
+        serviceColection.AddSingleton<IObjectSerializerFactory, ObjectSerializerFactory>();
+        var services = serviceColection.BuildServiceProvider();
+        var factory = services.GetService<IObjectSerializerFactory>();
+        var objectSerializer = factory!.GetSerializer(typeof(UClass));
+        // Assert
+        factory.Should().NotBeNull();
+        objectSerializer.Should().NotBeNull();
+        objectSerializer.Should().BeOfType<RLClassSerializer>();
     }
 }

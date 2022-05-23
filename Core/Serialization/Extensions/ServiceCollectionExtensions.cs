@@ -129,12 +129,12 @@ public static class SerializerExtensions
             var serializerInterfaces = new List<Type>();
             serializerInterfaces.AddRange(GetImplementedGenericSerializersOnType(type, SerializerInterfaceType));
             serializerInterfaces.AddRange(GetImplementedGenericSerializersOnType(type, GenericObjectSerializers));
-            if (ImplementeInterface(type, ObjectSerializers))
-            {
-                serializerInterfaces.Add(ObjectSerializers);
-            }
+            //if (ImplementeInterface(type, ObjectSerializers))
+            //{
+            //    serializerInterfaces.Add(ObjectSerializers);
+            //}
 
-            if (serializerInterfaces.Any() || ImplementeInterface(type, ObjectSerializers))
+            if (serializerInterfaces.Any())
             {
                 types.Add(new AssemblySearchResult(type)
                 {
@@ -172,19 +172,34 @@ public static class SerializerExtensions
     public static IServiceCollection UseSerializers(this IServiceCollection services, Assembly assembly, SerializerOptions options)
     {
         var serializersToAdd = GetSerializersFromAssembly(assembly, options.FileVersion);
-        if (options.UseDefaultSerializers == SerializerOptions.DefaultSerializers.Yes && !string.IsNullOrEmpty(options.FileVersion))
-        {
-            var defaultTypes = GetSerializersFromAssembly(options.DefaultAssembly ?? assembly, "");
-            // The default serializers should go first in the list so the version specific serializers comes later and replaces the defaults.
-            defaultTypes.AddRange(serializersToAdd);
-            serializersToAdd = defaultTypes;
-        }
-
+        Dictionary<Type, Type> interfaceImplementationMap = new();
         foreach (var scanResult in serializersToAdd)
         {
             foreach (var serializerInterface in scanResult.Interfaces)
             {
-                AddOrReplaceSingletonService(services, serializerInterface, scanResult.Type);
+                interfaceImplementationMap.Add(serializerInterface, scanResult.Type);
+            }
+        }
+
+        if (options.UseDefaultSerializers == SerializerOptions.DefaultSerializers.Yes && !string.IsNullOrEmpty(options.FileVersion))
+        {
+            var defaultTypes = GetSerializersFromAssembly(options.DefaultAssembly ?? assembly, "");
+            foreach (var scanResult in defaultTypes)
+            {
+                foreach (var serializerInterface in scanResult.Interfaces.Where(serializerInterface =>
+                             !interfaceImplementationMap.ContainsKey(serializerInterface)))
+                {
+                    interfaceImplementationMap.Add(serializerInterface, scanResult.Type);
+                }
+            }
+        }
+
+        foreach (var (@interface, type) in interfaceImplementationMap)
+        {
+            AddOrReplaceSingletonService(services, @interface, type);
+            if (type.IsAssignableTo(ObjectSerializers))
+            {
+                AddOrReplaceSingletonService(services, ObjectSerializers, type);
             }
         }
 
@@ -220,8 +235,8 @@ public static class SerializerExtensions
 
     private class AssemblySearchResult
     {
-        public List<Type> Interfaces = new();
         public readonly Type Type;
+        public List<Type> Interfaces = new();
         public string VersionInfo = string.Empty;
 
         public AssemblySearchResult(Type type)
