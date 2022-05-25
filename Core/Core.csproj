@@ -10,7 +10,6 @@
   <ItemGroup>
     <Folder Include="Flags\" />
     <Folder Include="Serialization\Default\Object\" />
-    <Folder Include="Serialization\RocketLeague\" />
     <Folder Include="Types\PackageTables\" />
   </ItemGroup>
 

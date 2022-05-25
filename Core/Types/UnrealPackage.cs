@@ -248,7 +248,7 @@ public class UnrealPackage
     public string GetName(FName name)
     {
 #if DEBUG
-        if (name.NameIndex >= NameTable.Count)
+        if (name.NameIndex >= NameTable.Count || name.NameIndex < 0)
         {
             Debugger.Break();
             //throw new IndexOutOfRangeException($"Invalid FName index {name.NameIndex}");
