@@ -253,8 +253,11 @@ public class UnrealPackage
             Debugger.Break();
             //throw new IndexOutOfRangeException($"Invalid FName index {name.NameIndex}");
         }
+
 #endif
-        return NameTable[name.NameIndex].Name;
+        var s = NameTable[name.NameIndex].Name;
+        //return s;
+        return name.InstanceNumber != 0 ? $"{s}_{name.InstanceNumber}" : s;
     }
 
     /// <summary>

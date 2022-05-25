@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using Core.Classes.Core.Properties;
 using Core.Serialization.Abstraction;
 using Core.Types;
@@ -81,20 +83,34 @@ public class UObject
 
     public bool IsArchetypeObject => (ObjectFlags & 0x400) != 0;
 
+    private Stream? OwnerPackageStream => OwnerPackage.PackageStream;
+
+    [MemberNotNullWhen(false, nameof(ExportTableItem))]
+    [MemberNotNullWhen(false, nameof(OwnerPackageStream))]
+    [MemberNotNullWhen(false, nameof(Serializer))]
+    public bool CanNotDeserialize()
+    {
+        return IsDeserialized || Serializer is null || ExportTableItem is null || ExportTableItem.SerialSize == 0 || OwnerPackage?.PackageStream is null;
+    }
+
     /// <summary>
     ///     Deserialize this object using the owner package data stream
     /// </summary>
     public void Deserialize()
     {
-        // Can't deserialize without a export table item or a serializer 
-        if (IsDeserialized || Serializer is null || ExportTableItem is null || OwnerPackage.PackageStream is null)
+        if (CanNotDeserialize())
         {
             return;
         }
 
         var streamPosition = ExportTableItem.SerialOffset;
-        OwnerPackage.PackageStream.Position = streamPosition;
-        Serializer.DeserializeObject(this, OwnerPackage.PackageStream);
+        OwnerPackageStream.Position = streamPosition;
+        Serializer.DeserializeObject(this, OwnerPackageStream);
+        if (OwnerPackageStream.Position != ExportTableItem!.SerialOffset + ExportTableItem.SerialSize)
+        {
+            Debugger.Break();
+        }
+
         IsDeserialized = true;
     }
 

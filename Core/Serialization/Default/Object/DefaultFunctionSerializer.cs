@@ -23,7 +23,7 @@ public class DefaultFunctionSerializer : BaseObjectSerializer<UFunction>
         obj.INative = objectStream.ReadUInt16();
         obj.OperPrecedence = (byte) objectStream.ReadByte();
         obj.FunctionFlags = objectStream.ReadUInt32();
-        objectStream.Move(4);
+        //objectStream.Move(4);
 
         if (obj.HasFunctionFlag(FunctionFlags.Net))
         {

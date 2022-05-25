@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Core.Classes;
+﻿using Core.Classes;
 using Core.Classes.Core;
 using Core.Classes.Core.Properties;
 using Core.Serialization.Abstraction;
@@ -71,10 +70,14 @@ public class RLClassSerializer : BaseObjectSerializer<UClass>
 
         obj.DllBindNameOrDummy = obj.OwnerPackage.GetName(_fnameSerializer.Deserialize(objectStream));
         obj.DefaultObject = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream));
-        objectStream.Move(4);
-        if (objectStream.Position != obj.ExportTableItem!.SerialOffset + obj.ExportTableItem.SerialSize)
+        var stateCount = objectStream.ReadInt32();
+        for (var i = 0; i < stateCount; i++)
         {
-            Debugger.Break();
+            var stateName = obj.OwnerPackage.GetName(_fnameSerializer.Deserialize(objectStream));
+            if (obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream)) is UState stateObj)
+            {
+                obj.StateMap.Add(stateName, stateObj);
+            }
         }
     }
 

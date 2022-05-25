@@ -53,6 +53,7 @@ public class UClass : UState
 
     public Dictionary<string, UComponent> ComponentNameToDefaultObjectMap { get; set; } = new();
     public Dictionary<UObject, UProperty> InterfaceMap { get; set; } = new();
+    public Dictionary<string, UState> StateMap { get; set; } = new();
     public List<FName> DontSortCategories { get; set; }
     public List<FName> HideCategories { get; set; }
     public List<FName> AutoExpandCategories { get; set; }
