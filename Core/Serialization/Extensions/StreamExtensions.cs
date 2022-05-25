@@ -16,6 +16,11 @@ public static class StreamExtensions
     public static string ReadFString(this Stream stream)
     {
         var length = stream.ReadInt32();
+        if (length == 0)
+        {
+            return string.Empty;
+        }
+
         var stringBytes = stream.ReadBytes(length - 1);
         stream.Move(1); //skip the zero termination
         return Encoding.UTF8.GetString(stringBytes);

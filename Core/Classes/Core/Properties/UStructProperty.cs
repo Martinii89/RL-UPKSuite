@@ -14,4 +14,6 @@ public class UStructProperty : UProperty
         ownerPackage, objectArchetype)
     {
     }
+
+    public UStruct? Struct { get; set; }
 }

@@ -14,4 +14,6 @@ public class UInterfaceProperty : UProperty
         ownerPackage, objectArchetype)
     {
     }
+
+    public UClass? InterfaceClass { get; set; }
 }

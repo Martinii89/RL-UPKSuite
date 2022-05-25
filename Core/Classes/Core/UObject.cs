@@ -126,7 +126,6 @@ public class UObject
             outer = outer.Outer;
         }
 
-
         return stringBuilder.ToString();
     }
 }

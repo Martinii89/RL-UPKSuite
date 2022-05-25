@@ -14,4 +14,6 @@ public class UObjectProperty : UProperty
         ownerPackage, objectArchetype)
     {
     }
+
+    public UObject? Object { get; set; }
 }

@@ -14,4 +14,7 @@ public class UMapProperty : UProperty
         ownerPackage, objectArchetype)
     {
     }
+
+    public UProperty? Key { get; set; }
+    public UProperty? Value { get; set; }
 }

@@ -1,4 +1,5 @@
-﻿using Core.Types;
+﻿using Core.Flags;
+using Core.Types;
 
 namespace Core.Classes.Core.Properties;
 
@@ -19,5 +20,16 @@ public class UProperty : UField
     public UProperty(FName name, UClass? @class, UObject? outer, UnrealPackage ownerPackage, UObject? objectArchetype = null) : base(name, @class, outer,
         ownerPackage, objectArchetype)
     {
+    }
+
+    public int ArrayDim { get; set; }
+    public ulong PropertyFlags { get; set; }
+    public string Category { get; set; }
+    public UEnum? ArraySizeEnum { get; set; }
+    public ushort RepOffset { get; set; }
+
+    public bool HasPropertyFlag(PropertyFlagsLO flag)
+    {
+        return ((uint) (PropertyFlags & 0x00000000FFFFFFFFU) & (uint) flag) != 0;
     }
 }

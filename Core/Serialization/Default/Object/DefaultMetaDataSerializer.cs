@@ -24,7 +24,7 @@ public class DefaultMetaDataSerializer : BaseObjectSerializer<UMetaData>
     public override void DeserializeObject(UMetaData obj, Stream objectStream)
     {
         _objectSerializer.DeserializeObject(obj, objectStream);
-
+        return;
         var numElements = objectStream.ReadInt32();
         for (var i = 0; i < numElements; i++)
         {

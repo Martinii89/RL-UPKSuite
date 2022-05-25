@@ -14,4 +14,6 @@ public class UByteProperty : UProperty
         ownerPackage, objectArchetype)
     {
     }
+
+    public UEnum? Enum { get; set; }
 }

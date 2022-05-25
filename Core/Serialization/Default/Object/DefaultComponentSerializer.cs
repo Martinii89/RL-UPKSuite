@@ -26,10 +26,26 @@ public class DefaultComponentSerializer : BaseObjectSerializer<UComponent>
         obj.TemplateOwnerClass = obj.OwnerPackage.GetObject(_objectIndexSerialiser.Deserialize(objectStream)) as UClass;
         if (obj.IsDefaultObject || obj.GetOuterEnumerable().Any(x => x.IsDefaultObject))
         {
-            obj.TemplateName = obj.OwnerPackage.GetName(_fnameSerializer.Deserialize(objectStream));
+            var fName = _fnameSerializer.Deserialize(objectStream);
+            //components are weird. some of them have 4 bytes of extra data....
+            if (fName.NameIndex == 0)
+            {
+                obj.ExtraFourBytes = true;
+                objectStream.Move(-4);
+                fName = _fnameSerializer.Deserialize(objectStream);
+            }
+
+            obj.TemplateName = obj.OwnerPackage.GetName(fName);
         }
 
-        _objectSerializer.DeserializeObject(obj, objectStream);
+        try
+        {
+            _objectSerializer.DeserializeObject(obj, objectStream);
+        }
+        catch (Exception e)
+        {
+            throw new Exception($"Failed to deserialize a UComponent: {obj}");
+        }
     }
 
     public override void SerializeObject(UComponent obj, Stream objectStream)

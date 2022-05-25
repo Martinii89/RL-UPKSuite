@@ -17,4 +17,5 @@ public class UComponent : UObject
 
     public UClass? TemplateOwnerClass { get; set; } = null;
     public string TemplateName { get; set; } = string.Empty;
+    public bool ExtraFourBytes { get; set; } = false;
 }

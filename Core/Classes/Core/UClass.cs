@@ -1,4 +1,5 @@
-﻿using Core.Serialization.Abstraction;
+﻿using Core.Classes.Core.Properties;
+using Core.Serialization.Abstraction;
 using Core.Types;
 
 namespace Core.Classes.Core;
@@ -22,6 +23,9 @@ public class UClass : UState
     {
         SuperClass = superClass;
     }
+
+    public string DllBindNameOrDummy { get; set; }
+    public UObject? DefaultObject { get; set; }
 
     /// <summary>
     ///     The UClass "class". Every UObject that is a class object will have this as their Class member
@@ -48,6 +52,14 @@ public class UClass : UState
     public string ConfigName { get; set; }
 
     public Dictionary<string, UComponent> ComponentNameToDefaultObjectMap { get; set; } = new();
+    public Dictionary<UObject, UProperty> InterfaceMap { get; set; } = new();
+    public List<FName> DontSortCategories { get; set; }
+    public List<FName> HideCategories { get; set; }
+    public List<FName> AutoExpandCategories { get; set; }
+    public List<FName> AutoCollapseCategories { get; set; }
+    public int ForceScriptOrder { get; set; }
+    public List<FName> ClassGroups { get; set; }
+    public string NativeClassName { get; set; }
 
     /// <summary>
     ///     Returns the first instance serializer found. Walking up the SuperClass chain until one is found, or null if no

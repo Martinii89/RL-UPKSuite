@@ -50,7 +50,7 @@ public class PackageLoader
 
         foreach (var obj in unrealPackage.ExportTable)
         {
-            if (!obj.Object?.IsDefaultObject ?? true)
+            if (!obj.Object?.IsDefaultObject ?? false)
             {
                 obj.Object?.Deserialize();
             }

@@ -14,4 +14,7 @@ public class UDelegateProperty : UProperty
         ownerPackage, objectArchetype)
     {
     }
+
+    public UFunction? FunctionObject { get; set; }
+    public UObject? DelegateObject { get; set; }
 }

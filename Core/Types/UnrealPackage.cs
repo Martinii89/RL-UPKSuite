@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System.Text;
 using Core.Classes;
 using Core.Classes.Core;
 using Core.Serialization;
@@ -249,7 +250,8 @@ public class UnrealPackage
 #if DEBUG
         if (name.NameIndex >= NameTable.Count)
         {
-            throw new IndexOutOfRangeException($"Invalid FName index {name.NameIndex}");
+            Debugger.Break();
+            //throw new IndexOutOfRangeException($"Invalid FName index {name.NameIndex}");
         }
 #endif
         return NameTable[name.NameIndex].Name;

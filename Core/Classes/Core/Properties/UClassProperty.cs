@@ -14,4 +14,6 @@ public class UClassProperty : UObjectProperty
         ownerPackage, objectArchetype)
     {
     }
+
+    public UClass? MetaClass { get; set; }
 }

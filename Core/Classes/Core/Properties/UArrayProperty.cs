@@ -14,4 +14,6 @@ public class UArrayProperty : UProperty
         ownerPackage, objectArchetype)
     {
     }
+
+    public UProperty? InnerProperty { get; set; }
 }
