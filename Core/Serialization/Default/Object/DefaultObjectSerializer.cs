@@ -1,7 +1,9 @@
 ﻿using Core.Classes.Core;
 using Core.Classes.Core.Properties;
+using Core.Flags;
 using Core.Serialization.Abstraction;
 using Core.Types;
+using Core.Types.PackageTables;
 
 namespace Core.Serialization.Default.Object;
 
@@ -11,15 +13,27 @@ namespace Core.Serialization.Default.Object;
 public class DefaultObjectSerializer : BaseObjectSerializer<UObject>
 {
     private readonly IStreamSerializerFor<FName> _fnameSerializer;
+    private readonly IStreamSerializerFor<ObjectIndex> _objectIndexSerializer;
 
-    public DefaultObjectSerializer(IStreamSerializerFor<FName> fnameSerializer)
+    public DefaultObjectSerializer(IStreamSerializerFor<FName> fnameSerializer, IStreamSerializerFor<ObjectIndex> objectIndexSerializer)
     {
         _fnameSerializer = fnameSerializer;
+        _objectIndexSerializer = objectIndexSerializer;
     }
 
     /// <inheritdoc />
     public override void DeserializeObject(UObject obj, Stream objectStream)
     {
+        if (obj.HasObjectFlag(ObjectFlagsLO.HasStack))
+        {
+            var node = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream));
+            var stateNode = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream));
+            var probeMask = objectStream.ReadUInt32();
+            var latentAction = objectStream.ReadUInt16();
+            var stateStackCount = objectStream.ReadUInt32();
+            var offset = objectStream.ReadInt32();
+        }
+
         obj.NetIndex = objectStream.ReadInt32();
 
         if (obj.Class == UClass.StaticClass)
@@ -30,12 +44,12 @@ public class DefaultObjectSerializer : BaseObjectSerializer<UObject>
         obj.ScriptProperties.AddRange(GetScriptProperties(obj, objectStream));
     }
 
-    private IEnumerable<FProperty> GetScriptProperties(UObject uObject, Stream objectStream)
+    private IEnumerable<FProperty> GetScriptProperties(UObject obj, Stream objectStream)
     {
         while (true)
         {
             var fName = _fnameSerializer.Deserialize(objectStream);
-            var name = uObject.OwnerPackage.GetName(fName);
+            var name = obj.OwnerPackage.GetName(fName);
 
             if (name == "None")
             {
@@ -43,11 +57,11 @@ public class DefaultObjectSerializer : BaseObjectSerializer<UObject>
             }
 
             var typeFName = _fnameSerializer.Deserialize(objectStream);
-            var propType = Enum.Parse<PropertyType>(uObject.OwnerPackage.GetName(typeFName));
+            var propType = Enum.Parse<PropertyType>(obj.OwnerPackage.GetName(typeFName));
 
             FProperty property = new()
             {
-                Package = uObject.OwnerPackage,
+                Package = obj.OwnerPackage,
                 Name = name,
                 Type = propType,
                 Size = objectStream.ReadInt32(),
@@ -72,26 +86,6 @@ public class DefaultObjectSerializer : BaseObjectSerializer<UObject>
 
             yield return property;
         }
-    }
-
-    private bool SerializeScriptProperties(UObject uObject, Stream objectStream)
-    {
-        // skip em all for now
-        var fName = _fnameSerializer.Deserialize(objectStream);
-        var name = uObject.OwnerPackage.GetName(fName);
-
-        if (name == "None")
-        {
-            return false;
-        }
-
-        var typeFName = _fnameSerializer.Deserialize(objectStream);
-        var typeName = uObject.OwnerPackage.GetName(typeFName);
-        var size = objectStream.ReadInt32();
-        var arrayIndex = objectStream.ReadInt32();
-        objectStream.Move(size);
-
-        return true;
     }
 
     /// <inheritdoc />

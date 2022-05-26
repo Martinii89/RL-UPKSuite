@@ -155,6 +155,37 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
         _testOutputHelper.WriteLine($"Initialized {string.Join(',', package.PackageClasses.Select(x => x.Name))}");
     }
 
+    [Theory]
+    [InlineData("BrushComponent")]
+    [InlineData("PrimitiveComponent")]
+    [InlineData("ActorComponent")]
+    public void EnginePackage_InitializesNativeClasses(string className)
+    {
+        // Arrange
+
+        var corePackage = _udkPackageSerializer.Deserialize(_packageStreams.CoreStream);
+        corePackage.PostDeserializeInitialize("Core");
+        var packageCache = Substitute.For<IPackageCache>();
+        packageCache.GetCachedPackage("Core").Returns(corePackage);
+
+        var package = _udkPackageSerializer.Deserialize(_packageStreams.EngineStream);
+        package.ImportResolver = packageCache;
+        package.PostDeserializeInitialize("Engine");
+        // Act
+
+        var @class = package.FindClass(className);
+
+        // Assert 
+        @class.Should().NotBeNull();
+        @class!.Name.Should().Be(className);
+        @class.Outer.Should().NotBeNull();
+        @class.Outer!.Name.Should().Be("Engine");
+        @class.Class.Should().NotBeNull();
+        @class.Class!.Name.Should().Be("Class");
+        _testOutputHelper.WriteLine($"Initialized {package.PackageClasses.Count} classes from Core");
+        _testOutputHelper.WriteLine($"Initialized {string.Join(',', package.PackageClasses.Select(x => x.Name))}");
+    }
+
     [Fact]
     public void CorePackage_InitializesNativeClasses_NoDuplicates()
     {

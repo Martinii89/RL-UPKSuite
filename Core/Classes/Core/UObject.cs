@@ -1,7 +1,7 @@
-﻿using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Core.Classes.Core.Properties;
+using Core.Flags;
 using Core.Serialization.Abstraction;
 using Core.Types;
 using Core.Types.PackageTables;
@@ -85,10 +85,14 @@ public class UObject
 
     private Stream? OwnerPackageStream => OwnerPackage.PackageStream;
 
+    public long DeserializationOffsetEnd { get; set; }
+
+    public bool FullyDeserialized { get; set; }
+
     [MemberNotNullWhen(false, nameof(ExportTableItem))]
     [MemberNotNullWhen(false, nameof(OwnerPackageStream))]
     [MemberNotNullWhen(false, nameof(Serializer))]
-    public bool CanNotDeserialize()
+    internal bool CanNotDeserialize()
     {
         return IsDeserialized || Serializer is null || ExportTableItem is null || ExportTableItem.SerialSize == 0 || OwnerPackage?.PackageStream is null;
     }
@@ -106,12 +110,21 @@ public class UObject
         var streamPosition = ExportTableItem.SerialOffset;
         OwnerPackageStream.Position = streamPosition;
         Serializer.DeserializeObject(this, OwnerPackageStream);
-        if (OwnerPackageStream.Position != ExportTableItem!.SerialOffset + ExportTableItem.SerialSize)
+
+        // Store meta data about the deserialization for manual debugging purposes
+        DeserializationOffsetEnd = OwnerPackageStream.Position - ExportTableItem!.SerialOffset;
+        FullyDeserialized = OwnerPackageStream.Position == ExportTableItem!.SerialOffset + ExportTableItem.SerialSize;
+        if (!FullyDeserialized)
         {
-            Debugger.Break();
+            //Debugger.Break();
         }
 
         IsDeserialized = true;
+    }
+
+    public bool HasObjectFlag(ObjectFlagsLO flag)
+    {
+        return ((ObjectFlags >> 32) & (uint) flag) != 0;
     }
 
     /// <summary>

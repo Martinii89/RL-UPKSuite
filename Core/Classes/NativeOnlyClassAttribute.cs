@@ -12,12 +12,19 @@ public class NativeOnlyClassAttribute : Attribute
     /// <param name="packageName"></param>
     /// <param name="className"></param>
     /// <param name="superClass"></param>
-    public NativeOnlyClassAttribute(string packageName, string className, string superClass = "")
+    /// <param name="superType"></param>
+    public NativeOnlyClassAttribute(string packageName, string className, string superClass = "", Type? superType = null)
     {
+        SuperType = superType;
         ClassName = className;
         SuperClass = superClass;
         PackageName = packageName;
     }
+
+    /// <summary>
+    ///     The SuperType
+    /// </summary>
+    public Type? SuperType { get; }
 
     /// <summary>
     ///     The name other objects should use to find this class

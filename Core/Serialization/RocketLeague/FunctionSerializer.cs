@@ -3,14 +3,15 @@ using Core.Flags;
 using Core.Serialization.Abstraction;
 using Core.Types;
 
-namespace Core.Serialization.Default.Object;
+namespace Core.Serialization.RocketLeague;
 
-public class DefaultFunctionSerializer : BaseObjectSerializer<UFunction>
+[FileVersion(RocketLeagueBase.FileVersion)]
+public class FunctionSerializer : BaseObjectSerializer<UFunction>
 {
     private readonly IStreamSerializerFor<FName> _fnameSerializer;
     private readonly IObjectSerializer<UStruct> _structSerializer;
 
-    public DefaultFunctionSerializer(IObjectSerializer<UStruct> structSerializer, IStreamSerializerFor<FName> fnameSerializer)
+    public FunctionSerializer(IObjectSerializer<UStruct> structSerializer, IStreamSerializerFor<FName> fnameSerializer)
     {
         _structSerializer = structSerializer;
         _fnameSerializer = fnameSerializer;
@@ -23,12 +24,12 @@ public class DefaultFunctionSerializer : BaseObjectSerializer<UFunction>
         obj.INative = objectStream.ReadUInt16();
         obj.OperPrecedence = (byte) objectStream.ReadByte();
         obj.FunctionFlags = objectStream.ReadUInt32();
+        objectStream.Move(4); // RL specific (flags probably 64 bit now)
 
         if (obj.HasFunctionFlag(FunctionFlags.Net))
         {
             obj.RepOffset = objectStream.ReadUInt16();
         }
-
 
         obj.FriendlyName = obj.OwnerPackage.GetName(_fnameSerializer.Deserialize(objectStream));
     }

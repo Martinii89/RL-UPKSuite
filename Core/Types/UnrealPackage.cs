@@ -48,6 +48,7 @@ public class UnrealPackageOptions
 public class UnrealPackage
 {
     private const string CorePackageName = "Core";
+    private const string EnginePackageName = "Engine";
 
     /// <summary>
     ///     A List of classes defined in this package.
@@ -145,13 +146,15 @@ public class UnrealPackage
         PackageName = packageName;
 
         PackageRoot = new UPackage(GetOrAddName(packageName), null, null, this);
-        if (PackageName == CorePackageName)
+        switch (PackageName)
         {
-            AddCoreNativeClasses();
-        }
-        else
-        {
-            AddNativeClassesFromImports();
+            case CorePackageName:
+            case EnginePackageName:
+                AddCoreNativeClasses();
+                break;
+            default:
+                AddNativeClassesFromImports();
+                break;
         }
 
         var packageClass = FindClass("Package");
@@ -475,19 +478,19 @@ public class UnrealPackage
     {
         ArgumentNullException.ThrowIfNull(PackageRoot);
 
-        if (PackageName != "Core")
-        {
-            return;
-        }
+        //if (PackageName != "Core")
+        //{
+        //    return;
+        //}
 
 
-        var corePackageImport = ImportTable.FirstOrDefault(x => GetName(x.ObjectName) == "Core" && GetName(x.ClassName) == "Package");
+        var corePackageImport = ImportTable.FirstOrDefault(x => GetName(x.ObjectName) == PackageName && GetName(x.ClassName) == "Package");
         ArgumentNullException.ThrowIfNull(corePackageImport);
         corePackageImport.ImportedObject = PackageRoot;
         var nativeClassHelper = new NativeClassRegistrationHelper(PackageRoot);
         var nativeClasses = nativeClassHelper.GetNativeClasses(this);
 
-        var coreFName = NameTable.FindIndex(x => x.Name == "Core");
+        var coreFName = NameTable.FindIndex(x => x.Name == PackageName);
         var classFName = NameTable.FindIndex(x => x.Name == "Class");
         UClass.StaticClass = nativeClasses["Class"];
 
