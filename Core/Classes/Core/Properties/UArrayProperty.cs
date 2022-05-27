@@ -5,7 +5,7 @@ namespace Core.Classes.Core.Properties;
 /// <summary>
 ///     Property representing an array of values
 /// </summary>
-[NativeOnlyClass("Core", "ArrayProperty", "Property")]
+[NativeOnlyClass("Core", "ArrayProperty", typeof(UProperty))]
 public class UArrayProperty : UProperty
 {
     /// <inheritdoc />

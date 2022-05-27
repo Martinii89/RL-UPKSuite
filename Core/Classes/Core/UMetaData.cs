@@ -6,7 +6,7 @@ namespace Core.Classes;
 /// <summary>
 ///     Holds a TMap of key\value pairs
 /// </summary>
-[NativeOnlyClass("Core", "MetaData", "Object")]
+[NativeOnlyClass("Core", "MetaData", typeof(UObject))]
 public class UMetaData : UObject
 {
     /// <inheritdoc />

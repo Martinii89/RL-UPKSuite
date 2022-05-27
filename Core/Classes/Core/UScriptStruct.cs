@@ -6,7 +6,7 @@ namespace Core.Classes;
 /// <summary>
 ///     A struct definition for unreal script
 /// </summary>
-[NativeOnlyClass("Core", "ScriptStruct", "Struct")]
+[NativeOnlyClass("Core", "ScriptStruct", typeof(UStruct))]
 public class UScriptStruct : UStruct
 {
     /// <inheritdoc />

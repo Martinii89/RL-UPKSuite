@@ -6,7 +6,7 @@ namespace Core.Classes;
 /// <summary>
 ///     A Component object
 /// </summary>
-[NativeOnlyClass("Core", "Component", "Object")]
+[NativeOnlyClass("Core", "Component", typeof(UObject))]
 public class UComponent : UObject
 {
     /// <inheritdoc />

@@ -5,7 +5,7 @@ namespace Core.Classes.Core.Properties;
 /// <summary>
 ///     Delegate property
 /// </summary>
-[NativeOnlyClass("Core", "DelegateProperty", "Property")]
+[NativeOnlyClass("Core", "DelegateProperty", typeof(UProperty))]
 public class UDelegateProperty : UProperty
 {
     /// <inheritdoc />

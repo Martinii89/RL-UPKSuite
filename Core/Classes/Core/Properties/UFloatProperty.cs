@@ -5,7 +5,7 @@ namespace Core.Classes.Core.Properties;
 /// <summary>
 ///     Property for a float value
 /// </summary>
-[NativeOnlyClass("Core", "FloatProperty", "Property")]
+[NativeOnlyClass("Core", "FloatProperty", typeof(UProperty))]
 public class UFloatProperty : UProperty
 {
     /// <inheritdoc />

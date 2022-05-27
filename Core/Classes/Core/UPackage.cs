@@ -6,7 +6,7 @@ namespace Core.Classes;
 /// <summary>
 ///     A UPackage object is a organizing object that holds a group of other objects.
 /// </summary>
-[NativeOnlyClass("Core", "Package", "Object")]
+[NativeOnlyClass("Core", "Package", typeof(UObject))]
 public class UPackage : UObject
 {
     /// <inheritdoc />

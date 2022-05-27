@@ -6,7 +6,7 @@ namespace Core.Classes;
 /// <summary>
 ///     Base type for all unreal script objects with fields
 /// </summary>
-[NativeOnlyClass("Core", "Struct", "Field")]
+[NativeOnlyClass("Core", "Struct", typeof(UField))]
 public class UStruct : UField
 {
     /// <inheritdoc />

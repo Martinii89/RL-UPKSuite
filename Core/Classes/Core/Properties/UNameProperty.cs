@@ -5,7 +5,7 @@ namespace Core.Classes.Core.Properties;
 /// <summary>
 ///     A property for a FName value
 /// </summary>
-[NativeOnlyClass("Core", "NameProperty", "Property")]
+[NativeOnlyClass("Core", "NameProperty", typeof(UProperty))]
 public class UNameProperty : UProperty
 {
     /// <inheritdoc />

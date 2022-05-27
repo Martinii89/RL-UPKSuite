@@ -5,7 +5,7 @@ namespace Core.Classes.Core.Properties;
 /// <summary>
 ///     A Property for a FString value.
 /// </summary>
-[NativeOnlyClass("Core", "StrProperty", "Property")]
+[NativeOnlyClass("Core", "StrProperty", typeof(UProperty))]
 public class UStrProperty : UProperty
 {
     /// <inheritdoc />

@@ -5,7 +5,7 @@ namespace Core.Classes.Core.Properties;
 /// <summary>
 ///     A property for a int value
 /// </summary>
-[NativeOnlyClass("Core", "IntProperty", "Property")]
+[NativeOnlyClass("Core", "IntProperty", typeof(UProperty))]
 public class UIntProperty : UProperty
 {
     /// <inheritdoc />

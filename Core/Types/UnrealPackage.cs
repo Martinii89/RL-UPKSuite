@@ -152,10 +152,9 @@ public class UnrealPackage
             case EnginePackageName:
                 AddCoreNativeClasses();
                 break;
-            default:
-                AddNativeClassesFromImports();
-                break;
         }
+
+        AddNativeClassesFromImports();
 
         var packageClass = FindClass("Package");
         PackageRoot.Class = packageClass;
@@ -163,7 +162,7 @@ public class UnrealPackage
 
     private void AddNativeClassesFromImports()
     {
-        var nativeObjects = GetNativeObjectsFromImportsInPackage();
+        var nativeObjects = GetNativeObjectsFromImportsInPackage().Where(x => x.ImportedObject is null).ToList();
         var nativeClasses = nativeObjects.Where(x => GetName(x.ClassName) == "Class").ToList();
 
         foreach (var nativeClass in nativeClasses)

@@ -5,7 +5,7 @@ namespace Core.Classes.Core.Properties;
 /// <summary>
 ///     A property for a class reference
 /// </summary>
-[NativeOnlyClass("Core", "ClassProperty", "ObjectProperty")]
+[NativeOnlyClass("Core", "ClassProperty", typeof(UObjectProperty))]
 public class UClassProperty : UObjectProperty
 {
     /// <inheritdoc />

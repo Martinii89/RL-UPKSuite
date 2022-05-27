@@ -11,13 +11,11 @@ public class NativeOnlyClassAttribute : Attribute
     /// </summary>
     /// <param name="packageName"></param>
     /// <param name="className"></param>
-    /// <param name="superClass"></param>
     /// <param name="superType"></param>
-    public NativeOnlyClassAttribute(string packageName, string className, string superClass = "", Type? superType = null)
+    public NativeOnlyClassAttribute(string packageName, string className, Type? superType = null)
     {
         SuperType = superType;
         ClassName = className;
-        SuperClass = superClass;
         PackageName = packageName;
     }
 
@@ -34,7 +32,8 @@ public class NativeOnlyClassAttribute : Attribute
     /// <summary>
     ///     The name of the super class. May be empty
     /// </summary>
-    public string SuperClass { get; }
+    public string SuperClass => SuperType == null ? string.Empty : SuperType.Name[1..];
+
 
     /// <summary>
     ///     The outer for this class. The package where it should be injected

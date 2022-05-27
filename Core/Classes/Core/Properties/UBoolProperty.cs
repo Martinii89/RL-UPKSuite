@@ -5,7 +5,7 @@ namespace Core.Classes.Core.Properties;
 /// <summary>
 ///     A Bool property
 /// </summary>
-[NativeOnlyClass("Core", "BoolProperty", "Property")]
+[NativeOnlyClass("Core", "BoolProperty", typeof(UProperty))]
 public class UBoolProperty : UProperty
 {
     /// <inheritdoc />

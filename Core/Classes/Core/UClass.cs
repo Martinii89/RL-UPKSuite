@@ -7,7 +7,7 @@ namespace Core.Classes.Core;
 /// <summary>
 ///     The Unreal script class object. The type of every UObject is controlled by it's UClass member.
 /// </summary>
-[NativeOnlyClass("Core", "Class", "State")]
+[NativeOnlyClass("Core", "Class", typeof(UState))]
 public class UClass : UState
 {
     /// <summary>
@@ -35,7 +35,7 @@ public class UClass : UState
     /// <summary>
     ///     The base of this class
     /// </summary>
-    public UClass? SuperClass { get; init; }
+    public UClass? SuperClass { get; set; }
 
     /// <summary>
     ///     Serializer compatible with instances of this class
@@ -106,5 +106,13 @@ public class UClass : UState
         var obj = firstClassWithConstructor.InstanceConstructor(name, outer, ownerPackage, archetype);
         obj.Class = this;
         return obj;
+    }
+
+    public void MoveStubClassToOwnerPackage(UnrealPackage ownerPackage)
+    {
+        var name = Name;
+        _FName = ownerPackage.GetOrAddName(name);
+        OwnerPackage = ownerPackage;
+        Outer = ownerPackage.PackageRoot;
     }
 }

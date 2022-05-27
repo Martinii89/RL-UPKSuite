@@ -5,7 +5,7 @@ namespace Core.Classes.Core.Properties;
 /// <summary>
 ///     Property for a UStruct value
 /// </summary>
-[NativeOnlyClass("Core", "StructProperty", "Property")]
+[NativeOnlyClass("Core", "StructProperty", typeof(UProperty))]
 public class UStructProperty : UProperty
 {
     /// <inheritdoc />

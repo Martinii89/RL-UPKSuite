@@ -7,7 +7,7 @@ namespace Core.Classes;
 /// <summary>
 ///     A Unreal script function
 /// </summary>
-[NativeOnlyClass("Core", "Function", "Struct")]
+[NativeOnlyClass("Core", "Function", typeof(UStruct))]
 public class UFunction : UStruct
 {
     /// <inheritdoc />

@@ -5,7 +5,7 @@ namespace Core.Classes.Core.Properties;
 /// <summary>
 ///     Interface property
 /// </summary>
-[NativeOnlyClass("Core", "InterfaceProperty", "Property")]
+[NativeOnlyClass("Core", "InterfaceProperty", typeof(UProperty))]
 public class UInterfaceProperty : UProperty
 {
     /// <inheritdoc />

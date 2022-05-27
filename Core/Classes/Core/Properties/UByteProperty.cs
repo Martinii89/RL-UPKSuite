@@ -5,7 +5,7 @@ namespace Core.Classes.Core.Properties;
 /// <summary>
 ///     A Byte property. Often this will be a Enum.
 /// </summary>
-[NativeOnlyClass("Core", "ByteProperty", "Property")]
+[NativeOnlyClass("Core", "ByteProperty", typeof(UProperty))]
 public class UByteProperty : UProperty
 {
     /// <inheritdoc />

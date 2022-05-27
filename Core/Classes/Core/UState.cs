@@ -6,7 +6,7 @@ namespace Core.Classes;
 /// <summary>
 ///     A unreal script state
 /// </summary>
-[NativeOnlyClass("Core", "State", "Struct")]
+[NativeOnlyClass("Core", "State", typeof(UStruct))]
 public class UState : UStruct
 {
     /// <inheritdoc />

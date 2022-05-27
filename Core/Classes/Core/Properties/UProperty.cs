@@ -6,7 +6,7 @@ namespace Core.Classes.Core.Properties;
 /// <summary>
 ///     The base class of all unreal script object properties
 /// </summary>
-[NativeOnlyClass("Core", "Property", "Field")]
+[NativeOnlyClass("Core", "Property", typeof(UField))]
 public class UProperty : UField
 {
     /// <summary>

@@ -17,7 +17,7 @@ public class UObject
     /// <summary>
     ///     The FName of this object
     /// </summary>
-    private readonly FName _name;
+    protected FName _FName;
 
     private bool IsDeserialized;
 
@@ -31,7 +31,7 @@ public class UObject
     /// <param name="objectArchetype">The object template</param>
     public UObject(FName name, UClass? @class, UObject? outer, UnrealPackage ownerPackage, UObject? objectArchetype = null)
     {
-        _name = name;
+        _FName = name;
         Class = @class;
         Outer = outer;
         OwnerPackage = ownerPackage;
@@ -53,7 +53,7 @@ public class UObject
     /// <summary>
     ///     The name of this object
     /// </summary>
-    public string Name => OwnerPackage.GetName(_name);
+    public string Name => OwnerPackage.GetName(_FName);
 
     /// <summary>
     ///     The type of this object
@@ -63,7 +63,7 @@ public class UObject
     /// <summary>
     ///     The package where this object is defined
     /// </summary>
-    public UnrealPackage OwnerPackage { get; init; }
+    public UnrealPackage OwnerPackage { get; protected set; }
 
     /// <summary>
     ///     The instance this object is based on. Values from the archetype will be coped over on construction
