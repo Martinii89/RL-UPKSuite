@@ -116,7 +116,7 @@ public class UnrealPackageSerializerTests
         var testSerializer = services.GetRequiredService<IStreamSerializerFor<UnrealPackage>>();
         // Act
 
-        var unrealPackage = UnrealPackage.DeserializeAndInitialize(inputTest, new UnrealPackageOptions(testSerializer, "Core"));
+        var unrealPackage = UnrealPackage.DeserializeAndInitialize(inputTest, new UnrealPackageOptions(testSerializer, "Core", new NativeClassFactory()));
         unrealPackage.GraphLink();
         var exportTable = unrealPackage.ExportTable;
         // Assert
@@ -134,12 +134,15 @@ public class UnrealPackageSerializerTests
         var services = serviceColection.BuildServiceProvider();
         var testSerializer = services.GetRequiredService<IStreamSerializerFor<UnrealPackage>>();
 
-        var corePackage = UnrealPackage.DeserializeAndInitialize(File.OpenRead(@"TestData/UDK/Core.u"), new UnrealPackageOptions(testSerializer, "Core"));
+        var nativeClassFactory = new NativeClassFactory();
+        var corePackage = UnrealPackage.DeserializeAndInitialize(File.OpenRead(@"TestData/UDK/Core.u"),
+            new UnrealPackageOptions(testSerializer, "Core", nativeClassFactory));
         var importResolver = Substitute.For<IPackageCache>();
         importResolver.ResolveExportPackage("Core").Returns(corePackage);
         // Act
 
-        var unrealPackage = UnrealPackage.DeserializeAndInitialize(inputTest, new UnrealPackageOptions(testSerializer, "Engine", importResolver));
+        var unrealPackage =
+            UnrealPackage.DeserializeAndInitialize(inputTest, new UnrealPackageOptions(testSerializer, "Engine", nativeClassFactory, importResolver));
         unrealPackage.GraphLink();
         var exportTable = unrealPackage.ExportTable;
         // Assert

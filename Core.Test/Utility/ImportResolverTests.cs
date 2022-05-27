@@ -19,7 +19,8 @@ public class ImportResolverTests : SerializerHelper
     public void ImportResolverTest_CanFindCoreInTestData()
     {
         // Arrange
-        var options = new PackageCacheOptions(_serializer) { SearchPaths = { @"TestData/UDK/" } };
+        var nativeFactory = new NativeClassFactory();
+        var options = new PackageCacheOptions(_serializer, nativeFactory) { SearchPaths = { @"TestData/UDK/" } };
         var resolver = new PackageCache(options);
         // Act
 

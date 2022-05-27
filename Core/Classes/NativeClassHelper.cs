@@ -64,7 +64,7 @@ public class NativeClassRegistrationHelper
             var packageName = attribute.PackageName;
             //if (packageName != corePackage.PackageName)
             //{
-            //    var realPackakge = corePackage.ImportResolver?.GetCachedPackage(packageName);
+            //    var realPackakge = corePackage.PackageCache?.GetCachedPackage(packageName);
             //    var clz = realPackakge?.FindClass(className);
             //}
 

@@ -31,19 +31,20 @@ public class PackageLoader
         var serializer = services.GetRequiredService<IStreamSerializerFor<UnrealPackage>>();
         var fileSummaryserializer = services.GetRequiredService<IStreamSerializerFor<FileSummary>>();
         var objectSerializerFactory = services.GetService<IObjectSerializerFactory>();
+        var nativeFactory = new NativeClassFactory();
 
         IPackageUnpacker unpacker = version == RocketLeagueBase.FileVersion
             ? new PackageUnpacker(fileSummaryserializer, new DecryptionProvider("keys.txt"))
             : new NeverUnpackUnpacker();
         searchPaths ??= new List<string> { Path.GetDirectoryName(packageFilePath) ?? string.Empty };
         packageExtensions ??= new List<string> { "upk", "u" };
-        var options = new PackageCacheOptions(serializer)
+        var options = new PackageCacheOptions(serializer, nativeFactory)
         {
             SearchPaths = searchPaths, Extensions = packageExtensions, GraphLinkPackages = false, PackageUnpacker = unpacker,
             ObjectSerializerFactory = objectSerializerFactory
         };
         var packageCache = new PackageCache(options);
-        var loader = new Core.PackageLoader(serializer, packageCache, unpacker, objectSerializerFactory);
+        var loader = new Core.PackageLoader(serializer, packageCache, unpacker, nativeFactory, objectSerializerFactory);
 
         loader.LoadPackage(packageFilePath, packageName);
         var unrealPackage = loader.GetPackage(packageName);

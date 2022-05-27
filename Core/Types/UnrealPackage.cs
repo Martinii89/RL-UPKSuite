@@ -11,11 +11,13 @@ namespace Core.Types;
 
 public class UnrealPackageOptions
 {
-    public UnrealPackageOptions(IStreamSerializerFor<UnrealPackage> serializer, string packageName, IPackageCache? packageCache = null,
+    public UnrealPackageOptions(IStreamSerializerFor<UnrealPackage> serializer, string packageName, INativeClassFactory nativeClassFactory,
+        IPackageCache? packageCache = null,
         IObjectSerializerFactory? objectSerializerFactory = null)
     {
         Serializer = serializer;
         PackageName = packageName;
+        NativeClassFactory = nativeClassFactory;
         PackageCache = packageCache;
         ObjectSerializerFactory = objectSerializerFactory;
     }
@@ -39,6 +41,11 @@ public class UnrealPackageOptions
     ///     Factory used to create serializers for all UObjects in the package
     /// </summary>
     public IObjectSerializerFactory? ObjectSerializerFactory { get; set; }
+
+    /// <summary>
+    ///     A object used to create the UClass objects for the native only classes
+    /// </summary>
+    public INativeClassFactory NativeClassFactory { get; set; }
 }
 
 /// <summary>
@@ -59,12 +66,17 @@ public class UnrealPackage
     /// <summary>
     ///     A Import resolver use to resolve the import objects
     /// </summary>
-    public IPackageCache? ImportResolver { get; set; }
+    public IPackageCache? PackageCache { get; set; }
 
     /// <summary>
     ///     Factory used to create serializers for all UObjects in the package
     /// </summary>
     public IObjectSerializerFactory? ObjectSerializerFactory { get; set; }
+
+    /// <summary>
+    ///     A object used to create the UClass objects for the native only classes
+    /// </summary>
+    public INativeClassFactory NativeClassFactory { get; set; }
 
     /// <summary>
     ///     The root. (May be removed)
@@ -129,8 +141,9 @@ public class UnrealPackage
     {
         var package = options.Serializer.Deserialize(stream);
         package.PackageStream = stream;
-        package.ImportResolver = options.PackageCache;
+        package.PackageCache = options.PackageCache;
         package.ObjectSerializerFactory = options.ObjectSerializerFactory;
+        package.NativeClassFactory = options.NativeClassFactory;
         package.PostDeserializeInitialize(options.PackageName);
         return package;
     }
@@ -180,8 +193,8 @@ public class UnrealPackage
             UnrealPackage? classPackage;
             if (classPackageName != PackageName)
             {
-                ArgumentNullException.ThrowIfNull(ImportResolver);
-                classPackage = ImportResolver.ResolveExportPackage(classPackageName);
+                ArgumentNullException.ThrowIfNull(PackageCache);
+                classPackage = PackageCache.ResolveExportPackage(classPackageName);
             }
             else
             {
@@ -335,7 +348,7 @@ public class UnrealPackage
     /// <exception cref="InvalidDataException"></exception>
     public UObject? CreateImport(ImportTableItem importTableItem)
     {
-        if (ImportResolver == null)
+        if (PackageCache == null)
         {
             throw new InvalidDataException("Can't resolve imports without a import resolver");
         }
@@ -356,7 +369,7 @@ public class UnrealPackage
         var importFullName = GetFullName(importTableItem);
         var importPackageName = importFullName.Split(".")[0];
 
-        var importPackage = ImportResolver.ResolveExportPackage(importPackageName);
+        var importPackage = PackageCache.ResolveExportPackage(importPackageName);
         // Object contained in a self imported package? Not sure what these really are.
         // Maybe it's a package defined in a unknown file somewhere else. 
         if (importPackage == null)
@@ -411,7 +424,7 @@ public class UnrealPackage
     private UObject CreateInternalImport(ImportTableItem import)
     {
         var classPackageName = GetName(import.ClassPackage);
-        var classPackage = ImportResolver!.ResolveExportPackage(classPackageName);
+        var classPackage = PackageCache!.ResolveExportPackage(classPackageName);
         UClass? cls = null;
         if (classPackage != null)
         {
@@ -476,22 +489,19 @@ public class UnrealPackage
     private void AddCoreNativeClasses()
     {
         ArgumentNullException.ThrowIfNull(PackageRoot);
+        ArgumentNullException.ThrowIfNull(NativeClassFactory);
 
-        //if (PackageName != "Core")
-        //{
-        //    return;
-        //}
+        var nativeClasses = NativeClassFactory.GetNativeClasses(this);
 
 
-        var corePackageImport = ImportTable.FirstOrDefault(x => GetName(x.ObjectName) == PackageName && GetName(x.ClassName) == "Package");
-        ArgumentNullException.ThrowIfNull(corePackageImport);
-        corePackageImport.ImportedObject = PackageRoot;
-        var nativeClassHelper = new NativeClassRegistrationHelper(PackageRoot);
-        var nativeClasses = nativeClassHelper.GetNativeClasses(this);
+        //var corePackageImport = ImportTable.FirstOrDefault(x => GetName(x.ObjectName) == PackageName && GetName(x.ClassName) == "Package");
+        //ArgumentNullException.ThrowIfNull(corePackageImport);
+        //corePackageImport.ImportedObject = PackageRoot;
+        //var nativeClassHelper = new NativeClassRegistrationHelper(PackageRoot);
+        //var nativeClasses = nativeClassHelper.GetNativeClasses(this);
 
         var coreFName = NameTable.FindIndex(x => x.Name == PackageName);
         var classFName = NameTable.FindIndex(x => x.Name == "Class");
-        UClass.StaticClass = nativeClasses["Class"];
 
         foreach (var (_, @class) in nativeClasses)
         {

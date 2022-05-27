@@ -24,7 +24,8 @@ public class ObjectFactoryTests : IClassFixture<PackageStreamFixture>
     public void CorePackageLink_ExportedClassesShouldBeUClassObjects()
     {
         // Arrange
-        var package = UnrealPackage.DeserializeAndInitialize(_packageStreams.CoreStream, new UnrealPackageOptions(_udkPackageSerializer, "Core", null));
+        var package = UnrealPackage.DeserializeAndInitialize(_packageStreams.CoreStream,
+            new UnrealPackageOptions(_udkPackageSerializer, "Core", new NativeClassFactory()));
 
         // Act
         package.GraphLink();
@@ -39,7 +40,8 @@ public class ObjectFactoryTests : IClassFixture<PackageStreamFixture>
     public void CorePackageLink_ExportedEnumsShouldBeUEnumObjects()
     {
         // Arrange
-        var package = UnrealPackage.DeserializeAndInitialize(_packageStreams.CoreStream, new UnrealPackageOptions(_udkPackageSerializer, "Core", null));
+        var package = UnrealPackage.DeserializeAndInitialize(_packageStreams.CoreStream,
+            new UnrealPackageOptions(_udkPackageSerializer, "Core", new NativeClassFactory()));
 
         // Act
         package.GraphLink();
@@ -55,7 +57,8 @@ public class ObjectFactoryTests : IClassFixture<PackageStreamFixture>
     public void CorePackageLink_ExportedFunctionsShouldBeUFunctionObjects()
     {
         // Arrange
-        var package = UnrealPackage.DeserializeAndInitialize(_packageStreams.CoreStream, new UnrealPackageOptions(_udkPackageSerializer, "Core", null));
+        var package = UnrealPackage.DeserializeAndInitialize(_packageStreams.CoreStream,
+            new UnrealPackageOptions(_udkPackageSerializer, "Core", new NativeClassFactory()));
 
         // Act
         package.GraphLink();
@@ -70,7 +73,8 @@ public class ObjectFactoryTests : IClassFixture<PackageStreamFixture>
     public void CorePackageLink_ExportedFunctionsShouldBeUFloatPropertyObjects()
     {
         // Arrange
-        var package = UnrealPackage.DeserializeAndInitialize(_packageStreams.CoreStream, new UnrealPackageOptions(_udkPackageSerializer, "Core", null));
+        var package = UnrealPackage.DeserializeAndInitialize(_packageStreams.CoreStream,
+            new UnrealPackageOptions(_udkPackageSerializer, "Core", new NativeClassFactory()));
 
         // Act
         package.GraphLink();

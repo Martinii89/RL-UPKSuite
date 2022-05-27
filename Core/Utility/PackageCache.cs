@@ -14,9 +14,11 @@ public class PackageCacheOptions
     ///     The serializer is required. The other members are optional
     /// </summary>
     /// <param name="unrealPackageSerializerFor"></param>
-    public PackageCacheOptions(IStreamSerializerFor<UnrealPackage> unrealPackageSerializerFor)
+    /// <param name="nativeClassFactory"></param>
+    public PackageCacheOptions(IStreamSerializerFor<UnrealPackage> unrealPackageSerializerFor, INativeClassFactory nativeClassFactory)
     {
         UnrealPackageSerializerFor = unrealPackageSerializerFor;
+        NativeClassFactory = nativeClassFactory;
     }
 
     /// <summary>
@@ -49,6 +51,11 @@ public class PackageCacheOptions
     ///     Factory used to create serializers for all UObjects in the package
     /// </summary>
     public IObjectSerializerFactory? ObjectSerializerFactory { get; set; }
+
+    /// <summary>
+    ///     A object used to create the UClass objects for the native only classes
+    /// </summary>
+    public INativeClassFactory NativeClassFactory { get; set; }
 }
 
 /// <summary>
@@ -103,7 +110,8 @@ public class PackageCache : IPackageCache
         var packageStream = File.OpenRead(matchedFiles[0]);
 
         UnrealPackage unrealPackage;
-        var loadOptions = new UnrealPackageOptions(_options.UnrealPackageSerializerFor, packageName, this, _options.ObjectSerializerFactory);
+        var loadOptions = new UnrealPackageOptions(_options.UnrealPackageSerializerFor, packageName, _options.NativeClassFactory, this,
+            _options.ObjectSerializerFactory);
         if (_options.PackageUnpacker.IsPackagePacked(packageStream))
         {
             var unpackedStream = new MemoryStream();

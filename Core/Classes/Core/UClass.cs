@@ -30,6 +30,7 @@ public class UClass : UState
     /// <summary>
     ///     The UClass "class". Every UObject that is a class object will have this as their Class member
     /// </summary>
+    /// TODO: Make this non-static cause it can probably cause issues when packages of different sources are loaded at the same time
     public static UClass? StaticClass { get; set; }
 
     /// <summary>

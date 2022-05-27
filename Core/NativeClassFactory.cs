@@ -46,6 +46,8 @@ public class NativeClassFactory : INativeClassFactory
             PackageName = "Natives"
         };
         // create stub classes
+
+
         foreach (var (key, value) in _nativeClasses)
         {
             var name = stubPackage.GetOrAddName(value.ClassName);
@@ -53,6 +55,10 @@ public class NativeClassFactory : INativeClassFactory
             clz.InstanceConstructor = (objName, outer, package, objArchetype) =>
                 (UObject) Activator.CreateInstance(value.AssemblyTypeImplementation, objName, clz, outer, package, objArchetype);
             value.RegisteredClass = clz;
+            if (value.ClassName == "Class")
+            {
+                UClass.StaticClass = clz;
+            }
         }
 
         // set the super classes
@@ -62,6 +68,8 @@ public class NativeClassFactory : INativeClassFactory
             {
                 continue;
             }
+
+            value.RegisteredClass.Class = UClass.StaticClass;
 
             var superType = value.SuperType;
             if (superType is null)
