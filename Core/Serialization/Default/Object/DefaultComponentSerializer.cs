@@ -21,20 +21,13 @@ public class DefaultComponentSerializer : BaseObjectSerializer<UComponent>
         _fnameSerializer = fnameSerializer;
     }
 
+    /// <inheritdoc />
     public override void DeserializeObject(UComponent obj, Stream objectStream)
     {
         obj.TemplateOwnerClass = obj.OwnerPackage.GetObject(_objectIndexSerialiser.Deserialize(objectStream)) as UClass;
         if (obj.IsDefaultObject || obj.GetOuterEnumerable().Any(x => x.IsDefaultObject))
         {
             var fName = _fnameSerializer.Deserialize(objectStream);
-            //components are weird. some of them have 4 bytes of extra data....
-            if (fName.NameIndex == 0)
-            {
-                obj.ExtraFourBytes = true;
-                objectStream.Move(-4);
-                fName = _fnameSerializer.Deserialize(objectStream);
-            }
-
             obj.TemplateName = obj.OwnerPackage.GetName(fName);
         }
 
@@ -48,6 +41,7 @@ public class DefaultComponentSerializer : BaseObjectSerializer<UComponent>
         }
     }
 
+    /// <inheritdoc />
     public override void SerializeObject(UComponent obj, Stream objectStream)
     {
         throw new NotImplementedException();

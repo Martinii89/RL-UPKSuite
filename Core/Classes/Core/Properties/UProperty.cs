@@ -24,10 +24,15 @@ public class UProperty : UField
 
     public int ArrayDim { get; set; }
     public ulong PropertyFlags { get; set; }
-    public string Category { get; set; }
+    public string Category { get; set; } = string.Empty;
     public UEnum? ArraySizeEnum { get; set; }
     public ushort RepOffset { get; set; }
 
+    /// <summary>
+    ///     Check if the property has the given property flag
+    /// </summary>
+    /// <param name="flag"></param>
+    /// <returns></returns>
     public bool HasPropertyFlag(PropertyFlagsLO flag)
     {
         return ((uint) (PropertyFlags & 0x00000000FFFFFFFFU) & (uint) flag) != 0;

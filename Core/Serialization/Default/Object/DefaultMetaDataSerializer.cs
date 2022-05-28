@@ -24,6 +24,8 @@ public class DefaultMetaDataSerializer : BaseObjectSerializer<UMetaData>
     public override void DeserializeObject(UMetaData obj, Stream objectStream)
     {
         _objectSerializer.DeserializeObject(obj, objectStream);
+        var remaining = obj.ExportTableItem.SerialOffset + obj.ExportTableItem.SerialSize - objectStream.Position;
+        objectStream.Move(remaining);
         return;
         var numElements = objectStream.ReadInt32();
         for (var i = 0; i < numElements; i++)

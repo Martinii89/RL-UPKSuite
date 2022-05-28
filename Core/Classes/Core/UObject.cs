@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Core.Classes.Core.Properties;
 using Core.Flags;
@@ -99,6 +100,7 @@ public class UObject
 
     /// <summary>
     ///     Deserialize this object using the owner package data stream
+    ///     NOTE: UObject::Serialize has as vtable index of 13 (in rocket league)
     /// </summary>
     public void Deserialize()
     {
@@ -116,7 +118,7 @@ public class UObject
         FullyDeserialized = OwnerPackageStream.Position == ExportTableItem!.SerialOffset + ExportTableItem.SerialSize;
         if (!FullyDeserialized)
         {
-            //Debugger.Break();
+            Debugger.Break();
         }
 
         IsDeserialized = true;

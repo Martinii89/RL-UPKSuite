@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <Folder Include="Flags\" />
-    <Folder Include="Serialization\Default\Object\" />
+    <Folder Include="Serialization\Default\Object\Engine\" />
     <Folder Include="Types\PackageTables\" />
   </ItemGroup>
 

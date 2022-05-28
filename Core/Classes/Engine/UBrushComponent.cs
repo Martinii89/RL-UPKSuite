@@ -1,6 +1,7 @@
-﻿using Core.Types;
+﻿using Core.Classes.Core;
+using Core.Types;
 
-namespace Core.Classes.Core;
+namespace Core.Classes.Engine;
 
 [NativeOnlyClass("Engine", "BrushComponent", typeof(UPrimitiveComponent))]
 public class UBrushComponent : UPrimitiveComponent
