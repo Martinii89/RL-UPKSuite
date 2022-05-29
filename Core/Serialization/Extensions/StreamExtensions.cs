@@ -40,4 +40,48 @@ public static class StreamExtensions
         stream.WriteInt32(value.Length + 1);
         stream.WriteString(value, StringCoding.ZeroTerminated);
     }
+
+    /// <summary>
+    ///     Generic reader for TMap objects. Requires a provided function to read the key and values
+    /// </summary>
+    /// <param name="stream"></param>
+    /// <param name="keyRead"></param>
+    /// <param name="valRead"></param>
+    /// <typeparam name="TKey"></typeparam>
+    /// <typeparam name="TVal"></typeparam>
+    /// <returns></returns>
+    public static Dictionary<TKey, TVal> ReadDictionary<TKey, TVal>(this Stream stream, Func<Stream, TKey> keyRead, Func<Stream, TVal> valRead)
+        where TKey : notnull
+    {
+        var res = new Dictionary<TKey, TVal>();
+
+        var mapCount = stream.ReadInt32();
+
+        for (var i = 0; i < mapCount; i++)
+        {
+            res.Add(keyRead(stream), valRead(stream));
+        }
+
+
+        return res;
+    }
+
+    /// <summary>
+    ///     Read a TArray with a given read function. Useful when you don't wanna create a specialized object reader
+    /// </summary>
+    /// <param name="stream"></param>
+    /// <param name="readFunc"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public static List<T> ReadTarray<T>(this Stream stream, Func<Stream, T> readFunc)
+    {
+        var res = new List<T>();
+        var count = stream.ReadInt32();
+        for (var i = 0; i < count; i++)
+        {
+            res.Add(readFunc(stream));
+        }
+
+        return res;
+    }
 }

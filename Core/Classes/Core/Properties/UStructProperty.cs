@@ -1,4 +1,5 @@
-﻿using Core.Serialization;
+﻿using Core.Flags;
+using Core.Serialization;
 using Core.Types;
 using Core.Types.PackageTables;
 
@@ -17,14 +18,40 @@ public class UStructProperty : UProperty
     {
     }
 
-    public UStruct? Struct { get; set; }
+    public UScriptStruct? Struct { get; set; }
 
     /// <inheritdoc />
     public override object? DeserializeValue(UObject obj, Stream objStream, int propertySize, IStreamSerializerFor<FName> fnameSerializer,
         IStreamSerializerFor<ObjectIndex> objectIndexSerializer)
     {
-        var structName = obj.OwnerPackage.GetName(fnameSerializer.Deserialize(objStream));
+        ArgumentNullException.ThrowIfNull(Struct);
+        Struct.Deserialize();
+        var structValues = new Dictionary<string, object?>();
+        if (Struct.HasFlag(StructFlag.Immutable))
+        {
+            var structProperties = Struct.GetPropertyIterator();
+
+            foreach (var structProperty in structProperties)
+            {
+                //!! Bad size !!
+                structValues[structProperty.Name] = structProperty.DeserializeValue(obj, objStream, propertySize, fnameSerializer, objectIndexSerializer);
+            }
+
+            return structValues;
+        }
+
         objStream.Move(propertySize);
         return null;
+
+        //var scriptPropertiesSerializer = new ScriptPropertiesSerializer(fnameSerializer, objectIndexSerializer);
+        //var props = scriptPropertiesSerializer.GetScriptProperties(obj, objStream, Struct);
+        //foreach (var prop in props)
+        //{
+        //    structValues[prop.Name] = prop.Value;
+        //}
+
+
+        //objStream.Move(propertySize);
+        return structValues;
     }
 }

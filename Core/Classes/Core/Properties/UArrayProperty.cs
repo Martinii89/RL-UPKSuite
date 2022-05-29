@@ -28,7 +28,17 @@ public class UArrayProperty : UProperty
         var arrayCount = objStream.ReadInt32();
         if (arrayCount == 0 || InnerProperty is null)
         {
+            objStream.Move(propertySize - 4);
             return result;
+        }
+
+        if (InnerProperty is UStructProperty structProperty)
+        {
+            structProperty.Deserialize();
+            structProperty.Struct?.Deserialize();
+            //Debugger.Break();
+            //objStream.Move(propertySize - 4);
+            //return result;
         }
 
         // subtract the size of the count

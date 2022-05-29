@@ -23,8 +23,11 @@ public class UByteProperty : UProperty
     public override object? DeserializeValue(UObject obj, Stream objStream, int propertySize, IStreamSerializerFor<FName> fnameSerializer,
         IStreamSerializerFor<ObjectIndex> objectIndexSerializer)
     {
-        var EnumName = obj.OwnerPackage.GetName(fnameSerializer.Deserialize(objStream));
-        var enumValue = obj.OwnerPackage.GetName(fnameSerializer.Deserialize(objStream));
-        return enumValue;
+        if (Enum is null)
+        {
+            return (byte) objStream.ReadByte();
+        }
+
+        return obj.OwnerPackage.GetName(fnameSerializer.Deserialize(objStream));
     }
 }

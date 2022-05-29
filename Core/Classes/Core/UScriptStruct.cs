@@ -1,4 +1,5 @@
 ﻿using Core.Classes.Core;
+using Core.Flags;
 using Core.Types;
 
 namespace Core.Classes;
@@ -16,4 +17,14 @@ public class UScriptStruct : UStruct
     }
 
     public int StructFlags { get; set; }
+
+    /// <summary>
+    ///     Check if the struct has the given flag
+    /// </summary>
+    /// <param name="flag"></param>
+    /// <returns></returns>
+    public bool HasFlag(StructFlag flag)
+    {
+        return ((StructFlag) StructFlags).HasFlag(flag);
+    }
 }

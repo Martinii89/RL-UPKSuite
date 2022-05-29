@@ -1,24 +1,10 @@
 ﻿using Core.Classes.Core;
 using Core.Types;
+using Core.Types.PackageTables;
 
 namespace Core.Classes.Engine;
 
-public class USurface : UObject
-{
-    public USurface(FName name, UClass? @class, UObject? outer, UnrealPackage ownerPackage, UObject? objectArchetype = null) : base(name, @class, outer,
-        ownerPackage, objectArchetype)
-    {
-    }
-}
-
-public class UMaterialInterface : USurface
-{
-    public UMaterialInterface(FName name, UClass? @class, UObject? outer, UnrealPackage ownerPackage, UObject? objectArchetype = null) : base(name, @class,
-        outer, ownerPackage, objectArchetype)
-    {
-    }
-}
-
+[NativeOnlyClass("Engine", "Material", typeof(UMaterialInterface))]
 public class UMaterial : UMaterialInterface
 {
     public UMaterial(FName name, UClass? @class, UObject? outer, UnrealPackage ownerPackage, UObject? objectArchetype = null) : base(name, @class, outer,
@@ -29,28 +15,10 @@ public class UMaterial : UMaterialInterface
     public FMaterialResource[] FMaterialResources { get; set; } = new FMaterialResource[2];
 }
 
-public class UMaterialExpression : UObject
-{
-    public UMaterialExpression(FName name, UClass? @class, UObject? outer, UnrealPackage ownerPackage, UObject? objectArchetype = null) : base(name, @class,
-        outer, ownerPackage, objectArchetype)
-    {
-    }
-}
-
-public class UTexture : USurface
-{
-    public UTexture(FName name, UClass? @class, UObject? outer, UnrealPackage ownerPackage, UObject? objectArchetype = null) : base(name, @class, outer,
-        ownerPackage, objectArchetype)
-    {
-    }
-}
-
 public class FMaterial
 {
-    // 16 unknown bytes at the end 
-    internal byte[]? UnknownBytes;
     public List<string> CompileErrors { get; set; } = new();
-    public Dictionary<UMaterialExpression, int> TextureDependencyLengthMap { get; set; } = new();
+    public Dictionary<ObjectIndex, int> TextureDependencyLengthMap { get; set; } = new();
 
     public int MaxTextureDependencyLength { get; set; }
 
@@ -58,7 +26,7 @@ public class FMaterial
 
     public uint NumUserTexCoords { get; set; }
 
-    public List<UTexture> UniformExpressionTextures { get; set; }
+    public List<ObjectIndex> UniformExpressionTextures { get; set; }
 
     public bool bUsesSceneColorTemp { get; set; }
     public bool bUsesSceneDepthTemp { get; set; }
@@ -66,8 +34,11 @@ public class FMaterial
     public bool bUsesLightmapUVsTemp { get; set; }
     public bool bUsesMaterialVertexPositionOffsetTemp { get; set; }
     public bool UsingTransforms { get; set; }
-    public FTextureLookupInfo FTextureLookupInfos { get; set; }
+    public List<FTextureLookupInfo> FTextureLookupInfos { get; set; } = new();
     public bool DummyDroppedFallbackComponents { get; set; }
+
+    // 16 unknown bytes at the end 
+    public byte[]? UnknownBytes { get; set; }
 }
 
 public class FMaterialResource : FMaterial

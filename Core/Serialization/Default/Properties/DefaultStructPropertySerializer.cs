@@ -22,7 +22,7 @@ public class DefaultStructPropertySerializer : BaseObjectSerializer<UStructPrope
     {
         _propertySerializer.DeserializeObject(obj, objectStream);
 
-        obj.Struct = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream)) as UStruct;
+        obj.Struct = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream)) as UScriptStruct;
     }
 
     /// <inheritdoc />

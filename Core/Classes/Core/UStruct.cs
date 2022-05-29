@@ -48,6 +48,21 @@ public class UStruct : UField
         return SuperStruct?.GetProperty(propertyName);
     }
 
+    /// <summary>
+    ///     Iterate the properties
+    /// </summary>
+    /// <returns></returns>
+    public IEnumerable<UProperty> GetPropertyIterator()
+    {
+        foreach (var uField in GetFieldIterator())
+        {
+            if (uField is UProperty property)
+            {
+                yield return property;
+            }
+        }
+    }
+
     internal IEnumerable<UField> GetFieldIterator()
     {
         var field = Children;
