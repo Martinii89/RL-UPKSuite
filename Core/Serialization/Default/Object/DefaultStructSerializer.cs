@@ -41,6 +41,9 @@ public class DefaultStructSerializer : BaseObjectSerializer<UStruct>
             obj.ScriptOffset = objectStream.Position;
             objectStream.Move(obj.DataScriptSize);
         }
+
+
+        obj.InitProperties();
     }
 
     /// <inheritdoc />

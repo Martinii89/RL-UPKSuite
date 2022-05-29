@@ -110,7 +110,9 @@ public class UObject
         }
 
         var streamPosition = ExportTableItem.SerialOffset;
+        using var rewindAfterScope = OwnerPackageStream.TemporarySeek();
         OwnerPackageStream.Position = streamPosition;
+
         Serializer.DeserializeObject(this, OwnerPackageStream);
 
         // Store meta data about the deserialization for manual debugging purposes

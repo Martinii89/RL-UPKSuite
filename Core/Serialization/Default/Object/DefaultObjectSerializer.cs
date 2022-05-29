@@ -14,11 +14,13 @@ public class DefaultObjectSerializer : BaseObjectSerializer<UObject>
 {
     private readonly IStreamSerializerFor<FName> _fnameSerializer;
     private readonly IStreamSerializerFor<ObjectIndex> _objectIndexSerializer;
+    private readonly ScriptPropertiesSerializer _scriptPropertiesSerializer;
 
     public DefaultObjectSerializer(IStreamSerializerFor<FName> fnameSerializer, IStreamSerializerFor<ObjectIndex> objectIndexSerializer)
     {
         _fnameSerializer = fnameSerializer;
         _objectIndexSerializer = objectIndexSerializer;
+        _scriptPropertiesSerializer = new ScriptPropertiesSerializer(fnameSerializer, objectIndexSerializer);
     }
 
     /// <inheritdoc />
@@ -41,7 +43,8 @@ public class DefaultObjectSerializer : BaseObjectSerializer<UObject>
             return;
         }
 
-        obj.ScriptProperties.AddRange(GetScriptProperties(obj, objectStream));
+        //obj.ScriptProperties.AddRange(GetScriptProperties(obj, objectStream));
+        obj.ScriptProperties.AddRange(_scriptPropertiesSerializer.GetScriptProperties(obj, objectStream));
     }
 
     private IEnumerable<FProperty> GetScriptProperties(UObject obj, Stream objectStream)

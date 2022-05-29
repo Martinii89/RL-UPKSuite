@@ -1,4 +1,5 @@
-﻿using Core.Classes.Core.Properties;
+﻿using Core.Classes.Core;
+using Core.Classes.Core.Properties;
 using Core.Serialization.Abstraction;
 using Core.Types.PackageTables;
 
@@ -21,7 +22,7 @@ public class DefaultObjectPropertySerializer : BaseObjectSerializer<UObjectPrope
     {
         _propertySerializer.DeserializeObject(obj, objectStream);
 
-        obj.Object = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream));
+        obj.PropertyClass = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream)) as UClass;
     }
 
     /// <inheritdoc />

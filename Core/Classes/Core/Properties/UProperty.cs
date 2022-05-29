@@ -1,5 +1,7 @@
 ﻿using Core.Flags;
+using Core.Serialization;
 using Core.Types;
+using Core.Types.PackageTables;
 
 namespace Core.Classes.Core.Properties;
 
@@ -7,7 +9,7 @@ namespace Core.Classes.Core.Properties;
 ///     The base class of all unreal script object properties
 /// </summary>
 [NativeOnlyClass("Core", "Property", typeof(UField))]
-public class UProperty : UField
+public abstract class UProperty : UField
 {
     /// <summary>
     ///     Constructs the base of a script property
@@ -27,6 +29,21 @@ public class UProperty : UField
     public string Category { get; set; } = string.Empty;
     public UEnum? ArraySizeEnum { get; set; }
     public ushort RepOffset { get; set; }
+
+    /// <summary>
+    ///     Deserialize the value of this property from the stream
+    /// </summary>
+    /// <param name="obj"></param>
+    /// <param name="objStream"></param>
+    /// <param name="propertySize"></param>
+    /// <param name="fnameSerializer"></param>
+    /// <param name="objectIndexSerializer"></param>
+    /// <returns></returns>
+    public virtual object? DeserializeValue(UObject obj, Stream objStream, int propertySize, IStreamSerializerFor<FName> fnameSerializer,
+        IStreamSerializerFor<ObjectIndex> objectIndexSerializer)
+    {
+        throw new NotImplementedException();
+    }
 
     /// <summary>
     ///     Check if the property has the given property flag

@@ -1,4 +1,6 @@
-﻿using Core.Types;
+﻿using Core.Serialization;
+using Core.Types;
+using Core.Types.PackageTables;
 
 namespace Core.Classes.Core.Properties;
 
@@ -13,5 +15,12 @@ public class UFloatProperty : UProperty
         outer,
         ownerPackage, objectArchetype)
     {
+    }
+
+    /// <inheritdoc />
+    public override object? DeserializeValue(UObject obj, Stream objStream, int propertySize, IStreamSerializerFor<FName> fnameSerializer,
+        IStreamSerializerFor<ObjectIndex> objectIndexSerializer)
+    {
+        return objStream.ReadSingle();
     }
 }

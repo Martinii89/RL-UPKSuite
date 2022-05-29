@@ -21,6 +21,7 @@ public class DefaultPropertySerializer : BaseObjectSerializer<UProperty>
         _ObjectIndexSerializer = objectIndexSerializer;
     }
 
+    /// <inheritdoc />
     public override void DeserializeObject(UProperty obj, Stream objectStream)
     {
         _fieldSerializer.DeserializeObject(obj, objectStream);
@@ -36,6 +37,7 @@ public class DefaultPropertySerializer : BaseObjectSerializer<UProperty>
         }
     }
 
+    /// <inheritdoc />
     public override void SerializeObject(UProperty obj, Stream objectStream)
     {
         throw new NotImplementedException();

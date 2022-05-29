@@ -1,4 +1,5 @@
-﻿using Core.Classes.Core.Properties;
+﻿using Core.Classes.Core;
+using Core.Classes.Core.Properties;
 using Core.Serialization.Abstraction;
 using Core.Types;
 using Core.Types.PackageTables;
@@ -26,7 +27,7 @@ public class RLObjectPropertySerializer : BaseObjectSerializer<UObjectProperty>
     {
         _propertySerializer.DeserializeObject(obj, objectStream);
 
-        obj.Object = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream));
+        obj.PropertyClass = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream)) as UClass;
         var someNameProbablyJustPadding = obj.OwnerPackage.GetName(_fnameSerializer.Deserialize(objectStream));
     }
 
