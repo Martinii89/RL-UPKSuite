@@ -1,5 +1,6 @@
 ﻿using Core.Flags;
 using Core.Serialization;
+using Core.Serialization.Default.Object;
 using Core.Types;
 using Core.Types.PackageTables;
 
@@ -40,15 +41,15 @@ public class UStructProperty : UProperty
             return structValues;
         }
 
-        objStream.Move(propertySize);
-        return null;
+        //objStream.Move(propertySize);
+        //return null;
 
-        //var scriptPropertiesSerializer = new ScriptPropertiesSerializer(fnameSerializer, objectIndexSerializer);
-        //var props = scriptPropertiesSerializer.GetScriptProperties(obj, objStream, Struct);
-        //foreach (var prop in props)
-        //{
-        //    structValues[prop.Name] = prop.Value;
-        //}
+        var scriptPropertiesSerializer = new ScriptPropertiesSerializer(fnameSerializer, objectIndexSerializer);
+        var props = scriptPropertiesSerializer.GetScriptProperties(obj, objStream, Struct);
+        foreach (var prop in props)
+        {
+            structValues[prop.Name] = prop.Value;
+        }
 
 
         //objStream.Move(propertySize);

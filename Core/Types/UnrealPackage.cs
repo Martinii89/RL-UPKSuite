@@ -245,13 +245,20 @@ public class UnrealPackage
     /// <exception cref="IndexOutOfRangeException"></exception>
     public UObject? GetObject(ObjectIndex index)
     {
-        return index.GetReferencedTable() switch
+        var importedObject = index.GetReferencedTable() switch
         {
             ObjectIndex.ReferencedTable.Null => null,
             ObjectIndex.ReferencedTable.Import => ImportTable[index.ImportIndex].ImportedObject,
             ObjectIndex.ReferencedTable.Export => ExportTable[index.ExportIndex].Object,
             _ => throw new IndexOutOfRangeException(index.GetReferencedTable().ToString())
         };
+
+        if (index.Index != 0 && importedObject == null)
+        {
+            Debugger.Break();
+        }
+
+        return importedObject;
     }
 
     /// <summary>

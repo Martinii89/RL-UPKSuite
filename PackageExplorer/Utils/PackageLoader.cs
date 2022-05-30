@@ -40,7 +40,7 @@ public class PackageLoader
         packageExtensions ??= new List<string> { "upk", "u" };
         var options = new PackageCacheOptions(serializer, nativeFactory)
         {
-            SearchPaths = searchPaths, Extensions = packageExtensions, GraphLinkPackages = false, PackageUnpacker = unpacker,
+            SearchPaths = searchPaths, Extensions = packageExtensions, GraphLinkPackages = true, PackageUnpacker = unpacker,
             ObjectSerializerFactory = objectSerializerFactory
         };
         var packageCache = new PackageCache(options);
