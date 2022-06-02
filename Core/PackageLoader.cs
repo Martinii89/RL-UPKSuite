@@ -62,7 +62,7 @@ public class PackageLoader
             return _packageCache.GetCachedPackage(packageName);
         }
 
-        var packageStream = File.OpenRead(packagePath);
+        var packageStream = new MemoryStream(File.ReadAllBytes(packagePath));
         var unrealPackage = DeserializePackage(packageName, packageStream);
         unrealPackage.RootLoader = this;
         _packageCache.AddPackage(unrealPackage);

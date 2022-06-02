@@ -25,9 +25,9 @@ public partial class PackageUserControl : UserControl
 
     private void PropertyGrid_OnAutoGeneratingPropertyGridItem(object? sender, AutoGeneratingPropertyGridItemEventArgs e)
     {
-        var grid = sender as PropertyGrid;
+        //var grid = sender as PropertyGrid;
         var src = e.OriginalSource as PropertyItem;
-        e.Category = src.PropertyInformation.DeclaringType?.Name;
+        //e.Category = src.PropertyInformation.DeclaringType?.Name;
         var parent = _parentPropertyItemPropertyInfo?.GetValue(src, null) as PropertyItem;
         if (parent?.Value is UObject uObject)
         {

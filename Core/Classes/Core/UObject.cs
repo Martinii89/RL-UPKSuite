@@ -20,7 +20,7 @@ public class UObject
     /// </summary>
     protected FName _FName;
 
-    private bool IsDeserialized;
+    protected bool IsDeserialized;
 
     /// <summary>
     ///     Constructs a engine object

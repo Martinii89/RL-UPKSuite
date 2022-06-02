@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Serialization\Default\Object\Engine\" />
+    <Folder Include="Serialization\Default\Object\Engine\Struct\" />
     <Folder Include="Types\PackageTables\" />
   </ItemGroup>
 

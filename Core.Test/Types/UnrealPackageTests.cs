@@ -229,6 +229,32 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
     }
 
     [Fact]
+    public void EnginePackage_StaticMeshHasNativeProperties()
+    {
+        // Arrange
+
+        var corePackage = _udkPackageSerializer.Deserialize(_packageStreams.CoreStream);
+        var nativeClassFactory = new NativeClassFactory();
+        corePackage.NativeClassFactory = nativeClassFactory;
+        corePackage.PostDeserializeInitialize("Core");
+        var packageCache = Substitute.For<IPackageCache>();
+        packageCache.GetCachedPackage("Core").Returns(corePackage);
+        packageCache.ResolveExportPackage("Core").Returns(corePackage);
+
+        var package = _udkPackageSerializer.Deserialize(_packageStreams.EngineStream);
+        package.PackageCache = packageCache;
+        package.NativeClassFactory = nativeClassFactory;
+        package.PostDeserializeInitialize("Engine");
+
+        // Act
+
+        var staticMeshClass = package.FindClass("StaticMesh");
+
+        // Assert 
+        staticMeshClass.NativeProperties.Should().NotBeNull();
+    }
+
+    [Fact]
     public void CorePackage_InitializesNativeClasses_NoDuplicates()
     {
         // Arrange

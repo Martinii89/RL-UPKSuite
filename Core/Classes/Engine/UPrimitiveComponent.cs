@@ -11,12 +11,3 @@ public class UPrimitiveComponent : UActorComponent
     {
     }
 }
-
-[NativeOnlyClass("Engine", "SpeedTreeComponent", typeof(UPrimitiveComponent))]
-public class USpeedTreeComponent : UPrimitiveComponent
-{
-    public USpeedTreeComponent(FName name, UClass? @class, UObject? outer, UnrealPackage ownerPackage, UObject? objectArchetype = null)
-        : base(name, @class, outer, ownerPackage, objectArchetype)
-    {
-    }
-}

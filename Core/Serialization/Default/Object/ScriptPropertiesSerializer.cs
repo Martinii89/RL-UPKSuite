@@ -75,10 +75,11 @@ public class ScriptPropertiesSerializer
                 Debugger.Break();
                 propSource?.Deserialize();
                 propSource?.InitProperties();
+                linkedProperty = propSource?.GetProperty(name);
                 propSource?.Outer?.Deserialize();
                 propSource?.Outer?.Class?.Deserialize();
                 propSource?.Outer?.Class?.InitProperties();
-                objectStream.Move(property.Size);
+                objectStream.Move(property.Type == PropertyType.BoolProperty ? 1 : property.Size);
                 continue;
             }
 

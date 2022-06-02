@@ -107,7 +107,7 @@ public class PackageCache : IPackageCache
                 throw new InvalidDataException($"Too many matches packages found: {string.Join(',', matchedFiles)}");
         }
 
-        var packageStream = File.OpenRead(matchedFiles[0]);
+        var packageStream = new MemoryStream(File.ReadAllBytes(matchedFiles[0]));
 
         UnrealPackage unrealPackage;
         var loadOptions = new UnrealPackageOptions(_options.UnrealPackageSerializerFor, packageName, _options.NativeClassFactory, this,
@@ -124,14 +124,14 @@ public class PackageCache : IPackageCache
             unrealPackage = UnrealPackage.DeserializeAndInitialize(packageStream, loadOptions);
         }
 
+        // Add to cache before linking to avoid infinite recursive loop
+        _cachedPackages.Add(packageName, unrealPackage);
 
-        // TODO: Reconsider if the import resolver should link the objects.
         if (_options.GraphLinkPackages)
         {
             unrealPackage.GraphLink();
         }
 
-        _cachedPackages.Add(packageName, unrealPackage);
 
         return unrealPackage;
     }

@@ -19,6 +19,9 @@ public class UStructProperty : UProperty
     {
     }
 
+    /// <summary>
+    ///     The type of struct this property points to
+    /// </summary>
     public UScriptStruct? Struct { get; set; }
 
     /// <inheritdoc />
@@ -30,7 +33,7 @@ public class UStructProperty : UProperty
         var structValues = new Dictionary<string, object?>();
         if (Struct.HasFlag(StructFlag.Immutable))
         {
-            var structProperties = Struct.GetPropertyIterator();
+            var structProperties = Struct.GetPropertyIteratorIncludingSupers();
 
             foreach (var structProperty in structProperties)
             {
@@ -41,9 +44,6 @@ public class UStructProperty : UProperty
             return structValues;
         }
 
-        //objStream.Move(propertySize);
-        //return null;
-
         var scriptPropertiesSerializer = new ScriptPropertiesSerializer(fnameSerializer, objectIndexSerializer);
         var props = scriptPropertiesSerializer.GetScriptProperties(obj, objStream, Struct);
         foreach (var prop in props)
@@ -51,8 +51,6 @@ public class UStructProperty : UProperty
             structValues[prop.Name] = prop.Value;
         }
 
-
-        //objStream.Move(propertySize);
         return structValues;
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using Core.Classes;
 using Core.Classes.Core;
+using Core.Classes.Engine;
 using Core.Types;
 
 namespace Core;
@@ -58,6 +59,16 @@ public class NativeClassFactory : INativeClassFactory
             if (value.ClassName == "Class")
             {
                 UClass.StaticClass = clz;
+            }
+
+            var typePropertiesWithNativeAttribute = value.AssemblyTypeImplementation.GetProperties()
+                .Select(x => x.GetCustomAttribute<NativeProperty>()).Where(x => x is not null);
+            foreach (var nativeOnlyClassAttribute in typePropertiesWithNativeAttribute)
+            {
+                if (nativeOnlyClassAttribute is not null)
+                {
+                    value.RegisteredClass.NativeProperties.Add(nativeOnlyClassAttribute);
+                }
             }
         }
 

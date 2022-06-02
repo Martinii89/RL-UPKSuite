@@ -177,12 +177,15 @@ public class UnrealPackage
     {
         var nativeObjects = GetNativeObjectsFromImportsInPackage().Where(x => x.ImportedObject is null).ToList();
         var nativeClasses = nativeObjects.Where(x => GetName(x.ClassName) == "Class").ToList();
+        var corePackage = PackageName == "Core" ? this : PackageCache?.ResolveExportPackage("Core");
+        var objClass = corePackage?.FindClass("Object");
+
 
         foreach (var nativeClass in nativeClasses)
         {
             nativeObjects.Remove(nativeClass);
 
-            var nativeUClass = new UClass(nativeClass.ObjectName, UClass.StaticClass, PackageRoot, this);
+            var nativeUClass = new UClass(nativeClass.ObjectName, UClass.StaticClass, PackageRoot, this, objClass);
             nativeClass.ImportedObject = nativeUClass;
             PackageClasses.Add(nativeUClass);
         }
@@ -245,20 +248,29 @@ public class UnrealPackage
     /// <exception cref="IndexOutOfRangeException"></exception>
     public UObject? GetObject(ObjectIndex index)
     {
-        var importedObject = index.GetReferencedTable() switch
+        try
         {
-            ObjectIndex.ReferencedTable.Null => null,
-            ObjectIndex.ReferencedTable.Import => ImportTable[index.ImportIndex].ImportedObject,
-            ObjectIndex.ReferencedTable.Export => ExportTable[index.ExportIndex].Object,
-            _ => throw new IndexOutOfRangeException(index.GetReferencedTable().ToString())
-        };
+            var importedObject = index.GetReferencedTable() switch
+            {
+                ObjectIndex.ReferencedTable.Null => null,
+                ObjectIndex.ReferencedTable.Import => ImportTable[index.ImportIndex].ImportedObject,
+                ObjectIndex.ReferencedTable.Export => ExportTable[index.ExportIndex].Object,
+                _ => throw new IndexOutOfRangeException(index.GetReferencedTable().ToString())
+            };
 
-        if (index.Index != 0 && importedObject == null)
-        {
-            Debugger.Break();
+            if (index.Index != 0 && importedObject == null)
+            {
+                Debugger.Break();
+            }
+
+            return importedObject;
         }
-
-        return importedObject;
+        catch (Exception e)
+        {
+            return null;
+            Console.WriteLine(e);
+            throw;
+        }
     }
 
     /// <summary>
@@ -431,12 +443,16 @@ public class UnrealPackage
     private UObject CreateInternalImport(ImportTableItem import)
     {
         var classPackageName = GetName(import.ClassPackage);
-        var classPackage = PackageCache!.ResolveExportPackage(classPackageName);
-        UClass? cls = null;
-        if (classPackage != null)
+        var classPackage = classPackageName != PackageName ? PackageCache!.ResolveExportPackage(classPackageName) : this;
+        ArgumentNullException.ThrowIfNull(classPackage);
+        var className = GetName(import.ClassName);
+        var cls = classPackage.FindClass(className);
+        if (cls is null)
         {
-            cls = classPackage.FindClass(GetName(import.ClassName));
+            Debugger.Break();
         }
+
+        ArgumentNullException.ThrowIfNull(cls);
 
         var outerRef = GetObjectReference(import.OuterIndex);
         var outer = outerRef switch
@@ -445,7 +461,9 @@ public class UnrealPackage
             ExportTableItem export => export.Object,
             _ => null
         };
-        var obj = new UObject(import.ObjectName, cls, outer, this);
+
+        //var obj = new UObject(import.ObjectName, cls, outer, this);
+        var obj = cls.NewInstance(import.ObjectName, outer, this, null);
         return obj;
     }
 
@@ -500,14 +518,7 @@ public class UnrealPackage
 
         var nativeClasses = NativeClassFactory.GetNativeClasses(this);
 
-
-        //var corePackageImport = ImportTable.FirstOrDefault(x => GetName(x.ObjectName) == PackageName && GetName(x.ClassName) == "Package");
-        //ArgumentNullException.ThrowIfNull(corePackageImport);
-        //corePackageImport.ImportedObject = PackageRoot;
-        //var nativeClassHelper = new NativeClassRegistrationHelper(PackageRoot);
-        //var nativeClasses = nativeClassHelper.GetNativeClasses(this);
-
-        var coreFName = NameTable.FindIndex(x => x.Name == PackageName);
+        var coreFName = NameTable.FindIndex(x => x.Name == "Core");
         var classFName = NameTable.FindIndex(x => x.Name == "Class");
 
         foreach (var (_, @class) in nativeClasses)
@@ -681,45 +692,27 @@ public class UnrealPackage
     /// <exception cref="InvalidOperationException"></exception>
     public void GraphLink()
     {
-        var graph = new ObjectDependencyGraph();
-        graph.AddImportTableDependencies(ImportTable);
-        graph.AddExportTableDependencies(ExportTable);
-
-        var topoSort = graph.TopologicalSort().Select(x => new ObjectIndex(x));
-        var visited = new HashSet<int>();
-        foreach (var i in topoSort)
+        ArgumentNullException.ThrowIfNull(PackageCache);
+        var dependencyGraph = new CrossPackageDependencyGraph(PackageCache);
+        for (var index = 0; index < ExportTable.Count; index++)
         {
-            var refObj = GetObjectReference(i);
-            switch (refObj)
+            dependencyGraph.AddObjectDependencies(new PackageObjectReference(PackageName, new ObjectIndex(ObjectIndex.FromExportIndex(index))));
+        }
+
+        for (var index = 0; index < ImportTable.Count; index++)
+        {
+            dependencyGraph.AddObjectDependencies(new PackageObjectReference(PackageName, new ObjectIndex(ObjectIndex.FromImportIndex(index))));
+        }
+
+        var loadOrder = dependencyGraph.TopologicalSort();
+        foreach (var packageObjectReference in loadOrder)
+        {
+            var package = PackageCache.ResolveExportPackage(packageObjectReference.PackageName);
+            ArgumentNullException.ThrowIfNull(package);
+            var obj = package?.GetObjectReference(packageObjectReference.ObjectIndex);
+            if (obj != null)
             {
-                case ExportTableItem export:
-                    visited.Add(i.Index);
-                    if (export.OuterIndex.Index != 0 && !visited.Contains(export.OuterIndex.Index))
-                    {
-                        throw new InvalidOperationException();
-                    }
-
-                    if (export.SuperIndex.Index != 0 && !visited.Contains(export.SuperIndex.Index))
-                    {
-                        throw new InvalidOperationException();
-                    }
-
-                    if (export.ArchetypeIndex.Index != 0 && !visited.Contains(export.ArchetypeIndex.Index))
-                    {
-                        throw new InvalidOperationException();
-                    }
-
-                    if (export.ClassIndex.Index != 0 && !visited.Contains(export.ClassIndex.Index))
-                    {
-                        throw new InvalidOperationException();
-                    }
-
-                    CreateExport(i.ExportIndex);
-
-                    break;
-                case ImportTableItem:
-                    visited.Add(i.Index);
-                    break;
+                package!.CreateObject(obj);
             }
         }
     }

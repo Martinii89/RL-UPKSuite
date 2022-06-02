@@ -31,14 +31,15 @@ public class DefaultComponentSerializer : BaseObjectSerializer<UComponent>
             obj.TemplateName = obj.OwnerPackage.GetName(fName);
         }
 
-        try
-        {
-            _objectSerializer.DeserializeObject(obj, objectStream);
-        }
-        catch (Exception e)
-        {
-            throw new Exception($"Failed to deserialize a UComponent: {obj}");
-        }
+        _objectSerializer.DeserializeObject(obj, objectStream);
+
+        //try
+        //{
+        //}
+        //catch (Exception e)
+        //{
+        //    throw new Exception($"Failed to deserialize a UComponent: {obj}");
+        //}
     }
 
     /// <inheritdoc />

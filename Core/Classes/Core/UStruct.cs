@@ -1,5 +1,6 @@
 ﻿using Core.Classes.Core;
 using Core.Classes.Core.Properties;
+using Core.Classes.Engine;
 using Core.Types;
 
 namespace Core.Classes;
@@ -28,9 +29,20 @@ public class UStruct : UField
     public int DataScriptSize { get; set; }
     public long ScriptOffset { get; set; }
 
+    public List<NativeProperty> NativeProperties { get; set; } = new();
+
     public void InitProperties()
     {
         Properties.Clear();
+        foreach (var nativeProperty in NativeProperties)
+        {
+            var prop = nativeProperty.CreateProperty(this);
+            if (prop is not null)
+            {
+                Properties.Add(prop.Name, prop);
+            }
+        }
+
         var properties = GetFieldIterator().OfType<UProperty>();
         foreach (var property in properties)
         {
@@ -40,6 +52,12 @@ public class UStruct : UField
 
     public UProperty? GetProperty(string propertyName)
     {
+        if (!IsDeserialized)
+        {
+            Deserialize();
+            InitProperties();
+        }
+
         if (Properties.ContainsKey(propertyName))
         {
             return Properties[propertyName];
@@ -54,6 +72,29 @@ public class UStruct : UField
     /// <returns></returns>
     public IEnumerable<UProperty> GetPropertyIterator()
     {
+        foreach (var uField in GetFieldIterator())
+        {
+            if (uField is UProperty property)
+            {
+                yield return property;
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Iterate the properties
+    /// </summary>
+    /// <returns></returns>
+    public IEnumerable<UProperty> GetPropertyIteratorIncludingSupers()
+    {
+        if (SuperStruct is not null)
+        {
+            foreach (var superProperty in SuperStruct.GetPropertyIteratorIncludingSupers())
+            {
+                yield return superProperty;
+            }
+        }
+
         foreach (var uField in GetFieldIterator())
         {
             if (uField is UProperty property)
