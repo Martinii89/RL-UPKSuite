@@ -1,4 +1,6 @@
-﻿namespace Core.Serialization;
+﻿using Core.Classes.Core.Structs;
+
+namespace Core.Serialization;
 
 /// <summary>
 ///     Extensions for using the serializers to read and write arrays
@@ -36,6 +38,32 @@ public static class StreamSerializerForExtension
         var result = new List<T>
         {
             Capacity = size.Value
+        };
+
+        for (var i = 0; i < size; i++)
+        {
+            result.Add(serializer.Deserialize(stream));
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    ///     Read a array with serialized element size
+    /// </summary>
+    /// <param name="serializer"></param>
+    /// <param name="stream"></param>
+    /// <param name="size"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public static TArray<T> ReadTArrayWithElementSize<T>(this IStreamSerializerFor<T> serializer, Stream stream, int? size = null)
+    {
+        var elementSize = stream.ReadInt32();
+        size ??= stream.ReadInt32();
+        var result = new TArray<T>
+        {
+            Capacity = size.Value,
+            ElementSize = elementSize
         };
 
         for (var i = 0; i < size; i++)

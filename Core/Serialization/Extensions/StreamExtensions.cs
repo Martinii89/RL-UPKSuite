@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Core.Classes.Core.Structs;
 using Core.Types;
 
 namespace Core.Serialization.Extensions;
@@ -76,6 +77,21 @@ public static class StreamExtensions
     public static List<T> ReadTarray<T>(this Stream stream, Func<Stream, T> readFunc)
     {
         var res = new List<T>();
+        var count = stream.ReadInt32();
+        for (var i = 0; i < count; i++)
+        {
+            res.Add(readFunc(stream));
+        }
+
+        return res;
+    }
+
+    public static TArray<T> ReadTarrayWithElementSize<T>(this Stream stream, Func<Stream, T> readFunc)
+    {
+        var res = new TArray<T>
+        {
+            ElementSize = stream.ReadInt32()
+        };
         var count = stream.ReadInt32();
         for (var i = 0; i < count; i++)
         {
