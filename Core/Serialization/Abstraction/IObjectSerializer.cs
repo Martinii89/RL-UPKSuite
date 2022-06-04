@@ -1,4 +1,6 @@
-﻿namespace Core.Serialization.Abstraction;
+﻿using Core.Classes.Core;
+
+namespace Core.Serialization.Abstraction;
 
 /// <summary>
 ///     A IObjectSerializer reads and writes the object serial data
@@ -95,4 +97,10 @@ public abstract class BaseObjectSerializer<T> : IObjectSerializer<T>
 
     /// <inheritdoc />
     public abstract void SerializeObject(T obj, Stream objectStream);
+
+    protected void DropRamainingNativeData(UObject obj, Stream objectStream)
+    {
+        var remaining = obj.ExportTableItem.SerialOffset + obj.ExportTableItem.SerialSize - objectStream.Position;
+        objectStream.Move(remaining);
+    }
 }

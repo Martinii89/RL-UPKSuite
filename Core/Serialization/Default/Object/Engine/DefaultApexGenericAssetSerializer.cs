@@ -14,6 +14,7 @@ public class DefaultApexGenericAssetSerializer : BaseObjectSerializer<UApexGener
         _objectSerializer = objectSerializer;
     }
 
+    /// <inheritdoc />
     public override void DeserializeObject(UApexGenericAsset obj, Stream objectStream)
     {
         _objectSerializer.DeserializeObject(obj, objectStream);
@@ -27,6 +28,7 @@ public class DefaultApexGenericAssetSerializer : BaseObjectSerializer<UApexGener
         }
     }
 
+    /// <inheritdoc />
     public override void SerializeObject(UApexGenericAsset obj, Stream objectStream)
     {
         throw new NotImplementedException();

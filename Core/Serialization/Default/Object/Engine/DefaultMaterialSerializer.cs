@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Core.Classes.Core;
+﻿using Core.Classes.Core;
 using Core.Classes.Engine;
 using Core.Serialization.Abstraction;
 using Core.Serialization.Extensions;
@@ -23,10 +22,6 @@ public class DefaultMaterialSerializer : BaseObjectSerializer<UMaterial>
     public override void DeserializeObject(UMaterial obj, Stream objectStream)
     {
         _objectSerializer.DeserializeObject(obj, objectStream);
-        if (obj.Name == "Body_Paintable_Mat")
-        {
-            Debugger.Break();
-        }
 
         obj.FMaterialResources[0] = _materialResourceSerializer.Deserialize(objectStream);
         var leftOver = obj.ExportTableItem.SerialOffset + obj.ExportTableItem.SerialSize - objectStream.Position;
