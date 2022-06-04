@@ -1,4 +1,5 @@
-﻿using Core.Classes.Core;
+﻿using System.Diagnostics;
+using Core.Classes.Core;
 using Core.Classes.Engine;
 using Core.Serialization.Abstraction;
 using Core.Serialization.Extensions;
@@ -22,7 +23,14 @@ public class DefaultMaterialSerializer : BaseObjectSerializer<UMaterial>
     public override void DeserializeObject(UMaterial obj, Stream objectStream)
     {
         _objectSerializer.DeserializeObject(obj, objectStream);
+        if (obj.Name == "Body_Paintable_Mat")
+        {
+            Debugger.Break();
+        }
+
         obj.FMaterialResources[0] = _materialResourceSerializer.Deserialize(objectStream);
+        var leftOver = obj.ExportTableItem.SerialOffset + obj.ExportTableItem.SerialSize - objectStream.Position;
+        obj.FMaterialResources[0].UnknownBytes = objectStream.ReadBytes((int) leftOver);
     }
 
     public override void SerializeObject(UMaterial obj, Stream objectStream)
@@ -51,28 +59,37 @@ public class FmaterialResourceSerializer : IStreamSerializerFor<FMaterialResourc
     public FMaterialResource Deserialize(Stream stream)
     {
         var res = new FMaterialResource();
-        res.CompileErrors = _fstringSerializer.ReadTArrayToList(stream).Select(x => x.InnerString).ToList();
 
-        res.TextureDependencyLengthMap = stream.ReadDictionary(ReadObjectIndex, ReadInt);
-        res.MaxTextureDependencyLength = stream.ReadInt32();
-        res.ID = _fguidSerializer.Deserialize(stream);
-        res.NumUserTexCoords = stream.ReadUInt32();
-        res.UniformExpressionTextures = _objectIndexSerializer.ReadTArrayToList(stream);
-        res.bUsesSceneColorTemp = stream.ReadInt32() == 1;
-        res.bUsesSceneDepthTemp = stream.ReadInt32() == 1;
-        res.bUsesDynamicParameterTemp = stream.ReadInt32() == 1;
-        res.bUsesLightmapUVsTemp = stream.ReadInt32() == 1;
-        res.bUsesMaterialVertexPositionOffsetTemp = stream.ReadInt32() == 1;
-        res.UsingTransforms = stream.ReadInt32() == 1;
-        res.FTextureLookupInfos = stream.ReadTarray(stream1 => new FTextureLookupInfo
+        try
         {
-            TexCoordIndex = stream.ReadInt32(),
-            TextureIndex = stream.ReadInt32(),
-            UScale = stream.ReadSingle(),
-            VScale = stream.ReadSingle()
-        });
+            res.CompileErrors = _fstringSerializer.ReadTArrayToList(stream).Select(x => x.InnerString).ToList();
+            res.TextureDependencyLengthMap = stream.ReadDictionary(ReadObjectIndex, ReadInt);
+            res.MaxTextureDependencyLength = stream.ReadInt32();
+            res.ID = _fguidSerializer.Deserialize(stream);
+            res.NumUserTexCoords = stream.ReadUInt32();
+            res.UniformExpressionTextures = _objectIndexSerializer.ReadTArrayToList(stream);
+            res.bUsesSceneColorTemp = stream.ReadInt32() == 1;
+            res.bUsesSceneDepthTemp = stream.ReadInt32() == 1;
+            res.bUsesDynamicParameterTemp = stream.ReadInt32() == 1;
+            res.bUsesLightmapUVsTemp = stream.ReadInt32() == 1;
+            res.bUsesMaterialVertexPositionOffsetTemp = stream.ReadInt32() == 1;
+            res.UsingTransforms = stream.ReadInt32() == 1;
+            res.FTextureLookupInfos = stream.ReadTarray(stream1 => new FTextureLookupInfo
+            {
+                TexCoordIndex = stream.ReadInt32(),
+                TextureIndex = stream.ReadInt32(),
+                UScale = stream.ReadSingle(),
+                VScale = stream.ReadSingle()
+            });
 
-        res.UnknownBytes = stream.ReadBytes(16);
+            res.UnknownBytes = stream.ReadBytes(16);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+
 
         return res;
     }

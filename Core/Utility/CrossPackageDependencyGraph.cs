@@ -1,4 +1,5 @@
-﻿using Core.Types;
+﻿using System.Diagnostics;
+using Core.Types;
 using Core.Types.PackageTables;
 
 namespace Core.Utility;
@@ -134,6 +135,7 @@ public class CrossPackageDependencyGraph
             var objPackage = _packagePackageCache.ResolveExportPackage(currentObj.PackageName);
             if (objPackage is null)
             {
+                Debugger.Break();
                 throw new InvalidOperationException($"Can't find the package to resolve dependencies for {currentObj.PackageName}");
             }
 
@@ -158,13 +160,13 @@ public class CrossPackageDependencyGraph
         UnrealPackage objPackage)
     {
         var clzReference = ResolveImportClassReference(import, objPackage);
-        if (clzReference.NativeClass is null && !_adj.ContainsKey(clzReference))
+        if (!clzReference.IsNull() && clzReference.NativeClass is null && !_adj.ContainsKey(clzReference))
         {
             objQueue.Enqueue(clzReference);
         }
 
         // class of UClass could return itself
-        if (clzReference != currentObj)
+        if (!clzReference.IsNull() && clzReference != currentObj)
         {
             AddEdge(clzReference, currentObj);
         }
@@ -222,6 +224,7 @@ public class CrossPackageDependencyGraph
         var importPackage = clsPackageName == objPackage.PackageName ? objPackage : _packagePackageCache.ResolveExportPackage(clsPackageName);
         if (importPackage is null)
         {
+            Debugger.Break();
             // null reference
             return new PackageObjectReference();
         }
@@ -266,6 +269,7 @@ public class CrossPackageDependencyGraph
 
         var packageObjectReference = new PackageObjectReference();
         _fullNameToReferenceCache.Add(fullName, packageObjectReference);
+        //Debugger.Break();
         return packageObjectReference;
     }
 

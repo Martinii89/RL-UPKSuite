@@ -1,4 +1,6 @@
-﻿using Core.Types;
+﻿using Core.Serialization;
+using Core.Types;
+using Core.Types.PackageTables;
 
 namespace Core.Classes.Core.Properties;
 
@@ -17,4 +19,12 @@ public class UDelegateProperty : UProperty
 
     public UFunction? FunctionObject { get; set; }
     public UObject? DelegateObject { get; set; }
+
+    //public override object? DeserializeValue(UObject obj, Stream objStream, int propertySize, IStreamSerializerFor<FName> fnameSerializer,
+    //    IStreamSerializerFor<ObjectIndex> objectIndexSerializer)
+    //{
+    //    objStream.Move(propertySize);
+    //    return null;
+    //    //return base.DeserializeValue(obj, objStream, propertySize, fnameSerializer, objectIndexSerializer);
+    //}
 }

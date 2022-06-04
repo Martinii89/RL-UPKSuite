@@ -54,6 +54,20 @@ public class DefaultStaticMeshSerializer : BaseObjectSerializer<UStaticMesh>
 
         obj.Lods = _staticMeshLodModel3Serializer.ReadTArrayToList(objectStream);
 
+        //obj.LODInfo = objectStream.ReadTarray(stream =>
+        //{
+        //    var res = new FStaticMeshLODInfo();
+        //    res.Elements = stream.ReadTarray(stream1 =>
+        //    {
+        //        var element = new FStaticMeshLODElement();
+        //        element.Material = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream)) as UMaterialInterface;
+        //        element.bEnableShadowCasting = stream1.ReadInt32() == 1;
+        //        element.bEnableCollision = stream1.ReadInt32() == 1;
+        //        return element;
+        //    });
+        //    return res;
+        //});
+
         var unknownDataLength = (int) (obj.ExportTableItem!.SerialSize - (objectStream.Position - obj.ExportTableItem!.SerialOffset));
         obj.UnknownBytes = objectStream.ReadBytes(unknownDataLength);
     }

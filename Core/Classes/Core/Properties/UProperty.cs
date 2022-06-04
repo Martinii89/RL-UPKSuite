@@ -42,7 +42,7 @@ public abstract class UProperty : UField
     public virtual object? DeserializeValue(UObject obj, Stream objStream, int propertySize, IStreamSerializerFor<FName> fnameSerializer,
         IStreamSerializerFor<ObjectIndex> objectIndexSerializer)
     {
-        throw new NotImplementedException();
+        throw new NotImplementedException(Class?.Name);
     }
 
     /// <summary>

@@ -43,6 +43,7 @@ public class FMaterial
 
 public class FMaterialResource : FMaterial
 {
+    public int Unk { get; set; }
 }
 
 public class FTextureLookupInfo

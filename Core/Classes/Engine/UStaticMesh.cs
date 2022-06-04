@@ -65,7 +65,9 @@ public class UStaticMesh : UObject
     public byte[] UnknownBytes { get; set; }
 
     // script properties
-    //public bool UseSimpleLineCollision { get; set; }
+    [NativeProperty(PropertyType.BoolProperty)]
+    public bool UseSimpleLineCollision { get; set; }
+
     //public bool UseSimpleBoxCollision { get; set; }
     //public bool UseSimpleRigidBodyCollision { get; set; }
     //public bool UseFullPrecisionUVs { get; set; }
@@ -73,8 +75,12 @@ public class UStaticMesh : UObject
     //public bool bUseMaximumStreamingTexelRatio { get; set; }
     //public bool bPartitionForEdgeGeometry { get; set; }
     //public bool bCanBecomeDynamic { get; set; }
-    //public int LightMapResolution { get; set; }
-    //public int LightMapCoordinateIndex { get; set; }
+
+    [NativeProperty(PropertyType.IntProperty)]
+    public int LightMapResolution { get; set; }
+
+    [NativeProperty(PropertyType.IntProperty)]
+    public int LightMapCoordinateIndex { get; set; }
     //public float LODDistanceRatio { get; set; }
     //public float LODMaxRange { get; set; }
     //public float StreamingDistanceMultiplier { get; set; }
