@@ -1,4 +1,5 @@
-﻿using Core.Classes.Engine.Structs;
+﻿using Core.Classes.Core.Structs;
+using Core.Classes.Engine.Structs;
 
 namespace Core.Serialization.Default.Object.Engine.Struct;
 

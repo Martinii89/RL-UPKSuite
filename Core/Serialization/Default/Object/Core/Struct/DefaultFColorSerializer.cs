@@ -1,6 +1,6 @@
-﻿using Core.Classes.Engine.Structs;
+﻿using Core.Classes.Core.Structs;
 
-namespace Core.Serialization.Default.Object.Engine.Struct;
+namespace Core.Serialization.Default.Object.Core.Struct;
 
 public class DefaultFColorStreamSerializer : IStreamSerializerFor<FColor>
 {
