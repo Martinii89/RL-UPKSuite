@@ -1,6 +1,7 @@
 ﻿using Core.Classes;
 using Core.Classes.Engine;
 using Core.Serialization.Abstraction;
+using Core.Serialization.Extensions;
 
 namespace Core.Serialization.Default.Object.Engine;
 
@@ -16,13 +17,7 @@ public class DefaultDominantDirectionalLightComponentSerializer : BaseObjectSeri
     /// <inheritdoc />
     public override void DeserializeObject(UDominantDirectionalLightComponent obj, Stream objectStream)
     {
-        var dominantLightShadowMapCount = objectStream.ReadInt32();
-
-        for (var i = 0; i < dominantLightShadowMapCount; i++)
-        {
-            obj.DominantLightShadowMap.AddRange(objectStream.ReadUInt16s(dominantLightShadowMapCount));
-        }
-
+        obj.DominantLightShadowMap = objectStream.ReadTarray(stream => stream.ReadUInt16());
         _componentSerializer.DeserializeObject(obj, objectStream);
     }
 
