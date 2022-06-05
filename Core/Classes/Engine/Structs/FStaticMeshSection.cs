@@ -16,43 +16,4 @@ public class FStaticMeshSection
     public int Index { get; init; }
     public List<TwoInts> F30 { get; init; } = new();
     public byte Unk { get; init; }
-
-    //public void Deserialize(BinaryReader Reader)
-    //{
-    //    if (Reader is UnrealReader r)
-    //    {
-    //        var package = r.GetPackage();
-    //        Mat = package.Stream.ReadObject();
-    //    }
-    //    else
-    //    {
-    //        MatIndex = Reader.ReadInt32();
-    //    }
-
-    //    F10 = Reader.ReadInt32();
-    //    F14 = Reader.ReadInt32();
-    //    BEnableShadowCasting = Reader.ReadInt32();
-    //    FirstIndex = Reader.ReadInt32();
-    //    NumFaces = Reader.ReadInt32();
-    //    F24 = Reader.ReadInt32();
-    //    F28 = Reader.ReadInt32();
-    //    Index = Reader.ReadInt32();
-    //    F30.Deserialize(Reader);
-    //    Unk = Reader.ReadByte();
-    //}
-
-    //public void Serialize(IUnrealStream writer)
-    //{
-    //    writer.Write((int) 0); // Mat
-    //    writer.Write(F10);
-    //    writer.Write(F14);
-    //    writer.Write(BEnableShadowCasting);
-    //    writer.Write(FirstIndex);
-    //    writer.Write(NumFaces);
-    //    writer.Write(F24);
-    //    writer.Write(F28);
-    //    writer.Write(Index);
-    //    F30.Serialize(writer);
-    //    writer.Write(Unk);
-    //}
 }

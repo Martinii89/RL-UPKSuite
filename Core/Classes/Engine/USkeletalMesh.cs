@@ -13,9 +13,13 @@ public class USkeletalMesh : UObject
     {
     }
 
+    public List<FStaticLodModel> LODModels { get; set; } = new();
     public FBoxSphereBounds BoxSphereBounds { get; set; } = new();
-    public List<UMaterial?> Materials { get; set; } = new();
+    public List<UMaterialInterface?> Materials { get; set; } = new();
     public FVector Origin { get; set; } = new();
     public FRotator RotOrigin { get; set; } = new();
     public List<FMeshBone> RefSkeleton { get; set; } = new();
+    public int SkeletalDepth { get; set; }
+    public Dictionary<string, int> NameMap { get; set; } = new();
+    public List<UObject?> ClothingAssets { get; set; } = new();
 }
