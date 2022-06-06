@@ -1,5 +1,6 @@
 ﻿using Core.Classes.Core;
 using Core.Classes.Core.Properties;
+using Core.Classes.Core.Structs;
 using Core.Types;
 
 namespace Core.Classes.Engine;
@@ -26,4 +27,45 @@ public class ULevel : ULevelBase
 
     [NativeProperty(PropertyType.FloatProperty)]
     public float LightmapTotalSize { get; set; }
+
+    public FURL URL { get; set; }
+
+    public TransientArray<UObject> Actors { get; set; } = new();
+    public FURL Url { get; set; } = new();
+    public UObject? Model { get; set; }
+    public List<UObject?> ModelComponents { get; set; } = new();
+    public List<UObject?> GameSequences { get; set; } = new();
+    public Dictionary<UTexture, List<FStreamableTextureInstance>> TextureToInstancesMap { get; set; } = new();
+    public Dictionary<UComponent, List<FDynamicTextureInstance>> DynamicTextureInstances { get; set; } = new();
+}
+
+public class FStreamableTextureInstance
+{
+    public FVector Center { get; set; } = new();
+    public int W { get; set; }
+    public float TexelFactor { get; set; }
+}
+
+public class FDynamicTextureInstance : FStreamableTextureInstance
+{
+    public UTexture? Tex { get; set; }
+    public int BAttached { get; set; }
+    public float OriginalRadius { get; set; }
+}
+
+public class FURL
+{
+    public string Protocol { get; set; }
+    public string Host { get; set; }
+    public string Map { get; set; }
+    public string Portal { get; set; }
+    public List<string> Op { get; set; } = new();
+    public int Port { get; set; }
+    public int Valid { get; set; }
+}
+
+public class TransientArray<T>
+{
+    public T? Super { get; set; }
+    public List<T?> Data { get; set; } = new();
 }

@@ -176,6 +176,7 @@ public class UnrealPackage
     private void AddNativeClassesFromImports()
     {
         var nativeObjects = GetNativeObjectsFromImportsInPackage().Where(x => x.ImportedObject is null).ToList();
+        //var names = nativeObjects.Select(GetFullName).ToList();
         var nativeClasses = nativeObjects.Where(x => GetName(x.ClassName) == "Class").ToList();
         var corePackage = PackageName == "Core" ? this : PackageCache?.ResolveExportPackage("Core");
         var objClass = corePackage?.FindClass("Object");
@@ -412,6 +413,7 @@ public class UnrealPackage
             if (importTableItem.ImportedObject == null)
             {
                 //most likely a native class. Stub it
+                Debugger.Break();
                 var cls = new UClass(importTableItem.ObjectName, UClass.StaticClass, importPackage.PackageRoot, this);
                 importTableItem.ImportedObject = cls;
                 importPackage.PackageClasses.Add(cls);
