@@ -442,10 +442,16 @@ public class UnrealPackage
     /// <param name="import"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private UObject CreateInternalImport(ImportTableItem import)
+    private UObject? CreateInternalImport(ImportTableItem import)
     {
         var classPackageName = GetName(import.ClassPackage);
         var classPackage = classPackageName != PackageName ? PackageCache!.ResolveExportPackage(classPackageName) : this;
+        if (classPackage == null)
+        {
+            Debugger.Break();
+            return null;
+        }
+
         ArgumentNullException.ThrowIfNull(classPackage);
         var className = GetName(import.ClassName);
         var cls = classPackage.FindClass(className);

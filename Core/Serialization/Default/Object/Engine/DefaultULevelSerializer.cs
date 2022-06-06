@@ -1,4 +1,5 @@
-﻿using Core.Classes;
+﻿using System.Diagnostics;
+using Core.Classes;
 using Core.Classes.Core;
 using Core.Classes.Core.Structs;
 using Core.Classes.Engine;
@@ -14,18 +15,26 @@ public class DefaultULevelSerializer : BaseObjectSerializer<ULevel>
     private readonly IStreamSerializerFor<FKCachedConvexData> _kCachedConvexDataSerializer;
     private readonly IStreamSerializerFor<ObjectIndex> _objectIndexSerializer;
     private readonly IObjectSerializer<UObject> _objectSerializer;
+    private readonly IStreamSerializerFor<FPrecomputedLightVolume> _precomputedLightVolumeSerializer;
+    private readonly IStreamSerializerFor<FPrecomputedVisibilityHandler> _precomputedVisibilityHandlerSerializer;
+    private readonly IStreamSerializerFor<FPrecomputedVolumeDistanceField> _precomputedVolumeDistanceFieldSerializer;
     private readonly IStreamSerializerFor<FURL> _urlSerializer;
     private readonly IStreamSerializerFor<FVector> _vectorSerializer;
 
     public DefaultULevelSerializer(IObjectSerializer<UObject> objectSerializer, IStreamSerializerFor<ObjectIndex> objectIndexSerializer,
         IStreamSerializerFor<FVector> vectorSerializer, IStreamSerializerFor<FURL> urlSerializer,
-        IStreamSerializerFor<FKCachedConvexData> kCachedConvexDataSerializer)
+        IStreamSerializerFor<FKCachedConvexData> kCachedConvexDataSerializer, IStreamSerializerFor<FPrecomputedLightVolume> precomputedLightVolumeSerializer,
+        IStreamSerializerFor<FPrecomputedVisibilityHandler> precomputedVisibilityHandlerSerializer,
+        IStreamSerializerFor<FPrecomputedVolumeDistanceField> precomputedVolumeDistanceFieldSerializer)
     {
         _objectSerializer = objectSerializer;
         _objectIndexSerializer = objectIndexSerializer;
         _vectorSerializer = vectorSerializer;
         _urlSerializer = urlSerializer;
         _kCachedConvexDataSerializer = kCachedConvexDataSerializer;
+        _precomputedLightVolumeSerializer = precomputedLightVolumeSerializer;
+        _precomputedVisibilityHandlerSerializer = precomputedVisibilityHandlerSerializer;
+        _precomputedVolumeDistanceFieldSerializer = precomputedVolumeDistanceFieldSerializer;
     }
 
     /// <inheritdoc />
@@ -46,6 +55,78 @@ public class DefaultULevelSerializer : BaseObjectSerializer<ULevel>
         obj.CachedPhysBSPData = objectStream.ReadTarrayWithElementSize(stream => (byte) stream.ReadByte());
         ReadCachedPhysSMDataMap(obj, objectStream);
         obj.CachedPhysSMDataStore = _kCachedConvexDataSerializer.ReadTArrayToList(objectStream);
+        ReadCachedPhysPerTriSMDataMap(obj, objectStream);
+        obj.CachedPhysPerTriSMDataStore = objectStream.ReadTarray(stream =>
+        {
+            return new FKCachedPerTriData
+            {
+                CachedPerTriData = stream.ReadTarrayWithElementSize(stream => (byte) stream.ReadByte())
+            };
+        });
+        obj.CachedPhysBSPDataVersion = objectStream.ReadInt32();
+        obj.CachedPhysSMDataVersion = objectStream.ReadInt32();
+        ReadForceStreamTextures(obj, objectStream);
+        obj.CachedPhysConvexBSPData = objectStream.ReadTarray(stream =>
+        {
+            return new FKCachedConvexDataElement
+            {
+                ConvexElementData = stream.ReadTarrayWithElementSize(stream => (byte) stream.ReadByte())
+            };
+        });
+        obj.CachedPhysConvexBSPVersion = objectStream.ReadInt32();
+        obj.NavListStart = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream));
+        obj.NavListEnd = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream));
+        obj.CoverListStart = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream));
+        obj.CoverListEnd = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream));
+        obj.PylonListStart = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream));
+        obj.PylonListEnd = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream));
+        obj.UnkArrayCountOf20Bytes = objectStream.ReadInt32();
+        if (obj.UnkArrayCountOf20Bytes > 0)
+        {
+            Debugger.Break();
+            objectStream.Move(obj.UnkArrayCountOf20Bytes * 20);
+        }
+
+        obj.SomeObjectArray = objectStream.ReadTarray(stream => obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream)));
+        obj.SomeObjectBytePairArray = objectStream.ReadTarray(stream =>
+            new Tuple<UObject?, byte>(obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream)), (byte) objectStream.ReadByte()));
+        obj.CrossLevelActors = objectStream.ReadTarray(stream => obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream)));
+        obj.FPrecomputedLightVolume = _precomputedLightVolumeSerializer.Deserialize(objectStream);
+        obj.PrecomputedLightVolume = _precomputedVisibilityHandlerSerializer.Deserialize(objectStream);
+        obj.PrecomputedVolumeDistanceField = _precomputedVolumeDistanceFieldSerializer.Deserialize(objectStream);
+    }
+
+    private void ReadForceStreamTextures(ULevel obj, Stream objectStream)
+    {
+        UTexture KeyRead(Stream stream)
+        {
+            var mesh = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(stream)) as UTexture;
+            ArgumentNullException.ThrowIfNull(mesh);
+            return mesh;
+        }
+
+        obj.ForceStreamTextures = objectStream.ReadDictionary(KeyRead, stream => stream.ReadInt32() == 1);
+    }
+
+    private void ReadCachedPhysPerTriSMDataMap(ULevel obj, Stream objectStream)
+    {
+        UStaticMesh KeyRead(Stream stream)
+        {
+            var mesh = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(stream)) as UStaticMesh;
+            ArgumentNullException.ThrowIfNull(mesh);
+            return mesh;
+        }
+
+        FCachedPerTriPhysSMData ValRead(Stream stream)
+        {
+            return new FCachedPerTriPhysSMData
+            {
+                Scale3d = _vectorSerializer.Deserialize(stream),
+                CachedDataIndex = stream.ReadInt32()
+            };
+        }
+
+        obj.CachedPhysPerTriSMDataMap = objectStream.ReadDictionary(KeyRead, ValRead);
     }
 
     private void ReadCachedPhysSMDataMap(ULevel obj, Stream objectStream)
@@ -118,28 +199,6 @@ public class DefaultULevelSerializer : BaseObjectSerializer<ULevel>
 
     /// <inheritdoc />
     public override void SerializeObject(ULevel obj, Stream objectStream)
-    {
-        throw new NotImplementedException();
-    }
-}
-
-public class DefaultFURLSerialize : IStreamSerializerFor<FURL>
-{
-    public FURL Deserialize(Stream stream)
-    {
-        return new FURL
-        {
-            Protocol = stream.ReadFString(),
-            Host = stream.ReadFString(),
-            Map = stream.ReadFString(),
-            Portal = stream.ReadFString(),
-            Op = stream.ReadTarray(stream1 => stream1.ReadFString()),
-            Port = stream.ReadInt32(),
-            Valid = stream.ReadInt32()
-        };
-    }
-
-    public void Serialize(Stream stream, FURL value)
     {
         throw new NotImplementedException();
     }
