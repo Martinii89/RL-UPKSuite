@@ -1,17 +1,19 @@
 ﻿using Core.Classes.Core;
 using Core.Classes.Engine;
+using Core.Classes.Engine.Structs;
 using Core.Serialization.Abstraction;
-using Core.Serialization.Extensions;
 
 namespace Core.Serialization.Default.Object.Engine;
 
 public class DefaultRB_BodySetupSerializer : BaseObjectSerializer<URB_BodySetup>
 {
+    private readonly IStreamSerializerFor<FKCachedConvexData> _kCachedConvexDataSerializer;
     private readonly IObjectSerializer<UObject> _objectSerializer;
 
-    public DefaultRB_BodySetupSerializer(IObjectSerializer<UObject> objectSerializer)
+    public DefaultRB_BodySetupSerializer(IObjectSerializer<UObject> objectSerializer, IStreamSerializerFor<FKCachedConvexData> kCachedConvexDataSerializer)
     {
         _objectSerializer = objectSerializer;
+        _kCachedConvexDataSerializer = kCachedConvexDataSerializer;
     }
 
     /// <inheritdoc />
@@ -19,28 +21,8 @@ public class DefaultRB_BodySetupSerializer : BaseObjectSerializer<URB_BodySetup>
     {
         _objectSerializer.DeserializeObject(obj, objectStream);
 
-        //var preCachedPhysDataCount = objectStream.ReadInt32();
 
-        obj.PreCachedPhysData = objectStream.ReadTarray(stream =>
-        {
-            var res = new FKCachedConvexData
-            {
-                CachedConvexElements = stream.ReadTarray(stream1 =>
-                {
-                    var data = new FKCachedConvexDataElement
-                    {
-                        ConvexElementData = stream1.ReadTarray(stream2 => (byte) stream2.ReadByte())
-                    };
-                    return data;
-                })
-            };
-            return res;
-        });
-
-        //if (preCachedPhysDataCount != 0)
-        //{
-        //    Debugger.Break();
-        //}
+        obj.PreCachedPhysData = _kCachedConvexDataSerializer.ReadTArrayToList(objectStream);
     }
 
     /// <inheritdoc />

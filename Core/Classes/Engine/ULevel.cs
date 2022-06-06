@@ -1,6 +1,7 @@
 ﻿using Core.Classes.Core;
 using Core.Classes.Core.Properties;
 using Core.Classes.Core.Structs;
+using Core.Classes.Engine.Structs;
 using Core.Types;
 
 namespace Core.Classes.Engine;
@@ -37,6 +38,15 @@ public class ULevel : ULevelBase
     public List<UObject?> GameSequences { get; set; } = new();
     public Dictionary<UTexture, List<FStreamableTextureInstance>> TextureToInstancesMap { get; set; } = new();
     public Dictionary<UComponent, List<FDynamicTextureInstance>> DynamicTextureInstances { get; set; } = new();
+    public TArray<byte> CachedPhysBSPData { get; set; } = new();
+    public Dictionary<UStaticMesh, FCachedPhysSMData> CachedPhysSMDataMap { get; set; }
+    public List<FKCachedConvexData> CachedPhysSMDataStore { get; set; }
+}
+
+public class FCachedPhysSMData
+{
+    public FVector Scale3d { get; set; } = new();
+    public int CachedDataIndex { get; set; }
 }
 
 public class FStreamableTextureInstance

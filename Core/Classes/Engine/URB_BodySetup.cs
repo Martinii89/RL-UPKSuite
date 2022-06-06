@@ -1,4 +1,5 @@
 ﻿using Core.Classes.Core;
+using Core.Classes.Engine.Structs;
 using Core.Types;
 
 namespace Core.Classes.Engine;
@@ -12,14 +13,4 @@ public class URB_BodySetup : UKMeshProps
     }
 
     public List<FKCachedConvexData> PreCachedPhysData { get; set; } = new();
-}
-
-public class FKCachedConvexDataElement
-{
-    public List<byte> ConvexElementData { get; set; } = new();
-}
-
-public class FKCachedConvexData
-{
-    public List<FKCachedConvexDataElement> CachedConvexElements { get; set; } = new();
 }

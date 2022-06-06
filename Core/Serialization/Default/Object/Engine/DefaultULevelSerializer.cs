@@ -2,6 +2,7 @@
 using Core.Classes.Core;
 using Core.Classes.Core.Structs;
 using Core.Classes.Engine;
+using Core.Classes.Engine.Structs;
 using Core.Serialization.Abstraction;
 using Core.Serialization.Extensions;
 using Core.Types.PackageTables;
@@ -10,18 +11,21 @@ namespace Core.Serialization.Default.Object.Engine;
 
 public class DefaultULevelSerializer : BaseObjectSerializer<ULevel>
 {
+    private readonly IStreamSerializerFor<FKCachedConvexData> _kCachedConvexDataSerializer;
     private readonly IStreamSerializerFor<ObjectIndex> _objectIndexSerializer;
     private readonly IObjectSerializer<UObject> _objectSerializer;
     private readonly IStreamSerializerFor<FURL> _urlSerializer;
     private readonly IStreamSerializerFor<FVector> _vectorSerializer;
 
     public DefaultULevelSerializer(IObjectSerializer<UObject> objectSerializer, IStreamSerializerFor<ObjectIndex> objectIndexSerializer,
-        IStreamSerializerFor<FVector> vectorSerializer, IStreamSerializerFor<FURL> urlSerializer)
+        IStreamSerializerFor<FVector> vectorSerializer, IStreamSerializerFor<FURL> urlSerializer,
+        IStreamSerializerFor<FKCachedConvexData> kCachedConvexDataSerializer)
     {
         _objectSerializer = objectSerializer;
         _objectIndexSerializer = objectIndexSerializer;
         _vectorSerializer = vectorSerializer;
         _urlSerializer = urlSerializer;
+        _kCachedConvexDataSerializer = kCachedConvexDataSerializer;
     }
 
     /// <inheritdoc />
@@ -37,6 +41,32 @@ public class DefaultULevelSerializer : BaseObjectSerializer<ULevel>
         obj.GameSequences = objectStream.ReadTarray(stream => obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream)));
         ReadTextureToInstancesMap(obj, objectStream);
         ReadDynamicTextureInstances(obj, objectStream);
+        var size = objectStream.ReadInt32();
+        objectStream.Move(size);
+        obj.CachedPhysBSPData = objectStream.ReadTarrayWithElementSize(stream => (byte) stream.ReadByte());
+        ReadCachedPhysSMDataMap(obj, objectStream);
+        obj.CachedPhysSMDataStore = _kCachedConvexDataSerializer.ReadTArrayToList(objectStream);
+    }
+
+    private void ReadCachedPhysSMDataMap(ULevel obj, Stream objectStream)
+    {
+        UStaticMesh KeyRead(Stream stream)
+        {
+            var mesh = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(stream)) as UStaticMesh;
+            ArgumentNullException.ThrowIfNull(mesh);
+            return mesh;
+        }
+
+        FCachedPhysSMData ValRead(Stream stream)
+        {
+            return new FCachedPhysSMData
+            {
+                Scale3d = _vectorSerializer.Deserialize(stream),
+                CachedDataIndex = stream.ReadInt32()
+            };
+        }
+
+        obj.CachedPhysSMDataMap = objectStream.ReadDictionary(KeyRead, ValRead);
     }
 
     private void ReadDynamicTextureInstances(ULevel obj, Stream objectStream)
