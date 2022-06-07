@@ -68,6 +68,31 @@ public static class StreamExtensions
     }
 
     /// <summary>
+    ///     Generic reader for TMultiMap objects. Requires a provided function to read the key and values
+    /// </summary>
+    /// <typeparam name="TKey"></typeparam>
+    /// <typeparam name="TVal"></typeparam>
+    /// <param name="stream"></param>
+    /// <param name="keyRead"></param>
+    /// <param name="valRead"></param>
+    /// <returns></returns>
+    public static TMultiMap<TKey, TVal> ReadTMap<TKey, TVal>(this Stream stream, Func<Stream, TKey> keyRead, Func<Stream, TVal> valRead)
+        where TKey : notnull
+    {
+        var res = new TMultiMap<TKey, TVal>();
+
+        var mapCount = stream.ReadInt32();
+
+        for (var i = 0; i < mapCount; i++)
+        {
+            res.Add(keyRead(stream), valRead(stream));
+        }
+
+
+        return res;
+    }
+
+    /// <summary>
     ///     Read a TArray with a given read function. Useful when you don't wanna create a specialized object reader
     /// </summary>
     /// <param name="stream"></param>

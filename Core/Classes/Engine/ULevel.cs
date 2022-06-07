@@ -39,9 +39,9 @@ public class ULevel : ULevelBase
     public Dictionary<UTexture, List<FStreamableTextureInstance>> TextureToInstancesMap { get; set; } = new();
     public Dictionary<UComponent, List<FDynamicTextureInstance>> DynamicTextureInstances { get; set; } = new();
     public TArray<byte> CachedPhysBSPData { get; set; } = new();
-    public Dictionary<UStaticMesh, FCachedPhysSMData> CachedPhysSMDataMap { get; set; } = new();
+    public TMultiMap<UStaticMesh, FCachedPhysSMData> CachedPhysSMDataMap { get; set; } = new();
     public List<FKCachedConvexData> CachedPhysSMDataStore { get; set; } = new();
-    public Dictionary<UStaticMesh, FCachedPerTriPhysSMData> CachedPhysPerTriSMDataMap { get; set; } = new();
+    public TMultiMap<UStaticMesh, FCachedPerTriPhysSMData> CachedPhysPerTriSMDataMap { get; set; } = new();
     public List<FKCachedPerTriData> CachedPhysPerTriSMDataStore { get; set; } = new();
     public int CachedPhysBSPDataVersion { get; set; }
     public int CachedPhysSMDataVersion { get; set; }

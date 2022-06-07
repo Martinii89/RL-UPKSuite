@@ -10,7 +10,7 @@ using Core.Types.PackageTables;
 
 namespace Core.Serialization.Default.Object.Engine;
 
-public class DefaultULevelSerializer : BaseObjectSerializer<ULevel>
+public class DefaultLevelSerializer : BaseObjectSerializer<ULevel>
 {
     private readonly IStreamSerializerFor<FKCachedConvexData> _kCachedConvexDataSerializer;
     private readonly IStreamSerializerFor<ObjectIndex> _objectIndexSerializer;
@@ -21,7 +21,7 @@ public class DefaultULevelSerializer : BaseObjectSerializer<ULevel>
     private readonly IStreamSerializerFor<FURL> _urlSerializer;
     private readonly IStreamSerializerFor<FVector> _vectorSerializer;
 
-    public DefaultULevelSerializer(IObjectSerializer<UObject> objectSerializer, IStreamSerializerFor<ObjectIndex> objectIndexSerializer,
+    public DefaultLevelSerializer(IObjectSerializer<UObject> objectSerializer, IStreamSerializerFor<ObjectIndex> objectIndexSerializer,
         IStreamSerializerFor<FVector> vectorSerializer, IStreamSerializerFor<FURL> urlSerializer,
         IStreamSerializerFor<FKCachedConvexData> kCachedConvexDataSerializer, IStreamSerializerFor<FPrecomputedLightVolume> precomputedLightVolumeSerializer,
         IStreamSerializerFor<FPrecomputedVisibilityHandler> precomputedVisibilityHandlerSerializer,
@@ -126,7 +126,7 @@ public class DefaultULevelSerializer : BaseObjectSerializer<ULevel>
             };
         }
 
-        obj.CachedPhysPerTriSMDataMap = objectStream.ReadDictionary(KeyRead, ValRead);
+        obj.CachedPhysPerTriSMDataMap = objectStream.ReadTMap(KeyRead, ValRead);
     }
 
     private void ReadCachedPhysSMDataMap(ULevel obj, Stream objectStream)
@@ -147,7 +147,7 @@ public class DefaultULevelSerializer : BaseObjectSerializer<ULevel>
             };
         }
 
-        obj.CachedPhysSMDataMap = objectStream.ReadDictionary(KeyRead, ValRead);
+        obj.CachedPhysSMDataMap = objectStream.ReadTMap(KeyRead, ValRead);
     }
 
     private void ReadDynamicTextureInstances(ULevel obj, Stream objectStream)
