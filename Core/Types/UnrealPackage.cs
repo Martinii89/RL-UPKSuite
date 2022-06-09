@@ -413,7 +413,7 @@ public class UnrealPackage
             if (importTableItem.ImportedObject == null)
             {
                 //most likely a native class. Stub it
-                Debugger.Break();
+                //Debugger.Break();
                 var cls = new UClass(importTableItem.ObjectName, UClass.StaticClass, importPackage.PackageRoot, this);
                 importTableItem.ImportedObject = cls;
                 importPackage.PackageClasses.Add(cls);

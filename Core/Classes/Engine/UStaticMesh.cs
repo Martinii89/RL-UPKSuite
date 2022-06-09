@@ -68,6 +68,15 @@ public class UStaticMesh : UObject
     [NativeProperty(PropertyType.BoolProperty)]
     public bool UseSimpleLineCollision { get; set; }
 
+    [NativeProperty(PropertyType.BoolProperty)]
+    public bool UseSimpleBoxCollision { get; set; }
+
+    [NativeProperty(PropertyType.BoolProperty)]
+    public bool UseSimpleRigidBodyCollision { get; set; }
+
+    [NativeProperty(PropertyType.BoolProperty)]
+    public bool bStripComplexCollisionForConsole { get; set; }
+
     //public bool UseSimpleBoxCollision { get; set; }
     //public bool UseSimpleRigidBodyCollision { get; set; }
     //public bool UseFullPrecisionUVs { get; set; }

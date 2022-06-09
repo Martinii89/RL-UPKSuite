@@ -224,7 +224,7 @@ public class CrossPackageDependencyGraph
         var importPackage = clsPackageName == objPackage.PackageName ? objPackage : _packagePackageCache.ResolveExportPackage(clsPackageName);
         if (importPackage is null)
         {
-            Debugger.Break();
+            //Debugger.Break();
             // null reference
             return new PackageObjectReference();
         }

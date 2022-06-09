@@ -10,6 +10,8 @@ namespace Core.Classes.Core;
 [NativeOnlyClass("Core", "Class", typeof(UState))]
 public class UClass : UState
 {
+    private UClass? _superClass;
+
     /// <summary>
     ///     Constructs a new unreal script type.
     /// </summary>
@@ -36,7 +38,15 @@ public class UClass : UState
     /// <summary>
     ///     The base of this class
     /// </summary>
-    public UClass? SuperClass { get; set; }
+    public UClass? SuperClass
+    {
+        get => _superClass;
+        set
+        {
+            _superClass = value;
+            SuperStruct = value;
+        }
+    }
 
     /// <summary>
     ///     Serializer compatible with instances of this class

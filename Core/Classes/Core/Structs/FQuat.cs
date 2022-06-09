@@ -7,3 +7,8 @@ public class FQuat
     public float Z { get; set; }
     public float W { get; set; }
 }
+
+public class FMatrix
+{
+    public float[] M { get; set; } = new float[16];
+}
