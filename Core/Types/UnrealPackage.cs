@@ -448,7 +448,7 @@ public class UnrealPackage
         var classPackage = classPackageName != PackageName ? PackageCache!.ResolveExportPackage(classPackageName) : this;
         if (classPackage == null)
         {
-            Debugger.Break();
+            //Debugger.Break();
             return null;
         }
 
