@@ -51,7 +51,7 @@ public static class StreamExtensions
     /// <typeparam name="TKey"></typeparam>
     /// <typeparam name="TVal"></typeparam>
     /// <returns></returns>
-    public static Dictionary<TKey, TVal> ReadDictionary<TKey, TVal>(this Stream stream, Func<Stream, TKey> keyRead, Func<Stream, TVal> valRead)
+    public static Dictionary<TKey, TVal> ReadDictionary<TKey, TVal>(this Stream stream, Func<Stream, TKey?> keyRead, Func<Stream, TVal> valRead)
         where TKey : notnull
     {
         var res = new Dictionary<TKey, TVal>();
@@ -60,7 +60,12 @@ public static class StreamExtensions
 
         for (var i = 0; i < mapCount; i++)
         {
-            res.Add(keyRead(stream), valRead(stream));
+            var key = keyRead(stream);
+            var value = valRead(stream);
+            if (key is not null)
+            {
+                res.Add(key, value);
+            }
         }
 
 

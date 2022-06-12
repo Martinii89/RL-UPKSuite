@@ -2,6 +2,6 @@
 
 public class FPlane
 {
-    private float w;
-    private FVector xyz;
+    public float w { get; set; }
+    public FVector xyz { get; set; }
 }
