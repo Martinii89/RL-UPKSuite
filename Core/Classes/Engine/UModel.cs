@@ -36,12 +36,12 @@ namespace Core.Classes.Engine;
 [NativeOnlyClass("Engine", "Model", typeof(UObject))]
 public class UModel : UObject
 {
-    public FGuid lightingGuid;
-    public List<FLightmassPrimitiveSettings> LightmassPrimitiveSettings;
-    public uint Linked;
-    public int NumVertices;
-    public uint RootOutside;
-    public FModelVertexBuffer VertexBuffer;
+    public FGuid lightingGuid { get; set; } = new();
+    public List<FLightmassPrimitiveSettings> LightmassPrimitiveSettings { get; set; } = new();
+    public uint Linked {get; set;}
+    public int NumVertices {get; set;}
+    public uint RootOutside {get; set;}
+    public FModelVertexBuffer VertexBuffer { get; set; } = new();
 
     public UModel(FName name, UClass? @class, UObject? outer, UnrealPackage ownerPackage, UObject? objectArchetype = null) : base(name, @class, outer,
         ownerPackage, objectArchetype)
@@ -69,15 +69,15 @@ public class UModel : UObject
 
 public class FLightmassPrimitiveSettings
 {
-    public int bShadowIndirectOnly;
-    public int bUseEmissiveForStaticLighting;
-    public int bUseTwoSidedLighting;
-    public float DiffuseBoost;
-    public float EmissiveBoost;
-    public float EmissiveLightExplicitInfluenceRadius;
-    public float EmissiveLightFalloffExponent;
-    public float FullyOccludedSamplesFraction;
-    public float SpecularBoost;
+    public int bShadowIndirectOnly {get; set; }
+    public int bUseEmissiveForStaticLighting {get; set;}
+    public int bUseTwoSidedLighting {get; set;}
+    public float DiffuseBoost {get; set;}
+    public float EmissiveBoost {get; set;}
+    public float EmissiveLightExplicitInfluenceRadius {get; set;}
+    public float EmissiveLightFalloffExponent {get; set;}
+    public float FullyOccludedSamplesFraction {get; set;}
+    public float SpecularBoost {get; set;}
 }
 
 public class FModelVertexBuffer
@@ -95,41 +95,41 @@ public class FZoneProperties
 
 public class FVert
 {
-    public FVector2D BackfaceShadowTexCoord;
-    public int iSide;
-    public int pVertex;
-    public FVector2D ShadowTexCoord;
+    public FVector2D BackfaceShadowTexCoord {get; set; }
+    public int iSide {get; set;}
+    public int pVertex {get; set;}
+    public FVector2D ShadowTexCoord {get; set;}
 }
 
 public class FBspSurf
 {
-    public UObject? Actor;
-    public int iBrushPoly;
-    public int iLightmassIndex;
-    public ulong LightingChannels;
-    public UObject? Material;
-    public int pBase;
-    public FPlane plane;
-    public ulong PolyFlags;
-    public float ShadowMapScale;
-    public int vNormal;
-    public int vTextureU;
-    public int vTextureV;
+    public UObject? Actor {get; set;}
+    public int iBrushPoly {get; set;}
+    public int iLightmassIndex {get; set;}
+    public ulong LightingChannels {get; set;}
+    public UObject? Material {get; set;}
+    public int pBase {get; set;}
+    public FPlane plane {get; set;}
+    public ulong PolyFlags {get; set;}
+    public float ShadowMapScale {get; set;}
+    public int vNormal {get; set;}
+    public int vTextureU {get; set;}
+    public int vTextureV {get; set;}
 }
 
 public class FBspNode
 {
-    public int ComponentElementIndex;
-    public ushort ComponentIndex;
-    public ushort ComponentNodeIndex;
-    public int[] iChild = new int[3];
-    public int iCollisionBound;
-    public int[] iLeaf = new int[2];
-    public int iSurf;
-    public int iVertexIndex;
-    public int iVertPool;
-    public byte[] iZone = new byte[2];
-    public byte NodeFlags;
-    public byte NumVertices;
-    public FPlane plane;
+    public int ComponentElementIndex {get; set; }
+    public ushort ComponentIndex {get; set;}
+    public ushort ComponentNodeIndex {get; set;}
+    public int[] iChild {get; set;}= new int[3];
+    public int iCollisionBound {get; set;}
+    public int[] iLeaf {get; set;}= new int[2];
+    public int iSurf {get; set;}
+    public int iVertexIndex {get; set;}
+    public int iVertPool {get; set;}
+    public byte[] iZone {get; set;}= new byte[2];
+    public byte NodeFlags {get; set;}
+    public byte NumVertices {get; set;}
+    public FPlane plane {get; set;}
 }
