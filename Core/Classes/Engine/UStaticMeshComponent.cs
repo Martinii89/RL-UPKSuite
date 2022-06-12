@@ -24,13 +24,15 @@ public class FStaticMeshComponentLODInfo
     public FLightMap FLightMapRef { get; set; } = new();
     public byte BLoadVertexColorData { get; set; }
     public FColorVertexBuffer ColorVertexBuffer { get; set; } = new();
+    public int UnkInt { get; set; }
 }
 
 public class FColorVertexBuffer
 {
-    private uint NumVertices;
+    public uint NumVertices { get; set; }
+    public uint Stride { get; set; }
 
-    private uint Stride;
+    public TArray<FColor> colorStream { get; set; } = new();
     // TODO fill out the vertex data buffer when NumVertices > 0
 }
 

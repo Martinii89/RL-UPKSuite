@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Core.Classes;
+﻿using Core.Classes;
 using Core.Classes.Engine;
 using Core.Serialization.Abstraction;
 
@@ -8,10 +7,13 @@ namespace Core.Serialization.Default.Object.Engine;
 public class DefaultStaticMeshComponentSerializer : BaseObjectSerializer<UStaticMeshComponent>
 {
     private readonly IObjectSerializer<UComponent> _componentSerializer;
+    private readonly IStreamSerializerFor<FStaticMeshComponentLODInfo> _staticMeshComponentSerializer;
 
-    public DefaultStaticMeshComponentSerializer(IObjectSerializer<UComponent> componentSerializer)
+    public DefaultStaticMeshComponentSerializer(IObjectSerializer<UComponent> componentSerializer,
+        IStreamSerializerFor<FStaticMeshComponentLODInfo> staticMeshComponentSerializer)
     {
         _componentSerializer = componentSerializer;
+        _staticMeshComponentSerializer = staticMeshComponentSerializer;
     }
 
     /// <inheritdoc />
@@ -19,11 +21,7 @@ public class DefaultStaticMeshComponentSerializer : BaseObjectSerializer<UStatic
     {
         _componentSerializer.DeserializeObject(obj, objectStream);
 
-        var lodDataCount = objectStream.ReadInt32();
-        if (lodDataCount > 0)
-        {
-            Debugger.Break();
-        }
+        obj.FStaticMeshComponentLodInfos = _staticMeshComponentSerializer.ReadTArrayToList(objectStream);
     }
 
     /// <inheritdoc />

@@ -9,33 +9,39 @@ using Core.Types.PackageTables;
 
 namespace Core.Serialization.Default.Object.Engine.Struct;
 
-public class DefaultStaticMeshComponentLODInfoSerializer : BaseObjectSerializer<FStaticMeshComponentLODInfo>
+public class DefaultStaticMeshComponentLODInfoSerializer : IStreamSerializerFor<FStaticMeshComponentLODInfo>
 {
+    private readonly IStreamSerializerFor<FColorVertexBuffer> _colorVertexBufferSerializer;
+
     //private readonly IStreamSerializerFor<FColorVertexBuffer> _ColorVertexBufferSerializer;
     private readonly IStreamSerializerFor<FLightMap> _LightMapSerializer;
     private readonly IStreamSerializerFor<ObjectIndex> _objecIndexSerializer;
 
     public DefaultStaticMeshComponentLODInfoSerializer(IStreamSerializerFor<FGuid> guidSerializer, IStreamSerializerFor<ObjectIndex> objecIndexSerializer,
-        IStreamSerializerFor<FLightMap> lightMapSerializer)
+        IStreamSerializerFor<FLightMap> lightMapSerializer, IStreamSerializerFor<FColorVertexBuffer> colorVertexBufferSerializer)
     {
         _objecIndexSerializer = objecIndexSerializer;
         _LightMapSerializer = lightMapSerializer;
+        _colorVertexBufferSerializer = colorVertexBufferSerializer;
     }
 
-    public override void DeserializeObject(FStaticMeshComponentLODInfo obj, Stream objectStream)
+    public FStaticMeshComponentLODInfo Deserialize(Stream stream)
     {
-        obj.ShadowMaps = _objecIndexSerializer.ReadTArrayToList(objectStream);
-        obj.ShadowVertexBuffers = _objecIndexSerializer.ReadTArrayToList(objectStream);
-        obj.FLightMapRef = _LightMapSerializer.Deserialize(objectStream);
-        obj.BLoadVertexColorData = (byte) objectStream.ReadByte();
+        var obj = new FStaticMeshComponentLODInfo();
+        obj.ShadowMaps = _objecIndexSerializer.ReadTArrayToList(stream);
+        obj.ShadowVertexBuffers = _objecIndexSerializer.ReadTArrayToList(stream);
+        obj.FLightMapRef = _LightMapSerializer.Deserialize(stream);
+        obj.BLoadVertexColorData = (byte) stream.ReadByte();
         if (obj.BLoadVertexColorData != 0)
         {
-            // TODO: work out the FColorVertexBuffer serialization
-            Debugger.Break();
+            obj.ColorVertexBuffer = _colorVertexBufferSerializer.Deserialize(stream);
         }
+
+        obj.UnkInt = stream.ReadInt32();
+        return obj;
     }
 
-    public override void SerializeObject(FStaticMeshComponentLODInfo obj, Stream objectStream)
+    public void Serialize(Stream stream, FStaticMeshComponentLODInfo value)
     {
         throw new NotImplementedException();
     }
@@ -58,15 +64,13 @@ public class DefaultLightMapSerializer : IStreamSerializerFor<FLightMap>
         _vectorSerializer = vectorSerializer;
     }
 
-    public FLightMap Deserialize(Stream stream)
+    public FLightMap? Deserialize(Stream stream)
     {
         var type = (FLightMap.LightMapType) stream.ReadUInt32();
         switch (type)
         {
             case FLightMap.LightMapType.None:
-                Debugger.Break();
-                throw new ArgumentOutOfRangeException(nameof(FLightMap.LightMapType));
-                break;
+                return null;
             case FLightMap.LightMapType.LightMap1D:
                 return DeSerializeLightMap1D(stream);
             case FLightMap.LightMapType.LightMap2D:
@@ -83,20 +87,15 @@ public class DefaultLightMapSerializer : IStreamSerializerFor<FLightMap>
 
     private FLightMap1D DeSerializeLightMap1D(Stream objStream)
     {
-        var res = new FLightMap1D
-        {
-            Type = FLightMap.LightMapType.LightMap1D,
-            LightGuids = _guidSerializer.ReadTArrayToList(objStream),
-            ActorOwner = _objecIndexSerializer.Deserialize(objStream),
-            DirectionalSamples = _bulkDataSerializer.Deserialize(objStream),
-            ScaleVectors =
-            {
-                [0] = _vectorSerializer.Deserialize(objStream),
-                [1] = _vectorSerializer.Deserialize(objStream),
-                [2] = _vectorSerializer.Deserialize(objStream)
-            },
-            SimpleSamples = _bulkDataSerializer.Deserialize(objStream)
-        };
+        var res = new FLightMap1D();
+        res.Type = FLightMap.LightMapType.LightMap1D;
+        res.LightGuids = _guidSerializer.ReadTArrayToList(objStream);
+        res.ActorOwner = _objecIndexSerializer.Deserialize(objStream);
+        res.DirectionalSamples = _bulkDataSerializer.Deserialize(objStream);
+        res.ScaleVectors[0] = _vectorSerializer.Deserialize(objStream);
+        res.ScaleVectors[1] = _vectorSerializer.Deserialize(objStream);
+        res.ScaleVectors[2] = _vectorSerializer.Deserialize(objStream);
+        res.SimpleSamples = _bulkDataSerializer.Deserialize(objStream);
         return res;
     }
 
@@ -131,6 +130,32 @@ public class DefaultStaticLightCollectionActorSerializer : BaseObjectSerializer<
     }
 
     public override void SerializeObject(AStaticLightCollectionActor obj, Stream objectStream)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+public class DefaulColorVertexBufferSerializer : IStreamSerializerFor<FColorVertexBuffer>
+{
+    private readonly IStreamSerializerFor<FColor> _colorSerializer;
+
+
+    public DefaulColorVertexBufferSerializer(IStreamSerializerFor<FColor> colorSerializer)
+    {
+        _colorSerializer = colorSerializer;
+    }
+
+    public FColorVertexBuffer Deserialize(Stream stream)
+    {
+        return new FColorVertexBuffer
+        {
+            Stride = stream.ReadUInt32(),
+            NumVertices = stream.ReadUInt32(),
+            colorStream = _colorSerializer.ReadTArrayWithElementSize(stream)
+        };
+    }
+
+    public void Serialize(Stream stream, FColorVertexBuffer value)
     {
         throw new NotImplementedException();
     }
