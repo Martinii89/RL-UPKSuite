@@ -261,6 +261,7 @@ public class UnrealPackage
 
             if (index.Index != 0 && importedObject == null)
             {
+                var fullname = GetFullName(GetObjectReference(index));
                 Debugger.Break();
             }
 

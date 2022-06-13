@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Core.Classes.Core;
+﻿using Core.Classes.Core;
 using Core.Classes.Core.Structs;
 using Core.Classes.Engine;
 using Core.Classes.Engine.Structs;
@@ -53,15 +52,18 @@ public class DefaultLightMapSerializer : IStreamSerializerFor<FLightMap>
 
     private readonly IStreamSerializerFor<FGuid> _guidSerializer;
     private readonly IStreamSerializerFor<ObjectIndex> _objecIndexSerializer;
+    private readonly IStreamSerializerFor<FVector2D> _vector2DSerializer;
     private readonly IStreamSerializerFor<FVector> _vectorSerializer;
 
     public DefaultLightMapSerializer(IStreamSerializerFor<FGuid> guidSerializer, IStreamSerializerFor<ObjectIndex> objecIndexSerializer,
-        IStreamSerializerFor<FByteBulkData> bulkDataSerializer, IStreamSerializerFor<FVector> vectorSerializer)
+        IStreamSerializerFor<FByteBulkData> bulkDataSerializer, IStreamSerializerFor<FVector> vectorSerializer,
+        IStreamSerializerFor<FVector2D> vector2DSerializer)
     {
         _guidSerializer = guidSerializer;
         _objecIndexSerializer = objecIndexSerializer;
         _bulkDataSerializer = bulkDataSerializer;
         _vectorSerializer = vectorSerializer;
+        _vector2DSerializer = vector2DSerializer;
     }
 
     public FLightMap? Deserialize(Stream stream)
@@ -101,8 +103,20 @@ public class DefaultLightMapSerializer : IStreamSerializerFor<FLightMap>
 
     private FLightMap2D DeSerializeLightMap2D(Stream objStream)
     {
-        Debugger.Break();
-        return new FLightMap2D();
+        var map2D = new FLightMap2D();
+        map2D.Type = FLightMap.LightMapType.LightMap2D;
+        map2D.LightGuids = _guidSerializer.ReadTArrayToList(objStream);
+        for (var i = 0; i < 3; i++)
+        {
+            map2D.Textures[i] = _objecIndexSerializer.Deserialize(objStream);
+            map2D.ScaleVectors[i] = _vectorSerializer.Deserialize(objStream);
+        }
+
+        map2D.CoordinateScale = _vector2DSerializer.Deserialize(objStream);
+        map2D.CoordinateBias = _vector2DSerializer.Deserialize(objStream);
+
+
+        return map2D;
     }
 }
 

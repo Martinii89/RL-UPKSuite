@@ -20,11 +20,17 @@ public class UDelegateProperty : UProperty
     public UFunction? FunctionObject { get; set; }
     public UObject? DelegateObject { get; set; }
 
-    //public override object? DeserializeValue(UObject obj, Stream objStream, int propertySize, IStreamSerializerFor<FName> fnameSerializer,
-    //    IStreamSerializerFor<ObjectIndex> objectIndexSerializer)
-    //{
-    //    objStream.Move(propertySize);
-    //    return null;
-    //    //return base.DeserializeValue(obj, objStream, propertySize, fnameSerializer, objectIndexSerializer);
-    //}
+    public override object? DeserializeValue(UObject obj, Stream objStream, int propertySize, IStreamSerializerFor<FName> fnameSerializer,
+        IStreamSerializerFor<ObjectIndex> objectIndexSerializer)
+    {
+        var delegateObject = obj.OwnerPackage.GetObject(objectIndexSerializer.Deserialize(objStream));
+        var delegateName = obj.OwnerPackage.GetName(fnameSerializer.Deserialize(objStream));
+        return new FScriptDelegate { Object = delegateObject, FunctionName = delegateName };
+    }
+}
+
+internal class FScriptDelegate
+{
+    public UObject? Object { get; set; }
+    public string FunctionName { get; set; } = string.Empty;
 }

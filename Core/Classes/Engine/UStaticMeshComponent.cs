@@ -60,7 +60,7 @@ public class FLightMap1D : FLightMap
 
 public class FLightMap2D : FLightMap
 {
-    public ULightMapTexture2D?[] Textures { get; set; } = new ULightMapTexture2D[3];
+    public ObjectIndex?[] Textures { get; set; } = new ObjectIndex?[3];
     public FVector2D CoordinateScale { get; set; }
     public FVector2D CoordinateBias { get; set; }
 }
