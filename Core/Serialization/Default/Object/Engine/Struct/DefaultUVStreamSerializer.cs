@@ -26,8 +26,18 @@ public class DefaultUVStreamSerializer : IStreamSerializerFor<UvStream>
 
         uvStream.UvStreamItems = stream.ReadTarrayWithElementSize(stream1 =>
         {
-            var uvItem = new UvItem(new UvHalf[uvStream.NumTexCords]);
-            _uvItemSerializer.DeserializeObject(uvItem, stream1);
+            UvItem uvItem;
+            if (uvStream.BUseFullPrecisionUVs == 1)
+            {
+                uvItem = new UvItem(new UvFull[uvStream.NumTexCords]);
+                _uvItemSerializer.DeserializeObject(uvItem, stream1);
+            }
+            else
+            {
+                uvItem = new UvItem(new UvHalf[uvStream.NumTexCords]);
+                _uvItemSerializer.DeserializeObject(uvItem, stream1);
+            }
+
             return uvItem;
         });
 
