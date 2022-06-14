@@ -85,8 +85,10 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
     public void FindClass_FindComponentClass_ReturnsNotNull()
     {
         // Arrange
-        var package = _udkPackageSerializer.Deserialize(_packageStreams.CoreStream);
-        package.NativeClassFactory = new NativeClassFactory();
+        var importResolver = Substitute.For<IPackageCache>();
+        var package = UnrealPackage.DeserializeAndInitialize(_packageStreams.CoreStream,
+            new UnrealPackageOptions(_udkPackageSerializer, "Core", new NativeClassFactory(), importResolver));
+        importResolver.ResolveExportPackage("Core").Returns(package);
         package.GraphLink();
         // Act
         var @class = package.FindClass("Component");
@@ -335,9 +337,10 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
     public void GraphLink_CorePackage_AllExportsLinked()
     {
         // Arrange
-        var package = _udkPackageSerializer.Deserialize(_packageStreams.CoreStream);
-        package.NativeClassFactory = new NativeClassFactory();
-        package.PostDeserializeInitialize("Core");
+        var importResolver = Substitute.For<IPackageCache>();
+        var package = UnrealPackage.DeserializeAndInitialize(_packageStreams.CoreStream,
+            new UnrealPackageOptions(_udkPackageSerializer, "Core", new NativeClassFactory(), importResolver));
+        importResolver.ResolveExportPackage("Core").Returns(package);
 
         // Act
 
@@ -553,9 +556,12 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
     public void CreateImport_CorePackage_AllClassAndObjectSerializersNonNull()
     {
         // Arrange
+        var importResolver = Substitute.For<IPackageCache>();
+
         var serializerFactory = GetService<IObjectSerializerFactory>(typeof(UnrealPackage));
         var package = UnrealPackage.DeserializeAndInitialize(_packageStreams.CoreStream,
-            new UnrealPackageOptions(_udkPackageSerializer, "Core", new NativeClassFactory(), null, serializerFactory));
+            new UnrealPackageOptions(_udkPackageSerializer, "Core", new NativeClassFactory(), importResolver, serializerFactory));
+        importResolver.ResolveExportPackage("Core").Returns(package);
         package.GraphLink();
 
         // Act

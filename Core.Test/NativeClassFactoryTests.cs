@@ -66,25 +66,6 @@ public class NativeClassFactoryTests
         });
     }
 
-    [Fact]
-    public void GetNativeEngineClassesTest_CallsObjectSerializerFactory()
-    {
-        // Arrange
-        var nativeFactory = new NativeClassFactory();
-        var enginePackage = new UnrealPackage
-        {
-            PackageName = "Engine"
-        };
-        var packageRoot = new UPackage(enginePackage.GetOrAddName("Engine"), UClass.StaticClass, null, enginePackage);
-        enginePackage.PackageRoot = packageRoot;
-        var sut = Substitute.For<IObjectSerializerFactory>();
-        enginePackage.ObjectSerializerFactory = sut;
-
-        // Act
-        var engineNatives = nativeFactory.GetNativeClasses(enginePackage);
-        // Assert 
-        sut.ReceivedWithAnyArgs(3).GetSerializer(default);
-    }
 
     [Fact]
     public void GetNativeEngineClassesTest_StaticMeshInitializedWithCustomProperties()

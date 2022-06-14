@@ -4,7 +4,9 @@ using Core.Classes.Core;
 using Core.Classes.Core.Properties;
 using Core.Serialization;
 using Core.Test.TestUtilities;
+using Core.Utility;
 using FluentAssertions;
+using NSubstitute;
 using Xunit;
 
 namespace Core.Types.Tests;
@@ -24,8 +26,10 @@ public class ObjectFactoryTests : IClassFixture<PackageStreamFixture>
     public void CorePackageLink_ExportedClassesShouldBeUClassObjects()
     {
         // Arrange
+        var importResolver = Substitute.For<IPackageCache>();
         var package = UnrealPackage.DeserializeAndInitialize(_packageStreams.CoreStream,
-            new UnrealPackageOptions(_udkPackageSerializer, "Core", new NativeClassFactory()));
+            new UnrealPackageOptions(_udkPackageSerializer, "Core", new NativeClassFactory(), importResolver));
+        importResolver.ResolveExportPackage("Core").Returns(package);
 
         // Act
         package.GraphLink();
@@ -40,9 +44,10 @@ public class ObjectFactoryTests : IClassFixture<PackageStreamFixture>
     public void CorePackageLink_ExportedEnumsShouldBeUEnumObjects()
     {
         // Arrange
+        var importResolver = Substitute.For<IPackageCache>();
         var package = UnrealPackage.DeserializeAndInitialize(_packageStreams.CoreStream,
-            new UnrealPackageOptions(_udkPackageSerializer, "Core", new NativeClassFactory()));
-
+            new UnrealPackageOptions(_udkPackageSerializer, "Core", new NativeClassFactory(), importResolver));
+        importResolver.ResolveExportPackage("Core").Returns(package);
         // Act
         package.GraphLink();
         var sut = package.ExportTable.Where(x => x?.Object?.Class?.Name == "Enum").Select(x => x.Object);
@@ -57,8 +62,10 @@ public class ObjectFactoryTests : IClassFixture<PackageStreamFixture>
     public void CorePackageLink_ExportedFunctionsShouldBeUFunctionObjects()
     {
         // Arrange
+        var importResolver = Substitute.For<IPackageCache>();
         var package = UnrealPackage.DeserializeAndInitialize(_packageStreams.CoreStream,
-            new UnrealPackageOptions(_udkPackageSerializer, "Core", new NativeClassFactory()));
+            new UnrealPackageOptions(_udkPackageSerializer, "Core", new NativeClassFactory(), importResolver));
+        importResolver.ResolveExportPackage("Core").Returns(package);
 
         // Act
         package.GraphLink();
@@ -73,8 +80,10 @@ public class ObjectFactoryTests : IClassFixture<PackageStreamFixture>
     public void CorePackageLink_ExportedFunctionsShouldBeUFloatPropertyObjects()
     {
         // Arrange
+        var importResolver = Substitute.For<IPackageCache>();
         var package = UnrealPackage.DeserializeAndInitialize(_packageStreams.CoreStream,
-            new UnrealPackageOptions(_udkPackageSerializer, "Core", new NativeClassFactory()));
+            new UnrealPackageOptions(_udkPackageSerializer, "Core", new NativeClassFactory(), importResolver));
+        importResolver.ResolveExportPackage("Core").Returns(package);
 
         // Act
         package.GraphLink();
