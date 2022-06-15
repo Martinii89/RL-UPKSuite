@@ -31,7 +31,6 @@ internal class UnrealPackageStream : IUnrealPackageStream
     private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
 
     private readonly UnrealPackage _unrealPackage;
-    private IUnrealPackageStream _unrealPackageStreamImplementation;
 
     public UnrealPackageStream(Stream baseStream, IStreamSerializer<ObjectIndex> objectIndexSerializer, IStreamSerializer<FName> nameSerializer,
         UnrealPackage unrealPackage)
@@ -41,6 +40,7 @@ internal class UnrealPackageStream : IUnrealPackageStream
         _nameSerializer = nameSerializer;
         _unrealPackage = unrealPackage;
     }
+
 
     public Stream BaseStream { get; set; }
 

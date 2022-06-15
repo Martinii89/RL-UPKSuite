@@ -95,7 +95,7 @@ public class UObject
     [MemberNotNullWhen(false, nameof(Serializer))]
     internal bool CanNotDeserialize()
     {
-        return IsDeserialized || Serializer is null || ExportTableItem is null || ExportTableItem.SerialSize == 0 || OwnerPackage?.PackageStream is null;
+        return IsDeserialized || Serializer is null || ExportTableItem is null || ExportTableItem.SerialSize == 0 || OwnerPackageStream is null;
     }
 
     /// <summary>

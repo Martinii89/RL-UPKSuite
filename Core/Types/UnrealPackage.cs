@@ -4,6 +4,7 @@ using Core.Classes;
 using Core.Classes.Core;
 using Core.Serialization;
 using Core.Serialization.Abstraction;
+using Core.Serialization.Default;
 using Core.Types.PackageTables;
 using Core.Utility;
 
@@ -143,6 +144,10 @@ public class UnrealPackage
     {
         var package = options.Serializer.Deserialize(stream);
         package.PackageStream = stream;
+
+        // TODO use DI for this
+        package.UnrealPackageStream = new UnrealPackageStream(stream, new ObjectIndexSerializer(), new FNameSerializer(), package);
+
         package.PackageCache = options.PackageCache;
         package.ObjectSerializerFactory = options.ObjectSerializerFactory;
         package.NativeClassFactory = options.NativeClassFactory;

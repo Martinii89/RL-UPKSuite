@@ -1,18 +1,10 @@
 ﻿using Core.Classes.Engine.Structs;
-using Core.Serialization.Abstraction;
 using Core.Serialization.Extensions;
 
 namespace Core.Serialization.Default.Object.Engine.Struct;
 
 public class DefaultUVStreamSerializer : IStreamSerializer<UvStream>
 {
-    private readonly IObjectSerializer<UvItem> _uvItemSerializer;
-
-    public DefaultUVStreamSerializer(IObjectSerializer<UvItem> uvItemSerializer)
-    {
-        _uvItemSerializer = uvItemSerializer;
-    }
-
     /// <inheritdoc />
     public UvStream Deserialize(Stream stream)
     {
@@ -30,12 +22,14 @@ public class DefaultUVStreamSerializer : IStreamSerializer<UvStream>
             if (uvStream.BUseFullPrecisionUVs == 1)
             {
                 uvItem = new UvItem(new UvFull[uvStream.NumTexCords]);
-                _uvItemSerializer.DeserializeObject(uvItem, (IUnrealPackageStream) stream1);
+                DeserializeUvItem(uvItem, stream);
+                //_uvItemSerializer.DeserializeObject(uvItem, (IUnrealPackageStream) stream1);
             }
             else
             {
                 uvItem = new UvItem(new UvHalf[uvStream.NumTexCords]);
-                _uvItemSerializer.DeserializeObject(uvItem, (IUnrealPackageStream) stream1);
+                DeserializeUvItem(uvItem, stream);
+                //_uvItemSerializer.DeserializeObject(uvItem, (IUnrealPackageStream) stream1);
             }
 
             return uvItem;
@@ -49,5 +43,43 @@ public class DefaultUVStreamSerializer : IStreamSerializer<UvStream>
     public void Serialize(Stream stream, UvStream value)
     {
         throw new NotImplementedException();
+    }
+
+    private void DeserializeUvItem(UvItem obj, Stream stream)
+    {
+        obj.N0 = stream.ReadUInt32();
+        obj.N1 = stream.ReadUInt32();
+        if (obj.Uv is not null)
+        {
+            for (var index = 0; index < obj.Uv.Length; index++)
+            {
+                obj.Uv[index] = DeserializeUvHalf(stream);
+            }
+        }
+        else if (obj.UvFull is not null)
+        {
+            for (var index = 0; index < obj.UvFull.Length; index++)
+            {
+                obj.UvFull[index] = DeserializeUvFull(stream);
+            }
+        }
+    }
+
+    private UvFull DeserializeUvFull(Stream stream)
+    {
+        return new UvFull
+        {
+            A = stream.ReadSingle(),
+            B = stream.ReadSingle()
+        };
+    }
+
+    private UvHalf DeserializeUvHalf(Stream stream)
+    {
+        return new UvHalf
+        {
+            A = stream.ReadUInt16(),
+            B = stream.ReadUInt16()
+        };
     }
 }
