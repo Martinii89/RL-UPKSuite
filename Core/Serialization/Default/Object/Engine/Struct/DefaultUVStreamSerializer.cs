@@ -23,13 +23,11 @@ public class DefaultUVStreamSerializer : IStreamSerializer<UvStream>
             {
                 uvItem = new UvItem(new UvFull[uvStream.NumTexCords]);
                 DeserializeUvItem(uvItem, stream);
-                //_uvItemSerializer.DeserializeObject(uvItem, (IUnrealPackageStream) stream1);
             }
             else
             {
                 uvItem = new UvItem(new UvHalf[uvStream.NumTexCords]);
                 DeserializeUvItem(uvItem, stream);
-                //_uvItemSerializer.DeserializeObject(uvItem, (IUnrealPackageStream) stream1);
             }
 
             return uvItem;

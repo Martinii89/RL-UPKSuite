@@ -240,6 +240,7 @@ public class DefaultSkeletalMeshVertexBufferSerializer : IStreamSerializer<FSkel
             {
                 UV = new UvHalf[r.NumUVSets]
             };
+            // TODO refactor cause this will crash
             _gpuVertSerializer.DeserializeObject(gpuVert, (IUnrealPackageStream) stream1);
             return gpuVert;
         });
