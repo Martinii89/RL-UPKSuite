@@ -17,13 +17,13 @@ public class DefaultScriptStructSerializer : BaseObjectSerializer<UScriptStruct>
         _fnameSerializer = fnameSerializer;
     }
 
-    public override void DeserializeObject(UScriptStruct obj, Stream objectStream)
+    public override void DeserializeObject(UScriptStruct obj, IUnrealPackageStream objectStream)
     {
         _structSerializer.DeserializeObject(obj, objectStream);
 
         obj.StructFlags = objectStream.ReadInt32();
 
-        obj.ScriptProperties.AddRange(GetScriptProperties(obj, objectStream));
+        obj.ScriptProperties.AddRange(GetScriptProperties(obj, objectStream.BaseStream));
     }
 
     private IEnumerable<FProperty> GetScriptProperties(UObject uObject, Stream objectStream)
@@ -70,7 +70,7 @@ public class DefaultScriptStructSerializer : BaseObjectSerializer<UScriptStruct>
         }
     }
 
-    public override void SerializeObject(UScriptStruct obj, Stream objectStream)
+    public override void SerializeObject(UScriptStruct obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

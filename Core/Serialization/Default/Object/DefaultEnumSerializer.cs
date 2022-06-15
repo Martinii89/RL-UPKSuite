@@ -16,18 +16,18 @@ public class DefaultEnumSerializer : BaseObjectSerializer<UEnum>
     }
 
     /// <inheritdoc />
-    public override void DeserializeObject(UEnum obj, Stream objectStream)
+    public override void DeserializeObject(UEnum obj, IUnrealPackageStream objectStream)
     {
         _fieldSerializer.DeserializeObject(obj, objectStream);
         var count = objectStream.ReadInt32();
         for (var i = 0; i < count; i++)
         {
-            obj.Names.Add(obj.OwnerPackage.GetName(_fnameSerializer.Deserialize(objectStream)));
+            obj.Names.Add(obj.OwnerPackage.GetName(_fnameSerializer.Deserialize(objectStream.BaseStream)));
         }
     }
 
     /// <inheritdoc />
-    public override void SerializeObject(UEnum obj, Stream objectStream)
+    public override void SerializeObject(UEnum obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

@@ -22,28 +22,20 @@ public class DefaultComponentSerializer : BaseObjectSerializer<UComponent>
     }
 
     /// <inheritdoc />
-    public override void DeserializeObject(UComponent obj, Stream objectStream)
+    public override void DeserializeObject(UComponent obj, IUnrealPackageStream objectStream)
     {
-        obj.TemplateOwnerClass = obj.OwnerPackage.GetObject(_objectIndexSerialiser.Deserialize(objectStream)) as UClass;
+        obj.TemplateOwnerClass = obj.OwnerPackage.GetObject(_objectIndexSerialiser.Deserialize(objectStream.BaseStream)) as UClass;
         if (obj.IsDefaultObject || obj.GetOuterEnumerable().Any(x => x.IsDefaultObject))
         {
-            var fName = _fnameSerializer.Deserialize(objectStream);
+            var fName = _fnameSerializer.Deserialize(objectStream.BaseStream);
             obj.TemplateName = obj.OwnerPackage.GetName(fName);
         }
 
         _objectSerializer.DeserializeObject(obj, objectStream);
-
-        //try
-        //{
-        //}
-        //catch (Exception e)
-        //{
-        //    throw new Exception($"Failed to deserialize a UComponent: {obj}");
-        //}
     }
 
     /// <inheritdoc />
-    public override void SerializeObject(UComponent obj, Stream objectStream)
+    public override void SerializeObject(UComponent obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

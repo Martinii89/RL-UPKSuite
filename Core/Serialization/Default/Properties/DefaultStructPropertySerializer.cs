@@ -18,15 +18,15 @@ public class DefaultStructPropertySerializer : BaseObjectSerializer<UStructPrope
     }
 
     /// <inheritdoc />
-    public override void DeserializeObject(UStructProperty obj, Stream objectStream)
+    public override void DeserializeObject(UStructProperty obj, IUnrealPackageStream objectStream)
     {
         _propertySerializer.DeserializeObject(obj, objectStream);
 
-        obj.Struct = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream)) as UScriptStruct;
+        obj.Struct = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream)) as UScriptStruct;
     }
 
     /// <inheritdoc />
-    public override void SerializeObject(UStructProperty obj, Stream objectStream)
+    public override void SerializeObject(UStructProperty obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

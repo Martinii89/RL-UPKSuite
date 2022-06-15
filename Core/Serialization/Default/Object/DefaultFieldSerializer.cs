@@ -27,15 +27,15 @@ public class DefaultFieldSerializer : BaseObjectSerializer<UField>
 
 
     /// <inheritdoc />
-    public override void DeserializeObject(UField field, Stream objectStream)
+    public override void DeserializeObject(UField field, IUnrealPackageStream objectStream)
     {
         _objectSerializer.DeserializeObject(field, objectStream);
 
-        field.Next = field.OwnerPackage.GetObject(_objectIndexSerialiser.Deserialize(objectStream));
+        field.Next = field.OwnerPackage.GetObject(_objectIndexSerialiser.Deserialize(objectStream.BaseStream));
     }
 
     /// <inheritdoc />
-    public override void SerializeObject(UField obj, Stream objectStream)
+    public override void SerializeObject(UField obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

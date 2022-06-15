@@ -15,7 +15,7 @@ public class DefaultSoundCueSerializer : BaseObjectSerializer<USoundCue>
     }
 
     /// <inheritdoc />
-    public override void DeserializeObject(USoundCue obj, Stream objectStream)
+    public override void DeserializeObject(USoundCue obj, IUnrealPackageStream objectStream)
     {
         _objectSerializer.DeserializeObject(obj, objectStream);
 
@@ -28,7 +28,7 @@ public class DefaultSoundCueSerializer : BaseObjectSerializer<USoundCue>
     }
 
     /// <inheritdoc />
-    public override void SerializeObject(USoundCue obj, Stream objectStream)
+    public override void SerializeObject(USoundCue obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

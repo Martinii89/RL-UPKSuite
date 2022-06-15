@@ -240,7 +240,7 @@ public class DefaultSkeletalMeshVertexBufferSerializer : IStreamSerializer<FSkel
             {
                 UV = new UvHalf[r.NumUVSets]
             };
-            _gpuVertSerializer.DeserializeObject(gpuVert, stream1);
+            _gpuVertSerializer.DeserializeObject(gpuVert, (IUnrealPackageStream) stream1);
             return gpuVert;
         });
         //_gpuVertSerializer.ReadTArrayWithElementSize(stream);
@@ -271,13 +271,13 @@ public class DefaultGpuVertSerializer : BaseObjectSerializer<GpuVert>
         _vectorSerializer = vectorSerializer;
     }
 
-    public override void DeserializeObject(GpuVert obj, Stream objectStream)
+    public override void DeserializeObject(GpuVert obj, IUnrealPackageStream objectStream)
     {
         obj.N0 = objectStream.ReadUInt32();
         obj.N1 = objectStream.ReadUInt32();
         obj.BoneIndex = objectStream.ReadBytes(4);
         obj.BoneWeight = objectStream.ReadBytes(4);
-        obj.Pos = _vectorSerializer.Deserialize(objectStream);
+        obj.Pos = _vectorSerializer.Deserialize(objectStream.BaseStream);
         for (var index = 0; index < obj.UV.Length; index++)
         {
             obj.UV[index] = new UvHalf
@@ -288,7 +288,7 @@ public class DefaultGpuVertSerializer : BaseObjectSerializer<GpuVert>
         }
     }
 
-    public override void SerializeObject(GpuVert obj, Stream objectStream)
+    public override void SerializeObject(GpuVert obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

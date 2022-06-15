@@ -15,7 +15,7 @@ public class DefaultDecalComponentSerializer : BaseObjectSerializer<UDecalCompon
     }
 
     /// <inheritdoc />
-    public override void DeserializeObject(UDecalComponent obj, Stream objectStream)
+    public override void DeserializeObject(UDecalComponent obj, IUnrealPackageStream objectStream)
     {
         _componentSerializer.DeserializeObject(obj, objectStream);
 
@@ -27,7 +27,7 @@ public class DefaultDecalComponentSerializer : BaseObjectSerializer<UDecalCompon
     }
 
     /// <inheritdoc />
-    public override void SerializeObject(UDecalComponent obj, Stream objectStream)
+    public override void SerializeObject(UDecalComponent obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

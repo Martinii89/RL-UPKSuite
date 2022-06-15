@@ -6,7 +6,7 @@ namespace Core.Serialization.Default.Object.Engine.Struct;
 public class DefaultUvItemSerializer : BaseObjectSerializer<UvItem>
 {
     /// <inheritdoc />
-    public override void DeserializeObject(UvItem obj, Stream objectStream)
+    public override void DeserializeObject(UvItem obj, IUnrealPackageStream objectStream)
     {
         obj.N0 = objectStream.ReadUInt32();
         obj.N1 = objectStream.ReadUInt32();
@@ -35,7 +35,7 @@ public class DefaultUvItemSerializer : BaseObjectSerializer<UvItem>
     }
 
     /// <inheritdoc />
-    public override void SerializeObject(UvItem obj, Stream objectStream)
+    public override void SerializeObject(UvItem obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

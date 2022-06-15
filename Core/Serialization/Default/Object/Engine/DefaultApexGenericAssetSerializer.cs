@@ -1,7 +1,6 @@
 ﻿using Core.Classes.Core;
 using Core.Classes.Engine;
 using Core.Serialization.Abstraction;
-using Core.Serialization.Extensions;
 
 namespace Core.Serialization.Default.Object.Engine;
 
@@ -15,7 +14,7 @@ public class DefaultApexGenericAssetSerializer : BaseObjectSerializer<UApexGener
     }
 
     /// <inheritdoc />
-    public override void DeserializeObject(UApexGenericAsset obj, Stream objectStream)
+    public override void DeserializeObject(UApexGenericAsset obj, IUnrealPackageStream objectStream)
     {
         _objectSerializer.DeserializeObject(obj, objectStream);
         var bAssetValid = objectStream.ReadInt32();
@@ -29,7 +28,7 @@ public class DefaultApexGenericAssetSerializer : BaseObjectSerializer<UApexGener
     }
 
     /// <inheritdoc />
-    public override void SerializeObject(UApexGenericAsset obj, Stream objectStream)
+    public override void SerializeObject(UApexGenericAsset obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

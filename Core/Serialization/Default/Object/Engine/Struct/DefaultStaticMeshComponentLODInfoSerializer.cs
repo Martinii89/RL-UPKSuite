@@ -132,18 +132,18 @@ public class DefaultStaticLightCollectionActorSerializer : BaseObjectSerializer<
         _objectSerializer = objectSerializer;
     }
 
-    public override void DeserializeObject(AStaticLightCollectionActor obj, Stream objectStream)
+    public override void DeserializeObject(AStaticLightCollectionActor obj, IUnrealPackageStream objectStream)
     {
         _objectSerializer.DeserializeObject(obj, objectStream);
         var lightComponentsProperty = obj.ScriptProperties.Find(x => x.Name == "LightComponents");
         var lightComponents = lightComponentsProperty?.Value as List<object> ?? new List<object>();
         foreach (var lightComponent in lightComponents)
         {
-            obj.LightComponentMatrixes.Add(_matrixSerializer.Deserialize(objectStream));
+            obj.LightComponentMatrixes.Add(_matrixSerializer.Deserialize(objectStream.BaseStream));
         }
     }
 
-    public override void SerializeObject(AStaticLightCollectionActor obj, Stream objectStream)
+    public override void SerializeObject(AStaticLightCollectionActor obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

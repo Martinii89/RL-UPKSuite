@@ -15,7 +15,7 @@ public class DefaultUSpeedTreeComponentSerializer : BaseObjectSerializer<USpeedT
     }
 
     /// <inheritdoc />
-    public override void DeserializeObject(USpeedTreeComponent obj, Stream objectStream)
+    public override void DeserializeObject(USpeedTreeComponent obj, IUnrealPackageStream objectStream)
     {
         _componentSerializer.DeserializeObject(obj, objectStream);
 
@@ -31,7 +31,7 @@ public class DefaultUSpeedTreeComponentSerializer : BaseObjectSerializer<USpeedT
     }
 
     /// <inheritdoc />
-    public override void SerializeObject(USpeedTreeComponent obj, Stream objectStream)
+    public override void SerializeObject(USpeedTreeComponent obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

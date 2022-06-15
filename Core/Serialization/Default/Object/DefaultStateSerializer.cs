@@ -20,7 +20,7 @@ public class DefaultStateSerializer : BaseObjectSerializer<UState>
         _objectIndexSerializer = objectIndexSerializer;
     }
 
-    public override void DeserializeObject(UState obj, Stream objectStream)
+    public override void DeserializeObject(UState obj, IUnrealPackageStream objectStream)
     {
         _structSerializer.DeserializeObject(obj, objectStream);
         obj.ProbeMask = objectStream.ReadUInt32();
@@ -30,15 +30,15 @@ public class DefaultStateSerializer : BaseObjectSerializer<UState>
         var funcCount = objectStream.ReadInt32();
         for (var i = 0; i < funcCount; i++)
         {
-            var funcName = obj.OwnerPackage.GetName(_fnameSerializer.Deserialize(objectStream));
-            if (obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream)) is UFunction func)
+            var funcName = obj.OwnerPackage.GetName(_fnameSerializer.Deserialize(objectStream.BaseStream));
+            if (obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream)) is UFunction func)
             {
                 obj.FuncMap.Add(funcName, func);
             }
         }
     }
 
-    public override void SerializeObject(UState obj, Stream objectStream)
+    public override void SerializeObject(UState obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

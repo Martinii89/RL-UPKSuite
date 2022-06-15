@@ -16,14 +16,14 @@ public class DefaultPylonSerializer : BaseObjectSerializer<APylon>
         _objectSerializer = objectSerializer;
     }
 
-    public override void DeserializeObject(APylon obj, Stream objectStream)
+    public override void DeserializeObject(APylon obj, IUnrealPackageStream objectStream)
     {
         _objectSerializer.DeserializeObject(obj, objectStream);
-        obj.NavMeshPtr = obj.OwnerPackage.GetObject(_objecIndexSerializer.Deserialize(objectStream));
-        obj.ObstacleMesh = obj.OwnerPackage.GetObject(_objecIndexSerializer.Deserialize(objectStream));
+        obj.NavMeshPtr = obj.OwnerPackage.GetObject(_objecIndexSerializer.Deserialize(objectStream.BaseStream));
+        obj.ObstacleMesh = obj.OwnerPackage.GetObject(_objecIndexSerializer.Deserialize(objectStream.BaseStream));
     }
 
-    public override void SerializeObject(APylon obj, Stream objectStream)
+    public override void SerializeObject(APylon obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

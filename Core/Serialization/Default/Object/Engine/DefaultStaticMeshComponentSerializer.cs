@@ -17,15 +17,15 @@ public class DefaultStaticMeshComponentSerializer : BaseObjectSerializer<UStatic
     }
 
     /// <inheritdoc />
-    public override void DeserializeObject(UStaticMeshComponent obj, Stream objectStream)
+    public override void DeserializeObject(UStaticMeshComponent obj, IUnrealPackageStream objectStream)
     {
         _componentSerializer.DeserializeObject(obj, objectStream);
 
-        obj.FStaticMeshComponentLodInfos = _staticMeshComponentSerializer.ReadTArrayToList(objectStream);
+        obj.FStaticMeshComponentLodInfos = _staticMeshComponentSerializer.ReadTArrayToList(objectStream.BaseStream);
     }
 
     /// <inheritdoc />
-    public override void SerializeObject(UStaticMeshComponent obj, Stream objectStream)
+    public override void SerializeObject(UStaticMeshComponent obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

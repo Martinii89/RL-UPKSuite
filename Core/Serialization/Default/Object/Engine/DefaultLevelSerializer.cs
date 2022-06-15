@@ -38,25 +38,27 @@ public class DefaultLevelSerializer : BaseObjectSerializer<ULevel>
     }
 
     /// <inheritdoc />
-    public override void DeserializeObject(ULevel obj, Stream objectStream)
+    public override void DeserializeObject(ULevel obj, IUnrealPackageStream objectStream)
     {
         _objectSerializer.DeserializeObject(obj, objectStream);
 
-        obj.Actors.Super = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream));
-        obj.Actors.Data = objectStream.ReadTarray(stream => obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream)));
-        obj.URL = _urlSerializer.Deserialize(objectStream);
-        obj.Model = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream));
-        obj.ModelComponents = objectStream.ReadTarray(stream => obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream)));
-        obj.GameSequences = objectStream.ReadTarray(stream => obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream)));
-        ReadTextureToInstancesMap(obj, objectStream);
-        ReadDynamicTextureInstances(obj, objectStream);
+        obj.Actors.Super = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream));
+        obj.Actors.Data = objectStream.BaseStream.ReadTarray(stream => obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream)));
+        obj.URL = _urlSerializer.Deserialize(objectStream.BaseStream);
+        obj.Model = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream));
+        obj.ModelComponents =
+            objectStream.BaseStream.ReadTarray(stream => obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream)));
+        obj.GameSequences =
+            objectStream.BaseStream.ReadTarray(stream => obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream)));
+        ReadTextureToInstancesMap(obj, objectStream.BaseStream);
+        ReadDynamicTextureInstances(obj, objectStream.BaseStream);
         var size = objectStream.ReadInt32();
-        objectStream.Move(size);
-        obj.CachedPhysBSPData = objectStream.ReadTarrayWithElementSize(stream => (byte) stream.ReadByte());
-        ReadCachedPhysSMDataMap(obj, objectStream);
-        obj.CachedPhysSMDataStore = _kCachedConvexDataSerializer.ReadTArrayToList(objectStream);
-        ReadCachedPhysPerTriSMDataMap(obj, objectStream);
-        obj.CachedPhysPerTriSMDataStore = objectStream.ReadTarray(stream =>
+        objectStream.BaseStream.Move(size);
+        obj.CachedPhysBSPData = objectStream.BaseStream.ReadTarrayWithElementSize(stream => (byte) stream.ReadByte());
+        ReadCachedPhysSMDataMap(obj, objectStream.BaseStream);
+        obj.CachedPhysSMDataStore = _kCachedConvexDataSerializer.ReadTArrayToList(objectStream.BaseStream);
+        ReadCachedPhysPerTriSMDataMap(obj, objectStream.BaseStream);
+        obj.CachedPhysPerTriSMDataStore = objectStream.BaseStream.ReadTarray(stream =>
         {
             return new FKCachedPerTriData
             {
@@ -65,8 +67,8 @@ public class DefaultLevelSerializer : BaseObjectSerializer<ULevel>
         });
         obj.CachedPhysBSPDataVersion = objectStream.ReadInt32();
         obj.CachedPhysSMDataVersion = objectStream.ReadInt32();
-        ReadForceStreamTextures(obj, objectStream);
-        obj.CachedPhysConvexBSPData = objectStream.ReadTarray(stream =>
+        ReadForceStreamTextures(obj, objectStream.BaseStream);
+        obj.CachedPhysConvexBSPData = objectStream.BaseStream.ReadTarray(stream =>
         {
             return new FKCachedConvexDataElement
             {
@@ -74,26 +76,28 @@ public class DefaultLevelSerializer : BaseObjectSerializer<ULevel>
             };
         });
         obj.CachedPhysConvexBSPVersion = objectStream.ReadInt32();
-        obj.NavListStart = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream));
-        obj.NavListEnd = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream));
-        obj.CoverListStart = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream));
-        obj.CoverListEnd = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream));
-        obj.PylonListStart = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream));
-        obj.PylonListEnd = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream));
+        obj.NavListStart = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream));
+        obj.NavListEnd = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream));
+        obj.CoverListStart = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream));
+        obj.CoverListEnd = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream));
+        obj.PylonListStart = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream));
+        obj.PylonListEnd = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream));
         obj.UnkArrayCountOf20Bytes = objectStream.ReadInt32();
         if (obj.UnkArrayCountOf20Bytes > 0)
         {
             Debugger.Break();
-            objectStream.Move(obj.UnkArrayCountOf20Bytes * 20);
+            objectStream.BaseStream.Move(obj.UnkArrayCountOf20Bytes * 20);
         }
 
-        obj.SomeObjectArray = objectStream.ReadTarray(stream => obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream)));
-        obj.SomeObjectBytePairArray = objectStream.ReadTarray(stream =>
-            new Tuple<UObject?, byte>(obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream)), (byte) objectStream.ReadByte()));
-        obj.CrossLevelActors = objectStream.ReadTarray(stream => obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream)));
-        obj.FPrecomputedLightVolume = _precomputedLightVolumeSerializer.Deserialize(objectStream);
-        obj.PrecomputedLightVolume = _precomputedVisibilityHandlerSerializer.Deserialize(objectStream);
-        obj.PrecomputedVolumeDistanceField = _precomputedVolumeDistanceFieldSerializer.Deserialize(objectStream);
+        obj.SomeObjectArray =
+            objectStream.BaseStream.ReadTarray(stream => obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream)));
+        obj.SomeObjectBytePairArray = objectStream.BaseStream.ReadTarray(stream =>
+            new Tuple<UObject?, byte>(obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream)), objectStream.ReadByte()));
+        obj.CrossLevelActors =
+            objectStream.BaseStream.ReadTarray(stream => obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream)));
+        obj.FPrecomputedLightVolume = _precomputedLightVolumeSerializer.Deserialize(objectStream.BaseStream);
+        obj.PrecomputedLightVolume = _precomputedVisibilityHandlerSerializer.Deserialize(objectStream.BaseStream);
+        obj.PrecomputedVolumeDistanceField = _precomputedVolumeDistanceFieldSerializer.Deserialize(objectStream.BaseStream);
     }
 
     private void ReadForceStreamTextures(ULevel obj, Stream objectStream)
@@ -198,7 +202,7 @@ public class DefaultLevelSerializer : BaseObjectSerializer<ULevel>
     }
 
     /// <inheritdoc />
-    public override void SerializeObject(ULevel obj, Stream objectStream)
+    public override void SerializeObject(ULevel obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

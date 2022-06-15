@@ -23,20 +23,20 @@ public class DefaultTexture2DSerializer : BaseObjectSerializer<UTexture2D>
     }
 
     /// <inheritdoc />
-    public override void DeserializeObject(UTexture2D obj, Stream objectStream)
+    public override void DeserializeObject(UTexture2D obj, IUnrealPackageStream objectStream)
     {
         _textureSerializer.DeserializeObject(obj, objectStream);
-        _mipSerializer.ReadTArrayToList(objectStream, obj.Mips);
-        obj.TextureFileCacheGuid = _guidSerializer.Deserialize(objectStream);
-        _mipSerializer.ReadTArrayToList(objectStream, obj.CachedPVRTCMips);
+        _mipSerializer.ReadTArrayToList(objectStream.BaseStream, obj.Mips);
+        obj.TextureFileCacheGuid = _guidSerializer.Deserialize(objectStream.BaseStream);
+        _mipSerializer.ReadTArrayToList(objectStream.BaseStream, obj.CachedPVRTCMips);
         obj.CachedFlashMipsMaxResolution = objectStream.ReadInt32();
-        _mipSerializer.ReadTArrayToList(objectStream, obj.CachedATITCMips);
-        obj.CachedFlashMips = _bulkDataSerializer.Deserialize(objectStream);
-        _mipSerializer.ReadTArrayToList(objectStream, obj.CachedETCMips);
+        _mipSerializer.ReadTArrayToList(objectStream.BaseStream, obj.CachedATITCMips);
+        obj.CachedFlashMips = _bulkDataSerializer.Deserialize(objectStream.BaseStream);
+        _mipSerializer.ReadTArrayToList(objectStream.BaseStream, obj.CachedETCMips);
     }
 
     /// <inheritdoc />
-    public override void SerializeObject(UTexture2D obj, Stream objectStream)
+    public override void SerializeObject(UTexture2D obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

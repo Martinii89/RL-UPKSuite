@@ -19,24 +19,24 @@ public class DefaultPrefabInstanceSerializer : BaseObjectSerializer<APrefabInsta
     }
 
     /// <inheritdoc />
-    public override void DeserializeObject(APrefabInstance obj, Stream objectStream)
+    public override void DeserializeObject(APrefabInstance obj, IUnrealPackageStream objectStream)
     {
         _objectSerializer.DeserializeObject(obj, objectStream);
 
         UObject? ReadObj()
         {
-            var objectIndex = _objectIndexSerializer.Deserialize(objectStream);
+            var objectIndex = _objectIndexSerializer.Deserialize(objectStream.BaseStream);
             return obj.OwnerPackage.GetObject(objectIndex);
         }
 
-        obj.ArchetypeToInstanceMap = objectStream.ReadDictionary(_ =>
+        obj.ArchetypeToInstanceMap = objectStream.BaseStream.ReadDictionary(_ =>
         {
             var uObject = ReadObj();
             //ArgumentNullException.ThrowIfNull(uObject);
             return uObject;
         }, _ => ReadObj());
 
-        obj.PI_ObjectMap = objectStream.ReadDictionary(stream =>
+        obj.PI_ObjectMap = objectStream.BaseStream.ReadDictionary(stream =>
         {
             var uObject = ReadObj();
             ArgumentNullException.ThrowIfNull(uObject);
@@ -45,7 +45,7 @@ public class DefaultPrefabInstanceSerializer : BaseObjectSerializer<APrefabInsta
     }
 
     /// <inheritdoc />
-    public override void SerializeObject(APrefabInstance obj, Stream objectStream)
+    public override void SerializeObject(APrefabInstance obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

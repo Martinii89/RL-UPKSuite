@@ -38,7 +38,7 @@ public class DefaultSkeletalMeshSerializer : BaseObjectSerializer<USkeletalMesh>
         _nameSerializer = nameSerializer;
     }
 
-    public override void DeserializeObject(USkeletalMesh obj, Stream objectStream)
+    public override void DeserializeObject(USkeletalMesh obj, IUnrealPackageStream objectStream)
     {
         _currentMesh = obj;
         _objectSerializer.DeserializeObject(obj, objectStream);
@@ -48,23 +48,25 @@ public class DefaultSkeletalMeshSerializer : BaseObjectSerializer<USkeletalMesh>
             Debugger.Break();
         }
 
-        obj.BoxSphereBounds = _boxSphereBoundsSerializer.Deserialize(objectStream);
-        obj.Materials = _objectIndexSerializer.ReadTArrayToList(objectStream).Select(x => obj.OwnerPackage.GetObject(x) as UMaterialInterface).ToList();
-        obj.Origin = _vectorSerializer.Deserialize(objectStream);
-        obj.RotOrigin = _rotatorSerializer.Deserialize(objectStream);
-        obj.RefSkeleton = _meshBoneSerializer.ReadTArrayToList(objectStream);
+        obj.BoxSphereBounds = _boxSphereBoundsSerializer.Deserialize(objectStream.BaseStream);
+        obj.Materials = _objectIndexSerializer.ReadTArrayToList(objectStream.BaseStream).Select(x => obj.OwnerPackage.GetObject(x) as UMaterialInterface)
+            .ToList();
+        obj.Origin = _vectorSerializer.Deserialize(objectStream.BaseStream);
+        obj.RotOrigin = _rotatorSerializer.Deserialize(objectStream.BaseStream);
+        obj.RefSkeleton = _meshBoneSerializer.ReadTArrayToList(objectStream.BaseStream);
         obj.SkeletalDepth = objectStream.ReadInt32();
-        obj.LODModels = _lodSerializer.ReadTArrayToList(objectStream);
-        obj.NameMap = objectStream.ReadDictionary(ReadName, stream => stream.ReadInt32());
+        obj.LODModels = _lodSerializer.ReadTArrayToList(objectStream.BaseStream);
+        obj.NameMap = objectStream.BaseStream.ReadDictionary(ReadName, stream => stream.ReadInt32());
         var PerPolyBoneKDOPsCount = objectStream.ReadInt32();
         var BoneBreakNamesCount = objectStream.ReadInt32();
         var BoneBreakOptionsCount = objectStream.ReadInt32();
-        obj.ClothingAssets = objectStream.ReadTarray(stream => obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream)));
-        DropRamainingNativeData(obj, objectStream);
+        obj.ClothingAssets =
+            objectStream.BaseStream.ReadTarray(stream => obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream)));
+        DropRamainingNativeData(obj, objectStream.BaseStream);
         _currentMesh = null;
     }
 
-    public override void SerializeObject(USkeletalMesh obj, Stream objectStream)
+    public override void SerializeObject(USkeletalMesh obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

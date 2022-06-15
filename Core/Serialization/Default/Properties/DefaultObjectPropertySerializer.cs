@@ -18,15 +18,15 @@ public class DefaultObjectPropertySerializer : BaseObjectSerializer<UObjectPrope
     }
 
     /// <inheritdoc />
-    public override void DeserializeObject(UObjectProperty obj, Stream objectStream)
+    public override void DeserializeObject(UObjectProperty obj, IUnrealPackageStream objectStream)
     {
         _propertySerializer.DeserializeObject(obj, objectStream);
 
-        obj.PropertyClass = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream)) as UClass;
+        obj.PropertyClass = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream)) as UClass;
     }
 
     /// <inheritdoc />
-    public override void SerializeObject(UObjectProperty obj, Stream objectStream)
+    public override void SerializeObject(UObjectProperty obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

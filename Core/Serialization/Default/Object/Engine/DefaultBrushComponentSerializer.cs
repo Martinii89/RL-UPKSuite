@@ -15,7 +15,7 @@ public class DefaultBrushComponentSerializer : BaseObjectSerializer<UBrushCompon
     }
 
     /// <inheritdoc />
-    public override void DeserializeObject(UBrushComponent obj, Stream objectStream)
+    public override void DeserializeObject(UBrushComponent obj, IUnrealPackageStream objectStream)
     {
         _componentSerializer.DeserializeObject(obj, objectStream);
 
@@ -27,7 +27,7 @@ public class DefaultBrushComponentSerializer : BaseObjectSerializer<UBrushCompon
     }
 
     /// <inheritdoc />
-    public override void SerializeObject(UBrushComponent obj, Stream objectStream)
+    public override void SerializeObject(UBrushComponent obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

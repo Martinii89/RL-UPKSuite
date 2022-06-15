@@ -18,15 +18,15 @@ public class DefaultBytePropertySerializer : BaseObjectSerializer<UByteProperty>
     }
 
     /// <inheritdoc />
-    public override void DeserializeObject(UByteProperty obj, Stream objectStream)
+    public override void DeserializeObject(UByteProperty obj, IUnrealPackageStream objectStream)
     {
         _propertySerializer.DeserializeObject(obj, objectStream);
 
-        obj.Enum = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream)) as UEnum;
+        obj.Enum = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream)) as UEnum;
     }
 
     /// <inheritdoc />
-    public override void SerializeObject(UByteProperty obj, Stream objectStream)
+    public override void SerializeObject(UByteProperty obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

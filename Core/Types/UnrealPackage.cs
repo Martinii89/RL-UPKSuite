@@ -131,6 +131,8 @@ public class UnrealPackage
     /// </summary>
     public Stream? PackageStream { get; set; }
 
+    public IUnrealPackageStream? UnrealPackageStream { get; set; }
+
     /// <summary>
     ///     Helper constructor to create and initialize a package from a <see cref="IStreamSerializer{T}" />
     /// </summary>

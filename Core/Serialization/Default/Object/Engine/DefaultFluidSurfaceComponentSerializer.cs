@@ -15,7 +15,7 @@ public class DefaultFluidSurfaceComponentSerializer : BaseObjectSerializer<UFlui
     }
 
     /// <inheritdoc />
-    public override void DeserializeObject(UFluidSurfaceComponent obj, Stream objectStream)
+    public override void DeserializeObject(UFluidSurfaceComponent obj, IUnrealPackageStream objectStream)
     {
         _componentSerializer.DeserializeObject(obj, objectStream);
 
@@ -27,7 +27,7 @@ public class DefaultFluidSurfaceComponentSerializer : BaseObjectSerializer<UFlui
     }
 
     /// <inheritdoc />
-    public override void SerializeObject(UFluidSurfaceComponent obj, Stream objectStream)
+    public override void SerializeObject(UFluidSurfaceComponent obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

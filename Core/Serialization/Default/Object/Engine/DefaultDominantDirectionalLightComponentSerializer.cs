@@ -15,14 +15,14 @@ public class DefaultDominantDirectionalLightComponentSerializer : BaseObjectSeri
     }
 
     /// <inheritdoc />
-    public override void DeserializeObject(UDominantDirectionalLightComponent obj, Stream objectStream)
+    public override void DeserializeObject(UDominantDirectionalLightComponent obj, IUnrealPackageStream objectStream)
     {
-        obj.DominantLightShadowMap = objectStream.ReadTarray(stream => stream.ReadUInt16());
+        obj.DominantLightShadowMap = objectStream.BaseStream.ReadTarray(stream => stream.ReadUInt16());
         _componentSerializer.DeserializeObject(obj, objectStream);
     }
 
     /// <inheritdoc />
-    public override void SerializeObject(UDominantDirectionalLightComponent obj, Stream objectStream)
+    public override void SerializeObject(UDominantDirectionalLightComponent obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

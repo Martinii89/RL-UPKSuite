@@ -13,13 +13,13 @@ public class DefaultMaterialInstanceSerializer : BaseObjectSerializer<UMaterialI
         _objectSerializer = objectSerializer;
     }
 
-    public override void DeserializeObject(UMaterialInstance obj, Stream objectStream)
+    public override void DeserializeObject(UMaterialInstance obj, IUnrealPackageStream objectStream)
     {
         _objectSerializer.DeserializeObject(obj, objectStream);
-        DropRamainingNativeData(obj, objectStream);
+        DropRamainingNativeData(obj, objectStream.BaseStream);
     }
 
-    public override void SerializeObject(UMaterialInstance obj, Stream objectStream)
+    public override void SerializeObject(UMaterialInstance obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

@@ -30,12 +30,12 @@ public class DefaultUVStreamSerializer : IStreamSerializer<UvStream>
             if (uvStream.BUseFullPrecisionUVs == 1)
             {
                 uvItem = new UvItem(new UvFull[uvStream.NumTexCords]);
-                _uvItemSerializer.DeserializeObject(uvItem, stream1);
+                _uvItemSerializer.DeserializeObject(uvItem, (IUnrealPackageStream) stream1);
             }
             else
             {
                 uvItem = new UvItem(new UvHalf[uvStream.NumTexCords]);
-                _uvItemSerializer.DeserializeObject(uvItem, stream1);
+                _uvItemSerializer.DeserializeObject(uvItem, (IUnrealPackageStream) stream1);
             }
 
             return uvItem;

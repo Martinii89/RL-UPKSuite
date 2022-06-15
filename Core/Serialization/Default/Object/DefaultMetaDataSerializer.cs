@@ -1,7 +1,6 @@
 ﻿using Core.Classes;
 using Core.Classes.Core;
 using Core.Serialization.Abstraction;
-using Core.Serialization.Extensions;
 using Core.Types;
 using Core.Types.PackageTables;
 
@@ -21,21 +20,21 @@ public class DefaultMetaDataSerializer : BaseObjectSerializer<UMetaData>
         _objectSerializer = objectSerializer;
     }
 
-    public override void DeserializeObject(UMetaData obj, Stream objectStream)
+    public override void DeserializeObject(UMetaData obj, IUnrealPackageStream objectStream)
     {
         _objectSerializer.DeserializeObject(obj, objectStream);
-        var remaining = obj.ExportTableItem.SerialOffset + obj.ExportTableItem.SerialSize - objectStream.Position;
-        objectStream.Move(remaining);
+        var remaining = obj.ExportTableItem.SerialOffset + obj.ExportTableItem.SerialSize - objectStream.BaseStream.Position;
+        objectStream.BaseStream.Move(remaining);
         return;
         var numElements = objectStream.ReadInt32();
         for (var i = 0; i < numElements; i++)
         {
-            var metaObj = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream));
+            var metaObj = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream));
             var count = objectStream.ReadInt32();
             UMetaData.MetaDataEntry data = new() { Object = metaObj };
             for (var j = 0; j < count; j++)
             {
-                var name = obj.OwnerPackage.GetName(_fnameSerializer.Deserialize(objectStream));
+                var name = obj.OwnerPackage.GetName(_fnameSerializer.Deserialize(objectStream.BaseStream));
                 var nameValue = objectStream.ReadFString();
                 data.Values.Add(new UMetaData.MetaDataEntry.MetaDataValue { key = name, value = nameValue });
             }
@@ -44,7 +43,7 @@ public class DefaultMetaDataSerializer : BaseObjectSerializer<UMetaData>
         }
     }
 
-    public override void SerializeObject(UMetaData obj, Stream objectStream)
+    public override void SerializeObject(UMetaData obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

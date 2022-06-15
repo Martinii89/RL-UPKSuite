@@ -19,15 +19,15 @@ public class DefaultInterfacePropertySerializer : BaseObjectSerializer<UInterfac
     }
 
     /// <inheritdoc />
-    public override void DeserializeObject(UInterfaceProperty obj, Stream objectStream)
+    public override void DeserializeObject(UInterfaceProperty obj, IUnrealPackageStream objectStream)
     {
         _propertySerializer.DeserializeObject(obj, objectStream);
 
-        obj.InterfaceClass = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream)) as UClass;
+        obj.InterfaceClass = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream)) as UClass;
     }
 
     /// <inheritdoc />
-    public override void SerializeObject(UInterfaceProperty obj, Stream objectStream)
+    public override void SerializeObject(UInterfaceProperty obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

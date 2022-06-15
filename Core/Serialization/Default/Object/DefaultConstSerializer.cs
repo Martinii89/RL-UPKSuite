@@ -1,6 +1,5 @@
 ﻿using Core.Classes;
 using Core.Serialization.Abstraction;
-using Core.Serialization.Extensions;
 
 namespace Core.Serialization.Default.Object;
 
@@ -13,13 +12,13 @@ public class DefaultConstSerializer : BaseObjectSerializer<UConst>
         _fieldSerializer = fieldSerializer;
     }
 
-    public override void DeserializeObject(UConst obj, Stream objectStream)
+    public override void DeserializeObject(UConst obj, IUnrealPackageStream objectStream)
     {
         _fieldSerializer.DeserializeObject(obj, objectStream);
         obj.Value = objectStream.ReadFString();
     }
 
-    public override void SerializeObject(UConst obj, Stream objectStream)
+    public override void SerializeObject(UConst obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

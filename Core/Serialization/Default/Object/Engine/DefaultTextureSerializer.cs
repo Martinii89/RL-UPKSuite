@@ -17,13 +17,13 @@ public class DefaultTextureSerializer : BaseObjectSerializer<UTexture>
         _bulkDataSerializer = bulkDataSerializer;
     }
 
-    public override void DeserializeObject(UTexture obj, Stream objectStream)
+    public override void DeserializeObject(UTexture obj, IUnrealPackageStream objectStream)
     {
         _objectSerializer.DeserializeObject(obj, objectStream);
-        obj.SourceArt = _bulkDataSerializer.Deserialize(objectStream);
+        obj.SourceArt = _bulkDataSerializer.Deserialize(objectStream.BaseStream);
     }
 
-    public override void SerializeObject(UTexture obj, Stream objectStream)
+    public override void SerializeObject(UTexture obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

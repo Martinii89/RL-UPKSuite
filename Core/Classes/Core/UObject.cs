@@ -84,7 +84,7 @@ public class UObject
 
     public bool IsArchetypeObject => (ObjectFlags & 0x400) != 0;
 
-    private Stream? OwnerPackageStream => OwnerPackage.PackageStream;
+    private IUnrealPackageStream? OwnerPackageStream => OwnerPackage.UnrealPackageStream;
 
     public long DeserializationOffsetEnd { get; set; }
 
@@ -111,13 +111,13 @@ public class UObject
 
         var streamPosition = ExportTableItem.SerialOffset;
         using var rewindAfterScope = OwnerPackageStream.TemporarySeek();
-        OwnerPackageStream.Position = streamPosition;
+        OwnerPackageStream.BaseStream.Position = streamPosition;
 
         Serializer.DeserializeObject(this, OwnerPackageStream);
 
         // Store meta data about the deserialization for manual debugging purposes
-        DeserializationOffsetEnd = OwnerPackageStream.Position - ExportTableItem!.SerialOffset;
-        FullyDeserialized = OwnerPackageStream.Position == ExportTableItem!.SerialOffset + ExportTableItem.SerialSize;
+        DeserializationOffsetEnd = OwnerPackageStream.BaseStream.Position - ExportTableItem!.SerialOffset;
+        FullyDeserialized = OwnerPackageStream.BaseStream.Position == ExportTableItem!.SerialOffset + ExportTableItem.SerialSize;
         if (!FullyDeserialized)
         {
             Debugger.Break();

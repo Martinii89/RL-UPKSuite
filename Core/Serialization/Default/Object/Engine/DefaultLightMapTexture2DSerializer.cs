@@ -14,14 +14,14 @@ public class DefaultLightMapTexture2DSerializer : BaseObjectSerializer<ULightMap
     }
 
     /// <inheritdoc />
-    public override void DeserializeObject(ULightMapTexture2D obj, Stream objectStream)
+    public override void DeserializeObject(ULightMapTexture2D obj, IUnrealPackageStream objectStream)
     {
         _textureSerializer.DeserializeObject(obj, objectStream);
         obj.LightMapFlags = (ULightMapTexture2D.ELightMapFlags) objectStream.ReadUInt32();
     }
 
     /// <inheritdoc />
-    public override void SerializeObject(ULightMapTexture2D obj, Stream objectStream)
+    public override void SerializeObject(ULightMapTexture2D obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

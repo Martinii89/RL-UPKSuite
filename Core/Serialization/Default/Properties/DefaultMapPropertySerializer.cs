@@ -17,16 +17,16 @@ public class DefaultMapPropertySerializer : BaseObjectSerializer<UMapProperty>
     }
 
     /// <inheritdoc />
-    public override void DeserializeObject(UMapProperty obj, Stream objectStream)
+    public override void DeserializeObject(UMapProperty obj, IUnrealPackageStream objectStream)
     {
         _propertySerializer.DeserializeObject(obj, objectStream);
 
-        obj.Key = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream)) as UProperty;
-        obj.Value = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream)) as UProperty;
+        obj.Key = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream)) as UProperty;
+        obj.Value = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream)) as UProperty;
     }
 
     /// <inheritdoc />
-    public override void SerializeObject(UMapProperty obj, Stream objectStream)
+    public override void SerializeObject(UMapProperty obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

@@ -17,11 +17,11 @@ public class DefaultFunctionSerializer : BaseObjectSerializer<UFunction>
     }
 
     /// <inheritdoc />
-    public override void DeserializeObject(UFunction obj, Stream objectStream)
+    public override void DeserializeObject(UFunction obj, IUnrealPackageStream objectStream)
     {
         _structSerializer.DeserializeObject(obj, objectStream);
         obj.INative = objectStream.ReadUInt16();
-        obj.OperPrecedence = (byte) objectStream.ReadByte();
+        obj.OperPrecedence = objectStream.ReadByte();
         obj.FunctionFlags = objectStream.ReadUInt32();
 
         if (obj.HasFunctionFlag(FunctionFlags.Net))
@@ -30,11 +30,11 @@ public class DefaultFunctionSerializer : BaseObjectSerializer<UFunction>
         }
 
 
-        obj.FriendlyName = obj.OwnerPackage.GetName(_fnameSerializer.Deserialize(objectStream));
+        obj.FriendlyName = obj.OwnerPackage.GetName(_fnameSerializer.Deserialize(objectStream.BaseStream));
     }
 
     /// <inheritdoc />
-    public override void SerializeObject(UFunction obj, Stream objectStream)
+    public override void SerializeObject(UFunction obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

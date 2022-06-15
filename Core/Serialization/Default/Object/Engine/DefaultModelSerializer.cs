@@ -39,17 +39,17 @@ public class DefaultModelSerializer : BaseObjectSerializer<UModel>
     }
 
     /// <inheritdoc />
-    public override void DeserializeObject(UModel obj, Stream objectStream)
+    public override void DeserializeObject(UModel obj, IUnrealPackageStream objectStream)
     {
         _objectSerializer.DeserializeObject(obj, objectStream);
-        obj.Bounds = _boxSphereBoundsSerializer.Deserialize(objectStream);
-        obj.Vectors = objectStream.ReadTarrayWithElementSize(stream => _vectorSerializer.Deserialize(stream));
-        obj.Points = objectStream.ReadTarrayWithElementSize(stream => _vectorSerializer.Deserialize(stream));
-        obj.Nodes = objectStream.ReadTarrayWithElementSize(stream => _bspNodeSerializer.Deserialize(stream));
+        obj.Bounds = _boxSphereBoundsSerializer.Deserialize(objectStream.BaseStream);
+        obj.Vectors = objectStream.BaseStream.ReadTarrayWithElementSize(stream => _vectorSerializer.Deserialize(stream));
+        obj.Points = objectStream.BaseStream.ReadTarrayWithElementSize(stream => _vectorSerializer.Deserialize(stream));
+        obj.Nodes = objectStream.BaseStream.ReadTarrayWithElementSize(stream => _bspNodeSerializer.Deserialize(stream));
 
-        obj.Surfs.Super = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream));
-        obj.Surfs.Data = objectStream.ReadTarray(stream => _bspSurfSerializer.Deserialize(stream));
-        obj.Verts = _vertSerializer.ReadTArrayWithElementSize(objectStream);
+        obj.Surfs.Super = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream));
+        obj.Surfs.Data = objectStream.BaseStream.ReadTarray(stream => _bspSurfSerializer.Deserialize(stream));
+        obj.Verts = _vertSerializer.ReadTArrayWithElementSize(objectStream.BaseStream);
         obj.NumSharedSides = objectStream.ReadInt32();
         obj.NumZones = objectStream.ReadInt32();
         if (obj.NumZones > 0)
@@ -57,12 +57,12 @@ public class DefaultModelSerializer : BaseObjectSerializer<UModel>
             Debugger.Break();
         }
 
-        obj.Polys = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream));
-        obj.LeafHulls = objectStream.ReadTarrayWithElementSize(stream => stream.ReadInt32());
-        obj.Leaves = objectStream.ReadTarrayWithElementSize(stream => stream.ReadInt32());
+        obj.Polys = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream));
+        obj.LeafHulls = objectStream.BaseStream.ReadTarrayWithElementSize(stream => stream.ReadInt32());
+        obj.Leaves = objectStream.BaseStream.ReadTarrayWithElementSize(stream => stream.ReadInt32());
         obj.RootOutside = objectStream.ReadUInt32();
         obj.Linked = objectStream.ReadUInt32();
-        obj.PortalNodes = objectStream.ReadTarrayWithElementSize(stream => stream.ReadInt32());
+        obj.PortalNodes = objectStream.BaseStream.ReadTarrayWithElementSize(stream => stream.ReadInt32());
         obj.NumVertices = objectStream.ReadInt32();
         var elementSize = objectStream.ReadInt32();
         var verticies = objectStream.ReadInt32();
@@ -71,12 +71,12 @@ public class DefaultModelSerializer : BaseObjectSerializer<UModel>
             Debugger.Break();
         }
 
-        obj.lightingGuid = _guidSerializer.Deserialize(objectStream);
-        obj.LightmassPrimitiveSettings = _lightmassPrimitiveSettingsSerializer.ReadTArrayToList(objectStream);
+        obj.lightingGuid = _guidSerializer.Deserialize(objectStream.BaseStream);
+        obj.LightmassPrimitiveSettings = _lightmassPrimitiveSettingsSerializer.ReadTArrayToList(objectStream.BaseStream);
     }
 
     /// <inheritdoc />
-    public override void SerializeObject(UModel obj, Stream objectStream)
+    public override void SerializeObject(UModel obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

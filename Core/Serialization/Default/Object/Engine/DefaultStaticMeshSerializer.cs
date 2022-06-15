@@ -32,27 +32,27 @@ public class DefaultStaticMeshSerializer : BaseObjectSerializer<UStaticMesh>
     }
 
     /// <inheritdoc />
-    public override void DeserializeObject(UStaticMesh obj, Stream objectStream)
+    public override void DeserializeObject(UStaticMesh obj, IUnrealPackageStream objectStream)
     {
         _objectSerializer.DeserializeObject(obj, objectStream);
-        obj.FBoxSphereBounds = _boxSphereBoundsSerializer.Deserialize(objectStream);
-        obj.BodySetup = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream)) as URB_BodySetup;
-        obj.FkDopBounds = _kDopBoundsSerializer.Deserialize(objectStream);
-        obj.NewNodes = _kDopNode3NewSerializer.ReadTArrayWithElementSize(objectStream);
-        obj.Triangles = _kDOPTrianglesSerializer.ReadTArrayWithElementSize(objectStream);
+        obj.FBoxSphereBounds = _boxSphereBoundsSerializer.Deserialize(objectStream.BaseStream);
+        obj.BodySetup = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream)) as URB_BodySetup;
+        obj.FkDopBounds = _kDopBoundsSerializer.Deserialize(objectStream.BaseStream);
+        obj.NewNodes = _kDopNode3NewSerializer.ReadTArrayWithElementSize(objectStream.BaseStream);
+        obj.Triangles = _kDOPTrianglesSerializer.ReadTArrayWithElementSize(objectStream.BaseStream);
         obj.InternalVersion = objectStream.ReadInt32();
         obj.UnkFlag = objectStream.ReadInt32();
         obj.F178ElementsCount = objectStream.ReadInt32();
         obj.F74 = objectStream.ReadInt32();
         obj.Unk = objectStream.ReadInt32();
         var lodCount = objectStream.ReadInt32();
-        objectStream.Move(-4);
+        objectStream.BaseStream.Move(-4);
         if (lodCount > 1)
         {
             Debugger.Break();
         }
 
-        obj.Lods = _staticMeshLodModel3Serializer.ReadTArrayToList(objectStream);
+        obj.Lods = _staticMeshLodModel3Serializer.ReadTArrayToList(objectStream.BaseStream);
 
         //obj.LODInfo = objectStream.ReadTarray(stream =>
         //{
@@ -68,12 +68,12 @@ public class DefaultStaticMeshSerializer : BaseObjectSerializer<UStaticMesh>
         //    return res;
         //});
 
-        var unknownDataLength = (int) (obj.ExportTableItem!.SerialSize - (objectStream.Position - obj.ExportTableItem!.SerialOffset));
+        var unknownDataLength = (int) (obj.ExportTableItem!.SerialSize - (objectStream.BaseStream.Position - obj.ExportTableItem!.SerialOffset));
         obj.UnknownBytes = objectStream.ReadBytes(unknownDataLength);
     }
 
     /// <inheritdoc />
-    public override void SerializeObject(UStaticMesh obj, Stream objectStream)
+    public override void SerializeObject(UStaticMesh obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

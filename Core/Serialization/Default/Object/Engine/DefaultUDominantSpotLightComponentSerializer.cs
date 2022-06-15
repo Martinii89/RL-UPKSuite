@@ -14,7 +14,7 @@ public class DefaultUDominantSpotLightComponentSerializer : BaseObjectSerializer
     }
 
     /// <inheritdoc />
-    public override void DeserializeObject(UDominantSpotLightComponent obj, Stream objectStream)
+    public override void DeserializeObject(UDominantSpotLightComponent obj, IUnrealPackageStream objectStream)
     {
         var dominantLightShadowMapCount = objectStream.ReadInt32();
 
@@ -27,7 +27,7 @@ public class DefaultUDominantSpotLightComponentSerializer : BaseObjectSerializer
     }
 
     /// <inheritdoc />
-    public override void SerializeObject(UDominantSpotLightComponent obj, Stream objectStream)
+    public override void SerializeObject(UDominantSpotLightComponent obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

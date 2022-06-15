@@ -24,22 +24,22 @@ public class DefaultStructSerializer : BaseObjectSerializer<UStruct>
     }
 
     /// <inheritdoc />
-    public override void DeserializeObject(UStruct obj, Stream objectStream)
+    public override void DeserializeObject(UStruct obj, IUnrealPackageStream objectStream)
     {
         _fieldSerializer.DeserializeObject(obj, objectStream);
 
-        obj.SuperStruct = obj.OwnerPackage.GetObject(_objectIndexSerialiser.Deserialize(objectStream)) as UStruct;
-        obj.ScriptText = obj.OwnerPackage.GetObject(_objectIndexSerialiser.Deserialize(objectStream)) as UTextBuffer;
-        obj.Children = obj.OwnerPackage.GetObject(_objectIndexSerialiser.Deserialize(objectStream)) as UField;
-        obj.CppText = obj.OwnerPackage.GetObject(_objectIndexSerialiser.Deserialize(objectStream)) as UTextBuffer;
+        obj.SuperStruct = obj.OwnerPackage.GetObject(_objectIndexSerialiser.Deserialize(objectStream.BaseStream)) as UStruct;
+        obj.ScriptText = obj.OwnerPackage.GetObject(_objectIndexSerialiser.Deserialize(objectStream.BaseStream)) as UTextBuffer;
+        obj.Children = obj.OwnerPackage.GetObject(_objectIndexSerialiser.Deserialize(objectStream.BaseStream)) as UField;
+        obj.CppText = obj.OwnerPackage.GetObject(_objectIndexSerialiser.Deserialize(objectStream.BaseStream)) as UTextBuffer;
         obj.Line = objectStream.ReadInt32();
         obj.TextPos = objectStream.ReadInt32();
         obj.ScriptBytecodeSize = objectStream.ReadInt32();
         obj.DataScriptSize = objectStream.ReadInt32();
         if (obj.DataScriptSize > 0)
         {
-            obj.ScriptOffset = objectStream.Position;
-            objectStream.Move(obj.DataScriptSize);
+            obj.ScriptOffset = objectStream.BaseStream.Position;
+            objectStream.BaseStream.Move(obj.DataScriptSize);
         }
 
 
@@ -47,7 +47,7 @@ public class DefaultStructSerializer : BaseObjectSerializer<UStruct>
     }
 
     /// <inheritdoc />
-    public override void SerializeObject(UStruct obj, Stream objectStream)
+    public override void SerializeObject(UStruct obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

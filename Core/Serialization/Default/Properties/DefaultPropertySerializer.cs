@@ -22,14 +22,14 @@ public class DefaultPropertySerializer : BaseObjectSerializer<UProperty>
     }
 
     /// <inheritdoc />
-    public override void DeserializeObject(UProperty obj, Stream objectStream)
+    public override void DeserializeObject(UProperty obj, IUnrealPackageStream objectStream)
     {
         _fieldSerializer.DeserializeObject(obj, objectStream);
 
         obj.ArrayDim = objectStream.ReadInt32();
         obj.PropertyFlags = objectStream.ReadUInt64();
-        obj.Category = obj.OwnerPackage.GetName(_fnameSerializer.Deserialize(objectStream));
-        obj.ArraySizeEnum = obj.OwnerPackage.GetObject(_ObjectIndexSerializer.Deserialize(objectStream)) as UEnum;
+        obj.Category = obj.OwnerPackage.GetName(_fnameSerializer.Deserialize(objectStream.BaseStream));
+        obj.ArraySizeEnum = obj.OwnerPackage.GetObject(_ObjectIndexSerializer.Deserialize(objectStream.BaseStream)) as UEnum;
 
         if (obj.HasPropertyFlag(PropertyFlagsLO.Net))
         {
@@ -38,7 +38,7 @@ public class DefaultPropertySerializer : BaseObjectSerializer<UProperty>
     }
 
     /// <inheritdoc />
-    public override void SerializeObject(UProperty obj, Stream objectStream)
+    public override void SerializeObject(UProperty obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

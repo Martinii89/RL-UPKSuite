@@ -17,15 +17,15 @@ public class DefaultArrayPropertySerializer : BaseObjectSerializer<UArrayPropert
     }
 
     /// <inheritdoc />
-    public override void DeserializeObject(UArrayProperty obj, Stream objectStream)
+    public override void DeserializeObject(UArrayProperty obj, IUnrealPackageStream objectStream)
     {
         _propertySerializer.DeserializeObject(obj, objectStream);
 
-        obj.InnerProperty = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream)) as UProperty;
+        obj.InnerProperty = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream)) as UProperty;
     }
 
     /// <inheritdoc />
-    public override void SerializeObject(UArrayProperty obj, Stream objectStream)
+    public override void SerializeObject(UArrayProperty obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

@@ -1,7 +1,6 @@
 ﻿using Core.Classes;
 using Core.Classes.Core;
 using Core.Serialization.Abstraction;
-using Core.Serialization.Extensions;
 
 namespace Core.Serialization.Default.Object;
 
@@ -15,7 +14,7 @@ public class DefaultTextBufferSerializer : BaseObjectSerializer<UTextBuffer>
     }
 
     /// <inheritdoc />
-    public override void DeserializeObject(UTextBuffer obj, Stream objectStream)
+    public override void DeserializeObject(UTextBuffer obj, IUnrealPackageStream objectStream)
     {
         _objectSerializer.DeserializeObject(obj, objectStream);
 
@@ -25,7 +24,7 @@ public class DefaultTextBufferSerializer : BaseObjectSerializer<UTextBuffer>
     }
 
     /// <inheritdoc />
-    public override void SerializeObject(UTextBuffer obj, Stream objectStream)
+    public override void SerializeObject(UTextBuffer obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

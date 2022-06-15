@@ -19,16 +19,16 @@ public class DefaultMaterialSerializer : BaseObjectSerializer<UMaterial>
         _materialResourceSerializer = materialResourceSerializer;
     }
 
-    public override void DeserializeObject(UMaterial obj, Stream objectStream)
+    public override void DeserializeObject(UMaterial obj, IUnrealPackageStream objectStream)
     {
         _objectSerializer.DeserializeObject(obj, objectStream);
 
-        obj.FMaterialResources[0] = _materialResourceSerializer.Deserialize(objectStream);
-        var leftOver = obj.ExportTableItem.SerialOffset + obj.ExportTableItem.SerialSize - objectStream.Position;
+        obj.FMaterialResources[0] = _materialResourceSerializer.Deserialize(objectStream.BaseStream);
+        var leftOver = obj.ExportTableItem.SerialOffset + obj.ExportTableItem.SerialSize - objectStream.BaseStream.Position;
         obj.FMaterialResources[0].UnknownBytes = objectStream.ReadBytes((int) leftOver);
     }
 
-    public override void SerializeObject(UMaterial obj, Stream objectStream)
+    public override void SerializeObject(UMaterial obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

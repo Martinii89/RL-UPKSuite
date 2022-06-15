@@ -17,16 +17,16 @@ public class DefaultRB_BodySetupSerializer : BaseObjectSerializer<URB_BodySetup>
     }
 
     /// <inheritdoc />
-    public override void DeserializeObject(URB_BodySetup obj, Stream objectStream)
+    public override void DeserializeObject(URB_BodySetup obj, IUnrealPackageStream objectStream)
     {
         _objectSerializer.DeserializeObject(obj, objectStream);
 
 
-        obj.PreCachedPhysData = _kCachedConvexDataSerializer.ReadTArrayToList(objectStream);
+        obj.PreCachedPhysData = _kCachedConvexDataSerializer.ReadTArrayToList(objectStream.BaseStream);
     }
 
     /// <inheritdoc />
-    public override void SerializeObject(URB_BodySetup obj, Stream objectStream)
+    public override void SerializeObject(URB_BodySetup obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

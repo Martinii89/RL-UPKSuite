@@ -24,12 +24,12 @@ public class DefaultObjectSerializer : BaseObjectSerializer<UObject>
     }
 
     /// <inheritdoc />
-    public override void DeserializeObject(UObject obj, Stream objectStream)
+    public override void DeserializeObject(UObject obj, IUnrealPackageStream objectStream)
     {
         if (obj.HasObjectFlag(ObjectFlagsLO.HasStack))
         {
-            var node = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream));
-            var stateNode = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream));
+            var node = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream));
+            var stateNode = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream));
             var probeMask = objectStream.ReadUInt32();
             var latentAction = objectStream.ReadUInt16();
             var stateStackCount = objectStream.ReadUInt32();
@@ -44,7 +44,7 @@ public class DefaultObjectSerializer : BaseObjectSerializer<UObject>
         }
 
         //obj.ScriptProperties.AddRange(GetScriptProperties(obj, objectStream));
-        obj.ScriptProperties.AddRange(_scriptPropertiesSerializer.GetScriptProperties(obj, objectStream));
+        obj.ScriptProperties.AddRange(_scriptPropertiesSerializer.GetScriptProperties(obj, objectStream.BaseStream));
     }
 
     private IEnumerable<FProperty> GetScriptProperties(UObject obj, Stream objectStream)
@@ -92,7 +92,7 @@ public class DefaultObjectSerializer : BaseObjectSerializer<UObject>
     }
 
     /// <inheritdoc />
-    public override void SerializeObject(UObject obj, Stream objectStream)
+    public override void SerializeObject(UObject obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

@@ -18,16 +18,16 @@ public class DefaultDelegatePropertySerializer : BaseObjectSerializer<UDelegateP
     }
 
     /// <inheritdoc />
-    public override void DeserializeObject(UDelegateProperty obj, Stream objectStream)
+    public override void DeserializeObject(UDelegateProperty obj, IUnrealPackageStream objectStream)
     {
         _propertySerializer.DeserializeObject(obj, objectStream);
 
-        obj.FunctionObject = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream)) as UFunction;
-        obj.DelegateObject = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream));
+        obj.FunctionObject = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream)) as UFunction;
+        obj.DelegateObject = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream));
     }
 
     /// <inheritdoc />
-    public override void SerializeObject(UDelegateProperty obj, Stream objectStream)
+    public override void SerializeObject(UDelegateProperty obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

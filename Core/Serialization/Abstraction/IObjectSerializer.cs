@@ -8,13 +8,6 @@ namespace Core.Serialization.Abstraction;
 public interface IObjectSerializer
 {
     /// <summary>
-    ///     Check if this serializer is compatible with the given type
-    /// </summary>
-    /// <param name="type"></param>
-    /// <returns></returns>
-    bool ValidForType(Type type);
-
-    /// <summary>
     ///     Returns the type this serializer is compatible with
     /// </summary>
     /// <returns></returns>
@@ -25,14 +18,14 @@ public interface IObjectSerializer
     /// </summary>
     /// <param name="obj"></param>
     /// <param name="objectStream"></param>
-    void DeserializeObject(object obj, Stream objectStream);
+    void DeserializeObject(object obj, IUnrealPackageStream objectStream);
 
     /// <summary>
     ///     Write the object properties to the stream
     /// </summary>
     /// <param name="obj"></param>
     /// <param name="objectStream"></param>
-    void SerializeObject(object obj, Stream objectStream);
+    void SerializeObject(object obj, IUnrealPackageStream objectStream);
 }
 
 /// <summary>
@@ -46,14 +39,14 @@ public interface IObjectSerializer<in T> : IObjectSerializer
     /// </summary>
     /// <param name="obj"></param>
     /// <param name="objectStream"></param>
-    void DeserializeObject(T obj, Stream objectStream);
+    void DeserializeObject(T obj, IUnrealPackageStream objectStream);
 
     /// <summary>
     ///     Write the object properties to the stream
     /// </summary>
     /// <param name="obj"></param>
     /// <param name="objectStream"></param>
-    void SerializeObject(T obj, Stream objectStream);
+    void SerializeObject(T obj, IUnrealPackageStream objectStream);
 }
 
 /// <summary>
@@ -63,19 +56,13 @@ public interface IObjectSerializer<in T> : IObjectSerializer
 public abstract class BaseObjectSerializer<T> : IObjectSerializer<T>
 {
     /// <inheritdoc />
-    public bool ValidForType(Type type)
-    {
-        return type == typeof(T);
-    }
-
-    /// <inheritdoc />
     public Type GetSerializerFor()
     {
         return typeof(T);
     }
 
     /// <inheritdoc />
-    public void DeserializeObject(object obj, Stream objectStream)
+    public void DeserializeObject(object obj, IUnrealPackageStream objectStream)
     {
         if (obj is T tObj)
         {
@@ -84,7 +71,7 @@ public abstract class BaseObjectSerializer<T> : IObjectSerializer<T>
     }
 
     /// <inheritdoc />
-    public void SerializeObject(object obj, Stream objectStream)
+    public void SerializeObject(object obj, IUnrealPackageStream objectStream)
     {
         if (obj is T tObj)
         {
@@ -93,10 +80,10 @@ public abstract class BaseObjectSerializer<T> : IObjectSerializer<T>
     }
 
     /// <inheritdoc />
-    public abstract void DeserializeObject(T obj, Stream objectStream);
+    public abstract void DeserializeObject(T obj, IUnrealPackageStream objectStream);
 
     /// <inheritdoc />
-    public abstract void SerializeObject(T obj, Stream objectStream);
+    public abstract void SerializeObject(T obj, IUnrealPackageStream objectStream);
 
     protected void DropRamainingNativeData(UObject obj, Stream objectStream)
     {

@@ -24,12 +24,12 @@ public class InterfacePropertySerializer : BaseObjectSerializer<UInterfaceProper
     }
 
     /// <inheritdoc />
-    public override void DeserializeObject(UInterfaceProperty obj, Stream objectStream)
+    public override void DeserializeObject(UInterfaceProperty obj, IUnrealPackageStream objectStream)
     {
         _propertySerializer.DeserializeObject(obj, objectStream);
 
-        obj.InterfaceClass = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream)) as UClass;
-        var dummyFNameMaybe = _fnameSerializer.Deserialize(objectStream);
+        obj.InterfaceClass = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream)) as UClass;
+        var dummyFNameMaybe = _fnameSerializer.Deserialize(objectStream.BaseStream);
         var name = obj.OwnerPackage.GetName(dummyFNameMaybe);
         if (name != "None")
         {
@@ -38,7 +38,7 @@ public class InterfacePropertySerializer : BaseObjectSerializer<UInterfaceProper
     }
 
     /// <inheritdoc />
-    public override void SerializeObject(UInterfaceProperty obj, Stream objectStream)
+    public override void SerializeObject(UInterfaceProperty obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }
