@@ -2,7 +2,7 @@
 
 namespace Core.Serialization.Default.Object.Core.Struct;
 
-public class DefaultQuatSerializer : IStreamSerializerFor<FQuat>
+public class DefaultQuatSerializer : IStreamSerializer<FQuat>
 {
     /// <inheritdoc />
     public FQuat Deserialize(Stream stream)

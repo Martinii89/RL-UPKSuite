@@ -3,7 +3,7 @@
 namespace Core.Serialization.Default;
 
 /// <inheritdoc />
-public class FGenerationInfoSerializer : IStreamSerializerFor<FGenerationInfo>
+public class FGenerationInfoSerializer : IStreamSerializer<FGenerationInfo>
 {
     /// <inheritdoc />
     public FGenerationInfo Deserialize(Stream stream)

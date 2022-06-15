@@ -8,7 +8,7 @@ namespace Core.Utility.Tests;
 
 public class ImportResolverTests : SerializerHelper
 {
-    private readonly IStreamSerializerFor<UnrealPackage> _serializer;
+    private readonly IStreamSerializer<UnrealPackage> _serializer;
 
     public ImportResolverTests()
     {

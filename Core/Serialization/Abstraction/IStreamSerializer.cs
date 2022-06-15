@@ -1,10 +1,10 @@
 ﻿namespace Core.Serialization;
 
 /// <summary>
-///     A IStreamSerializerFor implements serialization and deserialization from a <see cref="Stream" />
+///     A IStreamSerializer implements serialization and deserialization from a <see cref="Stream" />
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public interface IStreamSerializerFor<T>
+public interface IStreamSerializer<T>
 {
     /// <summary>
     ///     Constructs a T from the stream

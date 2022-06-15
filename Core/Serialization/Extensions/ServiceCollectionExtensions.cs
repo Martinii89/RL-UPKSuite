@@ -69,7 +69,7 @@ public class SerializerOptions
 /// </summary>
 public static class SerializerExtensions
 {
-    private static readonly Type SerializerInterfaceType = typeof(IStreamSerializerFor<>);
+    private static readonly Type SerializerInterfaceType = typeof(IStreamSerializer<>);
     private static readonly Type GenericObjectSerializers = typeof(IObjectSerializer<>);
     private static readonly Type ObjectSerializers = typeof(IObjectSerializer);
 

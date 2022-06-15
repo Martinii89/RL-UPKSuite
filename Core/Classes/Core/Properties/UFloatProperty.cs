@@ -18,8 +18,8 @@ public class UFloatProperty : UProperty
     }
 
     /// <inheritdoc />
-    public override object? DeserializeValue(UObject obj, Stream objStream, int propertySize, IStreamSerializerFor<FName> fnameSerializer,
-        IStreamSerializerFor<ObjectIndex> objectIndexSerializer)
+    public override object? DeserializeValue(UObject obj, Stream objStream, int propertySize, IStreamSerializer<FName> fnameSerializer,
+        IStreamSerializer<ObjectIndex> objectIndexSerializer)
     {
         return objStream.ReadSingle();
     }

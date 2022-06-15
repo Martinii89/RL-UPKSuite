@@ -39,8 +39,8 @@ public abstract class UProperty : UField
     /// <param name="fnameSerializer"></param>
     /// <param name="objectIndexSerializer"></param>
     /// <returns></returns>
-    public virtual object? DeserializeValue(UObject obj, Stream objStream, int propertySize, IStreamSerializerFor<FName> fnameSerializer,
-        IStreamSerializerFor<ObjectIndex> objectIndexSerializer)
+    public virtual object? DeserializeValue(UObject obj, Stream objStream, int propertySize, IStreamSerializer<FName> fnameSerializer,
+        IStreamSerializer<ObjectIndex> objectIndexSerializer)
     {
         throw new NotImplementedException(Class?.Name);
     }

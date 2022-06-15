@@ -7,10 +7,10 @@ namespace Core.Serialization.Default.Object;
 
 public class DefaultFunctionSerializer : BaseObjectSerializer<UFunction>
 {
-    private readonly IStreamSerializerFor<FName> _fnameSerializer;
+    private readonly IStreamSerializer<FName> _fnameSerializer;
     private readonly IObjectSerializer<UStruct> _structSerializer;
 
-    public DefaultFunctionSerializer(IObjectSerializer<UStruct> structSerializer, IStreamSerializerFor<FName> fnameSerializer)
+    public DefaultFunctionSerializer(IObjectSerializer<UStruct> structSerializer, IStreamSerializer<FName> fnameSerializer)
     {
         _structSerializer = structSerializer;
         _fnameSerializer = fnameSerializer;

@@ -8,11 +8,11 @@ namespace Core.Serialization.Default.Object.Engine;
 
 public class DefaultPrefabInstanceSerializer : BaseObjectSerializer<APrefabInstance>
 {
-    private readonly IStreamSerializerFor<ObjectIndex> _objectIndexSerializer;
+    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
 
     private readonly IObjectSerializer<UObject> _objectSerializer;
 
-    public DefaultPrefabInstanceSerializer(IObjectSerializer<UObject> objectSerializer, IStreamSerializerFor<ObjectIndex> objectIndexSerializer)
+    public DefaultPrefabInstanceSerializer(IObjectSerializer<UObject> objectSerializer, IStreamSerializer<ObjectIndex> objectIndexSerializer)
     {
         _objectSerializer = objectSerializer;
         _objectIndexSerializer = objectIndexSerializer;

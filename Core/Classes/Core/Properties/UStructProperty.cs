@@ -25,8 +25,8 @@ public class UStructProperty : UProperty
     public UScriptStruct? Struct { get; set; }
 
     /// <inheritdoc />
-    public override object? DeserializeValue(UObject obj, Stream objStream, int propertySize, IStreamSerializerFor<FName> fnameSerializer,
-        IStreamSerializerFor<ObjectIndex> objectIndexSerializer)
+    public override object? DeserializeValue(UObject obj, Stream objStream, int propertySize, IStreamSerializer<FName> fnameSerializer,
+        IStreamSerializer<ObjectIndex> objectIndexSerializer)
     {
         ArgumentNullException.ThrowIfNull(Struct);
         Struct.Deserialize();

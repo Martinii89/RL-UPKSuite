@@ -3,11 +3,11 @@ using Core.Classes.Engine.Structs;
 
 namespace Core.Serialization.Default.Object.Engine.Struct;
 
-public class DefaultVertexStreamSerializer : IStreamSerializerFor<VertexStream>
+public class DefaultVertexStreamSerializer : IStreamSerializer<VertexStream>
 {
-    private readonly IStreamSerializerFor<FVector> _vectorSerializer;
+    private readonly IStreamSerializer<FVector> _vectorSerializer;
 
-    public DefaultVertexStreamSerializer(IStreamSerializerFor<FVector> vectorSerializer)
+    public DefaultVertexStreamSerializer(IStreamSerializer<FVector> vectorSerializer)
     {
         _vectorSerializer = vectorSerializer;
     }
@@ -30,7 +30,7 @@ public class DefaultVertexStreamSerializer : IStreamSerializerFor<VertexStream>
     }
 }
 
-public class DefaultkDOPTrianglesSerializer : IStreamSerializerFor<FkDOPTriangles>
+public class DefaultkDOPTrianglesSerializer : IStreamSerializer<FkDOPTriangles>
 {
     /// <inheritdoc />
     public FkDOPTriangles Deserialize(Stream stream)

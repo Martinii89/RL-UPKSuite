@@ -4,16 +4,16 @@ using Core.Types;
 
 namespace Core.Serialization.Default.Object.Engine.Struct;
 
-public class DefaultFMeshBoneSerializer : IStreamSerializerFor<FMeshBone>
+public class DefaultFMeshBoneSerializer : IStreamSerializer<FMeshBone>
 {
-    private readonly IStreamSerializerFor<FColor> _colorSerializer;
-    private readonly IStreamSerializerFor<FName> _nameSerializer;
-    private readonly IStreamSerializerFor<FQuat> _quatSerializer;
-    private readonly IStreamSerializerFor<FVector> _vectorSerializer;
+    private readonly IStreamSerializer<FColor> _colorSerializer;
+    private readonly IStreamSerializer<FName> _nameSerializer;
+    private readonly IStreamSerializer<FQuat> _quatSerializer;
+    private readonly IStreamSerializer<FVector> _vectorSerializer;
 
 
-    public DefaultFMeshBoneSerializer(IStreamSerializerFor<FColor> colorSerializer, IStreamSerializerFor<FQuat> quatSerializer,
-        IStreamSerializerFor<FVector> vectorSerializer, IStreamSerializerFor<FName> nameSerializer)
+    public DefaultFMeshBoneSerializer(IStreamSerializer<FColor> colorSerializer, IStreamSerializer<FQuat> quatSerializer,
+        IStreamSerializer<FVector> vectorSerializer, IStreamSerializer<FName> nameSerializer)
     {
         _colorSerializer = colorSerializer;
         _quatSerializer = quatSerializer;

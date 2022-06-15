@@ -10,13 +10,13 @@ namespace Core.Serialization.RocketLeague;
 [FileVersion(RocketLeagueBase.FileVersion)]
 public class InterfacePropertySerializer : BaseObjectSerializer<UInterfaceProperty>
 {
-    private readonly IStreamSerializerFor<FName> _fnameSerializer;
-    private readonly IStreamSerializerFor<ObjectIndex> _objectIndexSerializer;
+    private readonly IStreamSerializer<FName> _fnameSerializer;
+    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
 
     private readonly IObjectSerializer<UProperty> _propertySerializer;
 
     public InterfacePropertySerializer(IObjectSerializer<UProperty> propertySerializer,
-        IStreamSerializerFor<ObjectIndex> objectIndexSerializer, IStreamSerializerFor<FName> fnameSerializer)
+        IStreamSerializer<ObjectIndex> objectIndexSerializer, IStreamSerializer<FName> fnameSerializer)
     {
         _propertySerializer = propertySerializer;
         _objectIndexSerializer = objectIndexSerializer;

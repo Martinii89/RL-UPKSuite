@@ -32,7 +32,7 @@ public static class StreamSerializerForExtension
     /// <param name="stream"></param>
     /// <param name="size"></param>
     /// <returns></returns>
-    public static List<T> ReadTArrayToList<T>(this IStreamSerializerFor<T> serializer, Stream stream, int? size = null)
+    public static List<T> ReadTArrayToList<T>(this IStreamSerializer<T> serializer, Stream stream, int? size = null)
     {
         size ??= stream.ReadInt32();
         var result = new List<T>
@@ -56,7 +56,7 @@ public static class StreamSerializerForExtension
     /// <param name="size"></param>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    public static TArray<T> ReadTArrayWithElementSize<T>(this IStreamSerializerFor<T> serializer, Stream stream, int? size = null)
+    public static TArray<T> ReadTArrayWithElementSize<T>(this IStreamSerializer<T> serializer, Stream stream, int? size = null)
     {
         var elementSize = stream.ReadInt32();
         size ??= stream.ReadInt32();
@@ -83,7 +83,7 @@ public static class StreamSerializerForExtension
     /// <param name="stream"></param>
     /// <param name="output"></param>
     /// <param name="size"></param>
-    public static void ReadTArrayToList<T>(this IStreamSerializerFor<T> serializer, Stream stream, List<T> output, int? size = null)
+    public static void ReadTArrayToList<T>(this IStreamSerializer<T> serializer, Stream stream, List<T> output, int? size = null)
     {
         output.Clear();
         size ??= stream.ReadInt32();
@@ -104,7 +104,7 @@ public static class StreamSerializerForExtension
     /// <param name="serializer"></param>
     /// <param name="values"></param>
     /// <param name="sizeOtion"></param>
-    public static void WriteTArray<T>(this IStreamSerializerFor<T> serializer, Stream stream, T[] values,
+    public static void WriteTArray<T>(this IStreamSerializer<T> serializer, Stream stream, T[] values,
         ArraySizeSerialization sizeOtion = ArraySizeSerialization.PrependSize)
     {
         if (sizeOtion == ArraySizeSerialization.PrependSize)

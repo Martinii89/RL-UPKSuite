@@ -3,13 +3,13 @@ using Core.Classes.Engine;
 
 namespace Core.Serialization.Default.Object.Engine.Struct;
 
-public class DefaultFPrecomputedVolumeDistanceFieldSerializer : IStreamSerializerFor<FPrecomputedVolumeDistanceField>
+public class DefaultFPrecomputedVolumeDistanceFieldSerializer : IStreamSerializer<FPrecomputedVolumeDistanceField>
 {
-    private readonly IStreamSerializerFor<FBox> _boxSerializer;
+    private readonly IStreamSerializer<FBox> _boxSerializer;
 
-    private readonly IStreamSerializerFor<FColor> _colorSerializer;
+    private readonly IStreamSerializer<FColor> _colorSerializer;
 
-    public DefaultFPrecomputedVolumeDistanceFieldSerializer(IStreamSerializerFor<FBox> boxSerializer, IStreamSerializerFor<FColor> colorSerializer)
+    public DefaultFPrecomputedVolumeDistanceFieldSerializer(IStreamSerializer<FBox> boxSerializer, IStreamSerializer<FColor> colorSerializer)
     {
         _boxSerializer = boxSerializer;
         _colorSerializer = colorSerializer;

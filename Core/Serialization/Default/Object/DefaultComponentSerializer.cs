@@ -8,13 +8,13 @@ namespace Core.Serialization.Default.Object;
 
 public class DefaultComponentSerializer : BaseObjectSerializer<UComponent>
 {
-    private readonly IStreamSerializerFor<FName> _fnameSerializer;
-    private readonly IStreamSerializerFor<ObjectIndex> _objectIndexSerialiser;
+    private readonly IStreamSerializer<FName> _fnameSerializer;
+    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerialiser;
 
     private readonly IObjectSerializer<UObject> _objectSerializer;
 
-    public DefaultComponentSerializer(IStreamSerializerFor<ObjectIndex> objectIndexSerialiser, IObjectSerializer<UObject> objectSerializer,
-        IStreamSerializerFor<FName> fnameSerializer)
+    public DefaultComponentSerializer(IStreamSerializer<ObjectIndex> objectIndexSerialiser, IObjectSerializer<UObject> objectSerializer,
+        IStreamSerializer<FName> fnameSerializer)
     {
         _objectIndexSerialiser = objectIndexSerialiser;
         _objectSerializer = objectSerializer;

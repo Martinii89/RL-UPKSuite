@@ -3,17 +3,17 @@ using Core.Serialization.Extensions;
 
 namespace Core.Serialization.Default.Object.Engine.Struct;
 
-public class DefaultStaticMeshLodModel3Serializer : IStreamSerializerFor<FStaticMeshLODModel3>
+public class DefaultStaticMeshLodModel3Serializer : IStreamSerializer<FStaticMeshLODModel3>
 {
-    private readonly IStreamSerializerFor<FByteBulkData> _bulkDataSerializer;
-    private readonly IStreamSerializerFor<ColorStream> _colorStreamSerializer;
-    private readonly IStreamSerializerFor<FStaticMeshSection> _staticMeshSectionSerializer;
-    private readonly IStreamSerializerFor<UvStream> _uvStreamSerializer;
-    private readonly IStreamSerializerFor<VertexStream> _vertexStreamSerializer;
+    private readonly IStreamSerializer<FByteBulkData> _bulkDataSerializer;
+    private readonly IStreamSerializer<ColorStream> _colorStreamSerializer;
+    private readonly IStreamSerializer<FStaticMeshSection> _staticMeshSectionSerializer;
+    private readonly IStreamSerializer<UvStream> _uvStreamSerializer;
+    private readonly IStreamSerializer<VertexStream> _vertexStreamSerializer;
 
-    public DefaultStaticMeshLodModel3Serializer(IStreamSerializerFor<FByteBulkData> bulkDataSerializer,
-        IStreamSerializerFor<FStaticMeshSection> staticMeshSectionSerializer, IStreamSerializerFor<VertexStream> vertexStreamSerializer,
-        IStreamSerializerFor<UvStream> uvStreamSerializer, IStreamSerializerFor<ColorStream> colorStreamSerializer)
+    public DefaultStaticMeshLodModel3Serializer(IStreamSerializer<FByteBulkData> bulkDataSerializer,
+        IStreamSerializer<FStaticMeshSection> staticMeshSectionSerializer, IStreamSerializer<VertexStream> vertexStreamSerializer,
+        IStreamSerializer<UvStream> uvStreamSerializer, IStreamSerializer<ColorStream> colorStreamSerializer)
     {
         _bulkDataSerializer = bulkDataSerializer;
         _staticMeshSectionSerializer = staticMeshSectionSerializer;

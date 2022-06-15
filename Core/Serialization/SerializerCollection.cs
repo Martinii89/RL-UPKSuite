@@ -24,11 +24,11 @@ internal static class TypeLoaderExtensions
 }
 
 /// <summary>
-///     Collection of Serializers Implementing <see cref="IStreamSerializerFor{T}" />.
+///     Collection of Serializers Implementing <see cref="IStreamSerializer{T}" />.
 /// </summary>
 public class SerializerCollection : ISerializerCollection
 {
-    private static readonly Type SerializerInterfaceType = typeof(IStreamSerializerFor<>);
+    private static readonly Type SerializerInterfaceType = typeof(IStreamSerializer<>);
 
     private readonly Dictionary<Type, object> _serializers = new();
 
@@ -38,14 +38,14 @@ public class SerializerCollection : ISerializerCollection
     public IReadOnlyDictionary<Type, object> Serializers => _serializers;
 
     /// <summary>
-    ///     Retrieve a <see cref="IStreamSerializerFor{T}" /> if one is registered for the given type.
+    ///     Retrieve a <see cref="IStreamSerializer{T}" /> if one is registered for the given type.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <returns>Returns a serializer. May return null if no serializer if found in the collection</returns>
-    public IStreamSerializerFor<T>? GetSerializerFor<T>()
+    public IStreamSerializer<T>? GetSerializerFor<T>()
     {
         _serializers.TryGetValue(typeof(T), out var obj);
-        return obj as IStreamSerializerFor<T>;
+        return obj as IStreamSerializer<T>;
     }
 
     /// <summary>
@@ -53,7 +53,7 @@ public class SerializerCollection : ISerializerCollection
     /// </summary>
     /// <typeparam name="T">The serializable type</typeparam>
     /// <param name="serializer">The serializer</param>
-    public void AddSerializer<T>(IStreamSerializerFor<T> serializer)
+    public void AddSerializer<T>(IStreamSerializer<T> serializer)
     {
         if (_serializers.ContainsKey(typeof(T)))
         {
@@ -117,7 +117,7 @@ public class SerializerCollection : ISerializerCollection
     }
 
     /// <summary>
-    ///     Scans the assembly for <see cref="IStreamSerializerFor{T}" /> implementations with no
+    ///     Scans the assembly for <see cref="IStreamSerializer{T}" /> implementations with no
     ///     <see cref="FileVersionAttribute" /> and registers them to the collections.
     ///     Types already registered will silently be skipped. Useful for complementing a set of tagged serializers with
     ///     compatible default serializers
@@ -143,7 +143,7 @@ public class SerializerCollection : ISerializerCollection
     }
 
     /// <summary>
-    ///     Scans the assembly for <see cref="IStreamSerializerFor{T}" /> implementations with no
+    ///     Scans the assembly for <see cref="IStreamSerializer{T}" /> implementations with no
     ///     <see cref="FileVersionAttribute" /> and registers them to the collections.
     ///     If a found type is already registered, it will throw
     /// </summary>
@@ -169,7 +169,7 @@ public class SerializerCollection : ISerializerCollection
     }
 
     /// <summary>
-    ///     Scans the assembly for <see cref="IStreamSerializerFor{T}" /> implementations that has a
+    ///     Scans the assembly for <see cref="IStreamSerializer{T}" /> implementations that has a
     ///     <see cref="FileVersionAttribute" /> and registers them to the collections.
     ///     If a found type is already registered, it will throw
     /// </summary>

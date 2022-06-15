@@ -3,11 +3,11 @@ using Core.Classes.Engine.Structs;
 
 namespace Core.Serialization.Default.Object.Engine.Struct;
 
-public class DefaultBoxSphereBoundsSerializer : IStreamSerializerFor<FBoxSphereBounds>
+public class DefaultBoxSphereBoundsSerializer : IStreamSerializer<FBoxSphereBounds>
 {
-    private readonly IStreamSerializerFor<FVector> _vectorSerializer;
+    private readonly IStreamSerializer<FVector> _vectorSerializer;
 
-    public DefaultBoxSphereBoundsSerializer(IStreamSerializerFor<FVector> vectorSerializer)
+    public DefaultBoxSphereBoundsSerializer(IStreamSerializer<FVector> vectorSerializer)
     {
         _vectorSerializer = vectorSerializer;
     }

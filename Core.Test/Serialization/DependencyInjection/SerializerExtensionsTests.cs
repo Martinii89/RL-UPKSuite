@@ -23,7 +23,7 @@ public class SerializerExtensionsTests
         // Act
         serviceColection.UseSerializers(typeof(SerializerExtensionsTests), new SerializerOptions());
         var services = serviceColection.BuildServiceProvider();
-        var testSerializer = services.GetRequiredService<IStreamSerializerFor<MySerializableTestOnlyDefault>>();
+        var testSerializer = services.GetRequiredService<IStreamSerializer<MySerializableTestOnlyDefault>>();
         // Assert
         testSerializer.Should().NotBeNull();
     }
@@ -36,7 +36,7 @@ public class SerializerExtensionsTests
         // Act
         serviceColection.UseSerializers(typeof(SerializerExtensionsTests), new SerializerOptions("MyTag", SerializerOptions.DefaultSerializers.No));
         var services = serviceColection.BuildServiceProvider();
-        var testSerializer = services.GetRequiredService<IStreamSerializerFor<MySerializableTest>>();
+        var testSerializer = services.GetRequiredService<IStreamSerializer<MySerializableTest>>();
         // Assert
         testSerializer.Should().NotBeNull();
         testSerializer.Should().BeOfType<MyTaggedTestSerializer>();
@@ -50,8 +50,8 @@ public class SerializerExtensionsTests
         // Act
         serviceColection.UseSerializers(typeof(SerializerExtensionsTests), new SerializerOptions("MyTag"));
         var services = serviceColection.BuildServiceProvider();
-        var testSerializer = services.GetRequiredService<IStreamSerializerFor<MySerializableTest>>();
-        var testSerializer2 = services.GetRequiredService<IStreamSerializerFor<MySerializableTestOnlyDefault>>();
+        var testSerializer = services.GetRequiredService<IStreamSerializer<MySerializableTest>>();
+        var testSerializer2 = services.GetRequiredService<IStreamSerializer<MySerializableTestOnlyDefault>>();
         // Assert
         testSerializer.Should().NotBeNull();
         testSerializer.Should().BeOfType<MyTaggedTestSerializer>();
@@ -69,7 +69,7 @@ public class SerializerExtensionsTests
         serviceColection.UseSerializers(typeof(FileSummarySerializer),
             new SerializerOptions());
         var services = serviceColection.BuildServiceProvider();
-        var testSerializer = services.GetRequiredService<IStreamSerializerFor<FileSummary>>();
+        var testSerializer = services.GetRequiredService<IStreamSerializer<FileSummary>>();
         // Assert
         testSerializer.Should().NotBeNull();
     }

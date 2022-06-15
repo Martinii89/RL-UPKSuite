@@ -20,8 +20,8 @@ public class UDelegateProperty : UProperty
     public UFunction? FunctionObject { get; set; }
     public UObject? DelegateObject { get; set; }
 
-    public override object? DeserializeValue(UObject obj, Stream objStream, int propertySize, IStreamSerializerFor<FName> fnameSerializer,
-        IStreamSerializerFor<ObjectIndex> objectIndexSerializer)
+    public override object? DeserializeValue(UObject obj, Stream objStream, int propertySize, IStreamSerializer<FName> fnameSerializer,
+        IStreamSerializer<ObjectIndex> objectIndexSerializer)
     {
         var delegateObject = obj.OwnerPackage.GetObject(objectIndexSerializer.Deserialize(objStream));
         var delegateName = obj.OwnerPackage.GetName(fnameSerializer.Deserialize(objStream));

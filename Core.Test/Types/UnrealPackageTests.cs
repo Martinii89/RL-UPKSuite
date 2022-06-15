@@ -18,10 +18,10 @@ namespace Core.Types.Tests;
 
 public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamFixture>
 {
-    private readonly IStreamSerializerFor<FileSummary> _fileSummarySerializer;
+    private readonly IStreamSerializer<FileSummary> _fileSummarySerializer;
     private readonly PackageStreamFixture _packageStreams;
     private readonly ITestOutputHelper _testOutputHelper;
-    private readonly IStreamSerializerFor<UnrealPackage> _udkPackageSerializer;
+    private readonly IStreamSerializer<UnrealPackage> _udkPackageSerializer;
 
     public UnrealPackageTests(ITestOutputHelper testOutputHelper, PackageStreamFixture packageStreams)
     {

@@ -7,13 +7,13 @@ namespace Core.Serialization.Default.Object;
 
 public class DefaultStateSerializer : BaseObjectSerializer<UState>
 {
-    private readonly IStreamSerializerFor<FName> _fnameSerializer;
-    private readonly IStreamSerializerFor<ObjectIndex> _objectIndexSerializer;
+    private readonly IStreamSerializer<FName> _fnameSerializer;
+    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
 
     private readonly IObjectSerializer<UStruct> _structSerializer;
 
-    public DefaultStateSerializer(IObjectSerializer<UStruct> structSerializer, IStreamSerializerFor<FName> fnameSerializer,
-        IStreamSerializerFor<ObjectIndex> objectIndexSerializer)
+    public DefaultStateSerializer(IObjectSerializer<UStruct> structSerializer, IStreamSerializer<FName> fnameSerializer,
+        IStreamSerializer<ObjectIndex> objectIndexSerializer)
     {
         _structSerializer = structSerializer;
         _fnameSerializer = fnameSerializer;

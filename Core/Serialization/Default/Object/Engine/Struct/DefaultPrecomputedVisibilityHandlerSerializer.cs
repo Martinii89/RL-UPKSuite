@@ -4,11 +4,11 @@ using Core.Classes.Engine;
 
 namespace Core.Serialization.Default.Object.Engine.Struct;
 
-public class DefaultPrecomputedVisibilityHandlerSerializer : IStreamSerializerFor<FPrecomputedVisibilityHandler>
+public class DefaultPrecomputedVisibilityHandlerSerializer : IStreamSerializer<FPrecomputedVisibilityHandler>
 {
-    private readonly IStreamSerializerFor<FVector2D> _vector2dSerializer;
+    private readonly IStreamSerializer<FVector2D> _vector2dSerializer;
 
-    public DefaultPrecomputedVisibilityHandlerSerializer(IStreamSerializerFor<FVector2D> vector2dSerializer)
+    public DefaultPrecomputedVisibilityHandlerSerializer(IStreamSerializer<FVector2D> vector2dSerializer)
     {
         _vector2dSerializer = vector2dSerializer;
     }

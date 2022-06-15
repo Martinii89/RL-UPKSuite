@@ -10,7 +10,7 @@ namespace Core.Serialization.Default.Object;
 /// </summary>
 public class DefaultFieldSerializer : BaseObjectSerializer<UField>
 {
-    private readonly IStreamSerializerFor<ObjectIndex> _objectIndexSerialiser;
+    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerialiser;
 
     private readonly IObjectSerializer<UObject> _objectSerializer;
 
@@ -19,7 +19,7 @@ public class DefaultFieldSerializer : BaseObjectSerializer<UField>
     /// </summary>
     /// <param name="objectSerializer"></param>
     /// <param name="objectIndexSerialiser"></param>
-    public DefaultFieldSerializer(IObjectSerializer<UObject> objectSerializer, IStreamSerializerFor<ObjectIndex> objectIndexSerialiser)
+    public DefaultFieldSerializer(IObjectSerializer<UObject> objectSerializer, IStreamSerializer<ObjectIndex> objectIndexSerialiser)
     {
         _objectSerializer = objectSerializer;
         _objectIndexSerialiser = objectIndexSerialiser;

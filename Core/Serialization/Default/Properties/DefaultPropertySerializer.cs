@@ -10,11 +10,11 @@ namespace Core.Serialization.Default.Properties;
 public class DefaultPropertySerializer : BaseObjectSerializer<UProperty>
 {
     private readonly IObjectSerializer<UField> _fieldSerializer;
-    private readonly IStreamSerializerFor<FName> _fnameSerializer;
-    private readonly IStreamSerializerFor<ObjectIndex> _ObjectIndexSerializer;
+    private readonly IStreamSerializer<FName> _fnameSerializer;
+    private readonly IStreamSerializer<ObjectIndex> _ObjectIndexSerializer;
 
-    public DefaultPropertySerializer(IObjectSerializer<UField> fieldSerializer, IStreamSerializerFor<FName> fnameSerializer,
-        IStreamSerializerFor<ObjectIndex> objectIndexSerializer)
+    public DefaultPropertySerializer(IObjectSerializer<UField> fieldSerializer, IStreamSerializer<FName> fnameSerializer,
+        IStreamSerializer<ObjectIndex> objectIndexSerializer)
     {
         _fieldSerializer = fieldSerializer;
         _fnameSerializer = fnameSerializer;

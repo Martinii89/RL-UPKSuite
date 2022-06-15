@@ -4,11 +4,11 @@ using Core.Types.PackageTables;
 
 namespace Core.Serialization.Default.Object.Engine.Struct;
 
-public class DefaultStaticMeshSectionSerializer : IStreamSerializerFor<FStaticMeshSection>
+public class DefaultStaticMeshSectionSerializer : IStreamSerializer<FStaticMeshSection>
 {
-    private readonly IStreamSerializerFor<ObjectIndex> _objectIndexSerializer;
+    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
 
-    public DefaultStaticMeshSectionSerializer(IStreamSerializerFor<ObjectIndex> objectIndexSerializer)
+    public DefaultStaticMeshSectionSerializer(IStreamSerializer<ObjectIndex> objectIndexSerializer)
     {
         _objectIndexSerializer = objectIndexSerializer;
     }

@@ -13,11 +13,11 @@ public class PackageCacheOptions
     /// <summary>
     ///     The serializer is required. The other members are optional
     /// </summary>
-    /// <param name="unrealPackageSerializerFor"></param>
+    /// <param name="unrealPackageSerializer"></param>
     /// <param name="nativeClassFactory"></param>
-    public PackageCacheOptions(IStreamSerializerFor<UnrealPackage> unrealPackageSerializerFor, INativeClassFactory nativeClassFactory)
+    public PackageCacheOptions(IStreamSerializer<UnrealPackage> unrealPackageSerializer, INativeClassFactory nativeClassFactory)
     {
-        UnrealPackageSerializerFor = unrealPackageSerializerFor;
+        UnrealPackageSerializer = unrealPackageSerializer;
         NativeClassFactory = nativeClassFactory;
     }
 
@@ -39,7 +39,7 @@ public class PackageCacheOptions
     /// <summary>
     ///     The serializer to use when loading packages
     /// </summary>
-    public IStreamSerializerFor<UnrealPackage> UnrealPackageSerializerFor { get; init; }
+    public IStreamSerializer<UnrealPackage> UnrealPackageSerializer { get; init; }
 
     /// <summary>
     ///     Optional. Use a package unpacker to enable auto-loading of packed\compressed packages
@@ -110,7 +110,7 @@ public class PackageCache : IPackageCache
         var packageStream = new MemoryStream(File.ReadAllBytes(matchedFiles[0]));
 
         UnrealPackage unrealPackage;
-        var loadOptions = new UnrealPackageOptions(_options.UnrealPackageSerializerFor, packageName, _options.NativeClassFactory, this,
+        var loadOptions = new UnrealPackageOptions(_options.UnrealPackageSerializer, packageName, _options.NativeClassFactory, this,
             _options.ObjectSerializerFactory);
         if (_options.PackageUnpacker.IsPackagePacked(packageStream))
         {

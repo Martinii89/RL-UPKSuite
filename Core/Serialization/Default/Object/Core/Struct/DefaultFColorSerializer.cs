@@ -2,7 +2,7 @@
 
 namespace Core.Serialization.Default.Object.Core.Struct;
 
-public class DefaultFColorStreamSerializer : IStreamSerializerFor<FColor>
+public class DefaultFColorStreamSerializer : IStreamSerializer<FColor>
 {
     /// <inheritdoc />
     public FColor Deserialize(Stream stream)

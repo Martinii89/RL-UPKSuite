@@ -7,10 +7,10 @@ namespace Core.Serialization.Default.Object.Engine;
 
 public class DefaultRB_BodySetupSerializer : BaseObjectSerializer<URB_BodySetup>
 {
-    private readonly IStreamSerializerFor<FKCachedConvexData> _kCachedConvexDataSerializer;
+    private readonly IStreamSerializer<FKCachedConvexData> _kCachedConvexDataSerializer;
     private readonly IObjectSerializer<UObject> _objectSerializer;
 
-    public DefaultRB_BodySetupSerializer(IObjectSerializer<UObject> objectSerializer, IStreamSerializerFor<FKCachedConvexData> kCachedConvexDataSerializer)
+    public DefaultRB_BodySetupSerializer(IObjectSerializer<UObject> objectSerializer, IStreamSerializer<FKCachedConvexData> kCachedConvexDataSerializer)
     {
         _objectSerializer = objectSerializer;
         _kCachedConvexDataSerializer = kCachedConvexDataSerializer;

@@ -7,12 +7,12 @@ namespace Core.Serialization.Default.Properties;
 
 public class DefaultInterfacePropertySerializer : BaseObjectSerializer<UInterfaceProperty>
 {
-    private readonly IStreamSerializerFor<ObjectIndex> _objectIndexSerializer;
+    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
 
     private readonly IObjectSerializer<UProperty> _propertySerializer;
 
     public DefaultInterfacePropertySerializer(IObjectSerializer<UProperty> propertySerializer,
-        IStreamSerializerFor<ObjectIndex> objectIndexSerializer)
+        IStreamSerializer<ObjectIndex> objectIndexSerializer)
     {
         _propertySerializer = propertySerializer;
         _objectIndexSerializer = objectIndexSerializer;

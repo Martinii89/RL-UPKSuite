@@ -15,7 +15,7 @@ public class PackageLoader
     private readonly INativeClassFactory _nativeClassFactory;
     private readonly IObjectSerializerFactory? _objectSerializerFactory;
     private readonly IPackageCache _packageCache;
-    private readonly IStreamSerializerFor<UnrealPackage> _packageSerializer;
+    private readonly IStreamSerializer<UnrealPackage> _packageSerializer;
     private readonly IPackageUnpacker _packageUnpacker;
 
     /// <summary>
@@ -27,7 +27,7 @@ public class PackageLoader
     /// <param name="packageUnpacker"></param>
     /// <param name="nativeClassFactory"></param>
     /// <param name="objectSerializerFactory"></param>
-    public PackageLoader(IStreamSerializerFor<UnrealPackage> packageSerializer, IPackageCache packageCache, IPackageUnpacker packageUnpacker,
+    public PackageLoader(IStreamSerializer<UnrealPackage> packageSerializer, IPackageCache packageCache, IPackageUnpacker packageUnpacker,
         INativeClassFactory nativeClassFactory, IObjectSerializerFactory? objectSerializerFactory = null)
     {
         _packageSerializer = packageSerializer;

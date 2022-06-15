@@ -2,7 +2,7 @@
 
 namespace Core.Serialization.Default.Object.Core.Struct;
 
-public class DefaultVector2DSerializer : IStreamSerializerFor<FVector2D>
+public class DefaultVector2DSerializer : IStreamSerializer<FVector2D>
 {
     /// <inheritdoc />
     public FVector2D Deserialize(Stream stream)

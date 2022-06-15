@@ -1,7 +1,7 @@
 ﻿namespace Core.Serialization.Default;
 
 /// <inheritdoc />
-public class Int32Serializer : IStreamSerializerFor<int>
+public class Int32Serializer : IStreamSerializer<int>
 {
     /// <inheritdoc />
     public int Deserialize(Stream stream)

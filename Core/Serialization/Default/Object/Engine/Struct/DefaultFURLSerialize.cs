@@ -4,7 +4,7 @@ using Core.Serialization.Extensions;
 
 namespace Core.Serialization.Default.Object.Engine.Struct;
 
-public class DefaultFURLSerialize : IStreamSerializerFor<FURL>
+public class DefaultFURLSerialize : IStreamSerializer<FURL>
 {
     public FURL Deserialize(Stream stream)
     {
@@ -26,13 +26,13 @@ public class DefaultFURLSerialize : IStreamSerializerFor<FURL>
     }
 }
 
-public class DefaultPrecomputedLightVolumeSerializer : IStreamSerializerFor<FPrecomputedLightVolume>
+public class DefaultPrecomputedLightVolumeSerializer : IStreamSerializer<FPrecomputedLightVolume>
 {
-    private readonly IStreamSerializerFor<FBox> _boxSerializer;
-    private readonly IStreamSerializerFor<FVolumeLightingSample> _volumeLightingSampleSerializer;
+    private readonly IStreamSerializer<FBox> _boxSerializer;
+    private readonly IStreamSerializer<FVolumeLightingSample> _volumeLightingSampleSerializer;
 
-    public DefaultPrecomputedLightVolumeSerializer(IStreamSerializerFor<FBox> boxSerializer,
-        IStreamSerializerFor<FVolumeLightingSample> volumeLightingSampleSerializer)
+    public DefaultPrecomputedLightVolumeSerializer(IStreamSerializer<FBox> boxSerializer,
+        IStreamSerializer<FVolumeLightingSample> volumeLightingSampleSerializer)
     {
         _boxSerializer = boxSerializer;
         _volumeLightingSampleSerializer = volumeLightingSampleSerializer;

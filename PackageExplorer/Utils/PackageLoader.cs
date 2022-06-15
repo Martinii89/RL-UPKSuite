@@ -28,8 +28,8 @@ public class PackageLoader
         serviceCollection.AddSingleton<IObjectSerializerFactory, ObjectSerializerFactory>();
         var services = serviceCollection.BuildServiceProvider();
 
-        var serializer = services.GetRequiredService<IStreamSerializerFor<UnrealPackage>>();
-        var fileSummaryserializer = services.GetRequiredService<IStreamSerializerFor<FileSummary>>();
+        var serializer = services.GetRequiredService<IStreamSerializer<UnrealPackage>>();
+        var fileSummaryserializer = services.GetRequiredService<IStreamSerializer<FileSummary>>();
         var objectSerializerFactory = services.GetService<IObjectSerializerFactory>();
         var nativeFactory = new NativeClassFactory();
 

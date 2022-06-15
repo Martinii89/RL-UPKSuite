@@ -3,12 +3,12 @@ using Core.Classes.Engine;
 
 namespace Core.Serialization.Default.Object.Engine.Struct;
 
-public class DefaultVolumeLightingSampleSerializer : IStreamSerializerFor<FVolumeLightingSample>
+public class DefaultVolumeLightingSampleSerializer : IStreamSerializer<FVolumeLightingSample>
 {
-    private readonly IStreamSerializerFor<FColor> _colorSerializer;
-    private readonly IStreamSerializerFor<FVector> _vectorSerializer;
+    private readonly IStreamSerializer<FColor> _colorSerializer;
+    private readonly IStreamSerializer<FVector> _vectorSerializer;
 
-    public DefaultVolumeLightingSampleSerializer(IStreamSerializerFor<FColor> colorSerializer, IStreamSerializerFor<FVector> vectorSerializer)
+    public DefaultVolumeLightingSampleSerializer(IStreamSerializer<FColor> colorSerializer, IStreamSerializer<FVector> vectorSerializer)
     {
         _colorSerializer = colorSerializer;
         _vectorSerializer = vectorSerializer;

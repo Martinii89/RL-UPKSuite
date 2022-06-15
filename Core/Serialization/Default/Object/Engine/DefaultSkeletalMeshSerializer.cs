@@ -12,21 +12,21 @@ namespace Core.Serialization.Default.Object.Engine;
 
 public class DefaultSkeletalMeshSerializer : BaseObjectSerializer<USkeletalMesh>
 {
-    private readonly IStreamSerializerFor<FBoxSphereBounds> _boxSphereBoundsSerializer;
-    private readonly IStreamSerializerFor<FStaticLodModel> _lodSerializer;
-    private readonly IStreamSerializerFor<FMeshBone> _meshBoneSerializer;
-    private readonly IStreamSerializerFor<FName> _nameSerializer;
-    private readonly IStreamSerializerFor<ObjectIndex> _objectIndexSerializer;
+    private readonly IStreamSerializer<FBoxSphereBounds> _boxSphereBoundsSerializer;
+    private readonly IStreamSerializer<FStaticLodModel> _lodSerializer;
+    private readonly IStreamSerializer<FMeshBone> _meshBoneSerializer;
+    private readonly IStreamSerializer<FName> _nameSerializer;
+    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
     private readonly IObjectSerializer<UObject> _objectSerializer;
-    private readonly IStreamSerializerFor<FRotator> _rotatorSerializer;
-    private readonly IStreamSerializerFor<FVector> _vectorSerializer;
+    private readonly IStreamSerializer<FRotator> _rotatorSerializer;
+    private readonly IStreamSerializer<FVector> _vectorSerializer;
     private USkeletalMesh? _currentMesh;
 
 
-    public DefaultSkeletalMeshSerializer(IStreamSerializerFor<FBoxSphereBounds> boxSphereBoundsSerializer,
-        IStreamSerializerFor<ObjectIndex> objectIndexSerializer, IObjectSerializer<UObject> objectSerializer, IStreamSerializerFor<FRotator> rotatorSerializer,
-        IStreamSerializerFor<FVector> vectorSerializer, IStreamSerializerFor<FMeshBone> meshBoneSerializer, IStreamSerializerFor<FStaticLodModel> lodSerializer,
-        IStreamSerializerFor<FName> nameSerializer)
+    public DefaultSkeletalMeshSerializer(IStreamSerializer<FBoxSphereBounds> boxSphereBoundsSerializer,
+        IStreamSerializer<ObjectIndex> objectIndexSerializer, IObjectSerializer<UObject> objectSerializer, IStreamSerializer<FRotator> rotatorSerializer,
+        IStreamSerializer<FVector> vectorSerializer, IStreamSerializer<FMeshBone> meshBoneSerializer, IStreamSerializer<FStaticLodModel> lodSerializer,
+        IStreamSerializer<FName> nameSerializer)
     {
         _boxSphereBoundsSerializer = boxSphereBoundsSerializer;
         _objectIndexSerializer = objectIndexSerializer;

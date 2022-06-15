@@ -28,7 +28,7 @@ public class ImportTableTests
     };
 
     private readonly List<ImportTableItem> _importTableItems;
-    private readonly IStreamSerializerFor<ImportTableItem> _serializer;
+    private readonly IStreamSerializer<ImportTableItem> _serializer;
 
     public ImportTableTests()
     {

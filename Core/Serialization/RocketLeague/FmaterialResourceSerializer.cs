@@ -6,16 +6,16 @@ using Core.Types.PackageTables;
 namespace Core.Serialization.RocketLeague;
 
 [FileVersion(RocketLeagueBase.FileVersion)]
-public class FmaterialResourceSerializer : IStreamSerializerFor<FMaterialResource>
+public class FmaterialResourceSerializer : IStreamSerializer<FMaterialResource>
 {
-    private readonly IStreamSerializerFor<FGuid> _fguidSerializer;
-    private readonly IStreamSerializerFor<FName> _fnameSerializer;
+    private readonly IStreamSerializer<FGuid> _fguidSerializer;
+    private readonly IStreamSerializer<FName> _fnameSerializer;
 
-    private readonly IStreamSerializerFor<FString> _fstringSerializer;
-    private readonly IStreamSerializerFor<ObjectIndex> _objectIndexSerializer;
+    private readonly IStreamSerializer<FString> _fstringSerializer;
+    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
 
-    public FmaterialResourceSerializer(IStreamSerializerFor<FString> fstringSerializer, IStreamSerializerFor<FName> fnameSerializer,
-        IStreamSerializerFor<ObjectIndex> objectIndexSerializer, IStreamSerializerFor<FGuid> fguidSerializer)
+    public FmaterialResourceSerializer(IStreamSerializer<FString> fstringSerializer, IStreamSerializer<FName> fnameSerializer,
+        IStreamSerializer<ObjectIndex> objectIndexSerializer, IStreamSerializer<FGuid> fguidSerializer)
     {
         _fstringSerializer = fstringSerializer;
         _fnameSerializer = fnameSerializer;

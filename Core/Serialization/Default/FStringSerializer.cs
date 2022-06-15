@@ -4,7 +4,7 @@ using Core.Types;
 namespace Core.Serialization.Default;
 
 /// <inheritdoc />
-public class FStringSerializer : IStreamSerializerFor<FString>
+public class FStringSerializer : IStreamSerializer<FString>
 {
     /// <inheritdoc />
     public FString Deserialize(Stream stream)

@@ -4,7 +4,7 @@ using Core.Classes.Engine.Structs;
 namespace Core.Serialization.RocketLeague;
 
 [FileVersion(RocketLeagueBase.FileVersion)]
-public class ByteBulkDataSerializer : IStreamSerializerFor<FByteBulkData>
+public class ByteBulkDataSerializer : IStreamSerializer<FByteBulkData>
 {
     public FByteBulkData Deserialize(Stream stream)
     {

@@ -12,20 +12,20 @@ namespace Core.Serialization.Default.Object.Engine;
 
 public class DefaultModelSerializer : BaseObjectSerializer<UModel>
 {
-    private readonly IStreamSerializerFor<FBoxSphereBounds> _boxSphereBoundsSerializer;
-    private readonly IStreamSerializerFor<FBspNode> _bspNodeSerializer;
-    private readonly IStreamSerializerFor<FBspSurf> _bspSurfSerializer;
-    private readonly IStreamSerializerFor<FGuid> _guidSerializer;
-    private readonly IStreamSerializerFor<FLightmassPrimitiveSettings> _lightmassPrimitiveSettingsSerializer;
-    private readonly IStreamSerializerFor<ObjectIndex> _objectIndexSerializer;
+    private readonly IStreamSerializer<FBoxSphereBounds> _boxSphereBoundsSerializer;
+    private readonly IStreamSerializer<FBspNode> _bspNodeSerializer;
+    private readonly IStreamSerializer<FBspSurf> _bspSurfSerializer;
+    private readonly IStreamSerializer<FGuid> _guidSerializer;
+    private readonly IStreamSerializer<FLightmassPrimitiveSettings> _lightmassPrimitiveSettingsSerializer;
+    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
     private readonly IObjectSerializer<UObject> _objectSerializer;
-    private readonly IStreamSerializerFor<FVector> _vectorSerializer;
-    private readonly IStreamSerializerFor<FVert> _vertSerializer;
+    private readonly IStreamSerializer<FVector> _vectorSerializer;
+    private readonly IStreamSerializer<FVert> _vertSerializer;
 
-    public DefaultModelSerializer(IObjectSerializer<UObject> objectSerializer, IStreamSerializerFor<FBoxSphereBounds> boxSphereBoundsSerializer,
-        IStreamSerializerFor<FVector> vectorSerializer, IStreamSerializerFor<FBspNode> bspNodeSerializer,
-        IStreamSerializerFor<ObjectIndex> objectIndexSerializer, IStreamSerializerFor<FBspSurf> bspSurfSerializer, IStreamSerializerFor<FVert> vertSerializer,
-        IStreamSerializerFor<FGuid> guidSerializer, IStreamSerializerFor<FLightmassPrimitiveSettings> lightmassPrimitiveSettingsSerializer)
+    public DefaultModelSerializer(IObjectSerializer<UObject> objectSerializer, IStreamSerializer<FBoxSphereBounds> boxSphereBoundsSerializer,
+        IStreamSerializer<FVector> vectorSerializer, IStreamSerializer<FBspNode> bspNodeSerializer,
+        IStreamSerializer<ObjectIndex> objectIndexSerializer, IStreamSerializer<FBspSurf> bspSurfSerializer, IStreamSerializer<FVert> vertSerializer,
+        IStreamSerializer<FGuid> guidSerializer, IStreamSerializer<FLightmassPrimitiveSettings> lightmassPrimitiveSettingsSerializer)
     {
         _objectSerializer = objectSerializer;
         _boxSphereBoundsSerializer = boxSphereBoundsSerializer;
@@ -82,11 +82,11 @@ public class DefaultModelSerializer : BaseObjectSerializer<UModel>
     }
 }
 
-public class DefaultBspNodeSerializer : IStreamSerializerFor<FBspNode>
+public class DefaultBspNodeSerializer : IStreamSerializer<FBspNode>
 {
-    private readonly IStreamSerializerFor<FPlane> _planeSerializer;
+    private readonly IStreamSerializer<FPlane> _planeSerializer;
 
-    public DefaultBspNodeSerializer(IStreamSerializerFor<FPlane> planeSerializer)
+    public DefaultBspNodeSerializer(IStreamSerializer<FPlane> planeSerializer)
     {
         _planeSerializer = planeSerializer;
     }
@@ -117,12 +117,12 @@ public class DefaultBspNodeSerializer : IStreamSerializerFor<FBspNode>
     }
 }
 
-public class DefaultBspSurfSerializer : IStreamSerializerFor<FBspSurf>
+public class DefaultBspSurfSerializer : IStreamSerializer<FBspSurf>
 {
-    private readonly IStreamSerializerFor<ObjectIndex> _objectIndexSerializer;
-    private readonly IStreamSerializerFor<FPlane> _planeSerializer;
+    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
+    private readonly IStreamSerializer<FPlane> _planeSerializer;
 
-    public DefaultBspSurfSerializer(IStreamSerializerFor<ObjectIndex> objectIndexSerializer, IStreamSerializerFor<FPlane> planeSerializer)
+    public DefaultBspSurfSerializer(IStreamSerializer<ObjectIndex> objectIndexSerializer, IStreamSerializer<FPlane> planeSerializer)
     {
         _objectIndexSerializer = objectIndexSerializer;
         _planeSerializer = planeSerializer;
@@ -153,11 +153,11 @@ public class DefaultBspSurfSerializer : IStreamSerializerFor<FBspSurf>
     }
 }
 
-public class DefaultVertSerializer : IStreamSerializerFor<FVert>
+public class DefaultVertSerializer : IStreamSerializer<FVert>
 {
-    private readonly IStreamSerializerFor<FVector2D> _vector2DSerializer;
+    private readonly IStreamSerializer<FVector2D> _vector2DSerializer;
 
-    public DefaultVertSerializer(IStreamSerializerFor<FVector2D> vector2DSerializer)
+    public DefaultVertSerializer(IStreamSerializer<FVector2D> vector2DSerializer)
     {
         _vector2DSerializer = vector2DSerializer;
     }
@@ -179,7 +179,7 @@ public class DefaultVertSerializer : IStreamSerializerFor<FVert>
     }
 }
 
-public class DefaultLightmassPrimitiveSettingsSerializer : IStreamSerializerFor<FLightmassPrimitiveSettings>
+public class DefaultLightmassPrimitiveSettingsSerializer : IStreamSerializer<FLightmassPrimitiveSettings>
 {
     public FLightmassPrimitiveSettings Deserialize(Stream stream)
     {

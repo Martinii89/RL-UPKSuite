@@ -12,11 +12,11 @@ namespace Core.Serialization.Default.Object;
 /// </summary>
 public class DefaultObjectSerializer : BaseObjectSerializer<UObject>
 {
-    private readonly IStreamSerializerFor<FName> _fnameSerializer;
-    private readonly IStreamSerializerFor<ObjectIndex> _objectIndexSerializer;
+    private readonly IStreamSerializer<FName> _fnameSerializer;
+    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
     private readonly ScriptPropertiesSerializer _scriptPropertiesSerializer;
 
-    public DefaultObjectSerializer(IStreamSerializerFor<FName> fnameSerializer, IStreamSerializerFor<ObjectIndex> objectIndexSerializer)
+    public DefaultObjectSerializer(IStreamSerializer<FName> fnameSerializer, IStreamSerializer<ObjectIndex> objectIndexSerializer)
     {
         _fnameSerializer = fnameSerializer;
         _objectIndexSerializer = objectIndexSerializer;

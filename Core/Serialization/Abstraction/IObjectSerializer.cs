@@ -3,7 +3,7 @@
 namespace Core.Serialization.Abstraction;
 
 /// <summary>
-///     A IObjectSerializer reads and writes the object serial data
+///     A IObjectSerializer reads and writes the serial data of an object
 /// </summary>
 public interface IObjectSerializer
 {

@@ -3,11 +3,11 @@ using Core.Classes.Engine.Structs;
 
 namespace Core.Serialization.Default.Object.Engine.Struct;
 
-public class DefaultkDOPBoundsSerializer : IStreamSerializerFor<FkDOPBounds>
+public class DefaultkDOPBoundsSerializer : IStreamSerializer<FkDOPBounds>
 {
-    private readonly IStreamSerializerFor<FVector> _vectorSerializer;
+    private readonly IStreamSerializer<FVector> _vectorSerializer;
 
-    public DefaultkDOPBoundsSerializer(IStreamSerializerFor<FVector> vectorSerializer)
+    public DefaultkDOPBoundsSerializer(IStreamSerializer<FVector> vectorSerializer)
     {
         _vectorSerializer = vectorSerializer;
     }

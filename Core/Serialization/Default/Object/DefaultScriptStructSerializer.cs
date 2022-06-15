@@ -8,10 +8,10 @@ namespace Core.Serialization.Default.Object;
 
 public class DefaultScriptStructSerializer : BaseObjectSerializer<UScriptStruct>
 {
-    private readonly IStreamSerializerFor<FName> _fnameSerializer;
+    private readonly IStreamSerializer<FName> _fnameSerializer;
     private readonly IObjectSerializer<UStruct> _structSerializer;
 
-    public DefaultScriptStructSerializer(IObjectSerializer<UStruct> structSerializer, IStreamSerializerFor<FName> fnameSerializer)
+    public DefaultScriptStructSerializer(IObjectSerializer<UStruct> structSerializer, IStreamSerializer<FName> fnameSerializer)
     {
         _structSerializer = structSerializer;
         _fnameSerializer = fnameSerializer;

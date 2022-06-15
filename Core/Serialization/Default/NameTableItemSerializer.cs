@@ -6,7 +6,7 @@ namespace Core.Serialization.Default;
 /// <summary>
 ///     Serializers for the items in the NameTable
 /// </summary>
-public class NameTableItemSerializer : IStreamSerializerFor<NameTableItem>
+public class NameTableItemSerializer : IStreamSerializer<NameTableItem>
 {
     /// <inheritdoc />
     public NameTableItem Deserialize(Stream stream)

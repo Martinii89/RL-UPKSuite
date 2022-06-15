@@ -5,7 +5,7 @@ namespace Core.Serialization.Default;
 /// <summary>
 ///     Serializer for FNames
 /// </summary>
-public class FNameSerializer : IStreamSerializerFor<FName>
+public class FNameSerializer : IStreamSerializer<FName>
 {
     /// <inheritdoc />
     public FName Deserialize(Stream stream)

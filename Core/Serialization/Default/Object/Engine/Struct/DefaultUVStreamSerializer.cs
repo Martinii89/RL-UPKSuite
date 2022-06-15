@@ -4,7 +4,7 @@ using Core.Serialization.Extensions;
 
 namespace Core.Serialization.Default.Object.Engine.Struct;
 
-public class DefaultUVStreamSerializer : IStreamSerializerFor<UvStream>
+public class DefaultUVStreamSerializer : IStreamSerializer<UvStream>
 {
     private readonly IObjectSerializer<UvItem> _uvItemSerializer;
 

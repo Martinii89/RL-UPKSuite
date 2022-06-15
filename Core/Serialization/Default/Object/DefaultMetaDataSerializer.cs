@@ -9,11 +9,11 @@ namespace Core.Serialization.Default.Object;
 
 public class DefaultMetaDataSerializer : BaseObjectSerializer<UMetaData>
 {
-    private readonly IStreamSerializerFor<FName> _fnameSerializer;
-    private readonly IStreamSerializerFor<ObjectIndex> _objectIndexSerializer;
+    private readonly IStreamSerializer<FName> _fnameSerializer;
+    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
     private readonly IObjectSerializer<UObject> _objectSerializer;
 
-    public DefaultMetaDataSerializer(IStreamSerializerFor<ObjectIndex> objectIndexSerializer, IStreamSerializerFor<FName> fnameSerializer,
+    public DefaultMetaDataSerializer(IStreamSerializer<ObjectIndex> objectIndexSerializer, IStreamSerializer<FName> fnameSerializer,
         IObjectSerializer<UObject> objectSerializer)
     {
         _objectIndexSerializer = objectIndexSerializer;

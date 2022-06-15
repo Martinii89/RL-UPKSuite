@@ -2,11 +2,11 @@
 
 namespace Core.Serialization.Default;
 
-internal class FCompressedChunkHeaderSerializer : IStreamSerializerFor<FCompressedChunkHeader>
+internal class FCompressedChunkHeaderSerializer : IStreamSerializer<FCompressedChunkHeader>
 {
-    private readonly IStreamSerializerFor<FCompressedChunkBlock> _blockSerializer;
+    private readonly IStreamSerializer<FCompressedChunkBlock> _blockSerializer;
 
-    public FCompressedChunkHeaderSerializer(IStreamSerializerFor<FCompressedChunkBlock> blockSerializer)
+    public FCompressedChunkHeaderSerializer(IStreamSerializer<FCompressedChunkBlock> blockSerializer)
     {
         _blockSerializer = blockSerializer;
     }
@@ -27,7 +27,7 @@ internal class FCompressedChunkHeaderSerializer : IStreamSerializerFor<FCompress
     }
 }
 
-internal class FCompressedChunkBlockSerializer : IStreamSerializerFor<FCompressedChunkBlock>
+internal class FCompressedChunkBlockSerializer : IStreamSerializer<FCompressedChunkBlock>
 {
     public FCompressedChunkBlock Deserialize(Stream stream)
     {

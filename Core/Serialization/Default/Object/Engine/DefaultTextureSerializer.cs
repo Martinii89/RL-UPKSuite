@@ -7,11 +7,11 @@ namespace Core.Serialization.Default.Object.Engine;
 
 public class DefaultTextureSerializer : BaseObjectSerializer<UTexture>
 {
-    private readonly IStreamSerializerFor<FByteBulkData> _bulkDataSerializer;
+    private readonly IStreamSerializer<FByteBulkData> _bulkDataSerializer;
 
     private readonly IObjectSerializer<UObject> _objectSerializer;
 
-    public DefaultTextureSerializer(IObjectSerializer<UObject> objectSerializer, IStreamSerializerFor<FByteBulkData> bulkDataSerializer)
+    public DefaultTextureSerializer(IObjectSerializer<UObject> objectSerializer, IStreamSerializer<FByteBulkData> bulkDataSerializer)
     {
         _objectSerializer = objectSerializer;
         _bulkDataSerializer = bulkDataSerializer;

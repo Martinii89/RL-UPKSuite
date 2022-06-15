@@ -5,7 +5,7 @@ namespace Core.Serialization.Default;
 /// <summary>
 ///     Reads a object index as a int32 value
 /// </summary>
-public class ObjectIndexSerializer : IStreamSerializerFor<ObjectIndex>
+public class ObjectIndexSerializer : IStreamSerializer<ObjectIndex>
 {
     /// <inheritdoc />
     public ObjectIndex Deserialize(Stream stream)

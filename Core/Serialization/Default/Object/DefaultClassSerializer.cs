@@ -10,13 +10,13 @@ namespace Core.Serialization.Default.Object;
 
 public class DefaultClassSerializer : BaseObjectSerializer<UClass>
 {
-    private readonly IStreamSerializerFor<FName> _fnameSerializer;
-    private readonly IStreamSerializerFor<ObjectIndex> _objectIndexSerializer;
+    private readonly IStreamSerializer<FName> _fnameSerializer;
+    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
 
     private readonly IObjectSerializer<UState> _stateSerializer;
 
-    public DefaultClassSerializer(IObjectSerializer<UState> stateSerializer, IStreamSerializerFor<FName> fnameSerializer,
-        IStreamSerializerFor<ObjectIndex> objectIndexSerializer)
+    public DefaultClassSerializer(IObjectSerializer<UState> stateSerializer, IStreamSerializer<FName> fnameSerializer,
+        IStreamSerializer<ObjectIndex> objectIndexSerializer)
     {
         _stateSerializer = stateSerializer;
         _fnameSerializer = fnameSerializer;

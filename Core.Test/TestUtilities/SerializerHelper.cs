@@ -16,9 +16,9 @@ public class SerializerHelper
         return services;
     }
 
-    public static IStreamSerializerFor<T> GetSerializerFor<T>(Type type, string tag = "")
+    public static IStreamSerializer<T> GetSerializerFor<T>(Type type, string tag = "")
     {
-        return GetSerializersCollection(type, tag).GetRequiredService<IStreamSerializerFor<T>>();
+        return GetSerializersCollection(type, tag).GetRequiredService<IStreamSerializer<T>>();
     }
 
     public static T GetService<T>(Type type, string tag = "")

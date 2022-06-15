@@ -3,11 +3,11 @@ using Core.Classes.Engine.Structs;
 
 namespace Core.Serialization.Default.Object.Engine.Struct;
 
-public class DefaultColorStreamSerializer : IStreamSerializerFor<ColorStream>
+public class DefaultColorStreamSerializer : IStreamSerializer<ColorStream>
 {
-    private readonly IStreamSerializerFor<FColor> _colorSerializer;
+    private readonly IStreamSerializer<FColor> _colorSerializer;
 
-    public DefaultColorStreamSerializer(IStreamSerializerFor<FColor> colorSerializer)
+    public DefaultColorStreamSerializer(IStreamSerializer<FColor> colorSerializer)
     {
         _colorSerializer = colorSerializer;
     }

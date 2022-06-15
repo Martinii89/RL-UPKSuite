@@ -14,7 +14,7 @@ namespace Core.Types.Tests;
 public class ObjectFactoryTests : IClassFixture<PackageStreamFixture>
 {
     private readonly PackageStreamFixture _packageStreams;
-    private readonly IStreamSerializerFor<UnrealPackage> _udkPackageSerializer;
+    private readonly IStreamSerializer<UnrealPackage> _udkPackageSerializer;
 
     public ObjectFactoryTests(PackageStreamFixture packageStreams)
     {

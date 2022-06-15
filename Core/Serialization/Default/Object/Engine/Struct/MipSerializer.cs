@@ -2,11 +2,11 @@
 
 namespace Core.Serialization.Default.Object.Engine.Struct;
 
-public class MipSerializer : IStreamSerializerFor<Mip>
+public class MipSerializer : IStreamSerializer<Mip>
 {
-    private readonly IStreamSerializerFor<FByteBulkData> _bulkDataSerializer;
+    private readonly IStreamSerializer<FByteBulkData> _bulkDataSerializer;
 
-    public MipSerializer(IStreamSerializerFor<FByteBulkData> bulkDataSerializer)
+    public MipSerializer(IStreamSerializer<FByteBulkData> bulkDataSerializer)
     {
         _bulkDataSerializer = bulkDataSerializer;
     }

@@ -2,11 +2,11 @@
 
 namespace Core.Serialization.Default.Object.Core.Struct;
 
-public class DefaultPlaneSerializer : IStreamSerializerFor<FPlane>
+public class DefaultPlaneSerializer : IStreamSerializer<FPlane>
 {
-    private readonly IStreamSerializerFor<FVector> _vectorSerializer;
+    private readonly IStreamSerializer<FVector> _vectorSerializer;
 
-    public DefaultPlaneSerializer(IStreamSerializerFor<FVector> vectorSerializer)
+    public DefaultPlaneSerializer(IStreamSerializer<FVector> vectorSerializer)
     {
         _vectorSerializer = vectorSerializer;
     }

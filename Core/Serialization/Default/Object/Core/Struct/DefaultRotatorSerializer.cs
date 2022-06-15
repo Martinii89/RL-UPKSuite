@@ -2,7 +2,7 @@
 
 namespace Core.Serialization.Default.Object.Core.Struct;
 
-public class DefaultRotatorSerializer : IStreamSerializerFor<FRotator>
+public class DefaultRotatorSerializer : IStreamSerializer<FRotator>
 {
     /// <inheritdoc />
     public FRotator Deserialize(Stream stream)

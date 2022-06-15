@@ -28,7 +28,7 @@ public class RLPackageUnpacker
     /// <param name="decrypterProvider">Required to unpack the decrypted data</param>
     /// <param name="fileSummarySerializer">Serializer for the header data</param>
     public RLPackageUnpacker(Stream inputStream, IDecrypterProvider decrypterProvider,
-        IStreamSerializerFor<FileSummary> fileSummarySerializer)
+        IStreamSerializer<FileSummary> fileSummarySerializer)
     {
         _inputStream = inputStream;
         _decrypterProvider = decrypterProvider;

@@ -2,7 +2,7 @@
 
 namespace Core.Serialization.Default.Object.Core.Struct;
 
-public class DefaultMatrixSerializer : IStreamSerializerFor<FMatrix>
+public class DefaultMatrixSerializer : IStreamSerializer<FMatrix>
 {
     /// <inheritdoc />
     public FMatrix Deserialize(Stream stream)

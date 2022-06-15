@@ -9,10 +9,10 @@ namespace Core.Serialization.Default.Object;
 
 public class ScriptPropertiesSerializer
 {
-    private readonly IStreamSerializerFor<FName> _fnameSerializer;
-    private readonly IStreamSerializerFor<ObjectIndex> _objectIndexSerializer;
+    private readonly IStreamSerializer<FName> _fnameSerializer;
+    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
 
-    public ScriptPropertiesSerializer(IStreamSerializerFor<FName> fnameSerializer, IStreamSerializerFor<ObjectIndex> objectIndexSerializer)
+    public ScriptPropertiesSerializer(IStreamSerializer<FName> fnameSerializer, IStreamSerializer<ObjectIndex> objectIndexSerializer)
     {
         _fnameSerializer = fnameSerializer;
         _objectIndexSerializer = objectIndexSerializer;

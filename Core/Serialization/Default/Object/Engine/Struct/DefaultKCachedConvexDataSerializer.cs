@@ -3,7 +3,7 @@ using Core.Serialization.Extensions;
 
 namespace Core.Serialization.Default.Object.Engine.Struct;
 
-public class DefaultKCachedConvexDataSerializer : IStreamSerializerFor<FKCachedConvexData>
+public class DefaultKCachedConvexDataSerializer : IStreamSerializer<FKCachedConvexData>
 {
     /// <inheritdoc />
     public FKCachedConvexData Deserialize(Stream stream)

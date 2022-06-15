@@ -3,7 +3,7 @@ using Core.Classes.Engine.Structs;
 
 namespace Core.Serialization.Default.Object.Engine.Struct;
 
-public class DefaultkDOPNode3NewSerializer : IStreamSerializerFor<FkDOPNode3New>
+public class DefaultkDOPNode3NewSerializer : IStreamSerializer<FkDOPNode3New>
 {
     /// <inheritdoc />
     public FkDOPNode3New Deserialize(Stream stream)

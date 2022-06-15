@@ -27,7 +27,7 @@ public class ExportTableTests
     };
 
     private readonly List<ExportTableItem> _exportTableItems = new();
-    private readonly IStreamSerializerFor<ExportTableItem> _serializer;
+    private readonly IStreamSerializer<ExportTableItem> _serializer;
 
     public ExportTableTests()
     {

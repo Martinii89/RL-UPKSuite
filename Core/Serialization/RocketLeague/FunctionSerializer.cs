@@ -8,10 +8,10 @@ namespace Core.Serialization.RocketLeague;
 [FileVersion(RocketLeagueBase.FileVersion)]
 public class FunctionSerializer : BaseObjectSerializer<UFunction>
 {
-    private readonly IStreamSerializerFor<FName> _fnameSerializer;
+    private readonly IStreamSerializer<FName> _fnameSerializer;
     private readonly IObjectSerializer<UStruct> _structSerializer;
 
-    public FunctionSerializer(IObjectSerializer<UStruct> structSerializer, IStreamSerializerFor<FName> fnameSerializer)
+    public FunctionSerializer(IObjectSerializer<UStruct> structSerializer, IStreamSerializer<FName> fnameSerializer)
     {
         _structSerializer = structSerializer;
         _fnameSerializer = fnameSerializer;

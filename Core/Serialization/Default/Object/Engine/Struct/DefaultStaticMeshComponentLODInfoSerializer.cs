@@ -8,16 +8,16 @@ using Core.Types.PackageTables;
 
 namespace Core.Serialization.Default.Object.Engine.Struct;
 
-public class DefaultStaticMeshComponentLODInfoSerializer : IStreamSerializerFor<FStaticMeshComponentLODInfo>
+public class DefaultStaticMeshComponentLODInfoSerializer : IStreamSerializer<FStaticMeshComponentLODInfo>
 {
-    private readonly IStreamSerializerFor<FColorVertexBuffer> _colorVertexBufferSerializer;
+    private readonly IStreamSerializer<FColorVertexBuffer> _colorVertexBufferSerializer;
 
-    //private readonly IStreamSerializerFor<FColorVertexBuffer> _ColorVertexBufferSerializer;
-    private readonly IStreamSerializerFor<FLightMap> _LightMapSerializer;
-    private readonly IStreamSerializerFor<ObjectIndex> _objecIndexSerializer;
+    //private readonly IStreamSerializer<FColorVertexBuffer> _ColorVertexBufferSerializer;
+    private readonly IStreamSerializer<FLightMap> _LightMapSerializer;
+    private readonly IStreamSerializer<ObjectIndex> _objecIndexSerializer;
 
-    public DefaultStaticMeshComponentLODInfoSerializer(IStreamSerializerFor<FGuid> guidSerializer, IStreamSerializerFor<ObjectIndex> objecIndexSerializer,
-        IStreamSerializerFor<FLightMap> lightMapSerializer, IStreamSerializerFor<FColorVertexBuffer> colorVertexBufferSerializer)
+    public DefaultStaticMeshComponentLODInfoSerializer(IStreamSerializer<FGuid> guidSerializer, IStreamSerializer<ObjectIndex> objecIndexSerializer,
+        IStreamSerializer<FLightMap> lightMapSerializer, IStreamSerializer<FColorVertexBuffer> colorVertexBufferSerializer)
     {
         _objecIndexSerializer = objecIndexSerializer;
         _LightMapSerializer = lightMapSerializer;
@@ -46,18 +46,18 @@ public class DefaultStaticMeshComponentLODInfoSerializer : IStreamSerializerFor<
     }
 }
 
-public class DefaultLightMapSerializer : IStreamSerializerFor<FLightMap>
+public class DefaultLightMapSerializer : IStreamSerializer<FLightMap>
 {
-    private readonly IStreamSerializerFor<FByteBulkData> _bulkDataSerializer;
+    private readonly IStreamSerializer<FByteBulkData> _bulkDataSerializer;
 
-    private readonly IStreamSerializerFor<FGuid> _guidSerializer;
-    private readonly IStreamSerializerFor<ObjectIndex> _objecIndexSerializer;
-    private readonly IStreamSerializerFor<FVector2D> _vector2DSerializer;
-    private readonly IStreamSerializerFor<FVector> _vectorSerializer;
+    private readonly IStreamSerializer<FGuid> _guidSerializer;
+    private readonly IStreamSerializer<ObjectIndex> _objecIndexSerializer;
+    private readonly IStreamSerializer<FVector2D> _vector2DSerializer;
+    private readonly IStreamSerializer<FVector> _vectorSerializer;
 
-    public DefaultLightMapSerializer(IStreamSerializerFor<FGuid> guidSerializer, IStreamSerializerFor<ObjectIndex> objecIndexSerializer,
-        IStreamSerializerFor<FByteBulkData> bulkDataSerializer, IStreamSerializerFor<FVector> vectorSerializer,
-        IStreamSerializerFor<FVector2D> vector2DSerializer)
+    public DefaultLightMapSerializer(IStreamSerializer<FGuid> guidSerializer, IStreamSerializer<ObjectIndex> objecIndexSerializer,
+        IStreamSerializer<FByteBulkData> bulkDataSerializer, IStreamSerializer<FVector> vectorSerializer,
+        IStreamSerializer<FVector2D> vector2DSerializer)
     {
         _guidSerializer = guidSerializer;
         _objecIndexSerializer = objecIndexSerializer;
@@ -122,11 +122,11 @@ public class DefaultLightMapSerializer : IStreamSerializerFor<FLightMap>
 
 public class DefaultStaticLightCollectionActorSerializer : BaseObjectSerializer<AStaticLightCollectionActor>
 {
-    private readonly IStreamSerializerFor<FMatrix> _matrixSerializer;
+    private readonly IStreamSerializer<FMatrix> _matrixSerializer;
     private readonly IObjectSerializer<UObject> _objectSerializer;
 
 
-    public DefaultStaticLightCollectionActorSerializer(IStreamSerializerFor<FMatrix> matrixSerializer, IObjectSerializer<UObject> objectSerializer)
+    public DefaultStaticLightCollectionActorSerializer(IStreamSerializer<FMatrix> matrixSerializer, IObjectSerializer<UObject> objectSerializer)
     {
         _matrixSerializer = matrixSerializer;
         _objectSerializer = objectSerializer;
@@ -149,12 +149,12 @@ public class DefaultStaticLightCollectionActorSerializer : BaseObjectSerializer<
     }
 }
 
-public class DefaulColorVertexBufferSerializer : IStreamSerializerFor<FColorVertexBuffer>
+public class DefaulColorVertexBufferSerializer : IStreamSerializer<FColorVertexBuffer>
 {
-    private readonly IStreamSerializerFor<FColor> _colorSerializer;
+    private readonly IStreamSerializer<FColor> _colorSerializer;
 
 
-    public DefaulColorVertexBufferSerializer(IStreamSerializerFor<FColor> colorSerializer)
+    public DefaulColorVertexBufferSerializer(IStreamSerializer<FColor> colorSerializer)
     {
         _colorSerializer = colorSerializer;
     }

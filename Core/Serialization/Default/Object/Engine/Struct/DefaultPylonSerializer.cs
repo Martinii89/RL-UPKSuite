@@ -7,10 +7,10 @@ namespace Core.Serialization.Default.Object.Engine.Struct;
 
 public class DefaultPylonSerializer : BaseObjectSerializer<APylon>
 {
-    private readonly IStreamSerializerFor<ObjectIndex> _objecIndexSerializer;
+    private readonly IStreamSerializer<ObjectIndex> _objecIndexSerializer;
     private readonly IObjectSerializer<UObject> _objectSerializer;
 
-    public DefaultPylonSerializer(IStreamSerializerFor<ObjectIndex> objecIndexSerializer, IObjectSerializer<UObject> objectSerializer)
+    public DefaultPylonSerializer(IStreamSerializer<ObjectIndex> objecIndexSerializer, IObjectSerializer<UObject> objectSerializer)
     {
         _objecIndexSerializer = objecIndexSerializer;
         _objectSerializer = objectSerializer;

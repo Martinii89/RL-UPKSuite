@@ -6,12 +6,12 @@ namespace Core.Serialization.Default;
 /// <summary>
 ///     Serializer for the items in the export table
 /// </summary>
-public class ExportTableItemSerializer : IStreamSerializerFor<ExportTableItem>
+public class ExportTableItemSerializer : IStreamSerializer<ExportTableItem>
 {
-    private readonly IStreamSerializerFor<FGuid> _guidSerializer;
-    private readonly IStreamSerializerFor<int> _intSerializer;
-    private readonly IStreamSerializerFor<FName> _nameSerializer;
-    private readonly IStreamSerializerFor<ObjectIndex> _objectIndexSerializer;
+    private readonly IStreamSerializer<FGuid> _guidSerializer;
+    private readonly IStreamSerializer<int> _intSerializer;
+    private readonly IStreamSerializer<FName> _nameSerializer;
+    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
 
 
     /// <summary>
@@ -21,8 +21,8 @@ public class ExportTableItemSerializer : IStreamSerializerFor<ExportTableItem>
     /// <param name="objectIndexSerializer"></param>
     /// <param name="intSerializer"></param>
     /// <param name="guidSerializer"></param>
-    public ExportTableItemSerializer(IStreamSerializerFor<FName> nameSerializer, IStreamSerializerFor<ObjectIndex> objectIndexSerializer,
-        IStreamSerializerFor<int> intSerializer, IStreamSerializerFor<FGuid> guidSerializer)
+    public ExportTableItemSerializer(IStreamSerializer<FName> nameSerializer, IStreamSerializer<ObjectIndex> objectIndexSerializer,
+        IStreamSerializer<int> intSerializer, IStreamSerializer<FGuid> guidSerializer)
     {
         _nameSerializer = nameSerializer;
         _objectIndexSerializer = objectIndexSerializer;

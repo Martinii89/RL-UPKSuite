@@ -3,7 +3,7 @@
 namespace Core.Serialization.Default;
 
 /// <inheritdoc />
-public class FCompressedChunkInfoSerializer : IStreamSerializerFor<FCompressedChunkInfo>
+public class FCompressedChunkInfoSerializer : IStreamSerializer<FCompressedChunkInfo>
 {
     /// <inheritdoc />
     public FCompressedChunkInfo Deserialize(Stream stream)

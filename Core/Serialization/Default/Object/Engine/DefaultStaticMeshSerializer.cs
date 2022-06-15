@@ -9,18 +9,18 @@ namespace Core.Serialization.Default.Object.Engine;
 
 public class DefaultStaticMeshSerializer : BaseObjectSerializer<UStaticMesh>
 {
-    private readonly IStreamSerializerFor<FBoxSphereBounds> _boxSphereBoundsSerializer;
-    private readonly IStreamSerializerFor<FkDOPBounds> _kDopBoundsSerializer;
-    private readonly IStreamSerializerFor<FkDOPNode3New> _kDopNode3NewSerializer;
-    private readonly IStreamSerializerFor<FkDOPTriangles> _kDOPTrianglesSerializer;
-    private readonly IStreamSerializerFor<ObjectIndex> _objectIndexSerializer;
+    private readonly IStreamSerializer<FBoxSphereBounds> _boxSphereBoundsSerializer;
+    private readonly IStreamSerializer<FkDOPBounds> _kDopBoundsSerializer;
+    private readonly IStreamSerializer<FkDOPNode3New> _kDopNode3NewSerializer;
+    private readonly IStreamSerializer<FkDOPTriangles> _kDOPTrianglesSerializer;
+    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
     private readonly IObjectSerializer<UObject> _objectSerializer;
-    private readonly IStreamSerializerFor<FStaticMeshLODModel3> _staticMeshLodModel3Serializer;
+    private readonly IStreamSerializer<FStaticMeshLODModel3> _staticMeshLodModel3Serializer;
 
-    public DefaultStaticMeshSerializer(IObjectSerializer<UObject> objectSerializer, IStreamSerializerFor<FBoxSphereBounds> boxSphereBoundsSerializer,
-        IStreamSerializerFor<ObjectIndex> objectIndexSerializer, IStreamSerializerFor<FkDOPBounds> kDopBoundsSerializer,
-        IStreamSerializerFor<FkDOPNode3New> kDopNode3NewSerializer, IStreamSerializerFor<FStaticMeshLODModel3> staticMeshLodModel3Serializer,
-        IStreamSerializerFor<FkDOPTriangles> kDopTrianglesSerializer)
+    public DefaultStaticMeshSerializer(IObjectSerializer<UObject> objectSerializer, IStreamSerializer<FBoxSphereBounds> boxSphereBoundsSerializer,
+        IStreamSerializer<ObjectIndex> objectIndexSerializer, IStreamSerializer<FkDOPBounds> kDopBoundsSerializer,
+        IStreamSerializer<FkDOPNode3New> kDopNode3NewSerializer, IStreamSerializer<FStaticMeshLODModel3> staticMeshLodModel3Serializer,
+        IStreamSerializer<FkDOPTriangles> kDopTrianglesSerializer)
     {
         _objectSerializer = objectSerializer;
         _boxSphereBoundsSerializer = boxSphereBoundsSerializer;

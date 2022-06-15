@@ -10,14 +10,14 @@ namespace Core.Serialization.Default.Object;
 public class DefaultStructSerializer : BaseObjectSerializer<UStruct>
 {
     private readonly IObjectSerializer<UField> _fieldSerializer;
-    private readonly IStreamSerializerFor<ObjectIndex> _objectIndexSerialiser;
+    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerialiser;
 
     /// <summary>
     ///     Construct a DefaultStructSerializer with the required field serializers
     /// </summary>
     /// <param name="fieldSerializer"></param>
     /// <param name="objectIndexSerialiser"></param>
-    public DefaultStructSerializer(IObjectSerializer<UField> fieldSerializer, IStreamSerializerFor<ObjectIndex> objectIndexSerialiser)
+    public DefaultStructSerializer(IObjectSerializer<UField> fieldSerializer, IStreamSerializer<ObjectIndex> objectIndexSerialiser)
     {
         _fieldSerializer = fieldSerializer;
         _objectIndexSerialiser = objectIndexSerialiser;

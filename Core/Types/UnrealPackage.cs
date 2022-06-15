@@ -11,7 +11,7 @@ namespace Core.Types;
 
 public class UnrealPackageOptions
 {
-    public UnrealPackageOptions(IStreamSerializerFor<UnrealPackage> serializer, string packageName, INativeClassFactory nativeClassFactory,
+    public UnrealPackageOptions(IStreamSerializer<UnrealPackage> serializer, string packageName, INativeClassFactory nativeClassFactory,
         IPackageCache? packageCache = null,
         IObjectSerializerFactory? objectSerializerFactory = null)
     {
@@ -25,7 +25,7 @@ public class UnrealPackageOptions
     /// <summary>
     ///     Serializer to use with the package
     /// </summary>
-    public IStreamSerializerFor<UnrealPackage> Serializer { get; set; }
+    public IStreamSerializer<UnrealPackage> Serializer { get; set; }
 
     /// <summary>
     ///     The name of the package
@@ -132,7 +132,7 @@ public class UnrealPackage
     public Stream? PackageStream { get; set; }
 
     /// <summary>
-    ///     Helper constructor to create and initialize a package from a <see cref="IStreamSerializerFor{T}" />
+    ///     Helper constructor to create and initialize a package from a <see cref="IStreamSerializer{T}" />
     /// </summary>
     /// <param name="stream">The package stream</param>
     /// <param name="options"></param>

@@ -14,7 +14,7 @@ namespace Core.RocketLeague.Tests;
 
 public class PackageUnpackerTests
 {
-    private readonly IStreamSerializerFor<FileSummary> _serializer;
+    private readonly IStreamSerializer<FileSummary> _serializer;
 
     public PackageUnpackerTests()
     {

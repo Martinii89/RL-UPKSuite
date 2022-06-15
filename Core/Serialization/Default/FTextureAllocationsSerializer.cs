@@ -3,15 +3,15 @@
 namespace Core.Serialization.Default;
 
 /// <inheritdoc />
-public class FTextureAllocationsSerializer : IStreamSerializerFor<FTextureType>
+public class FTextureAllocationsSerializer : IStreamSerializer<FTextureType>
 {
-    private readonly IStreamSerializerFor<int> _intSerializer;
+    private readonly IStreamSerializer<int> _intSerializer;
 
     /// <summary>
     ///     Constructs a FTextureAllocationsSerializer. Requires a int serializers for the exportIndices
     /// </summary>
     /// <param name="intSerializer"></param>
-    public FTextureAllocationsSerializer(IStreamSerializerFor<int> intSerializer)
+    public FTextureAllocationsSerializer(IStreamSerializer<int> intSerializer)
     {
         _intSerializer = intSerializer;
     }

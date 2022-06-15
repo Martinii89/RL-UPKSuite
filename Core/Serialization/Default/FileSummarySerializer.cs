@@ -7,27 +7,27 @@ namespace Core.Serialization.Default;
 /// <summary>
 ///     Serializer for FileSummary
 /// </summary>
-public class FileSummarySerializer : IStreamSerializerFor<FileSummary>
+public class FileSummarySerializer : IStreamSerializer<FileSummary>
 {
-    private readonly IStreamSerializerFor<FCompressedChunkInfo> _compressedChunkInfoSerializer;
-    private readonly IStreamSerializerFor<FGenerationInfo> _generationsSerializer;
-    private readonly IStreamSerializerFor<FGuid> _guidSerializerFor;
-    private readonly IStreamSerializerFor<FString> _stringSerializer;
-    private readonly IStreamSerializerFor<FTextureType> _textureAllocationsSerializer;
+    private readonly IStreamSerializer<FCompressedChunkInfo> _compressedChunkInfoSerializer;
+    private readonly IStreamSerializer<FGenerationInfo> _generationsSerializer;
+    private readonly IStreamSerializer<FGuid> _guidSerializer;
+    private readonly IStreamSerializer<FString> _stringSerializer;
+    private readonly IStreamSerializer<FTextureType> _textureAllocationsSerializer;
 
     /// <summary>
     ///     Construct the serializer with all required sub serializers
     /// </summary>
-    /// <param name="guidSerializerFor"></param>
+    /// <param name="guidSerializer"></param>
     /// <param name="compressedChunkInfoSerializer"></param>
     /// <param name="stringSerializer"></param>
     /// <param name="textureAllocationsSerializer"></param>
     /// <param name="generationsSerializer"></param>
-    public FileSummarySerializer(IStreamSerializerFor<FGuid> guidSerializerFor,
-        IStreamSerializerFor<FCompressedChunkInfo> compressedChunkInfoSerializer, IStreamSerializerFor<FString> stringSerializer,
-        IStreamSerializerFor<FTextureType> textureAllocationsSerializer, IStreamSerializerFor<FGenerationInfo> generationsSerializer)
+    public FileSummarySerializer(IStreamSerializer<FGuid> guidSerializer,
+        IStreamSerializer<FCompressedChunkInfo> compressedChunkInfoSerializer, IStreamSerializer<FString> stringSerializer,
+        IStreamSerializer<FTextureType> textureAllocationsSerializer, IStreamSerializer<FGenerationInfo> generationsSerializer)
     {
-        _guidSerializerFor = guidSerializerFor;
+        _guidSerializer = guidSerializer;
         _compressedChunkInfoSerializer = compressedChunkInfoSerializer;
         _stringSerializer = stringSerializer;
         _textureAllocationsSerializer = textureAllocationsSerializer;
@@ -65,7 +65,7 @@ public class FileSummarySerializer : IStreamSerializerFor<FileSummary>
         fileSummary.ImportGuidsCount = stream.ReadInt32();
         fileSummary.ExportGuidsCount = stream.ReadInt32();
         fileSummary.ThumbnailTableOffset = stream.ReadInt32();
-        fileSummary.Guid = _guidSerializerFor.Deserialize(stream);
+        fileSummary.Guid = _guidSerializer.Deserialize(stream);
         _generationsSerializer.ReadTArrayToList(stream, fileSummary.Generations);
         fileSummary.EngineVersion = stream.ReadUInt32();
         fileSummary.CookerVersion = stream.ReadUInt32();

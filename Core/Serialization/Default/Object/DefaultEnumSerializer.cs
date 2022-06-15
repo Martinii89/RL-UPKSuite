@@ -7,9 +7,9 @@ namespace Core.Serialization.Default.Object;
 public class DefaultEnumSerializer : BaseObjectSerializer<UEnum>
 {
     private readonly IObjectSerializer<UField> _fieldSerializer;
-    private readonly IStreamSerializerFor<FName> _fnameSerializer;
+    private readonly IStreamSerializer<FName> _fnameSerializer;
 
-    public DefaultEnumSerializer(IObjectSerializer<UField> fieldSerializer, IStreamSerializerFor<FName> fnameSerializer)
+    public DefaultEnumSerializer(IObjectSerializer<UField> fieldSerializer, IStreamSerializer<FName> fnameSerializer)
     {
         _fieldSerializer = fieldSerializer;
         _fnameSerializer = fnameSerializer;

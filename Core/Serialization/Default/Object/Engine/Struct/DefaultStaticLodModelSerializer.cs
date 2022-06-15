@@ -6,18 +6,18 @@ using Core.Serialization.Extensions;
 
 namespace Core.Serialization.Default.Object.Engine.Struct;
 
-public class DefaultStaticLodModelSerializer : IStreamSerializerFor<FStaticLodModel>
+public class DefaultStaticLodModelSerializer : IStreamSerializer<FStaticLodModel>
 {
-    private readonly IStreamSerializerFor<FByteBulkData> _BulkDataSerializer;
-    private readonly IStreamSerializerFor<FSkeletalMeshVertexBuffer> _SkeletalMeshVertexBufferSerializer;
-    private readonly IStreamSerializerFor<FSkelIndexBuffer> _SkelIndexBufferSerializer;
-    private readonly IStreamSerializerFor<FSkelMeshChunk> _SkelMeshChunkSerializer;
-    private readonly IStreamSerializerFor<FSkelMeshSection> _SkelMeshSectionSerializer;
+    private readonly IStreamSerializer<FByteBulkData> _BulkDataSerializer;
+    private readonly IStreamSerializer<FSkeletalMeshVertexBuffer> _SkeletalMeshVertexBufferSerializer;
+    private readonly IStreamSerializer<FSkelIndexBuffer> _SkelIndexBufferSerializer;
+    private readonly IStreamSerializer<FSkelMeshChunk> _SkelMeshChunkSerializer;
+    private readonly IStreamSerializer<FSkelMeshSection> _SkelMeshSectionSerializer;
 
 
-    public DefaultStaticLodModelSerializer(IStreamSerializerFor<FSkelMeshSection> skelMeshSectionSerializer,
-        IStreamSerializerFor<FSkelIndexBuffer> skelIndexBufferSerializer, IStreamSerializerFor<FSkelMeshChunk> skelMeshChunkSerializer,
-        IStreamSerializerFor<FByteBulkData> bulkDataSerializer, IStreamSerializerFor<FSkeletalMeshVertexBuffer> skeletalMeshVertexBufferSerializer)
+    public DefaultStaticLodModelSerializer(IStreamSerializer<FSkelMeshSection> skelMeshSectionSerializer,
+        IStreamSerializer<FSkelIndexBuffer> skelIndexBufferSerializer, IStreamSerializer<FSkelMeshChunk> skelMeshChunkSerializer,
+        IStreamSerializer<FByteBulkData> bulkDataSerializer, IStreamSerializer<FSkeletalMeshVertexBuffer> skeletalMeshVertexBufferSerializer)
     {
         _SkelMeshSectionSerializer = skelMeshSectionSerializer;
         _SkelIndexBufferSerializer = skelIndexBufferSerializer;
@@ -56,7 +56,7 @@ public class DefaultStaticLodModelSerializer : IStreamSerializerFor<FStaticLodMo
     }
 }
 
-public class DefaultSkelMeshSectionSerializer : IStreamSerializerFor<FSkelMeshSection>
+public class DefaultSkelMeshSectionSerializer : IStreamSerializer<FSkelMeshSection>
 {
     /// <inheritdoc />
     public FSkelMeshSection Deserialize(Stream stream)
@@ -78,7 +78,7 @@ public class DefaultSkelMeshSectionSerializer : IStreamSerializerFor<FSkelMeshSe
     }
 }
 
-public class DefaultSkelIndexBufferSerializer : IStreamSerializerFor<FSkelIndexBuffer>
+public class DefaultSkelIndexBufferSerializer : IStreamSerializer<FSkelIndexBuffer>
 {
     /// <inheritdoc />
     public FSkelIndexBuffer Deserialize(Stream stream)
@@ -97,12 +97,12 @@ public class DefaultSkelIndexBufferSerializer : IStreamSerializerFor<FSkelIndexB
     }
 }
 
-public class DefaultSkelMeshChunkSerializer : IStreamSerializerFor<FSkelMeshChunk>
+public class DefaultSkelMeshChunkSerializer : IStreamSerializer<FSkelMeshChunk>
 {
-    private readonly IStreamSerializerFor<FRigidVertex> _rigidVertexSerializer;
-    private readonly IStreamSerializerFor<FSoftVertex> _softVertexSerializer;
+    private readonly IStreamSerializer<FRigidVertex> _rigidVertexSerializer;
+    private readonly IStreamSerializer<FSoftVertex> _softVertexSerializer;
 
-    public DefaultSkelMeshChunkSerializer(IStreamSerializerFor<FRigidVertex> rigidVertexSerializer, IStreamSerializerFor<FSoftVertex> softVertexSerializer)
+    public DefaultSkelMeshChunkSerializer(IStreamSerializer<FRigidVertex> rigidVertexSerializer, IStreamSerializer<FSoftVertex> softVertexSerializer)
     {
         _rigidVertexSerializer = rigidVertexSerializer;
         _softVertexSerializer = softVertexSerializer;
@@ -130,15 +130,15 @@ public class DefaultSkelMeshChunkSerializer : IStreamSerializerFor<FSkelMeshChun
     }
 }
 
-public class DefaultRigidVertexSerializer : IStreamSerializerFor<FRigidVertex>
+public class DefaultRigidVertexSerializer : IStreamSerializer<FRigidVertex>
 {
-    private readonly IStreamSerializerFor<FColor> _colorSerializer;
-    private readonly IStreamSerializerFor<FVector2D> _vector2DSerializer;
+    private readonly IStreamSerializer<FColor> _colorSerializer;
+    private readonly IStreamSerializer<FVector2D> _vector2DSerializer;
 
-    private readonly IStreamSerializerFor<FVector> _vectorSerializer;
+    private readonly IStreamSerializer<FVector> _vectorSerializer;
 
-    public DefaultRigidVertexSerializer(IStreamSerializerFor<FVector> vectorSerializer, IStreamSerializerFor<FVector2D> vector2DSerializer,
-        IStreamSerializerFor<FColor> colorSerializer)
+    public DefaultRigidVertexSerializer(IStreamSerializer<FVector> vectorSerializer, IStreamSerializer<FVector2D> vector2DSerializer,
+        IStreamSerializer<FColor> colorSerializer)
     {
         _vectorSerializer = vectorSerializer;
         _vector2DSerializer = vector2DSerializer;
@@ -167,14 +167,14 @@ public class DefaultRigidVertexSerializer : IStreamSerializerFor<FRigidVertex>
     }
 }
 
-public class DefaultSoftVertexSerializer : IStreamSerializerFor<FSoftVertex>
+public class DefaultSoftVertexSerializer : IStreamSerializer<FSoftVertex>
 {
-    private readonly IStreamSerializerFor<FColor> _colorSerializer;
-    private readonly IStreamSerializerFor<FVector2D> _vector2DSerializer;
-    private readonly IStreamSerializerFor<FVector> _vectorSerializer;
+    private readonly IStreamSerializer<FColor> _colorSerializer;
+    private readonly IStreamSerializer<FVector2D> _vector2DSerializer;
+    private readonly IStreamSerializer<FVector> _vectorSerializer;
 
-    public DefaultSoftVertexSerializer(IStreamSerializerFor<FVector> vectorSerializer, IStreamSerializerFor<FVector2D> vector2DSerializer,
-        IStreamSerializerFor<FColor> colorSerializer)
+    public DefaultSoftVertexSerializer(IStreamSerializer<FVector> vectorSerializer, IStreamSerializer<FVector2D> vector2DSerializer,
+        IStreamSerializer<FColor> colorSerializer)
     {
         _vectorSerializer = vectorSerializer;
         _vector2DSerializer = vector2DSerializer;
@@ -204,15 +204,15 @@ public class DefaultSoftVertexSerializer : IStreamSerializerFor<FSoftVertex>
     }
 }
 
-public class DefaultSkeletalMeshVertexBufferSerializer : IStreamSerializerFor<FSkeletalMeshVertexBuffer>
+public class DefaultSkeletalMeshVertexBufferSerializer : IStreamSerializer<FSkeletalMeshVertexBuffer>
 {
     private readonly IObjectSerializer<GpuVert> _gpuVertSerializer;
-    private readonly IStreamSerializerFor<FSkelIndexBuffer> _skelIndexBufferSerializer;
+    private readonly IStreamSerializer<FSkelIndexBuffer> _skelIndexBufferSerializer;
 
-    private readonly IStreamSerializerFor<FVector> _vectorSerializer;
+    private readonly IStreamSerializer<FVector> _vectorSerializer;
 
-    public DefaultSkeletalMeshVertexBufferSerializer(IStreamSerializerFor<FVector> vectorSerializer, IObjectSerializer<GpuVert> gpuVertSerializer,
-        IStreamSerializerFor<FSkelIndexBuffer> skelIndexBufferSerializer)
+    public DefaultSkeletalMeshVertexBufferSerializer(IStreamSerializer<FVector> vectorSerializer, IObjectSerializer<GpuVert> gpuVertSerializer,
+        IStreamSerializer<FSkelIndexBuffer> skelIndexBufferSerializer)
     {
         _vectorSerializer = vectorSerializer;
         _gpuVertSerializer = gpuVertSerializer;
@@ -264,9 +264,9 @@ public class DefaultSkeletalMeshVertexBufferSerializer : IStreamSerializerFor<FS
 
 public class DefaultGpuVertSerializer : BaseObjectSerializer<GpuVert>
 {
-    private readonly IStreamSerializerFor<FVector> _vectorSerializer;
+    private readonly IStreamSerializer<FVector> _vectorSerializer;
 
-    public DefaultGpuVertSerializer(IStreamSerializerFor<FVector> vectorSerializer)
+    public DefaultGpuVertSerializer(IStreamSerializer<FVector> vectorSerializer)
     {
         _vectorSerializer = vectorSerializer;
     }

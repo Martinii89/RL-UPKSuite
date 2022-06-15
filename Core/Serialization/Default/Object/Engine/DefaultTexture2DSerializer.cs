@@ -7,14 +7,14 @@ namespace Core.Serialization.Default.Object.Engine;
 
 public class DefaultTexture2DSerializer : BaseObjectSerializer<UTexture2D>
 {
-    private readonly IStreamSerializerFor<FByteBulkData> _bulkDataSerializer;
-    private readonly IStreamSerializerFor<FGuid> _guidSerializer;
-    private readonly IStreamSerializerFor<Mip> _mipSerializer;
+    private readonly IStreamSerializer<FByteBulkData> _bulkDataSerializer;
+    private readonly IStreamSerializer<FGuid> _guidSerializer;
+    private readonly IStreamSerializer<Mip> _mipSerializer;
 
     private readonly IObjectSerializer<UTexture> _textureSerializer;
 
-    public DefaultTexture2DSerializer(IObjectSerializer<UTexture> textureSerializer, IStreamSerializerFor<Mip> mipSerializer,
-        IStreamSerializerFor<FGuid> guidSerializer, IStreamSerializerFor<FByteBulkData> bulkDataSerializer)
+    public DefaultTexture2DSerializer(IObjectSerializer<UTexture> textureSerializer, IStreamSerializer<Mip> mipSerializer,
+        IStreamSerializer<FGuid> guidSerializer, IStreamSerializer<FByteBulkData> bulkDataSerializer)
     {
         _textureSerializer = textureSerializer;
         _mipSerializer = mipSerializer;

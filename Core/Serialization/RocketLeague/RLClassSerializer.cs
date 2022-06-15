@@ -11,13 +11,13 @@ namespace Core.Serialization.RocketLeague;
 [FileVersion(RocketLeagueBase.FileVersion)]
 public class RLClassSerializer : BaseObjectSerializer<UClass>
 {
-    private readonly IStreamSerializerFor<FName> _fnameSerializer;
-    private readonly IStreamSerializerFor<ObjectIndex> _objectIndexSerializer;
+    private readonly IStreamSerializer<FName> _fnameSerializer;
+    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
 
     private readonly IObjectSerializer<UState> _stateSerializer;
 
-    public RLClassSerializer(IObjectSerializer<UState> stateSerializer, IStreamSerializerFor<FName> fnameSerializer,
-        IStreamSerializerFor<ObjectIndex> objectIndexSerializer)
+    public RLClassSerializer(IObjectSerializer<UState> stateSerializer, IStreamSerializer<FName> fnameSerializer,
+        IStreamSerializer<ObjectIndex> objectIndexSerializer)
     {
         _stateSerializer = stateSerializer;
         _fnameSerializer = fnameSerializer;

@@ -26,7 +26,7 @@ public class ImportTable : List<ImportTableItem>
     /// <param name="serializer"></param>
     /// <param name="stream"></param>
     /// <param name="importCount"></param>
-    public ImportTable(IStreamSerializerFor<ImportTableItem> serializer, Stream stream, int importCount)
+    public ImportTable(IStreamSerializer<ImportTableItem> serializer, Stream stream, int importCount)
     {
         serializer.ReadTArrayToList(stream, this, importCount);
     }

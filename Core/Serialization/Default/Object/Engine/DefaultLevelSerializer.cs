@@ -12,20 +12,20 @@ namespace Core.Serialization.Default.Object.Engine;
 
 public class DefaultLevelSerializer : BaseObjectSerializer<ULevel>
 {
-    private readonly IStreamSerializerFor<FKCachedConvexData> _kCachedConvexDataSerializer;
-    private readonly IStreamSerializerFor<ObjectIndex> _objectIndexSerializer;
+    private readonly IStreamSerializer<FKCachedConvexData> _kCachedConvexDataSerializer;
+    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
     private readonly IObjectSerializer<UObject> _objectSerializer;
-    private readonly IStreamSerializerFor<FPrecomputedLightVolume> _precomputedLightVolumeSerializer;
-    private readonly IStreamSerializerFor<FPrecomputedVisibilityHandler> _precomputedVisibilityHandlerSerializer;
-    private readonly IStreamSerializerFor<FPrecomputedVolumeDistanceField> _precomputedVolumeDistanceFieldSerializer;
-    private readonly IStreamSerializerFor<FURL> _urlSerializer;
-    private readonly IStreamSerializerFor<FVector> _vectorSerializer;
+    private readonly IStreamSerializer<FPrecomputedLightVolume> _precomputedLightVolumeSerializer;
+    private readonly IStreamSerializer<FPrecomputedVisibilityHandler> _precomputedVisibilityHandlerSerializer;
+    private readonly IStreamSerializer<FPrecomputedVolumeDistanceField> _precomputedVolumeDistanceFieldSerializer;
+    private readonly IStreamSerializer<FURL> _urlSerializer;
+    private readonly IStreamSerializer<FVector> _vectorSerializer;
 
-    public DefaultLevelSerializer(IObjectSerializer<UObject> objectSerializer, IStreamSerializerFor<ObjectIndex> objectIndexSerializer,
-        IStreamSerializerFor<FVector> vectorSerializer, IStreamSerializerFor<FURL> urlSerializer,
-        IStreamSerializerFor<FKCachedConvexData> kCachedConvexDataSerializer, IStreamSerializerFor<FPrecomputedLightVolume> precomputedLightVolumeSerializer,
-        IStreamSerializerFor<FPrecomputedVisibilityHandler> precomputedVisibilityHandlerSerializer,
-        IStreamSerializerFor<FPrecomputedVolumeDistanceField> precomputedVolumeDistanceFieldSerializer)
+    public DefaultLevelSerializer(IObjectSerializer<UObject> objectSerializer, IStreamSerializer<ObjectIndex> objectIndexSerializer,
+        IStreamSerializer<FVector> vectorSerializer, IStreamSerializer<FURL> urlSerializer,
+        IStreamSerializer<FKCachedConvexData> kCachedConvexDataSerializer, IStreamSerializer<FPrecomputedLightVolume> precomputedLightVolumeSerializer,
+        IStreamSerializer<FPrecomputedVisibilityHandler> precomputedVisibilityHandlerSerializer,
+        IStreamSerializer<FPrecomputedVolumeDistanceField> precomputedVolumeDistanceFieldSerializer)
     {
         _objectSerializer = objectSerializer;
         _objectIndexSerializer = objectIndexSerializer;

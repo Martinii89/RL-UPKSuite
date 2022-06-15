@@ -9,11 +9,11 @@ namespace Core.Serialization.Default.Object.Engine;
 
 public class DefaultMaterialSerializer : BaseObjectSerializer<UMaterial>
 {
-    private readonly IStreamSerializerFor<FMaterialResource> _materialResourceSerializer;
+    private readonly IStreamSerializer<FMaterialResource> _materialResourceSerializer;
 
     private readonly IObjectSerializer<UObject> _objectSerializer;
 
-    public DefaultMaterialSerializer(IObjectSerializer<UObject> objectSerializer, IStreamSerializerFor<FMaterialResource> materialResourceSerializer)
+    public DefaultMaterialSerializer(IObjectSerializer<UObject> objectSerializer, IStreamSerializer<FMaterialResource> materialResourceSerializer)
     {
         _objectSerializer = objectSerializer;
         _materialResourceSerializer = materialResourceSerializer;
@@ -34,16 +34,16 @@ public class DefaultMaterialSerializer : BaseObjectSerializer<UMaterial>
     }
 }
 
-public class FmaterialResourceSerializer : IStreamSerializerFor<FMaterialResource>
+public class FmaterialResourceSerializer : IStreamSerializer<FMaterialResource>
 {
-    private readonly IStreamSerializerFor<FGuid> _fguidSerializer;
-    private readonly IStreamSerializerFor<FName> _fnameSerializer;
+    private readonly IStreamSerializer<FGuid> _fguidSerializer;
+    private readonly IStreamSerializer<FName> _fnameSerializer;
 
-    private readonly IStreamSerializerFor<FString> _fstringSerializer;
-    private readonly IStreamSerializerFor<ObjectIndex> _objectIndexSerializer;
+    private readonly IStreamSerializer<FString> _fstringSerializer;
+    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
 
-    public FmaterialResourceSerializer(IStreamSerializerFor<FString> fstringSerializer, IStreamSerializerFor<FName> fnameSerializer,
-        IStreamSerializerFor<ObjectIndex> objectIndexSerializer, IStreamSerializerFor<FGuid> fguidSerializer)
+    public FmaterialResourceSerializer(IStreamSerializer<FString> fstringSerializer, IStreamSerializer<FName> fnameSerializer,
+        IStreamSerializer<ObjectIndex> objectIndexSerializer, IStreamSerializer<FGuid> fguidSerializer)
     {
         _fstringSerializer = fstringSerializer;
         _fnameSerializer = fnameSerializer;

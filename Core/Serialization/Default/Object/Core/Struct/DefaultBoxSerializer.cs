@@ -2,11 +2,11 @@
 
 namespace Core.Serialization.Default.Object.Core.Struct;
 
-public class DefaultBoxSerializer : IStreamSerializerFor<FBox>
+public class DefaultBoxSerializer : IStreamSerializer<FBox>
 {
-    private readonly IStreamSerializerFor<FVector> _vectorSerializer;
+    private readonly IStreamSerializer<FVector> _vectorSerializer;
 
-    public DefaultBoxSerializer(IStreamSerializerFor<FVector> vectorSerializer)
+    public DefaultBoxSerializer(IStreamSerializer<FVector> vectorSerializer)
     {
         _vectorSerializer = vectorSerializer;
     }
