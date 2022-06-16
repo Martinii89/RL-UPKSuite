@@ -1,6 +1,5 @@
-﻿using Core.Serialization;
+﻿using Core.Serialization.Abstraction;
 using Core.Types;
-using Core.Types.PackageTables;
 
 namespace Core.Classes.Core.Properties;
 
@@ -18,9 +17,8 @@ public class UNameProperty : UProperty
     }
 
     /// <inheritdoc />
-    public override object? DeserializeValue(UObject obj, Stream objStream, int propertySize, IStreamSerializer<FName> fnameSerializer,
-        IStreamSerializer<ObjectIndex> objectIndexSerializer)
+    public override object? DeserializeValue(UObject obj, IUnrealPackageStream objStream, int propertySize)
     {
-        return obj.OwnerPackage.GetName(fnameSerializer.Deserialize(objStream));
+        return objStream.ReadFNameStr();
     }
 }

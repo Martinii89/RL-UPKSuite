@@ -1,23 +1,15 @@
 ﻿using Core.Classes;
 using Core.Serialization.Abstraction;
-using Core.Types;
-using Core.Types.PackageTables;
 
 namespace Core.Serialization.Default.Object;
 
 public class DefaultStateSerializer : BaseObjectSerializer<UState>
 {
-    private readonly IStreamSerializer<FName> _fnameSerializer;
-    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
-
     private readonly IObjectSerializer<UStruct> _structSerializer;
 
-    public DefaultStateSerializer(IObjectSerializer<UStruct> structSerializer, IStreamSerializer<FName> fnameSerializer,
-        IStreamSerializer<ObjectIndex> objectIndexSerializer)
+    public DefaultStateSerializer(IObjectSerializer<UStruct> structSerializer)
     {
         _structSerializer = structSerializer;
-        _fnameSerializer = fnameSerializer;
-        _objectIndexSerializer = objectIndexSerializer;
     }
 
     public override void DeserializeObject(UState obj, IUnrealPackageStream objectStream)
@@ -30,8 +22,8 @@ public class DefaultStateSerializer : BaseObjectSerializer<UState>
         var funcCount = objectStream.ReadInt32();
         for (var i = 0; i < funcCount; i++)
         {
-            var funcName = obj.OwnerPackage.GetName(_fnameSerializer.Deserialize(objectStream.BaseStream));
-            if (obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream)) is UFunction func)
+            var funcName = objectStream.ReadFNameStr();
+            if (objectStream.ReadObject() is UFunction func)
             {
                 obj.FuncMap.Add(funcName, func);
             }

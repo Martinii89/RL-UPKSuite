@@ -1,6 +1,5 @@
-﻿using Core.Serialization;
+﻿using Core.Serialization.Abstraction;
 using Core.Types;
-using Core.Types.PackageTables;
 
 namespace Core.Classes.Core.Properties;
 
@@ -18,9 +17,8 @@ public class UBoolProperty : UProperty
     }
 
     /// <inheritdoc />
-    public override object? DeserializeValue(UObject obj, Stream objStream, int propertySize, IStreamSerializer<FName> fnameSerializer,
-        IStreamSerializer<ObjectIndex> objectIndexSerializer)
+    public override object? DeserializeValue(UObject obj, IUnrealPackageStream objStream, int propertySize)
     {
-        return objStream.ReadByte() == 1;
+        return objStream.ReadByte();
     }
 }

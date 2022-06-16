@@ -1,7 +1,6 @@
 ﻿using Core.Classes;
 using Core.Classes.Core;
 using Core.Serialization.Abstraction;
-using Core.Types.PackageTables;
 
 namespace Core.Serialization.Default.Object;
 
@@ -10,8 +9,6 @@ namespace Core.Serialization.Default.Object;
 /// </summary>
 public class DefaultFieldSerializer : BaseObjectSerializer<UField>
 {
-    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerialiser;
-
     private readonly IObjectSerializer<UObject> _objectSerializer;
 
     /// <summary>
@@ -19,10 +16,9 @@ public class DefaultFieldSerializer : BaseObjectSerializer<UField>
     /// </summary>
     /// <param name="objectSerializer"></param>
     /// <param name="objectIndexSerialiser"></param>
-    public DefaultFieldSerializer(IObjectSerializer<UObject> objectSerializer, IStreamSerializer<ObjectIndex> objectIndexSerialiser)
+    public DefaultFieldSerializer(IObjectSerializer<UObject> objectSerializer)
     {
         _objectSerializer = objectSerializer;
-        _objectIndexSerialiser = objectIndexSerialiser;
     }
 
 
@@ -31,7 +27,7 @@ public class DefaultFieldSerializer : BaseObjectSerializer<UField>
     {
         _objectSerializer.DeserializeObject(field, objectStream);
 
-        field.Next = field.OwnerPackage.GetObject(_objectIndexSerialiser.Deserialize(objectStream.BaseStream));
+        field.Next = objectStream.ReadObject();
     }
 
     /// <inheritdoc />

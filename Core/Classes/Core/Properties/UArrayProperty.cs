@@ -1,6 +1,5 @@
-﻿using Core.Serialization;
+﻿using Core.Serialization.Abstraction;
 using Core.Types;
-using Core.Types.PackageTables;
 
 namespace Core.Classes.Core.Properties;
 
@@ -20,15 +19,14 @@ public class UArrayProperty : UProperty
     public UProperty? InnerProperty { get; set; }
 
     /// <inheritdoc />
-    public override object? DeserializeValue(UObject obj, Stream objStream, int propertySize, IStreamSerializer<FName> fnameSerializer,
-        IStreamSerializer<ObjectIndex> objectIndexSerializer)
+    public override object? DeserializeValue(UObject obj, IUnrealPackageStream objStream, int propertySize)
     {
         //objStream.Move(propertySize);
         var result = new List<object?>();
         var arrayCount = objStream.ReadInt32();
         if (arrayCount == 0 || InnerProperty is null)
         {
-            objStream.Move(propertySize - 4);
+            objStream.BaseStream.Move(propertySize);
             return result;
         }
 
@@ -36,16 +34,13 @@ public class UArrayProperty : UProperty
         {
             structProperty.Deserialize();
             structProperty.Struct?.Deserialize();
-            //Debugger.Break();
-            //objStream.Move(propertySize - 4);
-            //return result;
         }
 
         // subtract the size of the count
         var elementSize = (propertySize - 4) / arrayCount;
         for (var i = 0; i < arrayCount; i++)
         {
-            result.Add(InnerProperty?.DeserializeValue(obj, objStream, elementSize, fnameSerializer, objectIndexSerializer));
+            result.Add(InnerProperty?.DeserializeValue(obj, objStream, elementSize));
         }
 
         return result;

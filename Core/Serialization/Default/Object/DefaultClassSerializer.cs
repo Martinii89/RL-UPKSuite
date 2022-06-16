@@ -2,24 +2,16 @@
 using Core.Classes.Core;
 using Core.Classes.Core.Properties;
 using Core.Serialization.Abstraction;
-using Core.Types;
-using Core.Types.PackageTables;
 
 namespace Core.Serialization.Default.Object;
 
 public class DefaultClassSerializer : BaseObjectSerializer<UClass>
 {
-    private readonly IStreamSerializer<FName> _fnameSerializer;
-    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
-
     private readonly IObjectSerializer<UState> _stateSerializer;
 
-    public DefaultClassSerializer(IObjectSerializer<UState> stateSerializer, IStreamSerializer<FName> fnameSerializer,
-        IStreamSerializer<ObjectIndex> objectIndexSerializer)
+    public DefaultClassSerializer(IObjectSerializer<UState> stateSerializer)
     {
         _stateSerializer = stateSerializer;
-        _fnameSerializer = fnameSerializer;
-        _objectIndexSerializer = objectIndexSerializer;
     }
 
     /// <inheritdoc />
@@ -27,14 +19,14 @@ public class DefaultClassSerializer : BaseObjectSerializer<UClass>
     {
         _stateSerializer.DeserializeObject(obj, objectStream);
         obj.ClassFlags = objectStream.ReadUInt32();
-        obj.Within = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream));
-        obj.ConfigName = obj.OwnerPackage.GetName(_fnameSerializer.Deserialize(objectStream.BaseStream));
+        obj.Within = objectStream.ReadObject();
+        obj.ConfigName = objectStream.ReadFNameStr();
 
         var componentCount = objectStream.ReadInt32();
         for (var i = 0; i < componentCount; i++)
         {
-            var name = obj.OwnerPackage.GetName(_fnameSerializer.Deserialize(objectStream.BaseStream));
-            if (obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream)) is UComponent component)
+            var name = objectStream.ReadFNameStr();
+            if (objectStream.ReadObject() is UComponent component)
             {
                 obj.ComponentNameToDefaultObjectMap.Add(name, component);
             }
@@ -43,24 +35,24 @@ public class DefaultClassSerializer : BaseObjectSerializer<UClass>
         var interfaceCount = objectStream.ReadInt32();
         for (var i = 0; i < interfaceCount; i++)
         {
-            var clz = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream)) as UClass;
-            var prop = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream)) as UProperty;
+            var clz = objectStream.ReadObject() as UClass;
+            var prop = objectStream.ReadObject() as UProperty;
             if (clz != null && prop != null)
             {
                 obj.InterfaceMap.Add(clz, prop);
             }
         }
 
-        obj.DontSortCategories = _fnameSerializer.ReadTArrayToList(objectStream.BaseStream);
-        obj.HideCategories = _fnameSerializer.ReadTArrayToList(objectStream.BaseStream);
-        obj.AutoExpandCategories = _fnameSerializer.ReadTArrayToList(objectStream.BaseStream);
-        obj.AutoCollapseCategories = _fnameSerializer.ReadTArrayToList(objectStream.BaseStream);
+        obj.DontSortCategories = objectStream.ReadTArray(stream => objectStream.ReadFName());
+        obj.HideCategories = objectStream.ReadTArray(stream => objectStream.ReadFName());
+        obj.AutoExpandCategories = objectStream.ReadTArray(stream => objectStream.ReadFName());
+        obj.AutoCollapseCategories = objectStream.ReadTArray(stream => objectStream.ReadFName());
         obj.ForceScriptOrder = objectStream.ReadInt32();
-        obj.ClassGroups = _fnameSerializer.ReadTArrayToList(objectStream.BaseStream);
+        obj.ClassGroups = objectStream.ReadTArray(stream => objectStream.ReadFName());
         obj.NativeClassName = objectStream.ReadFString();
         // None FName always?
-        obj.DllBindNameOrDummy = obj.OwnerPackage.GetName(_fnameSerializer.Deserialize(objectStream.BaseStream));
-        obj.DefaultObject = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream));
+        obj.DllBindNameOrDummy = objectStream.ReadFNameStr();
+        obj.DefaultObject = objectStream.ReadObject();
     }
 
     /// <inheritdoc />

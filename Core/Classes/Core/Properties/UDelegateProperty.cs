@@ -1,6 +1,5 @@
-﻿using Core.Serialization;
+﻿using Core.Serialization.Abstraction;
 using Core.Types;
-using Core.Types.PackageTables;
 
 namespace Core.Classes.Core.Properties;
 
@@ -20,11 +19,10 @@ public class UDelegateProperty : UProperty
     public UFunction? FunctionObject { get; set; }
     public UObject? DelegateObject { get; set; }
 
-    public override object? DeserializeValue(UObject obj, Stream objStream, int propertySize, IStreamSerializer<FName> fnameSerializer,
-        IStreamSerializer<ObjectIndex> objectIndexSerializer)
+    public override object? DeserializeValue(UObject obj, IUnrealPackageStream objStream, int propertySize)
     {
-        var delegateObject = obj.OwnerPackage.GetObject(objectIndexSerializer.Deserialize(objStream));
-        var delegateName = obj.OwnerPackage.GetName(fnameSerializer.Deserialize(objStream));
+        var delegateObject = objStream.ReadObject();
+        var delegateName = objStream.ReadFNameStr();
         return new FScriptDelegate { Object = delegateObject, FunctionName = delegateName };
     }
 }

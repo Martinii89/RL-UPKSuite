@@ -1,6 +1,5 @@
 ﻿using Core.Classes;
 using Core.Serialization.Abstraction;
-using Core.Types.PackageTables;
 
 namespace Core.Serialization.Default.Object;
 
@@ -10,17 +9,15 @@ namespace Core.Serialization.Default.Object;
 public class DefaultStructSerializer : BaseObjectSerializer<UStruct>
 {
     private readonly IObjectSerializer<UField> _fieldSerializer;
-    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerialiser;
 
     /// <summary>
     ///     Construct a DefaultStructSerializer with the required field serializers
     /// </summary>
     /// <param name="fieldSerializer"></param>
     /// <param name="objectIndexSerialiser"></param>
-    public DefaultStructSerializer(IObjectSerializer<UField> fieldSerializer, IStreamSerializer<ObjectIndex> objectIndexSerialiser)
+    public DefaultStructSerializer(IObjectSerializer<UField> fieldSerializer)
     {
         _fieldSerializer = fieldSerializer;
-        _objectIndexSerialiser = objectIndexSerialiser;
     }
 
     /// <inheritdoc />
@@ -28,10 +25,10 @@ public class DefaultStructSerializer : BaseObjectSerializer<UStruct>
     {
         _fieldSerializer.DeserializeObject(obj, objectStream);
 
-        obj.SuperStruct = obj.OwnerPackage.GetObject(_objectIndexSerialiser.Deserialize(objectStream.BaseStream)) as UStruct;
-        obj.ScriptText = obj.OwnerPackage.GetObject(_objectIndexSerialiser.Deserialize(objectStream.BaseStream)) as UTextBuffer;
-        obj.Children = obj.OwnerPackage.GetObject(_objectIndexSerialiser.Deserialize(objectStream.BaseStream)) as UField;
-        obj.CppText = obj.OwnerPackage.GetObject(_objectIndexSerialiser.Deserialize(objectStream.BaseStream)) as UTextBuffer;
+        obj.SuperStruct = objectStream.ReadObject() as UStruct;
+        obj.ScriptText = objectStream.ReadObject() as UTextBuffer;
+        obj.Children = objectStream.ReadObject() as UField;
+        obj.CppText = objectStream.ReadObject() as UTextBuffer;
         obj.Line = objectStream.ReadInt32();
         obj.TextPos = objectStream.ReadInt32();
         obj.ScriptBytecodeSize = objectStream.ReadInt32();
@@ -41,7 +38,6 @@ public class DefaultStructSerializer : BaseObjectSerializer<UStruct>
             obj.ScriptOffset = objectStream.BaseStream.Position;
             objectStream.BaseStream.Move(obj.DataScriptSize);
         }
-
 
         obj.InitProperties();
     }

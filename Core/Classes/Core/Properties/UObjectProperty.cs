@@ -1,6 +1,5 @@
-﻿using Core.Serialization;
+﻿using Core.Serialization.Abstraction;
 using Core.Types;
-using Core.Types.PackageTables;
 
 namespace Core.Classes.Core.Properties;
 
@@ -20,10 +19,9 @@ public class UObjectProperty : UProperty
     public UClass? PropertyClass { get; set; }
 
     /// <inheritdoc />
-    public override object? DeserializeValue(UObject obj, Stream objStream, int propertySize, IStreamSerializer<FName> fnameSerializer,
-        IStreamSerializer<ObjectIndex> objectIndexSerializer)
+    public override object? DeserializeValue(UObject obj, IUnrealPackageStream objStream, int propertySize)
     {
-        var propObj = obj.OwnerPackage.GetObject(objectIndexSerializer.Deserialize(objStream));
+        var propObj = objStream.ReadObject();
         return propObj;
     }
 }

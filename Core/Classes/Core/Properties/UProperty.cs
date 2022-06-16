@@ -1,7 +1,6 @@
 ﻿using Core.Flags;
-using Core.Serialization;
+using Core.Serialization.Abstraction;
 using Core.Types;
-using Core.Types.PackageTables;
 
 namespace Core.Classes.Core.Properties;
 
@@ -36,11 +35,8 @@ public abstract class UProperty : UField
     /// <param name="obj"></param>
     /// <param name="objStream"></param>
     /// <param name="propertySize"></param>
-    /// <param name="fnameSerializer"></param>
-    /// <param name="objectIndexSerializer"></param>
     /// <returns></returns>
-    public virtual object? DeserializeValue(UObject obj, Stream objStream, int propertySize, IStreamSerializer<FName> fnameSerializer,
-        IStreamSerializer<ObjectIndex> objectIndexSerializer)
+    public virtual object? DeserializeValue(UObject obj, IUnrealPackageStream objStream, int propertySize)
     {
         throw new NotImplementedException(Class?.Name);
     }

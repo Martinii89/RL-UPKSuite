@@ -2,23 +2,13 @@
 using Core.Classes;
 using Core.Classes.Core;
 using Core.Classes.Core.Properties;
-using Core.Types;
-using Core.Types.PackageTables;
+using Core.Serialization.Abstraction;
 
 namespace Core.Serialization.Default.Object;
 
 public class ScriptPropertiesSerializer
 {
-    private readonly IStreamSerializer<FName> _fnameSerializer;
-    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
-
-    public ScriptPropertiesSerializer(IStreamSerializer<FName> fnameSerializer, IStreamSerializer<ObjectIndex> objectIndexSerializer)
-    {
-        _fnameSerializer = fnameSerializer;
-        _objectIndexSerializer = objectIndexSerializer;
-    }
-
-    public IEnumerable<FProperty> GetScriptProperties(UObject obj, Stream objectStream, UStruct? propSource = null)
+    public IEnumerable<FProperty> GetScriptProperties(UObject obj, IUnrealPackageStream objectStream, UStruct? propSource = null)
     {
         if (propSource is null)
         {
@@ -37,8 +27,7 @@ public class ScriptPropertiesSerializer
 
         while (true)
         {
-            var fName = _fnameSerializer.Deserialize(objectStream);
-            var name = obj.OwnerPackage.GetName(fName);
+            var name = objectStream.ReadFNameStr();
 
             if (name == "None")
             {
@@ -46,8 +35,8 @@ public class ScriptPropertiesSerializer
             }
 
 
-            var typeFName = _fnameSerializer.Deserialize(objectStream);
-            var propType = Enum.Parse<PropertyType>(obj.OwnerPackage.GetName(typeFName));
+            var typeFName = objectStream.ReadFNameStr();
+            var propType = Enum.Parse<PropertyType>(typeFName);
 
             FProperty property = new()
             {
@@ -62,10 +51,10 @@ public class ScriptPropertiesSerializer
             switch (propType)
             {
                 case PropertyType.StructProperty:
-                    property.StructName = obj.OwnerPackage.GetName(_fnameSerializer.Deserialize(objectStream));
+                    property.StructName = objectStream.ReadFNameStr();
                     break;
                 case PropertyType.ByteProperty:
-                    property.EnumName = obj.OwnerPackage.GetName(_fnameSerializer.Deserialize(objectStream));
+                    property.EnumName = objectStream.ReadFNameStr();
                     break;
             }
 
@@ -79,12 +68,12 @@ public class ScriptPropertiesSerializer
                 propSource?.Outer?.Deserialize();
                 propSource?.Outer?.Class?.Deserialize();
                 propSource?.Outer?.Class?.InitProperties();
-                objectStream.Move(property.Type == PropertyType.BoolProperty ? 1 : property.Size);
+                objectStream.BaseStream.Move(property.Type == PropertyType.BoolProperty ? 1 : property.Size);
                 continue;
             }
 
-            property.ValueStart = objectStream.Position;
-            property.Value = linkedProperty?.DeserializeValue(obj, objectStream, property.Size, _fnameSerializer, _objectIndexSerializer);
+            property.ValueStart = objectStream.BaseStream.Position;
+            property.Value = linkedProperty?.DeserializeValue(obj, objectStream, property.Size);
 
 
             yield return property;

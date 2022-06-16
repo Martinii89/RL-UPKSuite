@@ -1,6 +1,5 @@
-﻿using Core.Serialization;
+﻿using Core.Serialization.Abstraction;
 using Core.Types;
-using Core.Types.PackageTables;
 
 namespace Core.Classes.Core.Properties;
 
@@ -20,14 +19,13 @@ public class UByteProperty : UProperty
     public UEnum? Enum { get; set; }
 
     /// <inheritdoc />
-    public override object? DeserializeValue(UObject obj, Stream objStream, int propertySize, IStreamSerializer<FName> fnameSerializer,
-        IStreamSerializer<ObjectIndex> objectIndexSerializer)
+    public override object? DeserializeValue(UObject obj, IUnrealPackageStream objStream, int propertySize)
     {
         if (Enum is null)
         {
-            return (byte) objStream.ReadByte();
+            return objStream.ReadByte();
         }
 
-        return obj.OwnerPackage.GetName(fnameSerializer.Deserialize(objStream));
+        return objStream.ReadFNameStr();
     }
 }

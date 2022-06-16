@@ -1,8 +1,7 @@
 ﻿using Core.Flags;
-using Core.Serialization;
+using Core.Serialization.Abstraction;
 using Core.Serialization.Default.Object;
 using Core.Types;
-using Core.Types.PackageTables;
 
 namespace Core.Classes.Core.Properties;
 
@@ -25,8 +24,7 @@ public class UStructProperty : UProperty
     public UScriptStruct? Struct { get; set; }
 
     /// <inheritdoc />
-    public override object? DeserializeValue(UObject obj, Stream objStream, int propertySize, IStreamSerializer<FName> fnameSerializer,
-        IStreamSerializer<ObjectIndex> objectIndexSerializer)
+    public override object? DeserializeValue(UObject obj, IUnrealPackageStream objStream, int propertySize)
     {
         ArgumentNullException.ThrowIfNull(Struct);
         Struct.Deserialize();
@@ -38,13 +36,13 @@ public class UStructProperty : UProperty
             foreach (var structProperty in structProperties)
             {
                 //!! Bad size !!
-                structValues[structProperty.Name] = structProperty.DeserializeValue(obj, objStream, propertySize, fnameSerializer, objectIndexSerializer);
+                structValues[structProperty.Name] = structProperty.DeserializeValue(obj, objStream, propertySize);
             }
 
             return structValues;
         }
 
-        var scriptPropertiesSerializer = new ScriptPropertiesSerializer(fnameSerializer, objectIndexSerializer);
+        var scriptPropertiesSerializer = new ScriptPropertiesSerializer();
         var props = scriptPropertiesSerializer.GetScriptProperties(obj, objStream, Struct);
         foreach (var prop in props)
         {

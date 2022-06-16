@@ -5,15 +5,12 @@ using Core.Classes.Core.Structs;
 using Core.Classes.Engine;
 using Core.Classes.Engine.Structs;
 using Core.Serialization.Abstraction;
-using Core.Serialization.Extensions;
-using Core.Types.PackageTables;
 
 namespace Core.Serialization.Default.Object.Engine;
 
 public class DefaultLevelSerializer : BaseObjectSerializer<ULevel>
 {
     private readonly IStreamSerializer<FKCachedConvexData> _kCachedConvexDataSerializer;
-    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
     private readonly IObjectSerializer<UObject> _objectSerializer;
     private readonly IStreamSerializer<FPrecomputedLightVolume> _precomputedLightVolumeSerializer;
     private readonly IStreamSerializer<FPrecomputedVisibilityHandler> _precomputedVisibilityHandlerSerializer;
@@ -21,14 +18,13 @@ public class DefaultLevelSerializer : BaseObjectSerializer<ULevel>
     private readonly IStreamSerializer<FURL> _urlSerializer;
     private readonly IStreamSerializer<FVector> _vectorSerializer;
 
-    public DefaultLevelSerializer(IObjectSerializer<UObject> objectSerializer, IStreamSerializer<ObjectIndex> objectIndexSerializer,
+    public DefaultLevelSerializer(IObjectSerializer<UObject> objectSerializer,
         IStreamSerializer<FVector> vectorSerializer, IStreamSerializer<FURL> urlSerializer,
         IStreamSerializer<FKCachedConvexData> kCachedConvexDataSerializer, IStreamSerializer<FPrecomputedLightVolume> precomputedLightVolumeSerializer,
         IStreamSerializer<FPrecomputedVisibilityHandler> precomputedVisibilityHandlerSerializer,
         IStreamSerializer<FPrecomputedVolumeDistanceField> precomputedVolumeDistanceFieldSerializer)
     {
         _objectSerializer = objectSerializer;
-        _objectIndexSerializer = objectIndexSerializer;
         _vectorSerializer = vectorSerializer;
         _urlSerializer = urlSerializer;
         _kCachedConvexDataSerializer = kCachedConvexDataSerializer;
@@ -42,46 +38,44 @@ public class DefaultLevelSerializer : BaseObjectSerializer<ULevel>
     {
         _objectSerializer.DeserializeObject(obj, objectStream);
 
-        obj.Actors.Super = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream));
-        obj.Actors.Data = objectStream.BaseStream.ReadTarray(stream => obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream)));
+        obj.Actors.Super = objectStream.ReadObject();
+        obj.Actors.Data = objectStream.ReadTArray(stream => objectStream.ReadObject());
         obj.URL = _urlSerializer.Deserialize(objectStream.BaseStream);
-        obj.Model = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream));
-        obj.ModelComponents =
-            objectStream.BaseStream.ReadTarray(stream => obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream)));
-        obj.GameSequences =
-            objectStream.BaseStream.ReadTarray(stream => obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream)));
-        ReadTextureToInstancesMap(obj, objectStream.BaseStream);
-        ReadDynamicTextureInstances(obj, objectStream.BaseStream);
+        obj.Model = objectStream.ReadObject();
+        obj.ModelComponents = objectStream.ReadTArray(stream => objectStream.ReadObject());
+        obj.GameSequences = objectStream.ReadTArray(stream => objectStream.ReadObject());
+        ReadTextureToInstancesMap(obj, objectStream);
+        ReadDynamicTextureInstances(obj, objectStream);
         var size = objectStream.ReadInt32();
         objectStream.BaseStream.Move(size);
-        obj.CachedPhysBSPData = objectStream.BaseStream.ReadTarrayWithElementSize(stream => (byte) stream.ReadByte());
-        ReadCachedPhysSMDataMap(obj, objectStream.BaseStream);
+        obj.CachedPhysBSPData = objectStream.BulkReadTArray(stream => stream.ReadByte());
+        ReadCachedPhysSMDataMap(obj, objectStream);
         obj.CachedPhysSMDataStore = _kCachedConvexDataSerializer.ReadTArrayToList(objectStream.BaseStream);
-        ReadCachedPhysPerTriSMDataMap(obj, objectStream.BaseStream);
-        obj.CachedPhysPerTriSMDataStore = objectStream.BaseStream.ReadTarray(stream =>
+        ReadCachedPhysPerTriSMDataMap(obj, objectStream);
+        obj.CachedPhysPerTriSMDataStore = objectStream.ReadTArray(stream =>
         {
             return new FKCachedPerTriData
             {
-                CachedPerTriData = stream.ReadTarrayWithElementSize(stream => (byte) stream.ReadByte())
+                CachedPerTriData = stream.BulkReadTArray(stream => stream.ReadByte())
             };
         });
         obj.CachedPhysBSPDataVersion = objectStream.ReadInt32();
         obj.CachedPhysSMDataVersion = objectStream.ReadInt32();
-        ReadForceStreamTextures(obj, objectStream.BaseStream);
-        obj.CachedPhysConvexBSPData = objectStream.BaseStream.ReadTarray(stream =>
+        ReadForceStreamTextures(obj, objectStream);
+        obj.CachedPhysConvexBSPData = objectStream.ReadTArray(stream =>
         {
             return new FKCachedConvexDataElement
             {
-                ConvexElementData = stream.ReadTarrayWithElementSize(stream => (byte) stream.ReadByte())
+                ConvexElementData = stream.BulkReadTArray(stream => stream.ReadByte())
             };
         });
         obj.CachedPhysConvexBSPVersion = objectStream.ReadInt32();
-        obj.NavListStart = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream));
-        obj.NavListEnd = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream));
-        obj.CoverListStart = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream));
-        obj.CoverListEnd = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream));
-        obj.PylonListStart = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream));
-        obj.PylonListEnd = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream));
+        obj.NavListStart = objectStream.ReadObject();
+        obj.NavListEnd = objectStream.ReadObject();
+        obj.CoverListStart = objectStream.ReadObject();
+        obj.CoverListEnd = objectStream.ReadObject();
+        obj.PylonListStart = objectStream.ReadObject();
+        obj.PylonListEnd = objectStream.ReadObject();
         obj.UnkArrayCountOf20Bytes = objectStream.ReadInt32();
         if (obj.UnkArrayCountOf20Bytes > 0)
         {
@@ -89,43 +83,40 @@ public class DefaultLevelSerializer : BaseObjectSerializer<ULevel>
             objectStream.BaseStream.Move(obj.UnkArrayCountOf20Bytes * 20);
         }
 
-        obj.SomeObjectArray =
-            objectStream.BaseStream.ReadTarray(stream => obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream)));
-        obj.SomeObjectBytePairArray = objectStream.BaseStream.ReadTarray(stream =>
-            new Tuple<UObject?, byte>(obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream)), objectStream.ReadByte()));
-        obj.CrossLevelActors =
-            objectStream.BaseStream.ReadTarray(stream => obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream)));
+        obj.SomeObjectArray = objectStream.ReadTArray(stream => stream.ReadObject());
+        obj.SomeObjectBytePairArray = objectStream.ReadTArray(stream => new Tuple<UObject?, byte>(stream.ReadObject(), objectStream.ReadByte()));
+        obj.CrossLevelActors = objectStream.ReadTArray(stream => stream.ReadObject());
         obj.FPrecomputedLightVolume = _precomputedLightVolumeSerializer.Deserialize(objectStream.BaseStream);
         obj.PrecomputedLightVolume = _precomputedVisibilityHandlerSerializer.Deserialize(objectStream.BaseStream);
         obj.PrecomputedVolumeDistanceField = _precomputedVolumeDistanceFieldSerializer.Deserialize(objectStream.BaseStream);
     }
 
-    private void ReadForceStreamTextures(ULevel obj, Stream objectStream)
+    private void ReadForceStreamTextures(ULevel obj, IUnrealPackageStream objectStream)
     {
-        UTexture KeyRead(Stream stream)
+        UTexture KeyRead(IUnrealPackageStream stream)
         {
-            var mesh = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(stream)) as UTexture;
+            var mesh = objectStream.ReadObject() as UTexture;
             ArgumentNullException.ThrowIfNull(mesh);
             return mesh;
         }
 
-        obj.ForceStreamTextures = objectStream.ReadDictionary(KeyRead, stream => stream.ReadInt32() == 1);
+        obj.ForceStreamTextures = objectStream.ReadDictionary(KeyRead, stream => stream.ReadBool());
     }
 
-    private void ReadCachedPhysPerTriSMDataMap(ULevel obj, Stream objectStream)
+    private void ReadCachedPhysPerTriSMDataMap(ULevel obj, IUnrealPackageStream objectStream)
     {
-        UStaticMesh KeyRead(Stream stream)
+        UStaticMesh KeyRead(IUnrealPackageStream stream)
         {
-            var mesh = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(stream)) as UStaticMesh;
+            var mesh = objectStream.ReadObject() as UStaticMesh;
             ArgumentNullException.ThrowIfNull(mesh);
             return mesh;
         }
 
-        FCachedPerTriPhysSMData ValRead(Stream stream)
+        FCachedPerTriPhysSMData ValRead(IUnrealPackageStream stream)
         {
             return new FCachedPerTriPhysSMData
             {
-                Scale3d = _vectorSerializer.Deserialize(stream),
+                Scale3d = _vectorSerializer.Deserialize(stream.BaseStream),
                 CachedDataIndex = stream.ReadInt32()
             };
         }
@@ -133,20 +124,20 @@ public class DefaultLevelSerializer : BaseObjectSerializer<ULevel>
         obj.CachedPhysPerTriSMDataMap = objectStream.ReadTMap(KeyRead, ValRead);
     }
 
-    private void ReadCachedPhysSMDataMap(ULevel obj, Stream objectStream)
+    private void ReadCachedPhysSMDataMap(ULevel obj, IUnrealPackageStream objectStream)
     {
-        UStaticMesh KeyRead(Stream stream)
+        UStaticMesh KeyRead(IUnrealPackageStream stream)
         {
-            var mesh = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(stream)) as UStaticMesh;
+            var mesh = objectStream.ReadObject() as UStaticMesh;
             ArgumentNullException.ThrowIfNull(mesh);
             return mesh;
         }
 
-        FCachedPhysSMData ValRead(Stream stream)
+        FCachedPhysSMData ValRead(IUnrealPackageStream stream)
         {
             return new FCachedPhysSMData
             {
-                Scale3d = _vectorSerializer.Deserialize(stream),
+                Scale3d = _vectorSerializer.Deserialize(stream.BaseStream),
                 CachedDataIndex = stream.ReadInt32()
             };
         }
@@ -154,23 +145,23 @@ public class DefaultLevelSerializer : BaseObjectSerializer<ULevel>
         obj.CachedPhysSMDataMap = objectStream.ReadTMap(KeyRead, ValRead);
     }
 
-    private void ReadDynamicTextureInstances(ULevel obj, Stream objectStream)
+    private void ReadDynamicTextureInstances(ULevel obj, IUnrealPackageStream objectStream)
     {
-        UComponent KeyRead(Stream stream)
+        UComponent KeyRead(IUnrealPackageStream stream)
         {
-            var component = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(stream)) as UComponent;
+            var component = stream.ReadObject() as UComponent;
             ArgumentNullException.ThrowIfNull(component);
             return component;
         }
 
-        List<FDynamicTextureInstance> ValRead(Stream stream)
+        List<FDynamicTextureInstance> ValRead(IUnrealPackageStream stream)
         {
-            return stream.ReadTarray(stream1 => new FDynamicTextureInstance
+            return stream.ReadTArray(stream1 => new FDynamicTextureInstance
             {
-                Center = _vectorSerializer.Deserialize(stream),
+                Center = _vectorSerializer.Deserialize(stream1.BaseStream),
                 W = stream1.ReadInt32(),
                 TexelFactor = stream1.ReadSingle(),
-                Tex = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(stream1)) as UTexture,
+                Tex = stream1.ReadObject() as UTexture,
                 BAttached = stream1.ReadInt32(),
                 OriginalRadius = stream1.ReadSingle()
             });
@@ -179,20 +170,20 @@ public class DefaultLevelSerializer : BaseObjectSerializer<ULevel>
         obj.DynamicTextureInstances = objectStream.ReadDictionary(KeyRead, ValRead);
     }
 
-    private void ReadTextureToInstancesMap(ULevel obj, Stream objectStream)
+    private void ReadTextureToInstancesMap(ULevel obj, IUnrealPackageStream objectStream)
     {
-        UTexture KeyRead(Stream stream)
+        UTexture KeyRead(IUnrealPackageStream stream)
         {
-            var tex = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(stream)) as UTexture;
+            var tex = stream.ReadObject() as UTexture;
             ArgumentNullException.ThrowIfNull(tex);
             return tex;
         }
 
-        List<FStreamableTextureInstance> ValRead(Stream stream)
+        List<FStreamableTextureInstance> ValRead(IUnrealPackageStream stream)
         {
-            return stream.ReadTarray(stream1 => new FStreamableTextureInstance
+            return stream.ReadTArray(stream1 => new FStreamableTextureInstance
             {
-                Center = _vectorSerializer.Deserialize(stream),
+                Center = _vectorSerializer.Deserialize(stream1.BaseStream),
                 W = stream1.ReadInt32(),
                 TexelFactor = stream1.ReadSingle()
             });
