@@ -3,7 +3,6 @@ using Core.Classes.Core;
 using Core.Classes.Engine;
 using Core.Classes.Engine.Structs;
 using Core.Serialization.Abstraction;
-using Core.Types.PackageTables;
 
 namespace Core.Serialization.Default.Object.Engine;
 
@@ -13,18 +12,16 @@ public class DefaultStaticMeshSerializer : BaseObjectSerializer<UStaticMesh>
     private readonly IStreamSerializer<FkDOPBounds> _kDopBoundsSerializer;
     private readonly IStreamSerializer<FkDOPNode3New> _kDopNode3NewSerializer;
     private readonly IStreamSerializer<FkDOPTriangles> _kDOPTrianglesSerializer;
-    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
     private readonly IObjectSerializer<UObject> _objectSerializer;
     private readonly IStreamSerializer<FStaticMeshLODModel3> _staticMeshLodModel3Serializer;
 
     public DefaultStaticMeshSerializer(IObjectSerializer<UObject> objectSerializer, IStreamSerializer<FBoxSphereBounds> boxSphereBoundsSerializer,
-        IStreamSerializer<ObjectIndex> objectIndexSerializer, IStreamSerializer<FkDOPBounds> kDopBoundsSerializer,
+        IStreamSerializer<FkDOPBounds> kDopBoundsSerializer,
         IStreamSerializer<FkDOPNode3New> kDopNode3NewSerializer, IStreamSerializer<FStaticMeshLODModel3> staticMeshLodModel3Serializer,
         IStreamSerializer<FkDOPTriangles> kDopTrianglesSerializer)
     {
         _objectSerializer = objectSerializer;
         _boxSphereBoundsSerializer = boxSphereBoundsSerializer;
-        _objectIndexSerializer = objectIndexSerializer;
         _kDopBoundsSerializer = kDopBoundsSerializer;
         _kDopNode3NewSerializer = kDopNode3NewSerializer;
         _staticMeshLodModel3Serializer = staticMeshLodModel3Serializer;
@@ -36,7 +33,7 @@ public class DefaultStaticMeshSerializer : BaseObjectSerializer<UStaticMesh>
     {
         _objectSerializer.DeserializeObject(obj, objectStream);
         obj.FBoxSphereBounds = _boxSphereBoundsSerializer.Deserialize(objectStream.BaseStream);
-        obj.BodySetup = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream)) as URB_BodySetup;
+        obj.BodySetup = objectStream.ReadObject() as URB_BodySetup;
         obj.FkDopBounds = _kDopBoundsSerializer.Deserialize(objectStream.BaseStream);
         obj.NewNodes = _kDopNode3NewSerializer.ReadTArrayWithElementSize(objectStream.BaseStream);
         obj.Triangles = _kDOPTrianglesSerializer.ReadTArrayWithElementSize(objectStream.BaseStream);

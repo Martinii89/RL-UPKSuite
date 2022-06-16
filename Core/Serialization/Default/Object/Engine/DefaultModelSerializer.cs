@@ -17,21 +17,19 @@ public class DefaultModelSerializer : BaseObjectSerializer<UModel>
     private readonly IStreamSerializer<FBspSurf> _bspSurfSerializer;
     private readonly IStreamSerializer<FGuid> _guidSerializer;
     private readonly IStreamSerializer<FLightmassPrimitiveSettings> _lightmassPrimitiveSettingsSerializer;
-    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
     private readonly IObjectSerializer<UObject> _objectSerializer;
     private readonly IStreamSerializer<FVector> _vectorSerializer;
     private readonly IStreamSerializer<FVert> _vertSerializer;
 
     public DefaultModelSerializer(IObjectSerializer<UObject> objectSerializer, IStreamSerializer<FBoxSphereBounds> boxSphereBoundsSerializer,
         IStreamSerializer<FVector> vectorSerializer, IStreamSerializer<FBspNode> bspNodeSerializer,
-        IStreamSerializer<ObjectIndex> objectIndexSerializer, IStreamSerializer<FBspSurf> bspSurfSerializer, IStreamSerializer<FVert> vertSerializer,
+        IStreamSerializer<FBspSurf> bspSurfSerializer, IStreamSerializer<FVert> vertSerializer,
         IStreamSerializer<FGuid> guidSerializer, IStreamSerializer<FLightmassPrimitiveSettings> lightmassPrimitiveSettingsSerializer)
     {
         _objectSerializer = objectSerializer;
         _boxSphereBoundsSerializer = boxSphereBoundsSerializer;
         _vectorSerializer = vectorSerializer;
         _bspNodeSerializer = bspNodeSerializer;
-        _objectIndexSerializer = objectIndexSerializer;
         _bspSurfSerializer = bspSurfSerializer;
         _vertSerializer = vertSerializer;
         _guidSerializer = guidSerializer;
@@ -47,8 +45,8 @@ public class DefaultModelSerializer : BaseObjectSerializer<UModel>
         obj.Points = objectStream.BaseStream.ReadTarrayWithElementSize(stream => _vectorSerializer.Deserialize(stream));
         obj.Nodes = objectStream.BaseStream.ReadTarrayWithElementSize(stream => _bspNodeSerializer.Deserialize(stream));
 
-        obj.Surfs.Super = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream));
-        obj.Surfs.Data = objectStream.BaseStream.ReadTarray(stream => _bspSurfSerializer.Deserialize(stream));
+        obj.Surfs.Super = objectStream.ReadObject();
+        obj.Surfs.Data = objectStream.ReadTArray(stream => _bspSurfSerializer.Deserialize(stream.BaseStream));
         obj.Verts = _vertSerializer.ReadTArrayWithElementSize(objectStream.BaseStream);
         obj.NumSharedSides = objectStream.ReadInt32();
         obj.NumZones = objectStream.ReadInt32();
@@ -57,7 +55,7 @@ public class DefaultModelSerializer : BaseObjectSerializer<UModel>
             Debugger.Break();
         }
 
-        obj.Polys = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream));
+        obj.Polys = objectStream.ReadObject();
         obj.LeafHulls = objectStream.BaseStream.ReadTarrayWithElementSize(stream => stream.ReadInt32());
         obj.Leaves = objectStream.BaseStream.ReadTarrayWithElementSize(stream => stream.ReadInt32());
         obj.RootOutside = objectStream.ReadUInt32();

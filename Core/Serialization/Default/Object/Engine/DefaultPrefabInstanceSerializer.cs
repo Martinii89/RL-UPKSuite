@@ -2,20 +2,16 @@
 using Core.Classes.Engine;
 using Core.Serialization.Abstraction;
 using Core.Serialization.Extensions;
-using Core.Types.PackageTables;
 
 namespace Core.Serialization.Default.Object.Engine;
 
 public class DefaultPrefabInstanceSerializer : BaseObjectSerializer<APrefabInstance>
 {
-    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
-
     private readonly IObjectSerializer<UObject> _objectSerializer;
 
-    public DefaultPrefabInstanceSerializer(IObjectSerializer<UObject> objectSerializer, IStreamSerializer<ObjectIndex> objectIndexSerializer)
+    public DefaultPrefabInstanceSerializer(IObjectSerializer<UObject> objectSerializer)
     {
         _objectSerializer = objectSerializer;
-        _objectIndexSerializer = objectIndexSerializer;
     }
 
     /// <inheritdoc />
@@ -25,14 +21,12 @@ public class DefaultPrefabInstanceSerializer : BaseObjectSerializer<APrefabInsta
 
         UObject? ReadObj()
         {
-            var objectIndex = _objectIndexSerializer.Deserialize(objectStream.BaseStream);
-            return obj.OwnerPackage.GetObject(objectIndex);
+            return objectStream.ReadObject();
         }
 
         obj.ArchetypeToInstanceMap = objectStream.BaseStream.ReadDictionary(_ =>
         {
             var uObject = ReadObj();
-            //ArgumentNullException.ThrowIfNull(uObject);
             return uObject;
         }, _ => ReadObj());
 

@@ -4,9 +4,6 @@ using Core.Classes.Core.Structs;
 using Core.Classes.Engine;
 using Core.Classes.Engine.Structs;
 using Core.Serialization.Abstraction;
-using Core.Serialization.Extensions;
-using Core.Types;
-using Core.Types.PackageTables;
 
 namespace Core.Serialization.Default.Object.Engine;
 
@@ -15,29 +12,25 @@ public class DefaultSkeletalMeshSerializer : BaseObjectSerializer<USkeletalMesh>
     private readonly IStreamSerializer<FBoxSphereBounds> _boxSphereBoundsSerializer;
     private readonly IStreamSerializer<FStaticLodModel> _lodSerializer;
     private readonly IStreamSerializer<FMeshBone> _meshBoneSerializer;
-    private readonly IStreamSerializer<FName> _nameSerializer;
-    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
     private readonly IObjectSerializer<UObject> _objectSerializer;
     private readonly IStreamSerializer<FRotator> _rotatorSerializer;
     private readonly IStreamSerializer<FVector> _vectorSerializer;
     private USkeletalMesh? _currentMesh;
 
 
-    public DefaultSkeletalMeshSerializer(IStreamSerializer<FBoxSphereBounds> boxSphereBoundsSerializer,
-        IStreamSerializer<ObjectIndex> objectIndexSerializer, IObjectSerializer<UObject> objectSerializer, IStreamSerializer<FRotator> rotatorSerializer,
-        IStreamSerializer<FVector> vectorSerializer, IStreamSerializer<FMeshBone> meshBoneSerializer, IStreamSerializer<FStaticLodModel> lodSerializer,
-        IStreamSerializer<FName> nameSerializer)
+    public DefaultSkeletalMeshSerializer(IStreamSerializer<FBoxSphereBounds> boxSphereBoundsSerializer, IObjectSerializer<UObject> objectSerializer,
+        IStreamSerializer<FRotator> rotatorSerializer,
+        IStreamSerializer<FVector> vectorSerializer, IStreamSerializer<FMeshBone> meshBoneSerializer, IStreamSerializer<FStaticLodModel> lodSerializer)
     {
         _boxSphereBoundsSerializer = boxSphereBoundsSerializer;
-        _objectIndexSerializer = objectIndexSerializer;
         _objectSerializer = objectSerializer;
         _rotatorSerializer = rotatorSerializer;
         _vectorSerializer = vectorSerializer;
         _meshBoneSerializer = meshBoneSerializer;
         _lodSerializer = lodSerializer;
-        _nameSerializer = nameSerializer;
     }
 
+    /// <inheritdoc />
     public override void DeserializeObject(USkeletalMesh obj, IUnrealPackageStream objectStream)
     {
         _currentMesh = obj;
@@ -49,31 +42,24 @@ public class DefaultSkeletalMeshSerializer : BaseObjectSerializer<USkeletalMesh>
         }
 
         obj.BoxSphereBounds = _boxSphereBoundsSerializer.Deserialize(objectStream.BaseStream);
-        obj.Materials = _objectIndexSerializer.ReadTArrayToList(objectStream.BaseStream).Select(x => obj.OwnerPackage.GetObject(x) as UMaterialInterface)
-            .ToList();
+        obj.Materials = objectStream.ReadTArray(stream => stream.ReadObject() as UMaterialInterface);
         obj.Origin = _vectorSerializer.Deserialize(objectStream.BaseStream);
         obj.RotOrigin = _rotatorSerializer.Deserialize(objectStream.BaseStream);
         obj.RefSkeleton = _meshBoneSerializer.ReadTArrayToList(objectStream.BaseStream);
         obj.SkeletalDepth = objectStream.ReadInt32();
         obj.LODModels = _lodSerializer.ReadTArrayToList(objectStream.BaseStream);
-        obj.NameMap = objectStream.BaseStream.ReadDictionary(ReadName, stream => stream.ReadInt32());
+        obj.NameMap = objectStream.ReadDictionary(stream => stream.ReadFNameStr(), stream => stream.ReadInt32());
         var PerPolyBoneKDOPsCount = objectStream.ReadInt32();
         var BoneBreakNamesCount = objectStream.ReadInt32();
         var BoneBreakOptionsCount = objectStream.ReadInt32();
-        obj.ClothingAssets =
-            objectStream.BaseStream.ReadTarray(stream => obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream)));
+        obj.ClothingAssets = objectStream.ReadTArray(stream => stream.ReadObject());
         DropRamainingNativeData(obj, objectStream.BaseStream);
         _currentMesh = null;
     }
 
+    /// <inheritdoc />
     public override void SerializeObject(USkeletalMesh obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
-    }
-
-    private string ReadName(Stream stream)
-    {
-        ArgumentNullException.ThrowIfNull(_currentMesh);
-        return _currentMesh.OwnerPackage.GetName(_nameSerializer.Deserialize(stream));
     }
 }
