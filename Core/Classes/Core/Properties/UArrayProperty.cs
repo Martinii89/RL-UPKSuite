@@ -26,7 +26,7 @@ public class UArrayProperty : UProperty
         var arrayCount = objStream.ReadInt32();
         if (arrayCount == 0 || InnerProperty is null)
         {
-            objStream.BaseStream.Move(propertySize);
+            objStream.BaseStream.Move(propertySize - 4);
             return result;
         }
 
