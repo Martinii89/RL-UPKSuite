@@ -2,8 +2,6 @@
 using Core.Classes.Core;
 using Core.Classes.Core.Properties;
 using Core.Serialization.Abstraction;
-using Core.Types;
-using Core.Types.PackageTables;
 
 namespace Core.Serialization.RocketLeague;
 
@@ -12,8 +10,7 @@ public class InterfacePropertySerializer : BaseObjectSerializer<UInterfaceProper
 {
     private readonly IObjectSerializer<UProperty> _propertySerializer;
 
-    public InterfacePropertySerializer(IObjectSerializer<UProperty> propertySerializer,
-        IStreamSerializer<ObjectIndex> objectIndexSerializer, IStreamSerializer<FName> fnameSerializer)
+    public InterfacePropertySerializer(IObjectSerializer<UProperty> propertySerializer)
     {
         _propertySerializer = propertySerializer;
     }

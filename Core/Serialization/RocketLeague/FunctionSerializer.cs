@@ -1,20 +1,17 @@
 ﻿using Core.Classes;
 using Core.Flags;
 using Core.Serialization.Abstraction;
-using Core.Types;
 
 namespace Core.Serialization.RocketLeague;
 
 [FileVersion(RocketLeagueBase.FileVersion)]
 public class FunctionSerializer : BaseObjectSerializer<UFunction>
 {
-    private readonly IStreamSerializer<FName> _fnameSerializer;
     private readonly IObjectSerializer<UStruct> _structSerializer;
 
-    public FunctionSerializer(IObjectSerializer<UStruct> structSerializer, IStreamSerializer<FName> fnameSerializer)
+    public FunctionSerializer(IObjectSerializer<UStruct> structSerializer)
     {
         _structSerializer = structSerializer;
-        _fnameSerializer = fnameSerializer;
     }
 
     /// <inheritdoc />
@@ -31,7 +28,7 @@ public class FunctionSerializer : BaseObjectSerializer<UFunction>
             obj.RepOffset = objectStream.ReadUInt16();
         }
 
-        obj.FriendlyName = obj.OwnerPackage.GetName(_fnameSerializer.Deserialize(objectStream.BaseStream));
+        obj.FriendlyName = objectStream.ReadFNameStr();
     }
 
     /// <inheritdoc />

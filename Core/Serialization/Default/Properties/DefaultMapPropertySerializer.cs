@@ -1,19 +1,15 @@
 ﻿using Core.Classes.Core.Properties;
 using Core.Serialization.Abstraction;
-using Core.Types.PackageTables;
 
 namespace Core.Serialization.Default.Properties;
 
 public class DefaultMapPropertySerializer : BaseObjectSerializer<UMapProperty>
 {
-    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
-
     private readonly IObjectSerializer<UProperty> _propertySerializer;
 
-    public DefaultMapPropertySerializer(IObjectSerializer<UProperty> propertySerializer, IStreamSerializer<ObjectIndex> objectIndexSerializer)
+    public DefaultMapPropertySerializer(IObjectSerializer<UProperty> propertySerializer)
     {
         _propertySerializer = propertySerializer;
-        _objectIndexSerializer = objectIndexSerializer;
     }
 
     /// <inheritdoc />
@@ -21,8 +17,8 @@ public class DefaultMapPropertySerializer : BaseObjectSerializer<UMapProperty>
     {
         _propertySerializer.DeserializeObject(obj, objectStream);
 
-        obj.Key = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream)) as UProperty;
-        obj.Value = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream)) as UProperty;
+        obj.Key = objectStream.ReadObject() as UProperty;
+        obj.Value = objectStream.ReadObject() as UProperty;
     }
 
     /// <inheritdoc />

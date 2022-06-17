@@ -2,25 +2,17 @@
 using Core.Classes.Core;
 using Core.Classes.Core.Properties;
 using Core.Serialization.Abstraction;
-using Core.Types;
-using Core.Types.PackageTables;
 
 namespace Core.Serialization.RocketLeague;
 
 [FileVersion(RocketLeagueBase.FileVersion)]
 public class RLClassSerializer : BaseObjectSerializer<UClass>
 {
-    private readonly IStreamSerializer<FName> _fnameSerializer;
-    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
-
     private readonly IObjectSerializer<UState> _stateSerializer;
 
-    public RLClassSerializer(IObjectSerializer<UState> stateSerializer, IStreamSerializer<FName> fnameSerializer,
-        IStreamSerializer<ObjectIndex> objectIndexSerializer)
+    public RLClassSerializer(IObjectSerializer<UState> stateSerializer)
     {
         _stateSerializer = stateSerializer;
-        _fnameSerializer = fnameSerializer;
-        _objectIndexSerializer = objectIndexSerializer;
     }
 
     /// <inheritdoc />
@@ -31,14 +23,14 @@ public class RLClassSerializer : BaseObjectSerializer<UClass>
         // RL specific
         objectStream.BaseStream.Move(4);
 
-        obj.Within = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream));
-        obj.ConfigName = obj.OwnerPackage.GetName(_fnameSerializer.Deserialize(objectStream.BaseStream));
+        obj.Within = objectStream.ReadObject();
+        obj.ConfigName = objectStream.ReadFNameStr();
 
         var componentCount = objectStream.ReadInt32();
         for (var i = 0; i < componentCount; i++)
         {
-            var name = obj.OwnerPackage.GetName(_fnameSerializer.Deserialize(objectStream.BaseStream));
-            if (obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream)) is UComponent component)
+            var name = objectStream.ReadFNameStr();
+            if (objectStream.ReadObject() is UComponent component)
             {
                 obj.ComponentNameToDefaultObjectMap.Add(name, component);
             }
@@ -47,33 +39,33 @@ public class RLClassSerializer : BaseObjectSerializer<UClass>
         var interfaceCount = objectStream.ReadInt32();
         for (var i = 0; i < interfaceCount; i++)
         {
-            var clz = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream)) as UClass;
-            var prop = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream)) as UProperty;
+            var clz = objectStream.ReadObject() as UClass;
+            var prop = objectStream.ReadObject() as UProperty;
             if (clz != null && prop != null)
             {
                 obj.InterfaceMap.Add(clz, prop);
             }
         }
 
-        obj.DontSortCategories = _fnameSerializer.ReadTArrayToList(objectStream.BaseStream);
-        obj.HideCategories = _fnameSerializer.ReadTArrayToList(objectStream.BaseStream);
-        obj.AutoExpandCategories = _fnameSerializer.ReadTArrayToList(objectStream.BaseStream);
-        obj.AutoCollapseCategories = _fnameSerializer.ReadTArrayToList(objectStream.BaseStream);
+        obj.DontSortCategories = objectStream.ReadTArray(stream => stream.ReadFName());
+        obj.HideCategories = objectStream.ReadTArray(stream => stream.ReadFName());
+        obj.AutoExpandCategories = objectStream.ReadTArray(stream => stream.ReadFName());
+        obj.AutoCollapseCategories = objectStream.ReadTArray(stream => stream.ReadFName());
         obj.ForceScriptOrder = objectStream.ReadInt32();
-        obj.ClassGroups = _fnameSerializer.ReadTArrayToList(objectStream.BaseStream);
+        obj.ClassGroups = objectStream.ReadTArray(stream => stream.ReadFName());
         obj.NativeClassName = objectStream.ReadFString();
         // None FName always?
         var idk1 = objectStream.ReadInt32();
         var idk2 = objectStream.ReadInt32();
         var idk3 = objectStream.ReadInt32();
 
-        obj.DllBindNameOrDummy = obj.OwnerPackage.GetName(_fnameSerializer.Deserialize(objectStream.BaseStream));
-        obj.DefaultObject = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream));
+        obj.DllBindNameOrDummy = objectStream.ReadFNameStr();
+        obj.DefaultObject = objectStream.ReadObject();
         var stateCount = objectStream.ReadInt32();
         for (var i = 0; i < stateCount; i++)
         {
-            var stateName = obj.OwnerPackage.GetName(_fnameSerializer.Deserialize(objectStream.BaseStream));
-            if (obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream)) is UState stateObj)
+            var stateName = objectStream.ReadFNameStr();
+            if (objectStream.ReadObject() is UState stateObj)
             {
                 obj.StateMap.Add(stateName, stateObj);
             }

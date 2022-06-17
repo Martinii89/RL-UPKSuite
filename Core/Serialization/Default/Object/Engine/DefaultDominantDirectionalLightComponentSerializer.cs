@@ -1,7 +1,6 @@
 ﻿using Core.Classes;
 using Core.Classes.Engine;
 using Core.Serialization.Abstraction;
-using Core.Serialization.Extensions;
 
 namespace Core.Serialization.Default.Object.Engine;
 
@@ -17,7 +16,7 @@ public class DefaultDominantDirectionalLightComponentSerializer : BaseObjectSeri
     /// <inheritdoc />
     public override void DeserializeObject(UDominantDirectionalLightComponent obj, IUnrealPackageStream objectStream)
     {
-        obj.DominantLightShadowMap = objectStream.BaseStream.ReadTarray(stream => stream.ReadUInt16());
+        obj.DominantLightShadowMap = objectStream.ReadTArray(stream => stream.ReadUInt16());
         _componentSerializer.DeserializeObject(obj, objectStream);
     }
 

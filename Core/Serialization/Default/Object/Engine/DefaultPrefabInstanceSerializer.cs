@@ -1,7 +1,6 @@
 ﻿using Core.Classes.Core;
 using Core.Classes.Engine;
 using Core.Serialization.Abstraction;
-using Core.Serialization.Extensions;
 
 namespace Core.Serialization.Default.Object.Engine;
 
@@ -24,13 +23,13 @@ public class DefaultPrefabInstanceSerializer : BaseObjectSerializer<APrefabInsta
             return objectStream.ReadObject();
         }
 
-        obj.ArchetypeToInstanceMap = objectStream.BaseStream.ReadDictionary(_ =>
+        obj.ArchetypeToInstanceMap = objectStream.ReadDictionary(_ =>
         {
             var uObject = ReadObj();
             return uObject;
         }, _ => ReadObj());
 
-        obj.PI_ObjectMap = objectStream.BaseStream.ReadDictionary(stream =>
+        obj.PI_ObjectMap = objectStream.ReadDictionary(stream =>
         {
             var uObject = ReadObj();
             ArgumentNullException.ThrowIfNull(uObject);

@@ -2,7 +2,6 @@
 using Core.Classes.Engine;
 using Core.Classes.Engine.Structs;
 using Core.Serialization.Abstraction;
-using StreamExtensions = Core.Serialization.Extensions.StreamExtensions;
 
 namespace Core.Serialization.Default.Object.Engine;
 
@@ -20,8 +19,7 @@ public class DefaultPhysicsAssetInstanceSerializer : BaseObjectSerializer<UPhysi
     {
         _objectSerializer.DeserializeObject(obj, objectStream);
 
-        obj.CollisionDisableTable = StreamExtensions.ReadDictionary(objectStream.BaseStream,
-            stream => new FRigidBodyIndexPair { Index1 = stream.ReadInt32(), Index2 = stream.ReadInt32() },
+        obj.CollisionDisableTable = objectStream.ReadDictionary(stream => new FRigidBodyIndexPair { Index1 = stream.ReadInt32(), Index2 = stream.ReadInt32() },
             stream => stream.ReadByte() == 0);
     }
 

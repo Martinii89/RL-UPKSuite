@@ -23,7 +23,6 @@ public interface IUnrealPackageStream
     long ReadInt64();
     float ReadSingle();
     string ReadFString();
-
     List<T> ReadTArray<T>(Func<IUnrealPackageStream, T> readFunc);
     TArray<T> BulkReadTArray<T>(Func<IUnrealPackageStream, T> readFunc);
     Dictionary<TKey, TVal> ReadDictionary<TKey, TVal>(Func<IUnrealPackageStream, TKey?> keyRead, Func<IUnrealPackageStream, TVal> valRead) where TKey : notnull;

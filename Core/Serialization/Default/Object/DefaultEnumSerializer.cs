@@ -1,18 +1,15 @@
 ﻿using Core.Classes;
 using Core.Serialization.Abstraction;
-using Core.Types;
 
 namespace Core.Serialization.Default.Object;
 
 public class DefaultEnumSerializer : BaseObjectSerializer<UEnum>
 {
     private readonly IObjectSerializer<UField> _fieldSerializer;
-    private readonly IStreamSerializer<FName> _fnameSerializer;
 
-    public DefaultEnumSerializer(IObjectSerializer<UField> fieldSerializer, IStreamSerializer<FName> fnameSerializer)
+    public DefaultEnumSerializer(IObjectSerializer<UField> fieldSerializer)
     {
         _fieldSerializer = fieldSerializer;
-        _fnameSerializer = fnameSerializer;
     }
 
     /// <inheritdoc />
@@ -22,7 +19,7 @@ public class DefaultEnumSerializer : BaseObjectSerializer<UEnum>
         var count = objectStream.ReadInt32();
         for (var i = 0; i < count; i++)
         {
-            obj.Names.Add(obj.OwnerPackage.GetName(_fnameSerializer.Deserialize(objectStream.BaseStream)));
+            obj.Names.Add(objectStream.ReadFNameStr());
         }
     }
 

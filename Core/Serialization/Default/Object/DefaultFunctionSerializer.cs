@@ -1,19 +1,16 @@
 ﻿using Core.Classes;
 using Core.Flags;
 using Core.Serialization.Abstraction;
-using Core.Types;
 
 namespace Core.Serialization.Default.Object;
 
 public class DefaultFunctionSerializer : BaseObjectSerializer<UFunction>
 {
-    private readonly IStreamSerializer<FName> _fnameSerializer;
     private readonly IObjectSerializer<UStruct> _structSerializer;
 
-    public DefaultFunctionSerializer(IObjectSerializer<UStruct> structSerializer, IStreamSerializer<FName> fnameSerializer)
+    public DefaultFunctionSerializer(IObjectSerializer<UStruct> structSerializer)
     {
         _structSerializer = structSerializer;
-        _fnameSerializer = fnameSerializer;
     }
 
     /// <inheritdoc />
@@ -30,7 +27,7 @@ public class DefaultFunctionSerializer : BaseObjectSerializer<UFunction>
         }
 
 
-        obj.FriendlyName = obj.OwnerPackage.GetName(_fnameSerializer.Deserialize(objectStream.BaseStream));
+        obj.FriendlyName = objectStream.ReadFNameStr();
     }
 
     /// <inheritdoc />

@@ -1,19 +1,15 @@
 ﻿using Core.Classes.Core.Properties;
 using Core.Serialization.Abstraction;
-using Core.Types.PackageTables;
 
 namespace Core.Serialization.Default.Properties;
 
 public class DefaultArrayPropertySerializer : BaseObjectSerializer<UArrayProperty>
 {
-    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
-
     private readonly IObjectSerializer<UProperty> _propertySerializer;
 
-    public DefaultArrayPropertySerializer(IObjectSerializer<UProperty> propertySerializer, IStreamSerializer<ObjectIndex> objectIndexSerializer)
+    public DefaultArrayPropertySerializer(IObjectSerializer<UProperty> propertySerializer)
     {
         _propertySerializer = propertySerializer;
-        _objectIndexSerializer = objectIndexSerializer;
     }
 
     /// <inheritdoc />
@@ -21,7 +17,7 @@ public class DefaultArrayPropertySerializer : BaseObjectSerializer<UArrayPropert
     {
         _propertySerializer.DeserializeObject(obj, objectStream);
 
-        obj.InnerProperty = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream.BaseStream)) as UProperty;
+        obj.InnerProperty = objectStream.ReadObject() as UProperty;
     }
 
     /// <inheritdoc />

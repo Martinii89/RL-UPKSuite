@@ -4,7 +4,6 @@ using Core.Classes.Core.Structs;
 using Core.Classes.Engine;
 using Core.Classes.Engine.Structs;
 using Core.Serialization.Abstraction;
-using Core.Serialization.Extensions;
 using Core.Types;
 using Core.Types.PackageTables;
 
@@ -41,9 +40,9 @@ public class DefaultModelSerializer : BaseObjectSerializer<UModel>
     {
         _objectSerializer.DeserializeObject(obj, objectStream);
         obj.Bounds = _boxSphereBoundsSerializer.Deserialize(objectStream.BaseStream);
-        obj.Vectors = objectStream.BaseStream.ReadTarrayWithElementSize(stream => _vectorSerializer.Deserialize(stream));
-        obj.Points = objectStream.BaseStream.ReadTarrayWithElementSize(stream => _vectorSerializer.Deserialize(stream));
-        obj.Nodes = objectStream.BaseStream.ReadTarrayWithElementSize(stream => _bspNodeSerializer.Deserialize(stream));
+        obj.Vectors = objectStream.BulkReadTArray(stream => _vectorSerializer.Deserialize(stream.BaseStream));
+        obj.Points = objectStream.BulkReadTArray(stream => _vectorSerializer.Deserialize(stream.BaseStream));
+        obj.Nodes = objectStream.BulkReadTArray(stream => _bspNodeSerializer.Deserialize(stream.BaseStream));
 
         obj.Surfs.Super = objectStream.ReadObject();
         obj.Surfs.Data = objectStream.ReadTArray(stream => _bspSurfSerializer.Deserialize(stream.BaseStream));
@@ -56,11 +55,11 @@ public class DefaultModelSerializer : BaseObjectSerializer<UModel>
         }
 
         obj.Polys = objectStream.ReadObject();
-        obj.LeafHulls = objectStream.BaseStream.ReadTarrayWithElementSize(stream => stream.ReadInt32());
-        obj.Leaves = objectStream.BaseStream.ReadTarrayWithElementSize(stream => stream.ReadInt32());
+        obj.LeafHulls = objectStream.BulkReadTArray(stream => stream.ReadInt32());
+        obj.Leaves = objectStream.BulkReadTArray(stream => stream.ReadInt32());
         obj.RootOutside = objectStream.ReadUInt32();
         obj.Linked = objectStream.ReadUInt32();
-        obj.PortalNodes = objectStream.BaseStream.ReadTarrayWithElementSize(stream => stream.ReadInt32());
+        obj.PortalNodes = objectStream.BulkReadTArray(stream => stream.ReadInt32());
         obj.NumVertices = objectStream.ReadInt32();
         var elementSize = objectStream.ReadInt32();
         var verticies = objectStream.ReadInt32();

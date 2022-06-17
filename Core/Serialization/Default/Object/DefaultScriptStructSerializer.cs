@@ -2,19 +2,16 @@
 using Core.Classes.Core;
 using Core.Classes.Core.Properties;
 using Core.Serialization.Abstraction;
-using Core.Types;
 
 namespace Core.Serialization.Default.Object;
 
 public class DefaultScriptStructSerializer : BaseObjectSerializer<UScriptStruct>
 {
-    private readonly IStreamSerializer<FName> _fnameSerializer;
     private readonly IObjectSerializer<UStruct> _structSerializer;
 
-    public DefaultScriptStructSerializer(IObjectSerializer<UStruct> structSerializer, IStreamSerializer<FName> fnameSerializer)
+    public DefaultScriptStructSerializer(IObjectSerializer<UStruct> structSerializer)
     {
         _structSerializer = structSerializer;
-        _fnameSerializer = fnameSerializer;
     }
 
     public override void DeserializeObject(UScriptStruct obj, IUnrealPackageStream objectStream)
@@ -23,23 +20,22 @@ public class DefaultScriptStructSerializer : BaseObjectSerializer<UScriptStruct>
 
         obj.StructFlags = objectStream.ReadInt32();
 
-        obj.ScriptProperties.AddRange(GetScriptProperties(obj, objectStream.BaseStream));
+        obj.ScriptProperties.AddRange(GetScriptProperties(obj, objectStream));
     }
 
-    private IEnumerable<FProperty> GetScriptProperties(UObject uObject, Stream objectStream)
+    private IEnumerable<FProperty> GetScriptProperties(UObject uObject, IUnrealPackageStream objectStream)
     {
         while (true)
         {
-            var fName = _fnameSerializer.Deserialize(objectStream);
-            var name = uObject.OwnerPackage.GetName(fName);
+            var name = objectStream.ReadFNameStr();
 
             if (name == "None")
             {
                 yield break;
             }
 
-            var typeFName = _fnameSerializer.Deserialize(objectStream);
-            var propType = Enum.Parse<PropertyType>(uObject.OwnerPackage.GetName(typeFName));
+            var typeFName = objectStream.ReadFNameStr();
+            var propType = Enum.Parse<PropertyType>(typeFName);
 
             FProperty property = new()
             {
@@ -52,18 +48,18 @@ public class DefaultScriptStructSerializer : BaseObjectSerializer<UScriptStruct>
             switch (property.Type)
             {
                 case PropertyType.BoolProperty:
-                    objectStream.Move(1);
+                    objectStream.BaseStream.Move(1);
                     break;
                 case PropertyType.StructProperty:
-                    property.StructName = property.Package.GetName(_fnameSerializer.Deserialize(objectStream));
+                    property.StructName = objectStream.ReadFNameStr();
                     break;
                 case PropertyType.ByteProperty:
-                    property.EnumName = property.Package.GetName(_fnameSerializer.Deserialize(objectStream));
+                    property.EnumName = objectStream.ReadFNameStr();
                     break;
             }
 
-            property.ValueStart = objectStream.Position;
-            objectStream.Move(property.Size);
+            property.ValueStart = objectStream.BaseStream.Position;
+            objectStream.BaseStream.Move(property.Size);
 
 
             yield return property;
