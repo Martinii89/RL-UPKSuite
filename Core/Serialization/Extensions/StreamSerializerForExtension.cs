@@ -1,4 +1,5 @@
 ﻿using Core.Classes.Core.Structs;
+using Core.Serialization.Abstraction;
 
 namespace Core.Serialization;
 
@@ -49,6 +50,32 @@ public static class StreamSerializerForExtension
     }
 
     /// <summary>
+    ///     Reads a tarray from the stream and returns it as a List
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="serializer"></param>
+    /// <param name="stream"></param>
+    /// <param name="size"></param>
+    /// <returns></returns>
+    public static List<T> ReadTArrayToList<T>(this IObjectSerializer<T> serializer, IUnrealPackageStream stream, int? size = null) where T : new()
+    {
+        size ??= stream.ReadInt32();
+        var result = new List<T>
+        {
+            Capacity = size.Value
+        };
+
+        for (var i = 0; i < size; i++)
+        {
+            var obj = new T();
+            serializer.DeserializeObject(obj, stream);
+            result.Add(obj);
+        }
+
+        return result;
+    }
+
+    /// <summary>
     ///     Read a array with serialized element size
     /// </summary>
     /// <param name="serializer"></param>
@@ -91,6 +118,29 @@ public static class StreamSerializerForExtension
         for (var i = 0; i < size; i++)
         {
             output.Add(serializer.Deserialize(stream));
+        }
+    }
+
+
+    /// <summary>
+    ///     Reads a tarray from the stream and adds it to the output list. The output list is cleared before adding values
+    ///     ///
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="serializer"></param>
+    /// <param name="stream"></param>
+    /// <param name="output"></param>
+    /// <param name="size"></param>
+    public static void ReadTArrayToList<T>(this IObjectSerializer<T> serializer, IUnrealPackageStream stream, List<T> output, int? size = null) where T : new()
+    {
+        output.Clear();
+        size ??= stream.ReadInt32();
+        output.EnsureCapacity(size.Value);
+        for (var i = 0; i < size; i++)
+        {
+            var obj = new T();
+            serializer.DeserializeObject(obj, stream);
+            output.Add(obj);
         }
     }
 

@@ -3,12 +3,12 @@ using Core.Classes.Engine.Structs;
 
 namespace Core.Serialization.Default.Object.Engine.Struct;
 
-public class DefaultkDOPNode3NewSerializer : IStreamSerializer<FkDOPNode3New>
+public class DefaultkDOPNode3NewSerializer : IStreamSerializer<FkDOPNode>
 {
     /// <inheritdoc />
-    public FkDOPNode3New Deserialize(Stream stream)
+    public FkDOPNode Deserialize(Stream stream)
     {
-        var res = new FkDOPNode3New();
+        var res = new FkDOPNode();
         var read = stream.Read(res.Mins, 0, 3);
         if (read != 3)
         {
@@ -24,7 +24,7 @@ public class DefaultkDOPNode3NewSerializer : IStreamSerializer<FkDOPNode3New>
         return res;
     }
 
-    public void Serialize(Stream stream, FkDOPNode3New value)
+    public void Serialize(Stream stream, FkDOPNode value)
     {
         throw new NotImplementedException();
     }

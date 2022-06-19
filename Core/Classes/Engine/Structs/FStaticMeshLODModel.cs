@@ -2,7 +2,7 @@
 
 namespace Core.Classes.Engine.Structs;
 
-public class FStaticMeshLODModel3
+public class FStaticMeshLODModel
 {
     public FByteBulkData FBulkData { get; set; } = new();
     public List<FStaticMeshSection> FStaticMeshSections { get; set; } = new();

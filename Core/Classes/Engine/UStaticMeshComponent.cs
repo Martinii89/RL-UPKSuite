@@ -2,7 +2,6 @@
 using Core.Classes.Core.Structs;
 using Core.Classes.Engine.Structs;
 using Core.Types;
-using Core.Types.PackageTables;
 
 namespace Core.Classes.Engine;
 
@@ -19,8 +18,11 @@ public class UStaticMeshComponent : UPrimitiveComponent
 
 public class FStaticMeshComponentLODInfo
 {
-    public List<ObjectIndex> ShadowMaps { get; set; } = new();
-    public List<ObjectIndex> ShadowVertexBuffers { get; set; } = new();
+    //UShadowMap2D
+    public List<UObject?> ShadowMaps { get; set; } = new();
+
+    //UShadowMap2D
+    public List<UObject?> ShadowVertexBuffers { get; set; } = new();
     public FLightMap FLightMapRef { get; set; } = new();
     public byte BLoadVertexColorData { get; set; }
     public FColorVertexBuffer ColorVertexBuffer { get; set; } = new();
@@ -52,7 +54,7 @@ public class FLightMap
 
 public class FLightMap1D : FLightMap
 {
-    public ObjectIndex ActorOwner { get; set; }
+    public UObject? ActorOwner { get; set; }
     public FByteBulkData DirectionalSamples { get; set; } = new();
 
     public FByteBulkData SimpleSamples { get; set; } = new();
@@ -60,7 +62,7 @@ public class FLightMap1D : FLightMap
 
 public class FLightMap2D : FLightMap
 {
-    public ObjectIndex?[] Textures { get; set; } = new ObjectIndex?[3];
+    public ULightMapTexture2D?[] Textures { get; set; } = new ULightMapTexture2D?[3];
     public FVector2D CoordinateScale { get; set; }
     public FVector2D CoordinateBias { get; set; }
 }

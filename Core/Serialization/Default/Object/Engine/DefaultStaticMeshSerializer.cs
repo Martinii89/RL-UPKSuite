@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Core.Classes.Core;
+﻿using Core.Classes.Core;
 using Core.Classes.Engine;
 using Core.Classes.Engine.Structs;
 using Core.Serialization.Abstraction;
@@ -10,14 +9,14 @@ public class DefaultStaticMeshSerializer : BaseObjectSerializer<UStaticMesh>
 {
     private readonly IStreamSerializer<FBoxSphereBounds> _boxSphereBoundsSerializer;
     private readonly IStreamSerializer<FkDOPBounds> _kDopBoundsSerializer;
-    private readonly IStreamSerializer<FkDOPNode3New> _kDopNode3NewSerializer;
-    private readonly IStreamSerializer<FkDOPTriangles> _kDOPTrianglesSerializer;
+    private readonly IStreamSerializer<FkDOPNode> _kDopNode3NewSerializer;
+    private readonly IStreamSerializer<FkDOPTriangles> _kDopTrianglesSerializer;
     private readonly IObjectSerializer<UObject> _objectSerializer;
-    private readonly IStreamSerializer<FStaticMeshLODModel3> _staticMeshLodModel3Serializer;
+    private readonly IObjectSerializer<FStaticMeshLODModel> _staticMeshLodModel3Serializer;
 
     public DefaultStaticMeshSerializer(IObjectSerializer<UObject> objectSerializer, IStreamSerializer<FBoxSphereBounds> boxSphereBoundsSerializer,
         IStreamSerializer<FkDOPBounds> kDopBoundsSerializer,
-        IStreamSerializer<FkDOPNode3New> kDopNode3NewSerializer, IStreamSerializer<FStaticMeshLODModel3> staticMeshLodModel3Serializer,
+        IStreamSerializer<FkDOPNode> kDopNode3NewSerializer, IObjectSerializer<FStaticMeshLODModel> staticMeshLodModel3Serializer,
         IStreamSerializer<FkDOPTriangles> kDopTrianglesSerializer)
     {
         _objectSerializer = objectSerializer;
@@ -25,7 +24,7 @@ public class DefaultStaticMeshSerializer : BaseObjectSerializer<UStaticMesh>
         _kDopBoundsSerializer = kDopBoundsSerializer;
         _kDopNode3NewSerializer = kDopNode3NewSerializer;
         _staticMeshLodModel3Serializer = staticMeshLodModel3Serializer;
-        _kDOPTrianglesSerializer = kDopTrianglesSerializer;
+        _kDopTrianglesSerializer = kDopTrianglesSerializer;
     }
 
     /// <inheritdoc />
@@ -36,35 +35,13 @@ public class DefaultStaticMeshSerializer : BaseObjectSerializer<UStaticMesh>
         obj.BodySetup = objectStream.ReadObject() as URB_BodySetup;
         obj.FkDopBounds = _kDopBoundsSerializer.Deserialize(objectStream.BaseStream);
         obj.NewNodes = _kDopNode3NewSerializer.ReadTArrayWithElementSize(objectStream.BaseStream);
-        obj.Triangles = _kDOPTrianglesSerializer.ReadTArrayWithElementSize(objectStream.BaseStream);
+        obj.Triangles = _kDopTrianglesSerializer.ReadTArrayWithElementSize(objectStream.BaseStream);
         obj.InternalVersion = objectStream.ReadInt32();
         obj.UnkFlag = objectStream.ReadInt32();
         obj.F178ElementsCount = objectStream.ReadInt32();
         obj.F74 = objectStream.ReadInt32();
         obj.Unk = objectStream.ReadInt32();
-        var lodCount = objectStream.ReadInt32();
-        objectStream.BaseStream.Move(-4);
-        if (lodCount > 1)
-        {
-            Debugger.Break();
-        }
-
-        obj.Lods = _staticMeshLodModel3Serializer.ReadTArrayToList(objectStream.BaseStream);
-
-        //obj.LODInfo = objectStream.ReadTarray(stream =>
-        //{
-        //    var res = new FStaticMeshLODInfo();
-        //    res.Elements = stream.ReadTarray(stream1 =>
-        //    {
-        //        var element = new FStaticMeshLODElement();
-        //        element.Material = obj.OwnerPackage.GetObject(_objectIndexSerializer.Deserialize(objectStream)) as UMaterialInterface;
-        //        element.bEnableShadowCasting = stream1.ReadInt32() == 1;
-        //        element.bEnableCollision = stream1.ReadInt32() == 1;
-        //        return element;
-        //    });
-        //    return res;
-        //});
-
+        obj.Lods = _staticMeshLodModel3Serializer.ReadTArrayToList(objectStream);
         var unknownDataLength = (int) (obj.ExportTableItem!.SerialSize - (objectStream.BaseStream.Position - obj.ExportTableItem!.SerialOffset));
         obj.UnknownBytes = objectStream.ReadBytes(unknownDataLength);
     }

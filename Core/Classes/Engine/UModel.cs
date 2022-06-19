@@ -2,7 +2,6 @@
 using Core.Classes.Core.Structs;
 using Core.Classes.Engine.Structs;
 using Core.Types;
-using Core.Types.PackageTables;
 
 namespace Core.Classes.Engine;
 /*
@@ -104,11 +103,12 @@ public class FVert
 
 public class FBspSurf
 {
-    public ObjectIndex Actor { get; set; }
+    // ABrush
+    public UObject? Actor { get; set; }
     public int iBrushPoly { get; set; }
     public int iLightmassIndex { get; set; }
     public ulong LightingChannels { get; set; }
-    public ObjectIndex Material { get; set; }
+    public UMaterialInterface? Material { get; set; }
     public int pBase { get; set; }
     public FPlane plane { get; set; }
     public ulong PolyFlags { get; set; }

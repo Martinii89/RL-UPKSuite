@@ -156,5 +156,5 @@ public class FURL
 public class TransientArray<T>
 {
     public UObject? Super { get; set; }
-    public List<T?> Data { get; set; } = new();
+    public List<T> Data { get; set; } = new();
 }

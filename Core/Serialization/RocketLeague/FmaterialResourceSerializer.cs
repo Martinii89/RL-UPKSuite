@@ -1,77 +1,52 @@
 ﻿using Core.Classes.Engine;
-using Core.Serialization.Extensions;
+using Core.Serialization.Abstraction;
 using Core.Types;
-using Core.Types.PackageTables;
 
 namespace Core.Serialization.RocketLeague;
 
 [FileVersion(RocketLeagueBase.FileVersion)]
-public class FmaterialResourceSerializer : IStreamSerializer<FMaterialResource>
+public class FmaterialResourceSerializer : BaseObjectSerializer<FMaterialResource>
 {
     private readonly IStreamSerializer<FGuid> _fguidSerializer;
-    private readonly IStreamSerializer<FName> _fnameSerializer;
-
     private readonly IStreamSerializer<FString> _fstringSerializer;
-    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
 
-    public FmaterialResourceSerializer(IStreamSerializer<FString> fstringSerializer, IStreamSerializer<FName> fnameSerializer,
-        IStreamSerializer<ObjectIndex> objectIndexSerializer, IStreamSerializer<FGuid> fguidSerializer)
+    public FmaterialResourceSerializer(IStreamSerializer<FString> fstringSerializer, IStreamSerializer<FGuid> fguidSerializer)
     {
         _fstringSerializer = fstringSerializer;
-        _fnameSerializer = fnameSerializer;
-        _objectIndexSerializer = objectIndexSerializer;
         _fguidSerializer = fguidSerializer;
     }
 
-    public FMaterialResource Deserialize(Stream stream)
-    {
-        var res = new FMaterialResource();
-
-
-        res.Unk = stream.ReadInt32();
-        res.CompileErrors = _fstringSerializer.ReadTArrayToList(stream).Select(x => x.InnerString).ToList();
-        res.TextureDependencyLengthMap = stream.ReadDictionary(ReadObjectIndex, ReadInt);
-        res.MaxTextureDependencyLength = stream.ReadInt32();
-        res.ID = _fguidSerializer.Deserialize(stream);
-        res.NumUserTexCoords = stream.ReadUInt32();
-        res.UniformExpressionTextures = _objectIndexSerializer.ReadTArrayToList(stream);
-        res.bUsesSceneColorTemp = stream.ReadInt32() == 1;
-        res.bUsesSceneDepthTemp = stream.ReadInt32() == 1;
-        res.bUsesDynamicParameterTemp = stream.ReadInt32() == 1;
-        res.bUsesLightmapUVsTemp = stream.ReadInt32() == 1;
-        res.bUsesMaterialVertexPositionOffsetTemp = stream.ReadInt32() == 1;
-        res.UsingTransforms = stream.ReadInt32() == 1;
-        res.FTextureLookupInfos = stream.ReadTarray(stream1 => new FTextureLookupInfo
-        {
-            TexCoordIndex = stream.ReadInt32(),
-            TextureIndex = stream.ReadInt32(),
-            UScale = stream.ReadSingle(),
-            VScale = stream.ReadSingle()
-        });
-
-        //res.UnknownBytes = stream.ReadBytes(16);
-
-
-        return res;
-    }
-
-    public void Serialize(Stream stream, FMaterialResource value)
-    {
-        throw new NotImplementedException();
-    }
-
-    internal ObjectIndex ReadObjectIndex(Stream stream)
-    {
-        return _objectIndexSerializer.Deserialize(stream);
-    }
-
-    internal FName ReadFName(Stream stream)
-    {
-        return _fnameSerializer.Deserialize(stream);
-    }
-
-    internal int ReadInt(Stream stream)
+    internal int ReadInt(IUnrealPackageStream stream)
     {
         return stream.ReadInt32();
+    }
+
+    public override void DeserializeObject(FMaterialResource obj, IUnrealPackageStream objectStream)
+    {
+        obj.Unk = objectStream.ReadInt32();
+        obj.CompileErrors = _fstringSerializer.ReadTArrayToList(objectStream.BaseStream).Select(x => x.InnerString).ToList();
+        obj.TextureDependencyLengthMap = objectStream.ReadDictionary(stream => stream.ReadObject() as UMaterialExpression, ReadInt);
+        obj.MaxTextureDependencyLength = objectStream.ReadInt32();
+        obj.ID = _fguidSerializer.Deserialize(objectStream.BaseStream);
+        obj.NumUserTexCoords = objectStream.ReadUInt32();
+        obj.UniformExpressionTextures = objectStream.ReadTArray(stream => stream.ReadObject() as UTexture);
+        obj.bUsesSceneColorTemp = objectStream.ReadInt32() == 1;
+        obj.bUsesSceneDepthTemp = objectStream.ReadInt32() == 1;
+        obj.bUsesDynamicParameterTemp = objectStream.ReadInt32() == 1;
+        obj.bUsesLightmapUVsTemp = objectStream.ReadInt32() == 1;
+        obj.bUsesMaterialVertexPositionOffsetTemp = objectStream.ReadInt32() == 1;
+        obj.UsingTransforms = objectStream.ReadInt32() == 1;
+        obj.FTextureLookupInfos = objectStream.ReadTArray(objectStream1 => new FTextureLookupInfo
+        {
+            TexCoordIndex = objectStream.ReadInt32(),
+            TextureIndex = objectStream.ReadInt32(),
+            UScale = objectStream.ReadSingle(),
+            VScale = objectStream.ReadSingle()
+        });
+    }
+
+    public override void SerializeObject(FMaterialResource obj, IUnrealPackageStream objectStream)
+    {
+        throw new NotImplementedException();
     }
 }

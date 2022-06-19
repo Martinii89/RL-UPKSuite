@@ -1,6 +1,5 @@
 ﻿using Core.Classes.Core;
 using Core.Types;
-using Core.Types.PackageTables;
 
 namespace Core.Classes.Engine;
 
@@ -18,7 +17,7 @@ public class UMaterial : UMaterialInterface
 public class FMaterial
 {
     public List<string> CompileErrors { get; set; } = new();
-    public Dictionary<ObjectIndex, int> TextureDependencyLengthMap { get; set; } = new();
+    public Dictionary<UMaterialExpression, int> TextureDependencyLengthMap { get; set; } = new();
 
     public int MaxTextureDependencyLength { get; set; }
 
@@ -26,7 +25,7 @@ public class FMaterial
 
     public uint NumUserTexCoords { get; set; }
 
-    public List<ObjectIndex> UniformExpressionTextures { get; set; }
+    public List<UTexture?> UniformExpressionTextures { get; set; } = new();
 
     public bool bUsesSceneColorTemp { get; set; }
     public bool bUsesSceneDepthTemp { get; set; }

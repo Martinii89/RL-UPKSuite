@@ -54,14 +54,14 @@ public class UStaticMesh : UObject
     public URB_BodySetup? BodySetup { get; set; }
 
     public FkDOPBounds FkDopBounds { get; set; } = new();
-    public TArray<FkDOPNode3New> NewNodes { get; set; } = new();
+    public TArray<FkDOPNode> NewNodes { get; set; } = new();
     public TArray<FkDOPTriangles> Triangles { get; set; } = new();
     public int InternalVersion { get; set; }
     public int UnkFlag { get; set; }
     public int F178ElementsCount { get; set; } // TArray<FStaticMeshUnk5> f178;
     public int F74 { get; set; }
     public int Unk { get; set; }
-    public List<FStaticMeshLODModel3> Lods { get; set; } = new();
+    public List<FStaticMeshLODModel> Lods { get; set; } = new();
     public byte[] UnknownBytes { get; set; }
 
     // script properties

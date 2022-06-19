@@ -1,43 +1,33 @@
-﻿using Core.Classes.Engine.Structs;
-using Core.Serialization.Extensions;
-using Core.Types.PackageTables;
+﻿using Core.Classes.Engine;
+using Core.Classes.Engine.Structs;
+using Core.Serialization.Abstraction;
 
 namespace Core.Serialization.Default.Object.Engine.Struct;
 
-public class DefaultStaticMeshSectionSerializer : IStreamSerializer<FStaticMeshSection>
+public class DefaultStaticMeshSectionSerializer : BaseObjectSerializer<FStaticMeshSection>
 {
-    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
-
-    public DefaultStaticMeshSectionSerializer(IStreamSerializer<ObjectIndex> objectIndexSerializer)
-    {
-        _objectIndexSerializer = objectIndexSerializer;
-    }
-
     /// <inheritdoc />
-    public FStaticMeshSection Deserialize(Stream stream)
+    public override void DeserializeObject(FStaticMeshSection obj, IUnrealPackageStream objectStream)
     {
-        return new FStaticMeshSection
+        obj.Mat = objectStream.ReadObject() as UMaterialInterface;
+        obj.F10 = objectStream.ReadInt32();
+        obj.F14 = objectStream.ReadInt32();
+        obj.BEnableShadowCasting = objectStream.ReadInt32();
+        obj.FirstIndex = objectStream.ReadInt32();
+        obj.NumFaces = objectStream.ReadInt32();
+        obj.F24 = objectStream.ReadInt32();
+        obj.F28 = objectStream.ReadInt32();
+        obj.Index = objectStream.ReadInt32();
+        obj.F30 = objectStream.ReadTArray(objectStream1 => new TwoInts
         {
-            Mat = _objectIndexSerializer.Deserialize(stream),
-            F10 = stream.ReadInt32(),
-            F14 = stream.ReadInt32(),
-            BEnableShadowCasting = stream.ReadInt32(),
-            FirstIndex = stream.ReadInt32(),
-            NumFaces = stream.ReadInt32(),
-            F24 = stream.ReadInt32(),
-            F28 = stream.ReadInt32(),
-            Index = stream.ReadInt32(),
-            F30 = stream.ReadTarray(stream1 => new TwoInts
-            {
-                A = stream1.ReadInt32(),
-                B = stream1.ReadInt32()
-            }),
-            Unk = (byte) stream.ReadByte()
-        };
+            A = objectStream1.ReadInt32(),
+            B = objectStream1.ReadInt32()
+        });
+        obj.Unk = objectStream.ReadByte();
     }
 
     /// <inheritdoc />
-    public void Serialize(Stream stream, FStaticMeshSection value)
+    public override void SerializeObject(FStaticMeshSection obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

@@ -5,7 +5,6 @@ using Core.Classes.Engine;
 using Core.Classes.Engine.Structs;
 using Core.Serialization.Abstraction;
 using Core.Types;
-using Core.Types.PackageTables;
 
 namespace Core.Serialization.Default.Object.Engine;
 
@@ -13,7 +12,7 @@ public class DefaultModelSerializer : BaseObjectSerializer<UModel>
 {
     private readonly IStreamSerializer<FBoxSphereBounds> _boxSphereBoundsSerializer;
     private readonly IStreamSerializer<FBspNode> _bspNodeSerializer;
-    private readonly IStreamSerializer<FBspSurf> _bspSurfSerializer;
+    private readonly IObjectSerializer<FBspSurf> _bspSurfSerializer;
     private readonly IStreamSerializer<FGuid> _guidSerializer;
     private readonly IStreamSerializer<FLightmassPrimitiveSettings> _lightmassPrimitiveSettingsSerializer;
     private readonly IObjectSerializer<UObject> _objectSerializer;
@@ -22,7 +21,7 @@ public class DefaultModelSerializer : BaseObjectSerializer<UModel>
 
     public DefaultModelSerializer(IObjectSerializer<UObject> objectSerializer, IStreamSerializer<FBoxSphereBounds> boxSphereBoundsSerializer,
         IStreamSerializer<FVector> vectorSerializer, IStreamSerializer<FBspNode> bspNodeSerializer,
-        IStreamSerializer<FBspSurf> bspSurfSerializer, IStreamSerializer<FVert> vertSerializer,
+        IObjectSerializer<FBspSurf> bspSurfSerializer, IStreamSerializer<FVert> vertSerializer,
         IStreamSerializer<FGuid> guidSerializer, IStreamSerializer<FLightmassPrimitiveSettings> lightmassPrimitiveSettingsSerializer)
     {
         _objectSerializer = objectSerializer;
@@ -45,7 +44,7 @@ public class DefaultModelSerializer : BaseObjectSerializer<UModel>
         obj.Nodes = objectStream.BulkReadTArray(stream => _bspNodeSerializer.Deserialize(stream.BaseStream));
 
         obj.Surfs.Super = objectStream.ReadObject();
-        obj.Surfs.Data = objectStream.ReadTArray(stream => _bspSurfSerializer.Deserialize(stream.BaseStream));
+        obj.Surfs.Data = _bspSurfSerializer.ReadTArrayToList(objectStream);
         obj.Verts = _vertSerializer.ReadTArrayWithElementSize(objectStream.BaseStream);
         obj.NumSharedSides = objectStream.ReadInt32();
         obj.NumZones = objectStream.ReadInt32();
@@ -114,37 +113,36 @@ public class DefaultBspNodeSerializer : IStreamSerializer<FBspNode>
     }
 }
 
-public class DefaultBspSurfSerializer : IStreamSerializer<FBspSurf>
+public class DefaultBspSurfSerializer : BaseObjectSerializer<FBspSurf>
 {
-    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
     private readonly IStreamSerializer<FPlane> _planeSerializer;
 
-    public DefaultBspSurfSerializer(IStreamSerializer<ObjectIndex> objectIndexSerializer, IStreamSerializer<FPlane> planeSerializer)
+    public DefaultBspSurfSerializer(IStreamSerializer<FPlane> planeSerializer)
     {
-        _objectIndexSerializer = objectIndexSerializer;
+        ;
         _planeSerializer = planeSerializer;
     }
 
-    public FBspSurf Deserialize(Stream stream)
+
+    /// <inheritdoc />
+    public override void DeserializeObject(FBspSurf obj, IUnrealPackageStream objectStream)
     {
-        return new FBspSurf
-        {
-            Material = _objectIndexSerializer.Deserialize(stream),
-            PolyFlags = stream.ReadUInt32(),
-            pBase = stream.ReadInt32(),
-            vNormal = stream.ReadInt32(),
-            vTextureU = stream.ReadInt32(),
-            vTextureV = stream.ReadInt32(),
-            iBrushPoly = stream.ReadInt32(),
-            Actor = _objectIndexSerializer.Deserialize(stream),
-            plane = _planeSerializer.Deserialize(stream),
-            ShadowMapScale = stream.ReadSingle(),
-            LightingChannels = stream.ReadUInt32(),
-            iLightmassIndex = stream.ReadInt32()
-        };
+        obj.Material = objectStream.ReadObject() as UMaterialInterface;
+        obj.PolyFlags = objectStream.ReadUInt32();
+        obj.pBase = objectStream.ReadInt32();
+        obj.vNormal = objectStream.ReadInt32();
+        obj.vTextureU = objectStream.ReadInt32();
+        obj.vTextureV = objectStream.ReadInt32();
+        obj.iBrushPoly = objectStream.ReadInt32();
+        obj.Actor = objectStream.ReadObject();
+        obj.plane = _planeSerializer.Deserialize(objectStream.BaseStream);
+        obj.ShadowMapScale = objectStream.ReadSingle();
+        obj.LightingChannels = objectStream.ReadUInt32();
+        obj.iLightmassIndex = objectStream.ReadInt32();
     }
 
-    public void Serialize(Stream stream, FBspSurf value)
+    /// <inheritdoc />
+    public override void SerializeObject(FBspSurf obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }
