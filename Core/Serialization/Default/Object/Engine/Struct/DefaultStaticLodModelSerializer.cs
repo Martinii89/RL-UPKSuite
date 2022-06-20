@@ -134,7 +134,6 @@ public class DefaultRigidVertexSerializer : IStreamSerializer<FRigidVertex>
 {
     private readonly IStreamSerializer<FColor> _colorSerializer;
     private readonly IStreamSerializer<FVector2D> _vector2DSerializer;
-
     private readonly IStreamSerializer<FVector> _vectorSerializer;
 
     public DefaultRigidVertexSerializer(IStreamSerializer<FVector> vectorSerializer, IStreamSerializer<FVector2D> vector2DSerializer,
@@ -204,11 +203,10 @@ public class DefaultSoftVertexSerializer : IStreamSerializer<FSoftVertex>
     }
 }
 
-public class DefaultSkeletalMeshVertexBufferSerializer : IStreamSerializer<FSkeletalMeshVertexBuffer>
+public class DefaultSkeletalMeshVertexBufferSerializer : BaseObjectSerializer<FSkeletalMeshVertexBuffer>
 {
     private readonly IObjectSerializer<GpuVert> _gpuVertSerializer;
     private readonly IStreamSerializer<FSkelIndexBuffer> _skelIndexBufferSerializer;
-
     private readonly IStreamSerializer<FVector> _vectorSerializer;
 
     public DefaultSkeletalMeshVertexBufferSerializer(IStreamSerializer<FVector> vectorSerializer, IObjectSerializer<GpuVert> gpuVertSerializer,
@@ -220,44 +218,39 @@ public class DefaultSkeletalMeshVertexBufferSerializer : IStreamSerializer<FSkel
     }
 
     /// <inheritdoc />
-    public FSkeletalMeshVertexBuffer Deserialize(Stream stream)
+    public override void DeserializeObject(FSkeletalMeshVertexBuffer obj, IUnrealPackageStream objectStream)
     {
-        var r = new FSkeletalMeshVertexBuffer();
-        r.NumUVSets = stream.ReadInt32();
-        r.bUseFullPrecisionUVs = stream.ReadInt32();
-        r.bUsePackedPosition = stream.ReadInt32();
-        if (r.bUseFullPrecisionUVs != 0 && r.bUsePackedPosition != 1)
+        obj.NumUVSets = objectStream.ReadInt32();
+        obj.bUseFullPrecisionUVs = objectStream.ReadInt32();
+        obj.bUsePackedPosition = objectStream.ReadInt32();
+        if (obj.bUseFullPrecisionUVs != 0 && obj.bUsePackedPosition != 1)
         {
             //implement all the vertex buffer types
             Debugger.Break();
         }
 
-        r.MeshExtension = _vectorSerializer.Deserialize(stream);
-        r.MeshOrigin = _vectorSerializer.Deserialize(stream);
-        r.VertexBuffer = stream.ReadTarrayWithElementSize(stream1 =>
+        obj.MeshExtension = _vectorSerializer.Deserialize(objectStream.BaseStream);
+        obj.MeshOrigin = _vectorSerializer.Deserialize(objectStream.BaseStream);
+        obj.VertexBuffer = objectStream.BulkReadTArray(objectStream1 =>
         {
             var gpuVert = new GpuVert
             {
-                UV = new UvHalf[r.NumUVSets]
+                UV = new UvHalf[obj.NumUVSets]
             };
-            // TODO refactor cause this will crash
-            _gpuVertSerializer.DeserializeObject(gpuVert, (IUnrealPackageStream) stream1);
+            _gpuVertSerializer.DeserializeObject(gpuVert, objectStream1);
             return gpuVert;
         });
-        //_gpuVertSerializer.ReadTArrayWithElementSize(stream);
-        var ExtraVertexInfluencesCount = stream.ReadInt32();
-        if (ExtraVertexInfluencesCount > 0)
+        var extraVertexInfluencesCount = objectStream.ReadInt32();
+        if (extraVertexInfluencesCount > 0)
         {
             Debugger.Break();
         }
 
-        r.AdjacencyIndexBuffer = _skelIndexBufferSerializer.Deserialize(stream);
-
-        return r;
+        obj.AdjacencyIndexBuffer = _skelIndexBufferSerializer.Deserialize(objectStream.BaseStream);
     }
 
     /// <inheritdoc />
-    public void Serialize(Stream stream, FSkeletalMeshVertexBuffer value)
+    public override void SerializeObject(FSkeletalMeshVertexBuffer obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }
