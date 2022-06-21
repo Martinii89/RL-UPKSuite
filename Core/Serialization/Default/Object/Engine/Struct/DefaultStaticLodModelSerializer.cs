@@ -6,10 +6,10 @@ using Core.Serialization.Extensions;
 
 namespace Core.Serialization.Default.Object.Engine.Struct;
 
-public class DefaultStaticLodModelSerializer : IStreamSerializer<FStaticLodModel>
+public class DefaultStaticLodModelSerializer : BaseObjectSerializer<FStaticLodModel>
 {
     private readonly IStreamSerializer<FByteBulkData> _BulkDataSerializer;
-    private readonly IStreamSerializer<FSkeletalMeshVertexBuffer> _SkeletalMeshVertexBufferSerializer;
+    private readonly IObjectSerializer<FSkeletalMeshVertexBuffer> _SkeletalMeshVertexBufferSerializer;
     private readonly IStreamSerializer<FSkelIndexBuffer> _SkelIndexBufferSerializer;
     private readonly IStreamSerializer<FSkelMeshChunk> _SkelMeshChunkSerializer;
     private readonly IStreamSerializer<FSkelMeshSection> _SkelMeshSectionSerializer;
@@ -17,7 +17,7 @@ public class DefaultStaticLodModelSerializer : IStreamSerializer<FStaticLodModel
 
     public DefaultStaticLodModelSerializer(IStreamSerializer<FSkelMeshSection> skelMeshSectionSerializer,
         IStreamSerializer<FSkelIndexBuffer> skelIndexBufferSerializer, IStreamSerializer<FSkelMeshChunk> skelMeshChunkSerializer,
-        IStreamSerializer<FByteBulkData> bulkDataSerializer, IStreamSerializer<FSkeletalMeshVertexBuffer> skeletalMeshVertexBufferSerializer)
+        IStreamSerializer<FByteBulkData> bulkDataSerializer, IObjectSerializer<FSkeletalMeshVertexBuffer> skeletalMeshVertexBufferSerializer)
     {
         _SkelMeshSectionSerializer = skelMeshSectionSerializer;
         _SkelIndexBufferSerializer = skelIndexBufferSerializer;
@@ -26,31 +26,29 @@ public class DefaultStaticLodModelSerializer : IStreamSerializer<FStaticLodModel
         _SkeletalMeshVertexBufferSerializer = skeletalMeshVertexBufferSerializer;
     }
 
+
     /// <inheritdoc />
-    public FStaticLodModel Deserialize(Stream stream)
+    public override void DeserializeObject(FStaticLodModel obj, IUnrealPackageStream objectStream)
     {
-        var lodModel = new FStaticLodModel();
-        lodModel.Sections = _SkelMeshSectionSerializer.ReadTArrayToList(stream);
-        lodModel.IndexBuffer = _SkelIndexBufferSerializer.Deserialize(stream);
-        if (lodModel.IndexBuffer.Size != 4 || lodModel.IndexBuffer.Indices.ElementSize != 4)
+        obj.Sections = _SkelMeshSectionSerializer.ReadTArrayToList(objectStream.BaseStream);
+        obj.IndexBuffer = _SkelIndexBufferSerializer.Deserialize(objectStream.BaseStream);
+        if (obj.IndexBuffer.Size != 4 || obj.IndexBuffer.Indices.ElementSize != 4)
         {
             Debugger.Break();
         }
 
-        lodModel.UsedBones = stream.ReadTarray(stream1 => stream1.ReadInt16());
-        lodModel.Chunks = _SkelMeshChunkSerializer.ReadTArrayToList(stream);
-        lodModel.Size = stream.ReadInt32();
-        lodModel.NumVerts = stream.ReadInt32();
-        lodModel.RequiredBones = stream.ReadTarray(stream1 => (byte) stream1.ReadByte());
-        lodModel.FBulkData = _BulkDataSerializer.Deserialize(stream);
-        lodModel.NumUvSets = stream.ReadInt32();
-        lodModel.GpuSkin = _SkeletalMeshVertexBufferSerializer.Deserialize(stream);
-        return lodModel;
+        obj.UsedBones = objectStream.ReadTArray(objectStream1 => objectStream1.ReadInt16());
+        obj.Chunks = _SkelMeshChunkSerializer.ReadTArrayToList(objectStream.BaseStream);
+        obj.Size = objectStream.ReadInt32();
+        obj.NumVerts = objectStream.ReadInt32();
+        obj.RequiredBones = objectStream.ReadTArray(objectStream1 => objectStream1.ReadByte());
+        obj.FBulkData = _BulkDataSerializer.Deserialize(objectStream.BaseStream);
+        obj.NumUvSets = objectStream.ReadInt32();
+        _SkeletalMeshVertexBufferSerializer.DeserializeObject(obj.GpuSkin, objectStream);
     }
 
-
     /// <inheritdoc />
-    public void Serialize(Stream stream, FStaticLodModel value)
+    public override void SerializeObject(FStaticLodModel obj, IUnrealPackageStream objectStream)
     {
         throw new NotImplementedException();
     }

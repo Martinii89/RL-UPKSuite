@@ -10,7 +10,7 @@ namespace Core.Serialization.Default.Object.Engine;
 public class DefaultSkeletalMeshSerializer : BaseObjectSerializer<USkeletalMesh>
 {
     private readonly IStreamSerializer<FBoxSphereBounds> _boxSphereBoundsSerializer;
-    private readonly IStreamSerializer<FStaticLodModel> _lodSerializer;
+    private readonly IObjectSerializer<FStaticLodModel> _lodSerializer;
     private readonly IStreamSerializer<FMeshBone> _meshBoneSerializer;
     private readonly IObjectSerializer<UObject> _objectSerializer;
     private readonly IStreamSerializer<FRotator> _rotatorSerializer;
@@ -20,7 +20,7 @@ public class DefaultSkeletalMeshSerializer : BaseObjectSerializer<USkeletalMesh>
 
     public DefaultSkeletalMeshSerializer(IStreamSerializer<FBoxSphereBounds> boxSphereBoundsSerializer, IObjectSerializer<UObject> objectSerializer,
         IStreamSerializer<FRotator> rotatorSerializer,
-        IStreamSerializer<FVector> vectorSerializer, IStreamSerializer<FMeshBone> meshBoneSerializer, IStreamSerializer<FStaticLodModel> lodSerializer)
+        IStreamSerializer<FVector> vectorSerializer, IStreamSerializer<FMeshBone> meshBoneSerializer, IObjectSerializer<FStaticLodModel> lodSerializer)
     {
         _boxSphereBoundsSerializer = boxSphereBoundsSerializer;
         _objectSerializer = objectSerializer;
@@ -47,7 +47,7 @@ public class DefaultSkeletalMeshSerializer : BaseObjectSerializer<USkeletalMesh>
         obj.RotOrigin = _rotatorSerializer.Deserialize(objectStream.BaseStream);
         obj.RefSkeleton = _meshBoneSerializer.ReadTArrayToList(objectStream.BaseStream);
         obj.SkeletalDepth = objectStream.ReadInt32();
-        obj.LODModels = _lodSerializer.ReadTArrayToList(objectStream.BaseStream);
+        obj.LODModels = _lodSerializer.ReadTArrayToList(objectStream);
         obj.NameMap = objectStream.ReadDictionary(stream => stream.ReadFNameStr(), stream => stream.ReadInt32());
         var PerPolyBoneKDOPsCount = objectStream.ReadInt32();
         var BoneBreakNamesCount = objectStream.ReadInt32();
