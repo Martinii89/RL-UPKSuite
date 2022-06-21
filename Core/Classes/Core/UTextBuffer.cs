@@ -17,6 +17,5 @@ public class UTextBuffer : UObject
 
     public uint Pos { get; set; }
     public uint Top { get; set; }
-
     public string ScriptText { get; set; } = string.Empty;
 }

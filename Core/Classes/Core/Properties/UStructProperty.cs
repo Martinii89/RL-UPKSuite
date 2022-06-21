@@ -35,7 +35,7 @@ public class UStructProperty : UProperty
 
             foreach (var structProperty in structProperties)
             {
-                //!! Bad size !!
+                //TODO: !! Bad property size !!
                 structValues[structProperty.Name] = structProperty.DeserializeValue(obj, objStream, propertySize);
             }
 

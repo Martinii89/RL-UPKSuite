@@ -45,7 +45,6 @@ public class UnrealPackageSerializer : IStreamSerializer<UnrealPackage>
         stream.Seek(package.Header.ExportOffset, SeekOrigin.Begin);
         _exportTablItemeSerializer.ReadTArrayToList(stream, package.ExportTable, package.Header.ExportCount);
 
-
         return package;
     }
 

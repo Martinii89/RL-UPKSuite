@@ -90,12 +90,13 @@ public class UObject
 
     public bool FullyDeserialized { get; set; }
 
-    [MemberNotNullWhen(false, nameof(ExportTableItem))]
-    [MemberNotNullWhen(false, nameof(OwnerPackageStream))]
-    [MemberNotNullWhen(false, nameof(Serializer))]
-    internal bool CanNotDeserialize()
+
+    [MemberNotNullWhen(true, nameof(ExportTableItem))]
+    [MemberNotNullWhen(true, nameof(OwnerPackageStream))]
+    [MemberNotNullWhen(true, nameof(Serializer))]
+    internal bool CanDeserialize()
     {
-        return IsDeserialized || Serializer is null || ExportTableItem is null || ExportTableItem.SerialSize == 0 || OwnerPackageStream is null;
+        return !IsDeserialized && Serializer is not null && ExportTableItem is not null && ExportTableItem.SerialSize != 0 && OwnerPackageStream is not null;
     }
 
     /// <summary>
@@ -104,7 +105,7 @@ public class UObject
     /// </summary>
     public void Deserialize()
     {
-        if (CanNotDeserialize())
+        if (!CanDeserialize())
         {
             return;
         }

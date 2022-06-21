@@ -29,7 +29,7 @@ public class DefaultMetaDataSerializer : BaseObjectSerializer<UMetaData>
             {
                 var name = objectStream.ReadFNameStr();
                 var nameValue = objectStream.ReadFString();
-                data.Values.Add(new UMetaData.MetaDataEntry.MetaDataValue { key = name, value = nameValue });
+                data.Values.Add(new UMetaData.MetaDataEntry.MetaDataValue { Key = name, Value = nameValue });
             }
 
             obj.MetaData.Add(data);

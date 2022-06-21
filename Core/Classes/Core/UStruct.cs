@@ -18,7 +18,6 @@ public class UStruct : UField
     }
 
     public Dictionary<string, UProperty> Properties { get; set; } = new();
-
     public UField? Children { get; set; }
     public UStruct? SuperStruct { get; set; }
     public UTextBuffer? ScriptText { get; set; }
@@ -28,7 +27,6 @@ public class UStruct : UField
     public int ScriptBytecodeSize { get; set; }
     public int DataScriptSize { get; set; }
     public long ScriptOffset { get; set; }
-
     public List<NativeProperty> NativeProperties { get; set; } = new();
 
     public void InitProperties()

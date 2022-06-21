@@ -119,6 +119,11 @@ public class UClass : UState
         return obj;
     }
 
+    /// <summary>
+    ///     Move this class to a new containing package.
+    ///     The Native class factory uses this to move temporary objects to their real package once requested.
+    /// </summary>
+    /// <param name="ownerPackage"></param>
     public void MoveStubClassToOwnerPackage(UnrealPackage ownerPackage)
     {
         var name = Name;
