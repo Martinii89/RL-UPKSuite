@@ -49,11 +49,11 @@ public class UStaticMesh : UObject
     }
 
     public uint HighResSourceMeshCRC { get; set; }
-    public int unk2 { get; set; }
-    public List<int> unkIntArray { get; set; } = new();
-    public int unk3 { get; set; }
-    public int unk4 { get; set; }
-    public int unk5 { get; set; }
+    public int Unk2 { get; set; }
+    public List<int> UnkIntArray { get; set; } = new();
+    public int Unk3 { get; set; }
+    public int Unk4 { get; set; }
+    public int Unk5 { get; set; }
 
     public FBoxSphereBounds FBoxSphereBounds { get; set; } = new();
 

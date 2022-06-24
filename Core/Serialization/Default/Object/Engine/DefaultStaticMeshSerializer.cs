@@ -61,11 +61,11 @@ public class DefaultStaticMeshSerializer : BaseObjectSerializer<UStaticMesh>
         obj.HighResSourceMeshName = objectStream.ReadFString();
         obj.HighResSourceMeshCRC = objectStream.ReadUInt32();
         obj.LightingGuid = _guidSerializer.Deserialize(objectStream.BaseStream);
-        obj.unk2 = objectStream.ReadInt32();
-        obj.unkIntArray = objectStream.ReadTArray(stream => stream.ReadInt32());
-        obj.unk3 = objectStream.ReadInt32();
-        obj.unk4 = objectStream.ReadInt32();
-        obj.unk5 = objectStream.ReadInt32();
+        obj.Unk2 = objectStream.ReadInt32();
+        obj.UnkIntArray = objectStream.ReadTArray(stream => stream.ReadInt32());
+        obj.Unk3 = objectStream.ReadInt32();
+        obj.Unk4 = objectStream.ReadInt32();
+        obj.Unk5 = objectStream.ReadInt32();
 
         var unknownDataLength = (int) (obj.ExportTableItem!.SerialSize - (objectStream.BaseStream.Position - obj.ExportTableItem!.SerialOffset));
         if (unknownDataLength > 0)
