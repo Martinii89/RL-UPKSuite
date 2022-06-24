@@ -48,6 +48,13 @@ public class UStaticMesh : UObject
     {
     }
 
+    public uint HighResSourceMeshCRC { get; set; }
+    public int unk2 { get; set; }
+    public List<int> unkIntArray { get; set; } = new();
+    public int unk3 { get; set; }
+    public int unk4 { get; set; }
+    public int unk5 { get; set; }
+
     public FBoxSphereBounds FBoxSphereBounds { get; set; } = new();
 
     [NativeProperty(PropertyType.ObjectProperty)]
@@ -61,7 +68,7 @@ public class UStaticMesh : UObject
     public int F178ElementsCount { get; set; } // TArray<FStaticMeshUnk5> f178;
     public int F74 { get; set; }
     public int Unk { get; set; }
-    public List<FStaticMeshLODModel> Lods { get; set; } = new();
+    public List<FStaticMeshLODModel> LODModels { get; set; } = new();
     public byte[] UnknownBytes { get; set; }
 
     // script properties
@@ -77,25 +84,36 @@ public class UStaticMesh : UObject
     [NativeProperty(PropertyType.BoolProperty)]
     public bool bStripComplexCollisionForConsole { get; set; }
 
-    //public bool UseSimpleBoxCollision { get; set; }
-    //public bool UseSimpleRigidBodyCollision { get; set; }
-    //public bool UseFullPrecisionUVs { get; set; }
-    //public bool bUsedForInstancing { get; set; }
-    //public bool bUseMaximumStreamingTexelRatio { get; set; }
-    //public bool bPartitionForEdgeGeometry { get; set; }
-    //public bool bCanBecomeDynamic { get; set; }
+    [NativeProperty(PropertyType.BoolProperty)]
+    public bool UseFullPrecisionUVs { get; set; }
+
+    [NativeProperty(PropertyType.BoolProperty)]
+    public bool bUsedForInstancing { get; set; }
+
+    [NativeProperty(PropertyType.BoolProperty)]
+    public bool bUseMaximumStreamingTexelRatio { get; set; }
+
+    [NativeProperty(PropertyType.BoolProperty)]
+    public bool bPartitionForEdgeGeometry { get; set; }
+
+    [NativeProperty(PropertyType.BoolProperty)]
+    public bool bCanBecomeDynamic { get; set; }
 
     [NativeProperty(PropertyType.IntProperty)]
     public int LightMapResolution { get; set; }
 
     [NativeProperty(PropertyType.IntProperty)]
     public int LightMapCoordinateIndex { get; set; }
-    //public float LODDistanceRatio { get; set; }
-    //public float LODMaxRange { get; set; }
-    //public float StreamingDistanceMultiplier { get; set; }
-    //public string SourceFilePath { get; set; }
-    //public string SourceFileTimestamp { get; set; }
-    //public List<FStaticMeshLODInfo> LODInfo { get; set; }
+
+    public int LodInfoCount { get; set; }
+
+    public FRotator ThumbnailAngle { get; set; }
+
+    public float ThumbnailDistance { get; set; }
+
+    public string HighResSourceMeshName { get; set; }
+
+    public FGuid LightingGuid { get; set; }
 }
 
 //public class FStaticMeshLODInfo
