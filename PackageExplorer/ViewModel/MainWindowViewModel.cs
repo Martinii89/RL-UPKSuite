@@ -10,13 +10,13 @@ using PackageExplorer.Utils;
 
 namespace PackageExplorer.ViewModel;
 
-public sealed partial class MainWindowViewModel : ObservableObject
+public partial class MainWindowViewModel : ObservableObject
 {
     private BackgroundWorker? _unpackBackgroundWorker;
 
     public ObservableCollection<PackageUserControlViewModel> LoadedPackages { get; set; } = new();
 
-    [ICommand]
+    [RelayCommand]
     private void OpenFileDialog()
     {
         var openFileDialog = new OpenFileDialog

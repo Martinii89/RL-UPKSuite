@@ -115,7 +115,7 @@ public partial class PackageUserControlViewModel : ObservableObject
     }
 
 
-    [ICommand(CanExecute = nameof(CanExecuteOnDemandLoading))]
+    [RelayCommand(CanExecute = nameof(CanExecuteOnDemandLoading))]
     private void ExecuteOnDemandLoading(TreeViewNode node)
     {
         if (node.ChildNodes.Count > 0)
@@ -147,7 +147,7 @@ public partial class PackageUserControlViewModel : ObservableObject
         node.IsExpanded = true;
     }
 
-    [ICommand]
+    [RelayCommand]
     private void OnShowDefaultChanged(bool isChecked)
     {
         //PackageView.Refresh();
