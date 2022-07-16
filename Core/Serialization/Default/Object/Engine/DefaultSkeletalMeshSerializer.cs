@@ -49,10 +49,18 @@ public class DefaultSkeletalMeshSerializer : BaseObjectSerializer<USkeletalMesh>
         obj.SkeletalDepth = objectStream.ReadInt32();
         obj.LODModels = _lodSerializer.ReadTArrayToList(objectStream);
         obj.NameMap = objectStream.ReadDictionary(stream => stream.ReadFNameStr(), stream => stream.ReadInt32());
-        var PerPolyBoneKDOPsCount = objectStream.ReadInt32();
-        var BoneBreakNamesCount = objectStream.ReadInt32();
-        var BoneBreakOptionsCount = objectStream.ReadInt32();
+        obj.PerPolyBoneKDOPsCount = objectStream.ReadInt32();
+        obj.BoneBreakNamesCount = objectStream.ReadInt32();
+        obj.BoneBreakOptionsCount = objectStream.ReadInt32();
+        if (obj.BoneBreakNamesCount > 0 || obj.BoneBreakOptionsCount > 0 || obj.PerPolyBoneKDOPsCount > 0)
+        {
+            // cba to implement before I see them in use
+            Debugger.Break();
+        }
+
         obj.ClothingAssets = objectStream.ReadTArray(stream => stream.ReadObject());
+        obj.CachedStreamingTextureFactors = objectStream.ReadTArray(stream => stream.ReadInt32());
+        var unk = objectStream.ReadInt32();
         DropRamainingNativeData(obj, objectStream.BaseStream);
         _currentMesh = null;
     }

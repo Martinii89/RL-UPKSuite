@@ -81,12 +81,22 @@ public class DefaultSkelIndexBufferSerializer : IStreamSerializer<FSkelIndexBuff
     /// <inheritdoc />
     public FSkelIndexBuffer Deserialize(Stream stream)
     {
-        return new FSkelIndexBuffer
+        var buffer = new FSkelIndexBuffer();
+        buffer.Unk = stream.ReadInt32();
+        buffer.Size = (byte) stream.ReadByte();
+        switch (buffer.Size)
         {
-            Unk = stream.ReadInt32(),
-            Size = (byte) stream.ReadByte(),
-            Indices = stream.ReadTarrayWithElementSize(stream1 => stream1.ReadUInt32())
-        };
+            case 4:
+                buffer.Indices = stream.ReadTarrayWithElementSize(stream1 => stream1.ReadUInt32());
+                break;
+            case 2:
+                buffer.Indices = stream.ReadTarrayWithElementSize(stream1 => (uint) stream1.ReadUInt16());
+                break;
+            default:
+                throw new InvalidDataException();
+        }
+
+        return buffer;
     }
 
     public void Serialize(Stream stream, FSkelIndexBuffer value)

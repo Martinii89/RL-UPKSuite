@@ -22,4 +22,8 @@ public class USkeletalMesh : UObject
     public int SkeletalDepth { get; set; }
     public Dictionary<string, int> NameMap { get; set; } = new();
     public List<UObject?> ClothingAssets { get; set; } = new();
+    public List<int> CachedStreamingTextureFactors { get; set; } = new();
+    public int PerPolyBoneKDOPsCount { get; set; }
+    public int BoneBreakNamesCount { get; set; }
+    public int BoneBreakOptionsCount { get; set; }
 }
