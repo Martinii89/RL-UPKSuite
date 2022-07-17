@@ -15,7 +15,6 @@ public class DefaultSkeletalMeshSerializer : BaseObjectSerializer<USkeletalMesh>
     private readonly IObjectSerializer<UObject> _objectSerializer;
     private readonly IStreamSerializer<FRotator> _rotatorSerializer;
     private readonly IStreamSerializer<FVector> _vectorSerializer;
-    private USkeletalMesh? _currentMesh;
 
 
     public DefaultSkeletalMeshSerializer(IStreamSerializer<FBoxSphereBounds> boxSphereBoundsSerializer, IObjectSerializer<UObject> objectSerializer,
@@ -33,7 +32,6 @@ public class DefaultSkeletalMeshSerializer : BaseObjectSerializer<USkeletalMesh>
     /// <inheritdoc />
     public override void DeserializeObject(USkeletalMesh obj, IUnrealPackageStream objectStream)
     {
-        _currentMesh = obj;
         _objectSerializer.DeserializeObject(obj, objectStream);
         if (obj.ScriptProperties.FindIndex(x => x.Name == "bHasVertexColors") >= 0)
         {
@@ -61,8 +59,12 @@ public class DefaultSkeletalMeshSerializer : BaseObjectSerializer<USkeletalMesh>
         obj.ClothingAssets = objectStream.ReadTArray(stream => stream.ReadObject());
         obj.CachedStreamingTextureFactors = objectStream.ReadTArray(stream => stream.ReadInt32());
         var unk = objectStream.ReadInt32();
+        if (unk != 0)
+        {
+            Debugger.Break();
+        }
+
         DropRamainingNativeData(obj, objectStream.BaseStream);
-        _currentMesh = null;
     }
 
     /// <inheritdoc />

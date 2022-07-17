@@ -12,4 +12,6 @@ public class FStaticLodModel
     public FByteBulkData FBulkData { get; set; } = new();
     public int NumUvSets { get; set; }
     public FSkeletalMeshVertexBuffer GpuSkin { get; set; } = new();
+    public FSkelIndexBuffer AdjacencyIndexBuffer { get; set; } = new();
+    public List<FSkeletalMeshVertexInfluences> ExtraVertexInfluences { get; set; } = new();
 }

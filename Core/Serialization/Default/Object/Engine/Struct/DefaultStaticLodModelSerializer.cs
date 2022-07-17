@@ -45,6 +45,15 @@ public class DefaultStaticLodModelSerializer : BaseObjectSerializer<FStaticLodMo
         obj.FBulkData = _BulkDataSerializer.Deserialize(objectStream.BaseStream);
         obj.NumUvSets = objectStream.ReadInt32();
         _SkeletalMeshVertexBufferSerializer.DeserializeObject(obj.GpuSkin, objectStream);
+        // I don't think these properties are actually part of the FSkeletalMeshVertexBuffer. but separate objects in FStaticLodModel
+
+        var extraVertexInfluencesCount = objectStream.ReadInt32();
+        if (extraVertexInfluencesCount > 0)
+        {
+            Debugger.Break();
+        }
+
+        obj.AdjacencyIndexBuffer = _SkelIndexBufferSerializer.Deserialize(objectStream.BaseStream);
     }
 
     /// <inheritdoc />
@@ -214,15 +223,12 @@ public class DefaultSoftVertexSerializer : IStreamSerializer<FSoftVertex>
 public class DefaultSkeletalMeshVertexBufferSerializer : BaseObjectSerializer<FSkeletalMeshVertexBuffer>
 {
     private readonly IObjectSerializer<GpuVert> _gpuVertSerializer;
-    private readonly IStreamSerializer<FSkelIndexBuffer> _skelIndexBufferSerializer;
     private readonly IStreamSerializer<FVector> _vectorSerializer;
 
-    public DefaultSkeletalMeshVertexBufferSerializer(IStreamSerializer<FVector> vectorSerializer, IObjectSerializer<GpuVert> gpuVertSerializer,
-        IStreamSerializer<FSkelIndexBuffer> skelIndexBufferSerializer)
+    public DefaultSkeletalMeshVertexBufferSerializer(IStreamSerializer<FVector> vectorSerializer, IObjectSerializer<GpuVert> gpuVertSerializer)
     {
         _vectorSerializer = vectorSerializer;
         _gpuVertSerializer = gpuVertSerializer;
-        _skelIndexBufferSerializer = skelIndexBufferSerializer;
     }
 
     /// <inheritdoc />
@@ -248,13 +254,6 @@ public class DefaultSkeletalMeshVertexBufferSerializer : BaseObjectSerializer<FS
             _gpuVertSerializer.DeserializeObject(gpuVert, objectStream1);
             return gpuVert;
         });
-        var extraVertexInfluencesCount = objectStream.ReadInt32();
-        if (extraVertexInfluencesCount > 0)
-        {
-            Debugger.Break();
-        }
-
-        obj.AdjacencyIndexBuffer = _skelIndexBufferSerializer.Deserialize(objectStream.BaseStream);
     }
 
     /// <inheritdoc />
