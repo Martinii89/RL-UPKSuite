@@ -147,7 +147,7 @@ public static class StreamSerializerForExtension
 
     /// <summary>
     ///     Writes a array of values to the stream using a given typed serializer. The output can be prepended with the amount
-    ///     of elements, most arrays
+    ///     of elements
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="stream"></param>

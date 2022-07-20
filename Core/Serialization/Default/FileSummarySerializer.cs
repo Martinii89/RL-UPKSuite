@@ -82,7 +82,32 @@ public class FileSummarySerializer : IStreamSerializer<FileSummary>
     /// <inheritdoc />
     public void Serialize(Stream stream, FileSummary value)
     {
-        throw new NotImplementedException();
+        stream.WriteUInt32(value.Tag);
+        stream.WriteUInt16(value.FileVersion);
+        stream.WriteUInt16(value.LicenseeVersion);
+        stream.WriteInt32(value.TotalHeaderSize);
+        stream.WriteFString(value.FolderName);
+        stream.WriteUInt32(value.PackageFlags);
+        stream.WriteInt32(value.NameCount);
+        stream.WriteInt32(value.NameOffset);
+        stream.WriteInt32(value.ExportCount);
+        stream.WriteInt32(value.ExportOffset);
+        stream.WriteInt32(value.ImportCount);
+        stream.WriteInt32(value.ImportOffset);
+        stream.WriteInt32(value.DependsOffset);
+        stream.WriteInt32(value.ImportExportGuidsOffset);
+        stream.WriteInt32(value.ImportGuidsCount);
+        stream.WriteInt32(value.ExportGuidsCount);
+        stream.WriteInt32(value.ThumbnailTableOffset);
+        _guidSerializer.Serialize(stream, value.Guid);
+        _generationsSerializer.WriteTArray(stream, value.Generations.ToArray());
+        stream.WriteUInt32(value.EngineVersion);
+        stream.WriteUInt32(value.CookerVersion);
+        stream.WriteUInt32((uint) value.CompressionFlags);
+        _compressedChunkInfoSerializer.WriteTArray(stream, value.CompressedChunkInfos.ToArray());
+        stream.WriteInt32(value.Unknown5);
+        _stringSerializer.WriteTArray(stream, value.AdditionalPackagesToCook.ToArray());
+        _textureAllocationsSerializer.WriteTArray(stream, value.TextureAllocations.ToArray());
     }
 
     /// <summary>

@@ -19,6 +19,8 @@ public class FGenerationInfoSerializer : IStreamSerializer<FGenerationInfo>
     /// <inheritdoc />
     public void Serialize(Stream stream, FGenerationInfo value)
     {
-        throw new NotImplementedException();
+        stream.Write(value.ExportCount);
+        stream.Write(value.NameCount);
+        stream.Write(value.NetObjectCount);
     }
 }
