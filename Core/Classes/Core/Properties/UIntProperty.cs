@@ -21,4 +21,15 @@ public class UIntProperty : UProperty
     {
         return objStream.ReadInt32();
     }
+
+    /// <inheritdoc />
+    public override void SerializeValue(object? valueObject, UObject uObject, IUnrealPackageStream objectStream, int propertySize)
+    {
+        if (valueObject is not int value)
+        {
+            return;
+        }
+
+        objectStream.WriteInt32(value);
+    }
 }

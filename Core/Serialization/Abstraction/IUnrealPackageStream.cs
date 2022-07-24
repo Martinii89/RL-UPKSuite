@@ -10,6 +10,7 @@ public interface IUnrealPackageStream
     Seek TemporarySeek(long offset = 0, SeekOrigin origin = SeekOrigin.Current);
     UObject? ReadObject();
     FName ReadFName();
+    void WriteFName(string name);
     string ReadFNameStr();
     bool ReadBool();
     byte ReadByte();
@@ -27,4 +28,5 @@ public interface IUnrealPackageStream
     TArray<T> BulkReadTArray<T>(Func<IUnrealPackageStream, T> readFunc);
     Dictionary<TKey, TVal> ReadDictionary<TKey, TVal>(Func<IUnrealPackageStream, TKey?> keyRead, Func<IUnrealPackageStream, TVal> valRead) where TKey : notnull;
     TMultiMap<TKey, TVal> ReadTMap<TKey, TVal>(Func<IUnrealPackageStream, TKey> keyRead, Func<IUnrealPackageStream, TVal> valRead) where TKey : notnull;
+    void WriteInt32(int value);
 }

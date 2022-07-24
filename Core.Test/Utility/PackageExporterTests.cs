@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using Core.Serialization;
+using Core.Serialization.Abstraction;
 using Core.Test.TestUtilities;
 using Core.Types;
 using Core.Types.PackageTables;
@@ -14,24 +15,31 @@ namespace Core.Utility.Tests;
 public class PackageExporterTests
 {
     private readonly IStreamSerializer<ExportTableItem> _exportTableItemSerializer;
+    private readonly IStreamSerializer<FName> _fNameSerializer;
     private readonly IStreamSerializer<FileSummary> _headerserializer;
     private readonly IStreamSerializer<ImportTableItem> _importTableItemSerializer;
     private readonly IStreamSerializer<NameTableItem> _nameTableItemSerializer;
+    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
+    private readonly PackageLoader _packageLoader;
     private readonly UnrealPackage _testPackage;
 
     public PackageExporterTests()
     {
         var serializer = SerializerHelper.GetSerializerFor<UnrealPackage>(typeof(UnrealPackage));
         var nativeFactory = new NativeClassFactory();
-        var options = new PackageCacheOptions(serializer, nativeFactory) { SearchPaths = { @"TestData/UDK/" }, GraphLinkPackages = false };
+        var objectSerializerFactory = SerializerHelper.GetService<IObjectSerializerFactory>(typeof(IObjectSerializerFactory));
+        var options = new PackageCacheOptions(serializer, nativeFactory)
+            { SearchPaths = { @"TestData/UDK/" }, GraphLinkPackages = true, ObjectSerializerFactory = objectSerializerFactory };
         var packageCache = new PackageCache(options);
-        var loader = new PackageLoader(serializer, packageCache, new NeverUnpackUnpacker(), nativeFactory);
-        loader.LoadPackage("TestData/UDK/UDKTestPackage.upk", "UDKTestPackage");
-        _testPackage = loader.GetPackage("UDKTestPackage") ?? throw new InvalidOperationException();
+        _packageLoader = new PackageLoader(serializer, packageCache, new NeverUnpackUnpacker(), nativeFactory, objectSerializerFactory);
+        _packageLoader.LoadPackage("TestData/UDK/UDKTestPackage.upk", "UDKTestPackage");
+        _testPackage = _packageLoader.GetPackage("UDKTestPackage") ?? throw new InvalidOperationException();
         _headerserializer = SerializerHelper.GetSerializerFor<FileSummary>(typeof(FileSummary));
         _nameTableItemSerializer = SerializerHelper.GetSerializerFor<NameTableItem>(typeof(NameTableItem));
         _importTableItemSerializer = SerializerHelper.GetSerializerFor<ImportTableItem>(typeof(ImportTableItem));
         _exportTableItemSerializer = SerializerHelper.GetSerializerFor<ExportTableItem>(typeof(ExportTableItem));
+        _fNameSerializer = SerializerHelper.GetSerializerFor<FName>(typeof(FName));
+        _objectIndexSerializer = SerializerHelper.GetSerializerFor<ObjectIndex>(typeof(ObjectIndex));
     }
 
 
@@ -126,8 +134,56 @@ public class PackageExporterTests
         stream.Position.Should().Be(0);
     }
 
+    [Fact]
+    public void ExportObjectSerialData_ShoulNotThrow()
+    {
+        // Arrange
+        var stream = new MemoryStream();
+        var sut = GetTestPackageExporter(stream);
+
+        // Act
+        var act = () => sut.ExportObjectSerialData();
+        // Assert
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void ExportObjectSerialData_ExportedSerialDataShouldBeEqual()
+    {
+        // Arrange
+        var stream = new MemoryStream();
+        var sut = GetTestPackageExporter(stream);
+        var packageStream = _testPackage.PackageStream;
+        var serialStart = _testPackage.ExportTable[0].SerialOffset;
+        var serialEnd = _testPackage.ExportTable[1].SerialOffset + _testPackage.ExportTable[1].SerialSize;
+        packageStream.Position = serialStart;
+        var serialData = packageStream.ReadBytes((int) (serialEnd - serialStart));
+        // Act
+        sut.ExportObjectSerialData();
+        var exportBuffer = new ArraySegment<byte>(stream.GetBuffer(), 0, (int) stream.Length);
+        // Assert
+        exportBuffer.Count.Should().Be(serialData.Length);
+        exportBuffer.Should().BeEquivalentTo(serialData);
+    }
+
+    [Fact]
+    public void ExportPackage_ExportedPackageData_ShouldBeParsable()
+    {
+        // Arrange
+        var stream = new MemoryStream();
+        var sut = GetTestPackageExporter(stream);
+        // Act
+        sut.ExportPackage();
+        var exportBuffer = new ArraySegment<byte>(stream.GetBuffer(), 0, (int) stream.Length);
+        File.WriteAllBytes("TestData/UDK/UDKTestPackage_exported.upk", exportBuffer.ToArray());
+        var act = () => _packageLoader.LoadPackage("TestData/UDK/UDKTestPackage_exported.upk", "UDKTestPackage_exported");
+        // Assert
+        act.Should().NotThrow();
+    }
+
     private PackageExporter GetTestPackageExporter(Stream stream)
     {
-        return new PackageExporter(_testPackage, stream, _headerserializer, _nameTableItemSerializer, _importTableItemSerializer, _exportTableItemSerializer);
+        return new PackageExporter(_testPackage, stream, _headerserializer, _nameTableItemSerializer, _importTableItemSerializer, _exportTableItemSerializer,
+            _objectIndexSerializer, _fNameSerializer);
     }
 }

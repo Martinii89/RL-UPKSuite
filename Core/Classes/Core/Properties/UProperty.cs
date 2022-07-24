@@ -50,4 +50,9 @@ public abstract class UProperty : UField
     {
         return ((uint) (PropertyFlags & 0x00000000FFFFFFFFU) & (uint) flag) != 0;
     }
+
+    public virtual void SerializeValue(object? valueObject, UObject uObject, IUnrealPackageStream objectStream, int propertySize)
+    {
+        throw new NotImplementedException(Class?.Name);
+    }
 }

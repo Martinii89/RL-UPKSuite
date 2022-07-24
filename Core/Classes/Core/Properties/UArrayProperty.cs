@@ -45,4 +45,19 @@ public class UArrayProperty : UProperty
 
         return result;
     }
+
+    public override void SerializeValue(object? valueObject, UObject uObject, IUnrealPackageStream objectStream, int propertySize)
+    {
+        if (valueObject is not List<object> values)
+        {
+            return;
+        }
+
+        objectStream.WriteInt32(values.Count);
+        var elementSize = (propertySize - 4) / values.Count;
+        foreach (var value in values)
+        {
+            InnerProperty?.SerializeValue(value, uObject, objectStream, elementSize);
+        }
+    }
 }

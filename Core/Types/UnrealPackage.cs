@@ -750,4 +750,15 @@ public class UnrealPackage
                 break;
         }
     }
+
+    public FName GetFName(string name)
+    {
+        var registeredName = NameTable.FindIndex(x => x.Name == name);
+        if (registeredName != -1)
+        {
+            return new FName(registeredName);
+        }
+
+        throw new KeyNotFoundException();
+    }
 }

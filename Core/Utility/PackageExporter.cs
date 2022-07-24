@@ -1,4 +1,5 @@
 ﻿using Core.Serialization;
+using Core.Serialization.Abstraction;
 using Core.Types;
 using Core.Types.PackageTables;
 
@@ -10,20 +11,41 @@ public class PackageExporter
     private readonly IStreamSerializer<ExportTableItem> _exporttTableItemSerializer;
     private readonly IStreamSerializer<FileSummary> _fileSummarySerializer;
     private readonly IStreamSerializer<ImportTableItem> _importTableItemSerializer;
+    private readonly IStreamSerializer<FName> _nameSerializer;
     private readonly IStreamSerializer<NameTableItem> _nameTableItemSerializer;
+    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
+    private readonly IUnrealPackageStream _outputPackageStream;
 
     private readonly UnrealPackage _package;
 
     public PackageExporter(UnrealPackage package, Stream exportStream, IStreamSerializer<FileSummary> fileSummarySerializer,
         IStreamSerializer<NameTableItem> nameTableItemSerializer, IStreamSerializer<ImportTableItem> importTableItemSerializer,
-        IStreamSerializer<ExportTableItem> exporttTableItemSerializer)
+        IStreamSerializer<ExportTableItem> exporttTableItemSerializer, IStreamSerializer<ObjectIndex> objectIndexSerializer,
+        IStreamSerializer<FName> nameSerializer)
     {
         _fileSummarySerializer = fileSummarySerializer;
         _nameTableItemSerializer = nameTableItemSerializer;
         _importTableItemSerializer = importTableItemSerializer;
         _exporttTableItemSerializer = exporttTableItemSerializer;
+        _objectIndexSerializer = objectIndexSerializer;
+        _nameSerializer = nameSerializer;
         _exportStream = exportStream;
         _package = package;
+        _outputPackageStream = new UnrealPackageStream(_exportStream, _objectIndexSerializer, _nameSerializer, _package);
+    }
+
+    public void ExportPackage()
+    {
+        ExportHeader();
+        ExportNameTable();
+        ExportImportTable();
+        ExporExporttTable();
+        ExportDummyDependsTable();
+        ExportDummyThumbnailsTable();
+        ExportObjectSerialData();
+        // re-export export table once all the exported data is known
+        _exportStream.Position = _package.Header.ExportOffset;
+        ExporExporttTable();
     }
 
     /// <summary>
@@ -86,5 +108,25 @@ public class PackageExporter
     /// </summary>
     public void ExportDummyThumbnailsTable()
     {
+    }
+
+    public void ExportObjectSerialData()
+    {
+        var exports = _package.ExportTable;
+        foreach (var export in exports)
+        {
+            var obj = export.Object;
+            if (!obj.FullyDeserialized)
+            {
+                obj.Deserialize();
+            }
+
+            ArgumentNullException.ThrowIfNull(obj?.Serializer);
+            var offset = _exportStream.Position;
+            obj.Serializer.SerializeObject(obj, _outputPackageStream);
+            var size = _exportStream.Position - offset;
+            export.SerialOffset = offset;
+            export.SerialSize = (int) size;
+        }
     }
 }

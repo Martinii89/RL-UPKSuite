@@ -10,15 +10,8 @@ public class ScriptPropertiesSerializer
 {
     public IEnumerable<FProperty> GetScriptProperties(UObject obj, IUnrealPackageStream objectStream, UStruct? propSource = null)
     {
-        if (propSource is null)
-        {
-            propSource = obj.Class;
-        }
-        //UStruct? propSource = obj.Class;
-        //if (obj is UScriptStruct scriptStruct)
-        //{
-        //    propSource = scriptStruct;
-        //}
+        propSource ??= obj.Class;
+
 
         if (propSource is null)
         {
@@ -72,11 +65,37 @@ public class ScriptPropertiesSerializer
                 continue;
             }
 
+            property.uProperty = linkedProperty;
             property.ValueStart = objectStream.BaseStream.Position;
             property.Value = linkedProperty?.DeserializeValue(obj, objectStream, property.Size);
 
 
             yield return property;
         }
+    }
+
+    public void WriteScriptProperties(IEnumerable<FProperty> properties, UObject obj, IUnrealPackageStream objectStream)
+    {
+        foreach (var fProperty in properties)
+        {
+            ArgumentNullException.ThrowIfNull(fProperty.uProperty);
+            objectStream.WriteFName(fProperty.Name);
+            objectStream.WriteFName(fProperty.Type.ToString());
+            objectStream.WriteInt32(fProperty.Size);
+            objectStream.WriteInt32(fProperty.ArrayIndex);
+            switch (fProperty.Type)
+            {
+                case PropertyType.StructProperty:
+                    objectStream.WriteFName(fProperty.StructName);
+                    break;
+                case PropertyType.ByteProperty:
+                    objectStream.WriteFName(fProperty.EnumName);
+                    break;
+            }
+
+            fProperty.uProperty.SerializeValue(fProperty.Value, obj, objectStream, fProperty.Size);
+        }
+
+        objectStream.WriteFName("None");
     }
 }

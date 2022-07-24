@@ -5,6 +5,7 @@ namespace Core.Classes.Core.Properties;
 public class FProperty
 {
     internal UnrealPackage Package;
+    public UProperty? uProperty;
     public string Name { get; set; }
 
     public PropertyType Type { get; set; }

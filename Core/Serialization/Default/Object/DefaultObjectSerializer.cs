@@ -36,13 +36,24 @@ public class DefaultObjectSerializer : BaseObjectSerializer<UObject>
             return;
         }
 
-        //obj.ScriptProperties.AddRange(GetScriptProperties(obj, objectStream));
         obj.ScriptProperties.AddRange(_scriptPropertiesSerializer.GetScriptProperties(obj, objectStream));
     }
 
     /// <inheritdoc />
     public override void SerializeObject(UObject obj, IUnrealPackageStream objectStream)
     {
-        throw new NotImplementedException();
+        if (obj.HasObjectFlag(ObjectFlagsLO.HasStack))
+        {
+            throw new NotImplementedException();
+        }
+
+        objectStream.WriteInt32(obj.NetIndex);
+
+        if (obj.Class == UClass.StaticClass)
+        {
+            return;
+        }
+
+        _scriptPropertiesSerializer.WriteScriptProperties(obj.ScriptProperties, obj, objectStream);
     }
 }

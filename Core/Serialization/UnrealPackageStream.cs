@@ -36,6 +36,12 @@ public class UnrealPackageStream : IUnrealPackageStream
         return _nameSerializer.Deserialize(BaseStream);
     }
 
+    public void WriteFName(string name)
+    {
+        var fname = _unrealPackage.GetFName(name);
+        _nameSerializer.Serialize(BaseStream, fname);
+    }
+
     public string ReadFNameStr()
     {
         return _unrealPackage.GetName(_nameSerializer.Deserialize(BaseStream));
@@ -173,5 +179,10 @@ public class UnrealPackageStream : IUnrealPackageStream
         }
 
         return res;
+    }
+
+    public void WriteInt32(int value)
+    {
+        BaseStream.WriteInt32(value);
     }
 }
