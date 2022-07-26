@@ -21,4 +21,14 @@ public class UBoolProperty : UProperty
     {
         return objStream.ReadByte();
     }
+
+    public override void SerializeValue(object? valueObject, UObject uObject, IUnrealPackageStream objectStream, int propertySize)
+    {
+        if (valueObject is not byte value)
+        {
+            throw new InvalidDataException();
+        }
+
+        objectStream.WriteByte(value);
+    }
 }

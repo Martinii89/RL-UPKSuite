@@ -24,4 +24,10 @@ public class UObjectProperty : UProperty
         var propObj = objStream.ReadObject();
         return propObj;
     }
+
+    /// <inheritdoc />
+    public override void SerializeValue(object? valueObject, UObject uObject, IUnrealPackageStream objectStream, int propertySize)
+    {
+        objectStream.WriteObject(valueObject as UObject);
+    }
 }

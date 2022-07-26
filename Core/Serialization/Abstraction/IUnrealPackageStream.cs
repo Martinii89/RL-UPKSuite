@@ -24,9 +24,22 @@ public interface IUnrealPackageStream
     long ReadInt64();
     float ReadSingle();
     string ReadFString();
+    void WriteFString(string value);
     List<T> ReadTArray<T>(Func<IUnrealPackageStream, T> readFunc);
+    void WriteTArray<T>(List<T> values, Action<IUnrealPackageStream, T> writeFunc);
     TArray<T> BulkReadTArray<T>(Func<IUnrealPackageStream, T> readFunc);
+    void BulkWriteTArray<T>(TArray<T> values, Action<IUnrealPackageStream, T> writeFunc);
     Dictionary<TKey, TVal> ReadDictionary<TKey, TVal>(Func<IUnrealPackageStream, TKey?> keyRead, Func<IUnrealPackageStream, TVal> valRead) where TKey : notnull;
+
+    void WriteDictionary<TKey, TVal>(Dictionary<TKey, TVal> dictionary, Action<IUnrealPackageStream, TKey?> keyWrite,
+        Action<IUnrealPackageStream, TVal> valWrite) where TKey : notnull;
+
     TMultiMap<TKey, TVal> ReadTMap<TKey, TVal>(Func<IUnrealPackageStream, TKey> keyRead, Func<IUnrealPackageStream, TVal> valRead) where TKey : notnull;
     void WriteInt32(int value);
+    void WriteObject(UObject? obj);
+    void WriteByte(byte value);
+    void WriteUInt32(uint value);
+    void WriteBool(bool value);
+    void WriteSingle(float value);
+    void WriteBytes(byte[] bytes);
 }

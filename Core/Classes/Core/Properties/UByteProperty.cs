@@ -28,4 +28,26 @@ public class UByteProperty : UProperty
 
         return objStream.ReadFNameStr();
     }
+
+    /// <inheritdoc />
+    public override void SerializeValue(object? valueObject, UObject uObject, IUnrealPackageStream objectStream, int propertySize)
+    {
+        if (Enum is null)
+        {
+            if (valueObject is not byte byteValue)
+            {
+                throw new InvalidDataException();
+            }
+
+            objectStream.WriteByte(byteValue);
+            return;
+        }
+
+        if (valueObject is not string stringValue)
+        {
+            throw new InvalidDataException();
+        }
+
+        objectStream.WriteFName(stringValue);
+    }
 }

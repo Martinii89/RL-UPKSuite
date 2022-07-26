@@ -22,6 +22,7 @@ public class PackageExporterTests
     private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
     private readonly PackageLoader _packageLoader;
     private readonly UnrealPackage _testPackage;
+    private readonly UnrealPackage _testPackageMaterial;
 
     public PackageExporterTests()
     {
@@ -33,7 +34,9 @@ public class PackageExporterTests
         var packageCache = new PackageCache(options);
         _packageLoader = new PackageLoader(serializer, packageCache, new NeverUnpackUnpacker(), nativeFactory, objectSerializerFactory);
         _packageLoader.LoadPackage("TestData/UDK/UDKTestPackage.upk", "UDKTestPackage");
+        _packageLoader.LoadPackage("TestData/UDK/TestMaterials.upk", "TestMaterials");
         _testPackage = _packageLoader.GetPackage("UDKTestPackage") ?? throw new InvalidOperationException();
+        _testPackageMaterial = _packageLoader.GetPackage("TestMaterials") ?? throw new InvalidOperationException();
         _headerserializer = SerializerHelper.GetSerializerFor<FileSummary>(typeof(FileSummary));
         _nameTableItemSerializer = SerializerHelper.GetSerializerFor<NameTableItem>(typeof(NameTableItem));
         _importTableItemSerializer = SerializerHelper.GetSerializerFor<ImportTableItem>(typeof(ImportTableItem));
@@ -181,9 +184,31 @@ public class PackageExporterTests
         act.Should().NotThrow();
     }
 
+    [Fact]
+    public void ExportMaterialPackage_ExportedPackageData_ShouldBeParsable()
+    {
+        // Arrange
+        var stream = new MemoryStream();
+        var sut = GetMaterialsTestPackageExporter(stream);
+        // Act
+        sut.ExportPackage();
+        var exportBuffer = new ArraySegment<byte>(stream.GetBuffer(), 0, (int) stream.Length);
+        File.WriteAllBytes("TestData/UDK/UDKTestPackageMaterial_exported.upk", exportBuffer.ToArray());
+        var act = () => _packageLoader.LoadPackage("TestData/UDK/UDKTestPackageMaterial_exported.upk", "UDKTestPackageMaterial_exported");
+        // Assert
+        act.Should().NotThrow();
+    }
+
     private PackageExporter GetTestPackageExporter(Stream stream)
     {
         return new PackageExporter(_testPackage, stream, _headerserializer, _nameTableItemSerializer, _importTableItemSerializer, _exportTableItemSerializer,
+            _objectIndexSerializer, _fNameSerializer);
+    }
+
+    private PackageExporter GetMaterialsTestPackageExporter(Stream stream)
+    {
+        return new PackageExporter(_testPackageMaterial, stream, _headerserializer, _nameTableItemSerializer, _importTableItemSerializer,
+            _exportTableItemSerializer,
             _objectIndexSerializer, _fNameSerializer);
     }
 }

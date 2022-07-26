@@ -38,8 +38,15 @@ public static class StreamExtensions
     /// <param name="value"></param>
     public static void WriteFString(this Stream stream, string value)
     {
-        stream.WriteInt32(value.Length + 1);
-        stream.WriteString(value, StringCoding.ZeroTerminated);
+        if (value.Length == 0)
+        {
+            stream.WriteInt32(0);
+        }
+        else
+        {
+            stream.WriteInt32(value.Length + 1);
+            stream.WriteString(value, StringCoding.ZeroTerminated);
+        }
     }
 
     /// <summary>

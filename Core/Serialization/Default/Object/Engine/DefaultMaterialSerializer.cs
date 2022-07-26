@@ -25,30 +25,23 @@ public class DefaultMaterialSerializer : BaseObjectSerializer<UMaterial>
         _materialResourceSerializer.DeserializeObject(obj.FMaterialResources[0], objectStream);
 
         var leftOver = obj.ExportTableItem.SerialOffset + obj.ExportTableItem.SerialSize - objectStream.BaseStream.Position;
-        obj.FMaterialResources[0].UnknownBytes = objectStream.ReadBytes((int) leftOver);
+        obj.FMaterialResources[0].UnknownBytes2 = objectStream.ReadBytes((int) leftOver);
     }
 
     public override void SerializeObject(UMaterial obj, IUnrealPackageStream objectStream)
     {
-        throw new NotImplementedException();
+        _objectSerializer.SerializeObject(obj, objectStream);
+        _materialResourceSerializer.SerializeObject(obj.FMaterialResources[0], objectStream);
     }
 }
 
 public class FmaterialResourceSerializer : BaseObjectSerializer<FMaterialResource>
 {
     private readonly IStreamSerializer<FGuid> _fguidSerializer;
-    private readonly IStreamSerializer<FString> _fstringSerializer;
 
-    public FmaterialResourceSerializer(IStreamSerializer<FString> fstringSerializer, IStreamSerializer<FGuid> fguidSerializer)
+    public FmaterialResourceSerializer(IStreamSerializer<FGuid> fguidSerializer)
     {
-        _fstringSerializer = fstringSerializer;
         _fguidSerializer = fguidSerializer;
-    }
-
-
-    internal FName ReadFName(IUnrealPackageStream stream)
-    {
-        return stream.ReadFName();
     }
 
     internal int ReadInt(IUnrealPackageStream stream)
@@ -58,7 +51,7 @@ public class FmaterialResourceSerializer : BaseObjectSerializer<FMaterialResourc
 
     public override void DeserializeObject(FMaterialResource obj, IUnrealPackageStream objectStream)
     {
-        obj.CompileErrors = _fstringSerializer.ReadTArrayToList(objectStream.BaseStream).Select(x => x.InnerString).ToList();
+        obj.CompileErrors = objectStream.ReadTArray(stream => stream.ReadFString());
         obj.TextureDependencyLengthMap = objectStream.ReadDictionary(stream => stream.ReadObject() as UMaterialExpression, ReadInt);
         obj.MaxTextureDependencyLength = objectStream.ReadInt32();
         obj.ID = _fguidSerializer.Deserialize(objectStream.BaseStream);
@@ -78,11 +71,31 @@ public class FmaterialResourceSerializer : BaseObjectSerializer<FMaterialResourc
             VScale = objectStream.ReadSingle()
         });
 
-        obj.UnknownBytes = objectStream.ReadBytes(16);
+        obj.FourUnknownInts = objectStream.ReadBytes(16);
     }
 
     public override void SerializeObject(FMaterialResource obj, IUnrealPackageStream objectStream)
     {
-        throw new NotImplementedException();
+        objectStream.WriteTArray(obj.CompileErrors, (stream, val) => stream.WriteFString(val));
+        objectStream.WriteDictionary(obj.TextureDependencyLengthMap, (stream, expression) => stream.WriteObject(expression),
+            (stream, i) => stream.WriteInt32(i));
+        objectStream.WriteInt32(obj.MaxTextureDependencyLength);
+        _fguidSerializer.Serialize(objectStream.BaseStream, obj.ID);
+        objectStream.WriteUInt32(obj.NumUserTexCoords);
+        objectStream.WriteTArray(obj.UniformExpressionTextures, (stream, texture) => stream.WriteObject(texture));
+        objectStream.WriteBool(obj.bUsesSceneColorTemp);
+        objectStream.WriteBool(obj.bUsesSceneDepthTemp);
+        objectStream.WriteBool(obj.bUsesDynamicParameterTemp);
+        objectStream.WriteBool(obj.bUsesLightmapUVsTemp);
+        objectStream.WriteBool(obj.bUsesMaterialVertexPositionOffsetTemp);
+        objectStream.WriteBool(obj.UsingTransforms);
+        objectStream.WriteTArray(obj.FTextureLookupInfos, (stream, info) =>
+        {
+            stream.WriteInt32(info.TexCoordIndex);
+            stream.WriteInt32(info.TextureIndex);
+            stream.WriteSingle(info.UScale);
+            stream.WriteSingle(info.VScale);
+        });
+        objectStream.WriteBytes(obj.FourUnknownInts ?? throw new InvalidOperationException());
     }
 }

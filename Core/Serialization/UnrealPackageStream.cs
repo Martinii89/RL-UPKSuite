@@ -2,6 +2,7 @@
 using Core.Classes.Core;
 using Core.Classes.Core.Structs;
 using Core.Serialization.Abstraction;
+using Core.Serialization.Extensions;
 using Core.Types;
 using Core.Types.PackageTables;
 
@@ -90,6 +91,11 @@ public class UnrealPackageStream : IUnrealPackageStream
         return Encoding.UTF8.GetString(stringBytes);
     }
 
+    public void WriteFString(string value)
+    {
+        BaseStream.WriteFString(value);
+    }
+
     public List<T> ReadTArray<T>(Func<IUnrealPackageStream, T> readFunc)
     {
         var res = new List<T>();
@@ -100,6 +106,21 @@ public class UnrealPackageStream : IUnrealPackageStream
         }
 
         return res;
+    }
+
+    public void WriteTArray<T>(List<T> values, Action<IUnrealPackageStream, T> writeFunc)
+    {
+        WriteInt32(values.Count);
+        foreach (var value in values)
+        {
+            writeFunc(this, value);
+        }
+    }
+
+    public void BulkWriteTArray<T>(TArray<T> values, Action<IUnrealPackageStream, T> writeFunc)
+    {
+        WriteInt32(values.ElementSize);
+        WriteTArray(values, writeFunc);
     }
 
     public Dictionary<TKey, TVal> ReadDictionary<TKey, TVal>(Func<IUnrealPackageStream, TKey?> keyRead, Func<IUnrealPackageStream, TVal> valRead)
@@ -120,6 +141,17 @@ public class UnrealPackageStream : IUnrealPackageStream
         }
 
         return res;
+    }
+
+    public void WriteDictionary<TKey, TVal>(Dictionary<TKey, TVal> dictionary, Action<IUnrealPackageStream, TKey?> keyWrite,
+        Action<IUnrealPackageStream, TVal> valWrite) where TKey : notnull
+    {
+        WriteInt32(dictionary.Count);
+        foreach (var (key, value) in dictionary)
+        {
+            keyWrite(this, key);
+            valWrite(this, value);
+        }
     }
 
     public TMultiMap<TKey, TVal> ReadTMap<TKey, TVal>(Func<IUnrealPackageStream, TKey> keyRead, Func<IUnrealPackageStream, TVal> valRead) where TKey : notnull
@@ -181,8 +213,66 @@ public class UnrealPackageStream : IUnrealPackageStream
         return res;
     }
 
+    /// <inheritdoc />
     public void WriteInt32(int value)
     {
         BaseStream.WriteInt32(value);
+    }
+
+    /// <inheritdoc />
+    public void WriteObject(UObject? obj)
+    {
+        if (obj == null)
+        {
+            _objectIndexSerializer.Serialize(BaseStream, new ObjectIndex());
+            return;
+        }
+
+        if (obj.ExportTableItem is not null)
+        {
+            var exportIndex = obj.OwnerPackage.ExportTable.FindIndex(o => o.Object == obj);
+            if (exportIndex != -1)
+            {
+                _objectIndexSerializer.Serialize(BaseStream, new ObjectIndex(ObjectIndex.FromExportIndex(exportIndex)));
+                return;
+            }
+        }
+        else
+        {
+            var importIndex = obj.OwnerPackage.ImportTable.FindIndex(o => o.ImportedObject == obj);
+            if (importIndex != -1)
+            {
+                _objectIndexSerializer.Serialize(BaseStream, new ObjectIndex(ObjectIndex.FromImportIndex(importIndex)));
+                return;
+            }
+        }
+
+        _objectIndexSerializer.Serialize(BaseStream, new ObjectIndex());
+    }
+
+    /// <inheritdoc />
+    public void WriteByte(byte value)
+    {
+        BaseStream.WriteByte(value);
+    }
+
+    public void WriteUInt32(uint value)
+    {
+        BaseStream.WriteUInt32(value);
+    }
+
+    public void WriteBool(bool value)
+    {
+        WriteInt32(value ? 1 : 0);
+    }
+
+    public void WriteSingle(float value)
+    {
+        BaseStream.WriteSingle(value);
+    }
+
+    public void WriteBytes(byte[] bytes)
+    {
+        BaseStream.WriteBytes(bytes);
     }
 }

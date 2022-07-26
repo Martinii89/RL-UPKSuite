@@ -37,12 +37,13 @@ public class FMaterial
     public bool DummyDroppedFallbackComponents { get; set; }
 
     // 16 unknown bytes at the end 
-    public byte[]? UnknownBytes { get; set; }
+    public byte[]? FourUnknownInts { get; set; }
 }
 
 public class FMaterialResource : FMaterial
 {
     public int Unk { get; set; }
+    public byte[] UnknownBytes2 { get; set; }
 }
 
 public class FTextureLookupInfo
