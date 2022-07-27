@@ -1,4 +1,6 @@
-﻿using Core.Types;
+﻿using Core.Classes;
+using Core.Flags;
+using Core.Types;
 using Core.Types.PackageTables;
 
 namespace Core.Serialization.Default;
@@ -57,12 +59,35 @@ public class ExportTableItemSerializer : IStreamSerializer<ExportTableItem>
         _objectIndexSerializer.Serialize(stream, value.OuterIndex);
         _nameSerializer.Serialize(stream, value.ObjectName);
         _objectIndexSerializer.Serialize(stream, value.ArchetypeIndex);
-        stream.WriteUInt64(value.ObjectFlags);
+        if (value.Object is UPackage)
+        {
+            // RF_Public | RF_LoadForClient | RF_LoadForServer | RF_LoadForEdit	
+            stream.WriteInt64(0x7000400000000);
+        }
+        else
+        {
+            //exporting as archetype object (0x400) forces it to show up in the content browser
+            // RF_ArchetypeObject | RF_Public | RF_LoadForClient | RF_LoadForServer | RF_LoadForEdit| RF_Standalone	
+            stream.WriteInt64(0xF000400000400);
+        }
+
+        //stream.WriteUInt64(value.ObjectFlags);
         stream.WriteInt32(value.SerialSize);
         stream.WriteInt32((int) value.SerialOffset);
-        stream.WriteInt32(value.ExportFlags);
+        stream.WriteInt32((int) ExportFlag.None);
         _intSerializer.WriteTArray(stream, value.NetObjects.ToArray());
         _guidSerializer.Serialize(stream, value.PackageGuid);
-        stream.WriteInt32(value.PackageFlags);
+
+        // Package flag should be 1 for all UPackage exports. 
+        // 0 for everything else
+        if (value.Object is UPackage)
+        {
+            stream.WriteInt32(1);
+        }
+        else
+        {
+            stream.WriteInt32(0);
+        }
+        //stream.WriteInt32(value.PackageFlags);
     }
 }

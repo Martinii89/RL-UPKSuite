@@ -57,18 +57,18 @@ public class FmaterialResourceSerializer : BaseObjectSerializer<FMaterialResourc
         obj.ID = _fguidSerializer.Deserialize(objectStream.BaseStream);
         obj.NumUserTexCoords = objectStream.ReadUInt32();
         obj.UniformExpressionTextures = objectStream.ReadTArray(stream => stream.ReadObject() as UTexture);
-        obj.bUsesSceneColorTemp = objectStream.ReadInt32() == 1;
-        obj.bUsesSceneDepthTemp = objectStream.ReadInt32() == 1;
-        obj.bUsesDynamicParameterTemp = objectStream.ReadInt32() == 1;
-        obj.bUsesLightmapUVsTemp = objectStream.ReadInt32() == 1;
-        obj.bUsesMaterialVertexPositionOffsetTemp = objectStream.ReadInt32() == 1;
-        obj.UsingTransforms = objectStream.ReadInt32() == 1;
+        obj.bUsesSceneColorTemp = objectStream.ReadBool();
+        obj.bUsesSceneDepthTemp = objectStream.ReadBool();
+        obj.bUsesDynamicParameterTemp = objectStream.ReadBool();
+        obj.bUsesLightmapUVsTemp = objectStream.ReadBool();
+        obj.bUsesMaterialVertexPositionOffsetTemp = objectStream.ReadBool();
+        obj.UsingTransforms = objectStream.ReadBool();
         obj.FTextureLookupInfos = objectStream.ReadTArray(objectStream1 => new FTextureLookupInfo
         {
-            TexCoordIndex = objectStream.ReadInt32(),
-            TextureIndex = objectStream.ReadInt32(),
-            UScale = objectStream.ReadSingle(),
-            VScale = objectStream.ReadSingle()
+            TexCoordIndex = objectStream1.ReadInt32(),
+            TextureIndex = objectStream1.ReadInt32(),
+            UScale = objectStream1.ReadSingle(),
+            VScale = objectStream1.ReadSingle()
         });
 
         obj.FourUnknownInts = objectStream.ReadBytes(16);

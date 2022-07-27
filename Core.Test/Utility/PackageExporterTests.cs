@@ -1,7 +1,10 @@
 ﻿using System;
 using System.IO;
+using Core.RocketLeague;
+using Core.RocketLeague.Decryption;
 using Core.Serialization;
 using Core.Serialization.Abstraction;
+using Core.Serialization.RocketLeague;
 using Core.Test.TestUtilities;
 using Core.Types;
 using Core.Types.PackageTables;
@@ -185,6 +188,19 @@ public class PackageExporterTests
     }
 
     [Fact]
+    public void ExportSerialdata_WithSerializerFactory_ShouldNotThrow()
+    {
+        // Arrange
+        var stream = new MemoryStream();
+        var sut = GetTestPackageExporter(stream);
+        var factory = SerializerHelper.GetService<IObjectSerializerFactory>(typeof(IObjectSerializerFactory));
+        // Act
+        var act = () => sut.ExportObjectSerialData(factory);
+        // Assert
+        act.Should().NotThrow();
+    }
+
+    [Fact]
     public void ExportMaterialPackage_ExportedPackageData_ShouldBeParsable()
     {
         // Arrange
@@ -197,6 +213,43 @@ public class PackageExporterTests
         var act = () => _packageLoader.LoadPackage("TestData/UDK/UDKTestPackageMaterial_exported.upk", "UDKTestPackageMaterial_exported");
         // Assert
         act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void ExportRLPackage_ExportPackage_ShouldNotThrow()
+    {
+        // Arrange
+        var stream = new MemoryStream();
+
+        // Arrange
+        var fileSummarySerializer = SerializerHelper.GetSerializerFor<FileSummary>(typeof(FileSummary), RocketLeagueBase.FileVersion);
+        var unpacker = new PackageUnpacker(fileSummarySerializer, new DecryptionProvider("keys.txt"));
+        var packageSerializer = SerializerHelper.GetSerializerFor<UnrealPackage>(typeof(UnrealPackage), RocketLeagueBase.FileVersion);
+        var nativeFactory = new NativeClassFactory();
+        var RLobjectSerializerFactory = SerializerHelper.GetService<IObjectSerializerFactory>(typeof(IObjectSerializerFactory), RocketLeagueBase.FileVersion);
+        var options = new PackageCacheOptions(packageSerializer, nativeFactory)
+        {
+            SearchPaths = { @"D:\SteamLibrary\steamapps\common\rocketleague\TAGame\CookedPCConsole" }, GraphLinkPackages = true, PackageUnpacker = unpacker,
+            NativeClassFactory = nativeFactory, ObjectSerializerFactory = RLobjectSerializerFactory
+        };
+        var packageCache = new PackageCache(options);
+        var UDKobjectSerializerFactory = SerializerHelper.GetService<IObjectSerializerFactory>(typeof(IObjectSerializerFactory));
+        var loader = new PackageLoader(packageSerializer, packageCache, unpacker, nativeFactory, UDKobjectSerializerFactory);
+        var package = loader.LoadPackage("TestData/RocketPass_Premium_T_SF.upk", "RocketPass_Premium_T_SF");
+        var sut = GetPackageExporter(stream, package);
+
+        // Act
+        var act = () => sut.ExportPackage();
+        // Assert
+        act.Should().NotThrow();
+        var exportBuffer = new ArraySegment<byte>(stream.GetBuffer(), 0, (int) stream.Length);
+        File.WriteAllBytes("TestData/RocketPass_Premium_T_SF_exported.upk", exportBuffer.ToArray());
+    }
+
+    private PackageExporter GetPackageExporter(Stream stream, UnrealPackage package)
+    {
+        return new PackageExporter(package, stream, _headerserializer, _nameTableItemSerializer, _importTableItemSerializer, _exportTableItemSerializer,
+            _objectIndexSerializer, _fNameSerializer);
     }
 
     private PackageExporter GetTestPackageExporter(Stream stream)
