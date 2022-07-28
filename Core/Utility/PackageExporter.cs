@@ -9,9 +9,11 @@ namespace Core.Utility;
 
 public class PackageExporter
 {
+    private readonly ExportTable _exportExportTable;
     private readonly FileSummary _exportHeader;
+    private readonly ImportTable _exportImportTable;
     private readonly Stream _exportStream;
-    private readonly IStreamSerializer<ExportTableItem> _exporttTableItemSerializer;
+    private readonly IStreamSerializer<ExportTableItem> _exportTableItemSerializer;
     private readonly IStreamSerializer<FileSummary> _fileSummarySerializer;
     private readonly IStreamSerializer<ImportTableItem> _importTableItemSerializer;
     private readonly IStreamSerializer<FName> _nameSerializer;
@@ -22,19 +24,21 @@ public class PackageExporter
 
     public PackageExporter(UnrealPackage package, Stream exportStream, IStreamSerializer<FileSummary> fileSummarySerializer,
         IStreamSerializer<NameTableItem> nameTableItemSerializer, IStreamSerializer<ImportTableItem> importTableItemSerializer,
-        IStreamSerializer<ExportTableItem> exporttTableItemSerializer, IStreamSerializer<ObjectIndex> objectIndexSerializer,
+        IStreamSerializer<ExportTableItem> exportTableItemSerializer, IStreamSerializer<ObjectIndex> objectIndexSerializer,
         IStreamSerializer<FName> nameSerializer)
     {
         _fileSummarySerializer = fileSummarySerializer;
         _nameTableItemSerializer = nameTableItemSerializer;
         _importTableItemSerializer = importTableItemSerializer;
-        _exporttTableItemSerializer = exporttTableItemSerializer;
+        _exportTableItemSerializer = exportTableItemSerializer;
         _objectIndexSerializer = objectIndexSerializer;
         _nameSerializer = nameSerializer;
         _exportStream = exportStream;
         _package = package;
         _outputPackageStream = new UnrealPackageStream(_exportStream, _objectIndexSerializer, _nameSerializer, _package);
         _exportHeader = CopyHeader(_package.Header);
+        _exportExportTable = CopyExportTable(_package.ExportTable);
+        _exportImportTable = CopyImportTable(_package.ImportTable);
         ModifyHeaderFieldsForExport(_exportHeader);
     }
 
@@ -72,6 +76,7 @@ public class PackageExporter
         //var a20 = flags.HasFlag(PackageFlags.PKG_NoExportAllowed);
         //var a21 = flags.HasFlag(PackageFlags.PKG_StrippedSource);
         exportHeader.PackageFlags = (uint) flags;
+        exportHeader.PackageFlags = 1;
     }
 
     private FileSummary CopyHeader(FileSummary header)
@@ -82,23 +87,54 @@ public class PackageExporter
         return _fileSummarySerializer.Deserialize(stream);
     }
 
+    private ImportTable CopyImportTable(ImportTable importTable)
+    {
+        var stream = new MemoryStream();
+        _importTableItemSerializer.WriteTArray(stream, importTable.ToArray(), StreamSerializerForExtension.ArraySizeSerialization.NoSize);
+        stream.Position = 0;
+        var newTable = new ImportTable(_importTableItemSerializer, stream, importTable.Count);
+        for (var i = 0; i < newTable.Count; i++)
+        {
+            newTable[i].ImportedObject = importTable[i].ImportedObject;
+        }
+
+        return newTable;
+    }
+
+    private ExportTable CopyExportTable(ExportTable exportTable)
+    {
+        var stream = new MemoryStream();
+        _exportTableItemSerializer.WriteTArray(stream, exportTable.ToArray(), StreamSerializerForExtension.ArraySizeSerialization.NoSize);
+        stream.Position = 0;
+        var newTable = new ExportTable(_exportTableItemSerializer, stream, exportTable.Count);
+        for (var i = 0; i < newTable.Count; i++)
+        {
+            newTable[i].Object = exportTable[i].Object;
+        }
+
+        return newTable;
+    }
+
     /// <summary>
     ///     Write the complete package to the output stream
     /// </summary>
-    public void ExportPackage()
+    public void ExportPackage(IObjectSerializerFactory? serializerFactory = null)
     {
         ExportHeader();
         _exportHeader.NameOffset = (int) _exportStream.Position;
         ExportNameTable();
         _exportHeader.ImportOffset = (int) _exportStream.Position;
+        _exportHeader.ImportCount = _exportImportTable.Count;
         ExportImportTable();
         _exportHeader.ExportOffset = (int) _exportStream.Position;
+        _exportHeader.ExportCount = _exportExportTable.Count;
         ExporExporttTable();
         _exportHeader.DependsOffset = (int) _exportStream.Position;
         ExportDummyDependsTable();
         _exportHeader.ThumbnailTableOffset = 0;
         ExportDummyThumbnailsTable();
-        ExportObjectSerialData();
+        _exportHeader.TotalHeaderSize = (int) _exportStream.Position;
+        ExportObjectSerialData(serializerFactory);
         // re-export export table once all the exported data is known
         _exportStream.Position = _exportHeader.ExportOffset;
         ExporExporttTable();
@@ -130,9 +166,23 @@ public class PackageExporter
     /// </summary>
     public void ExportImportTable()
     {
-        var importObjects = _package.ImportTable.Select(x => x.ImportedObject).ToList();
-        //var newImportTable = new ImportTable();
-        _importTableItemSerializer.WriteTArray(_exportStream, _package.ImportTable.ToArray(), StreamSerializerForExtension.ArraySizeSerialization.NoSize);
+        //null out any outers that are exported from this package. Some kind of artifact from forced exports \ cooked packages
+        // TODO: Convert these exports with internal imports into pure imports
+        foreach (var import in _exportImportTable)
+        {
+            var importImportedObject = import.ImportedObject;
+            if (importImportedObject is null)
+            {
+                continue;
+            }
+
+            if (importImportedObject.Outer?.OwnerPackage == _package && importImportedObject.Outer?.ExportTableItem is not null)
+            {
+                import.OuterIndex = new ObjectIndex();
+            }
+        }
+
+        _importTableItemSerializer.WriteTArray(_exportStream, _exportImportTable.ToArray(), StreamSerializerForExtension.ArraySizeSerialization.NoSize);
     }
 
     /// <summary>
@@ -141,7 +191,7 @@ public class PackageExporter
     /// </summary>
     public void ExporExporttTable()
     {
-        _exporttTableItemSerializer.WriteTArray(_exportStream, _package.ExportTable.ToArray(), StreamSerializerForExtension.ArraySizeSerialization.NoSize);
+        _exportTableItemSerializer.WriteTArray(_exportStream, _exportExportTable.ToArray(), StreamSerializerForExtension.ArraySizeSerialization.NoSize);
     }
 
     /// <summary>
@@ -150,7 +200,7 @@ public class PackageExporter
     /// </summary>
     public void ExportDummyDependsTable()
     {
-        for (var i = 0; i < _package.Header.ImportCount; i++)
+        for (var i = 0; i < _exportExportTable.Count; i++)
         {
             _exportStream.WriteInt32(0);
         }
@@ -171,7 +221,7 @@ public class PackageExporter
     /// </summary>
     public void ExportObjectSerialData(IObjectSerializerFactory? objectSerializerFactory = null)
     {
-        var exports = _package.ExportTable;
+        var exports = _exportExportTable;
         foreach (var export in exports)
         {
             var obj = export.Object;
@@ -193,7 +243,16 @@ public class PackageExporter
     {
         if (factory != null)
         {
-            return factory.GetSerializer(obj.GetType()) ?? throw new InvalidOperationException();
+            var t = obj.GetType();
+            IObjectSerializer? serializer = null;
+            while (serializer is null && t is not null)
+            {
+                serializer = factory.GetSerializer(t);
+                t = t.BaseType;
+            }
+
+            ArgumentNullException.ThrowIfNull(serializer);
+            return serializer;
         }
 
         ArgumentNullException.ThrowIfNull(obj?.Serializer);
