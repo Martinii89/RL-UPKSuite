@@ -37,7 +37,7 @@ public class FMaterial
     public bool DummyDroppedFallbackComponents { get; set; }
 
     // 16 unknown bytes at the end 
-    public byte[]? FourUnknownInts { get; set; }
+    public byte[]? FourUnknownInts { get; set; } = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 }
 
 public class FMaterialResource : FMaterial

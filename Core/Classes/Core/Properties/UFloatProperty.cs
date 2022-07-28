@@ -21,4 +21,15 @@ public class UFloatProperty : UProperty
     {
         return objStream.ReadSingle();
     }
+
+    /// <inheritdoc />
+    public override void SerializeValue(object? valueObject, UObject uObject, IUnrealPackageStream objectStream, int propertySize)
+    {
+        if (valueObject is not float value)
+        {
+            return;
+        }
+
+        objectStream.WriteSingle(value);
+    }
 }

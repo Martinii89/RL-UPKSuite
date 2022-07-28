@@ -54,6 +54,11 @@ public class UArrayProperty : UProperty
         }
 
         objectStream.WriteInt32(values.Count);
+        if (values.Count == 0)
+        {
+            return;
+        }
+
         var elementSize = (propertySize - 4) / values.Count;
         foreach (var value in values)
         {

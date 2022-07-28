@@ -28,6 +28,12 @@ public class DefaultComponentSerializer : BaseObjectSerializer<UComponent>
     /// <inheritdoc />
     public override void SerializeObject(UComponent obj, IUnrealPackageStream objectStream)
     {
-        throw new NotImplementedException();
+        objectStream.WriteObject(obj.TemplateOwnerClass);
+        if (obj.IsDefaultObject || obj.GetOuterEnumerable().Any(x => x.IsDefaultObject))
+        {
+            objectStream.WriteFName(obj.TemplateName);
+        }
+
+        _objectSerializer.SerializeObject(obj, objectStream);
     }
 }

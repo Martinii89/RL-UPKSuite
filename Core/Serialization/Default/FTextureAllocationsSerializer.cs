@@ -32,6 +32,11 @@ public class FTextureAllocationsSerializer : IStreamSerializer<FTextureType>
     /// <inheritdoc />
     public void Serialize(Stream stream, FTextureType value)
     {
-        throw new NotImplementedException();
+        stream.Write(value.SizeX);
+        stream.Write(value.SizeY);
+        stream.Write(value.NumMips);
+        stream.Write(value.Format);
+        stream.Write(value.TexCreateFlags);
+        _intSerializer.WriteTArray(stream, value.ExportIndices.ToArray());
     }
 }

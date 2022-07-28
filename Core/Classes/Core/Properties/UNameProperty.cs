@@ -21,4 +21,14 @@ public class UNameProperty : UProperty
     {
         return objStream.ReadFNameStr();
     }
+
+    public override void SerializeValue(object? valueObject, UObject uObject, IUnrealPackageStream objectStream, int propertySize)
+    {
+        if (valueObject is not string value)
+        {
+            return;
+        }
+
+        objectStream.WriteFName(value);
+    }
 }

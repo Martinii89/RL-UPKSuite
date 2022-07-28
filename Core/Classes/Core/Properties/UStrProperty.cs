@@ -21,4 +21,14 @@ public class UStrProperty : UProperty
     {
         return objStream.ReadFString();
     }
+
+    public override void SerializeValue(object? valueObject, UObject uObject, IUnrealPackageStream objectStream, int propertySize)
+    {
+        if (valueObject is not string value)
+        {
+            return;
+        }
+
+        objectStream.WriteFString(value);
+    }
 }
