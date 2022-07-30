@@ -10,4 +10,8 @@ public class UMaterialInstance : UMaterialInterface
         outer, ownerPackage, objectArchetype)
     {
     }
+
+    public List<FMaterialResource> StaticPermutationResource { get; set; } = new();
+    public List<FStaticParameterSet> StaticParameters { get; set; } = new();
+    public int ResourceCountFlag { get; set; }
 }

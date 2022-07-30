@@ -236,7 +236,7 @@ public class PackageExporterTests
         var packageCache = new PackageCache(options);
         var UDKobjectSerializerFactory = SerializerHelper.GetService<IObjectSerializerFactory>(typeof(IObjectSerializerFactory));
         var loader = new PackageLoader(packageSerializer, packageCache, unpacker, nativeFactory, UDKobjectSerializerFactory);
-        var package = loader.LoadPackage("TestData/body_bb_SF.upk", "body_bb_SF");
+        var package = loader.LoadPackage("TestData/Body_Octane_SF.upk", "Body_Octane_SF");
         var sut = GetPackageExporter(stream, package);
 
         // Act
@@ -244,7 +244,7 @@ public class PackageExporterTests
         // Assert
         act.Should().NotThrow();
         var exportBuffer = new ArraySegment<byte>(stream.GetBuffer(), 0, (int) stream.Length);
-        File.WriteAllBytes("TestData/body_bb_SF_exported.upk", exportBuffer.ToArray());
+        File.WriteAllBytes("TestData/Body_Octane_SF_exported.upk", exportBuffer.ToArray());
     }
 
     private PackageExporter GetPackageExporter(Stream stream, UnrealPackage package)

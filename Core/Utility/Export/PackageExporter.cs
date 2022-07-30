@@ -114,10 +114,10 @@ public class PackageExporter
         var noneFName = _package.GetFName("None");
         importTable.RemoveAll(x => Equals(x.ObjectName, noneFName) && Equals(x.ClassName, noneFName) && Equals(x.ClassPackage, noneFName));
         exportTable.RemoveAll(x => x.SerialSize == 0);
-        //var index = 140; ok, but material functions crashes
-        //var index = 141; // crash
-        var index = 141;
-        exportTable.RemoveRange(index, exportTable.Count - index);
+        //var index = 300; ok, but material functions crashes
+        //var index = ?? // crash
+        var index = 300;
+        //exportTable.RemoveRange(index, exportTable.Count - index);
     }
 
     private void ModifyExportTableFieldsForExport(ExportTable exportTable)

@@ -1,4 +1,5 @@
-﻿using Core.Classes.Core;
+﻿using System.Diagnostics;
+using Core.Classes.Core;
 using Core.Classes.Engine;
 using Core.Serialization.Abstraction;
 using Core.Types;
@@ -21,20 +22,37 @@ public class DefaultMaterialSerializer : BaseObjectSerializer<UMaterial>
     {
         var start = objectStream.BaseStream.Position;
         _objectSerializer.DeserializeObject(obj, objectStream);
+        obj.ResourceCountFlag = objectStream.ReadInt32();
+        switch (obj.ResourceCountFlag)
+        {
+            case 1:
+                obj.FMaterialResources = _materialResourceSerializer.ReadTArrayToList(objectStream, 1);
+                break;
+            case 3:
+                obj.FMaterialResources = _materialResourceSerializer.ReadTArrayToList(objectStream, 2);
+                break;
+            default:
+                throw new InvalidDataException();
+        }
 
-        obj.FMaterialResources[0] = new FMaterialResource();
-        _materialResourceSerializer.DeserializeObject(obj.FMaterialResources[0], objectStream);
 
         var leftOver = obj.ExportTableItem.SerialOffset + obj.ExportTableItem.SerialSize - objectStream.BaseStream.Position;
-        obj.FMaterialResources[0].UnknownBytes2 = objectStream.ReadBytes((int) leftOver);
+        if (leftOver > 0)
+        {
+            Debugger.Break();
+        }
+        //obj.FMaterialResources[0].UnknownBytes2 = objectStream.ReadBytes((int) leftOver);
     }
 
     public override void SerializeObject(UMaterial obj, IUnrealPackageStream objectStream)
     {
         var start = objectStream.BaseStream.Position;
         _objectSerializer.SerializeObject(obj, objectStream);
-        objectStream.WriteInt32(1); // YOLO
-        _materialResourceSerializer.SerializeObject(obj.FMaterialResources[0], objectStream);
+        objectStream.WriteInt32(obj.ResourceCountFlag);
+        foreach (var resource in obj.FMaterialResources)
+        {
+            _materialResourceSerializer.SerializeObject(resource, objectStream);
+        }
     }
 }
 
@@ -52,6 +70,7 @@ public class FmaterialResourceSerializer : BaseObjectSerializer<FMaterialResourc
         return stream.ReadInt32();
     }
 
+    /// <inheritdoc />
     public override void DeserializeObject(FMaterialResource obj, IUnrealPackageStream objectStream)
     {
         obj.CompileErrors = objectStream.ReadTArray(stream => stream.ReadFString());
@@ -74,12 +93,14 @@ public class FmaterialResourceSerializer : BaseObjectSerializer<FMaterialResourc
             VScale = objectStream1.ReadSingle()
         });
 
-        obj.FourUnknownInts = objectStream.ReadBytes(16);
+        obj.Unk = objectStream.ReadInt32();
+        obj.Unk1 = objectStream.ReadInt32();
+        obj.Unk2 = objectStream.ReadInt32();
+        obj.Unk3 = objectStream.ReadInt32();
     }
 
     public override void SerializeObject(FMaterialResource obj, IUnrealPackageStream objectStream)
     {
-        var start = objectStream.BaseStream.Position;
         objectStream.WriteTArray(obj.CompileErrors, (stream, val) => stream.WriteFString(val));
         objectStream.WriteDictionary(obj.TextureDependencyLengthMap, (stream, expression) => stream.WriteObject(expression),
             (stream, i) => stream.WriteInt32(i));
@@ -100,6 +121,9 @@ public class FmaterialResourceSerializer : BaseObjectSerializer<FMaterialResourc
             stream.WriteSingle(info.UScale);
             stream.WriteSingle(info.VScale);
         });
-        objectStream.WriteBytes(obj.FourUnknownInts ?? throw new InvalidOperationException());
+        objectStream.WriteInt32(obj.Unk);
+        objectStream.WriteInt32(obj.Unk1);
+        objectStream.WriteInt32(obj.Unk2);
+        objectStream.WriteInt32(obj.Unk3);
     }
 }

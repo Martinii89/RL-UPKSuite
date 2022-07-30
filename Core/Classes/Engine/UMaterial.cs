@@ -11,7 +11,8 @@ public class UMaterial : UMaterialInterface
     {
     }
 
-    public FMaterialResource[] FMaterialResources { get; set; } = new FMaterialResource[2];
+    public List<FMaterialResource> FMaterialResources { get; set; } = new();
+    public int ResourceCountFlag { get; set; }
 }
 
 public class FMaterial
@@ -35,15 +36,14 @@ public class FMaterial
     public bool UsingTransforms { get; set; }
     public List<FTextureLookupInfo> FTextureLookupInfos { get; set; } = new();
     public bool DummyDroppedFallbackComponents { get; set; }
-
-    // 16 unknown bytes at the end 
-    public byte[]? FourUnknownInts { get; set; } = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    public int Unk { get; set; }
 }
 
 public class FMaterialResource : FMaterial
 {
-    public int Unk { get; set; }
-    public byte[] UnknownBytes2 { get; set; }
+    public int Unk1 { get; set; }
+    public int Unk2 { get; set; }
+    public int Unk3 { get; set; }
 }
 
 public class FTextureLookupInfo
