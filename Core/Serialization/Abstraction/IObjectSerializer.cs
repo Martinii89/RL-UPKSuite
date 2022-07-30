@@ -1,4 +1,5 @@
-﻿using Core.Classes.Core;
+﻿using System.Diagnostics;
+using Core.Classes.Core;
 
 namespace Core.Serialization.Abstraction;
 
@@ -88,6 +89,11 @@ public abstract class BaseObjectSerializer<T> : IObjectSerializer<T>
     protected void DropRamainingNativeData(UObject obj, Stream objectStream)
     {
         var remaining = obj.ExportTableItem.SerialOffset + obj.ExportTableItem.SerialSize - objectStream.Position;
+        if (remaining > 0)
+        {
+            Debugger.Break();
+        }
+
         objectStream.Move(remaining);
     }
 }

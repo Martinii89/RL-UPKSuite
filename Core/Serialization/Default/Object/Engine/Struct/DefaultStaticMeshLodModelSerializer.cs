@@ -40,6 +40,14 @@ public class DefaultStaticMeshLodModelSerializer : BaseObjectSerializer<FStaticM
     /// <inheritdoc />
     public override void SerializeObject(FStaticMeshLODModel obj, IUnrealPackageStream objectStream)
     {
-        throw new NotImplementedException();
+        _bulkDataSerializer.Serialize(objectStream.BaseStream, obj.FBulkData);
+        objectStream.WriteTArray(obj.FStaticMeshSections, _staticMeshSectionSerializer);
+        _vertexStreamSerializer.Serialize(objectStream.BaseStream, obj.VertexStream);
+        _uvStreamSerializer.Serialize(objectStream.BaseStream, obj.UvStream);
+        _colorStreamSerializer.Serialize(objectStream.BaseStream, obj.ColorStream);
+        objectStream.WriteInt32(obj.NumVerts);
+        objectStream.BulkWriteTArray(obj.Indicies, (stream, arg2) => stream.WriteUInt16(arg2));
+        objectStream.BulkWriteTArray(obj.Indicies2, (stream, arg2) => stream.WriteUInt16(arg2));
+        objectStream.BulkWriteTArray(obj.Indicies3, (stream, arg2) => stream.WriteUInt16(arg2));
     }
 }

@@ -1,11 +1,12 @@
-﻿using Core.Classes.Core;
-using Core.Flags;
+﻿using Core.Classes;
+using Core.Classes.Core;
+using Core.Classes.Engine;
 using Core.Serialization;
 using Core.Serialization.Abstraction;
 using Core.Types;
 using Core.Types.PackageTables;
 
-namespace Core.Utility;
+namespace Core.Utility.Export;
 
 public class PackageExporter
 {
@@ -35,11 +36,115 @@ public class PackageExporter
         _nameSerializer = nameSerializer;
         _exportStream = exportStream;
         _package = package;
-        _outputPackageStream = new UnrealPackageStream(_exportStream, _objectIndexSerializer, _nameSerializer, _package);
         _exportHeader = CopyHeader(_package.Header);
         _exportExportTable = CopyExportTable(_package.ExportTable);
         _exportImportTable = CopyImportTable(_package.ImportTable);
+        RemoveNullObjects(_exportImportTable, _exportExportTable);
         ModifyHeaderFieldsForExport(_exportHeader);
+        ModifyExportTableFieldsForExport(_exportExportTable);
+        FixObjectIndexReferences(_exportImportTable, _exportExportTable);
+        _outputPackageStream =
+            new ExportUnrealPackageStream(_exportStream, _objectIndexSerializer, _nameSerializer, _package, _exportExportTable, _exportImportTable);
+    }
+
+    private void FixObjectIndexReferences(ImportTable importTable, ExportTable exportTable)
+    {
+        foreach (var import in importTable)
+        {
+            var obj = import.ImportedObject;
+            ArgumentNullException.ThrowIfNull(obj);
+            if (import.OuterIndex.Index != 0)
+            {
+                import.OuterIndex = FindObjectIndex(obj.Outer);
+            }
+        }
+
+        foreach (var export in exportTable)
+        {
+            var obj = export.Object;
+            ArgumentNullException.ThrowIfNull(obj);
+            if (export.ClassIndex.Index != 0)
+            {
+                export.ClassIndex = FindObjectIndex(obj.Class);
+            }
+
+            if (export.SuperIndex.Index != 0)
+            {
+                ArgumentNullException.ThrowIfNull(obj.Class);
+                export.SuperIndex = FindObjectIndex(obj.Class.SuperClass);
+            }
+
+            if (export.OuterIndex.Index != 0)
+            {
+                export.OuterIndex = FindObjectIndex(obj.Outer);
+            }
+
+            if (export.ArchetypeIndex.Index != 0)
+            {
+                export.ArchetypeIndex = FindObjectIndex(obj.ObjectArchetype);
+            }
+        }
+    }
+
+
+    private ObjectIndex FindObjectIndex(UObject? obj)
+    {
+        if (obj == null)
+        {
+            return new ObjectIndex();
+        }
+
+        var exportIndex = _exportExportTable.FindIndex(o => o.Object == obj);
+        if (exportIndex != -1)
+        {
+            return new ObjectIndex(ObjectIndex.FromExportIndex(exportIndex));
+        }
+
+        var importIndex = _exportImportTable.FindIndex(o => o.ImportedObject == obj);
+        if (importIndex != -1)
+        {
+            return new ObjectIndex(ObjectIndex.FromImportIndex(importIndex));
+        }
+
+        return new ObjectIndex();
+    }
+
+    private void RemoveNullObjects(ImportTable importTable, ExportTable exportTable)
+    {
+        var noneFName = _package.GetFName("None");
+        importTable.RemoveAll(x => Equals(x.ObjectName, noneFName) && Equals(x.ClassName, noneFName) && Equals(x.ClassPackage, noneFName));
+        exportTable.RemoveAll(x => x.SerialSize == 0);
+        //var index = 140; ok, but material functions crashes
+        //var index = 141; // crash
+        var index = 141;
+        exportTable.RemoveRange(index, exportTable.Count - index);
+    }
+
+    private void ModifyExportTableFieldsForExport(ExportTable exportTable)
+    {
+        foreach (var export in exportTable)
+        {
+            switch (export.Object)
+            {
+                case null:
+                    continue;
+                case UPackage:
+                    export.ObjectFlags = 0x7000400000000u;
+                    export.PackageFlags = 1;
+                    break;
+                case UMaterial:
+                case USkeletalMesh:
+                case UStaticMesh:
+                case UTexture:
+                    export.ObjectFlags = 0xF000400000000u;
+                    export.PackageFlags = 0;
+                    break;
+                default:
+                    export.ObjectFlags = 0xF000400000400;
+                    export.PackageFlags = 0;
+                    break;
+            }
+        }
     }
 
     private void ModifyHeaderFieldsForExport(FileSummary exportHeader)
@@ -48,35 +153,36 @@ public class PackageExporter
         exportHeader.ThumbnailTableOffset = 0;
         exportHeader.CookerVersion = 0;
         exportHeader.EngineVersion = 12791;
-
-        var flags = (PackageFlags) exportHeader.PackageFlags;
-        flags &= ~PackageFlags.PKG_Cooked;
-        flags &= ~PackageFlags.PKG_StoreCompressed;
-
-        //var a = flags.HasFlag(PackageFlags.PKG_AllowDownload);
-        //var a1 = flags.HasFlag(PackageFlags.PKG_ClientOptional);
-        //var a2 = flags.HasFlag(PackageFlags.PKG_ServerSideOnly);
-        //var a3 = flags.HasFlag(PackageFlags.PKG_Cooked);
-        //var a4 = flags.HasFlag(PackageFlags.PKG_Unsecure);
-        //var a5 = flags.HasFlag(PackageFlags.PKG_SavedWithNewerVersion);
-        //var a6 = flags.HasFlag(PackageFlags.PKG_Need);
-        //var a7 = flags.HasFlag(PackageFlags.PKG_Compiling);
-        //var a8 = flags.HasFlag(PackageFlags.PKG_ContainsMap);
-        //var a9 = flags.HasFlag(PackageFlags.PKG_Trash);
-        //var a10 = flags.HasFlag(PackageFlags.PKG_DisallowLazyLoading);
-        //var a11 = flags.HasFlag(PackageFlags.PKG_PlayInEditor);
-        //var a12 = flags.HasFlag(PackageFlags.PKG_ContainsScript);
-        //var a13 = flags.HasFlag(PackageFlags.PKG_ContainsDebugInfo);
-        //var a14 = flags.HasFlag(PackageFlags.PKG_RequireImportsAlreadyLoaded);
-        //var a15 = flags.HasFlag(PackageFlags.PKG_SelfContainedLighting);
-        //var a16 = flags.HasFlag(PackageFlags.PKG_StoreCompressed);
-        //var a17 = flags.HasFlag(PackageFlags.PKG_StoreFullyCompressed);
-        //var a18 = flags.HasFlag(PackageFlags.PKG_ContainsInlinedShaders);
-        //var a19 = flags.HasFlag(PackageFlags.PKG_ContainsFaceFXData);
-        //var a20 = flags.HasFlag(PackageFlags.PKG_NoExportAllowed);
-        //var a21 = flags.HasFlag(PackageFlags.PKG_StrippedSource);
-        exportHeader.PackageFlags = (uint) flags;
         exportHeader.PackageFlags = 1;
+        /*
+        //var flags = (PackageFlags) exportHeader.PackageFlags;
+        //flags &= ~PackageFlags.PKG_Cooked;
+        //flags &= ~PackageFlags.PKG_StoreCompressed;
+
+        ////var a = flags.HasFlag(PackageFlags.PKG_AllowDownload);
+        ////var a1 = flags.HasFlag(PackageFlags.PKG_ClientOptional);
+        ////var a2 = flags.HasFlag(PackageFlags.PKG_ServerSideOnly);
+        ////var a3 = flags.HasFlag(PackageFlags.PKG_Cooked);
+        ////var a4 = flags.HasFlag(PackageFlags.PKG_Unsecure);
+        ////var a5 = flags.HasFlag(PackageFlags.PKG_SavedWithNewerVersion);
+        ////var a6 = flags.HasFlag(PackageFlags.PKG_Need);
+        ////var a7 = flags.HasFlag(PackageFlags.PKG_Compiling);
+        ////var a8 = flags.HasFlag(PackageFlags.PKG_ContainsMap);
+        ////var a9 = flags.HasFlag(PackageFlags.PKG_Trash);
+        ////var a10 = flags.HasFlag(PackageFlags.PKG_DisallowLazyLoading);
+        ////var a11 = flags.HasFlag(PackageFlags.PKG_PlayInEditor);
+        ////var a12 = flags.HasFlag(PackageFlags.PKG_ContainsScript);
+        ////var a13 = flags.HasFlag(PackageFlags.PKG_ContainsDebugInfo);
+        ////var a14 = flags.HasFlag(PackageFlags.PKG_RequireImportsAlreadyLoaded);
+        ////var a15 = flags.HasFlag(PackageFlags.PKG_SelfContainedLighting);
+        ////var a16 = flags.HasFlag(PackageFlags.PKG_StoreCompressed);
+        ////var a17 = flags.HasFlag(PackageFlags.PKG_StoreFullyCompressed);
+        ////var a18 = flags.HasFlag(PackageFlags.PKG_ContainsInlinedShaders);
+        ////var a19 = flags.HasFlag(PackageFlags.PKG_ContainsFaceFXData);
+        ////var a20 = flags.HasFlag(PackageFlags.PKG_NoExportAllowed);
+        ////var a21 = flags.HasFlag(PackageFlags.PKG_StrippedSource);
+        //exportHeader.PackageFlags = (uint) flags;
+        */
     }
 
     private FileSummary CopyHeader(FileSummary header)

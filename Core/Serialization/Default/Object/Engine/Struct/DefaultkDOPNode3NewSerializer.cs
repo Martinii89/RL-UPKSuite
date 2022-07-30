@@ -24,8 +24,10 @@ public class DefaultkDOPNode3NewSerializer : IStreamSerializer<FkDOPNode>
         return res;
     }
 
+    /// <inheritdoc />
     public void Serialize(Stream stream, FkDOPNode value)
     {
-        throw new NotImplementedException();
+        stream.Write(value.Mins);
+        stream.Write(value.Maxs);
     }
 }

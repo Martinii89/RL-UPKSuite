@@ -8,6 +8,7 @@ using Core.Serialization.RocketLeague;
 using Core.Test.TestUtilities;
 using Core.Types;
 using Core.Types.PackageTables;
+using Core.Utility.Export;
 using FluentAssertions;
 using NSubstitute;
 using Syroot.BinaryData;
@@ -111,7 +112,7 @@ public class PackageExporterTests
         var serializedExportTable = _exportTableItemSerializer.ReadTArrayToList(stream, _testPackage.Header.ExportCount);
         // Assert
 
-        serializedExportTable.Should().BeEquivalentTo(_testPackage.ExportTable, options => options.Excluding(o => o.Object));
+        serializedExportTable.Should().BeEquivalentTo(_testPackage.ExportTable, options => options.Excluding(o => o.Object).Excluding(o => o.ObjectFlags));
     }
 
     [Fact]
@@ -235,15 +236,15 @@ public class PackageExporterTests
         var packageCache = new PackageCache(options);
         var UDKobjectSerializerFactory = SerializerHelper.GetService<IObjectSerializerFactory>(typeof(IObjectSerializerFactory));
         var loader = new PackageLoader(packageSerializer, packageCache, unpacker, nativeFactory, UDKobjectSerializerFactory);
-        var package = loader.LoadPackage("TestData/RocketPass_Premium_T_SF.upk", "RocketPass_Premium_T_SF");
+        var package = loader.LoadPackage("TestData/body_bb_SF.upk", "body_bb_SF");
         var sut = GetPackageExporter(stream, package);
 
         // Act
-        var act = () => sut.ExportPackage();
+        var act = () => sut.ExportPackage(UDKobjectSerializerFactory);
         // Assert
         act.Should().NotThrow();
         var exportBuffer = new ArraySegment<byte>(stream.GetBuffer(), 0, (int) stream.Length);
-        File.WriteAllBytes("TestData/RocketPass_Premium_T_SF_exported.upk", exportBuffer.ToArray());
+        File.WriteAllBytes("TestData/body_bb_SF_exported.upk", exportBuffer.ToArray());
     }
 
     private PackageExporter GetPackageExporter(Stream stream, UnrealPackage package)

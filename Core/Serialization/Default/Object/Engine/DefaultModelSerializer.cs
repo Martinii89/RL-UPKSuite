@@ -65,6 +65,7 @@ public class DefaultModelSerializer : BaseObjectSerializer<UModel>
         if (verticies > 0)
         {
             Debugger.Break();
+            return;
         }
 
         obj.lightingGuid = _guidSerializer.Deserialize(objectStream.BaseStream);

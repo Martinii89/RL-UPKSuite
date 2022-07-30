@@ -167,4 +167,24 @@ public static class StreamSerializerForExtension
             serializer.Serialize(stream, value);
         }
     }
+
+    /// <summary>
+    ///     Writes a array of values to the stream using a given typed serializer. The output can be prepended with the amount
+    ///     of elements
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="stream"></param>
+    /// <param name="serializer"></param>
+    /// <param name="values"></param>
+    /// <param name="sizeOtion"></param>
+    public static void BulkWriteTArray<T>(this IStreamSerializer<T> serializer, Stream stream, TArray<T> values)
+    {
+        stream.WriteInt32(values.ElementSize);
+        stream.WriteInt32(values.Count);
+
+        foreach (var value in values)
+        {
+            serializer.Serialize(stream, value);
+        }
+    }
 }

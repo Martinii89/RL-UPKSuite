@@ -121,6 +121,7 @@ public class UObject
         FullyDeserialized = OwnerPackageStream.BaseStream.Position == ExportTableItem!.SerialOffset + ExportTableItem.SerialSize;
         if (!FullyDeserialized)
         {
+            var leftOver = ExportTableItem!.SerialOffset + ExportTableItem.SerialSize - OwnerPackageStream.BaseStream.Position;
             Debugger.Break();
         }
 

@@ -29,6 +29,20 @@ public class DefaultStaticMeshSectionSerializer : BaseObjectSerializer<FStaticMe
     /// <inheritdoc />
     public override void SerializeObject(FStaticMeshSection obj, IUnrealPackageStream objectStream)
     {
-        throw new NotImplementedException();
+        objectStream.WriteObject(obj.Mat);
+        objectStream.WriteInt32(obj.F10);
+        objectStream.WriteInt32(obj.F14);
+        objectStream.WriteInt32(obj.BEnableShadowCasting);
+        objectStream.WriteInt32(obj.FirstIndex);
+        objectStream.WriteInt32(obj.NumFaces);
+        objectStream.WriteInt32(obj.F24);
+        objectStream.WriteInt32(obj.F28);
+        objectStream.WriteInt32(obj.Index);
+        objectStream.WriteTArray(obj.F30, (stream, ints) =>
+        {
+            stream.WriteInt32(ints.A);
+            stream.WriteInt32(ints.B);
+        });
+        objectStream.WriteByte(obj.Unk);
     }
 }

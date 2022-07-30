@@ -27,6 +27,8 @@ public class DefaultBoxSphereBoundsSerializer : IStreamSerializer<FBoxSphereBoun
     /// <inheritdoc />
     public void Serialize(Stream stream, FBoxSphereBounds value)
     {
-        throw new NotImplementedException();
+        _vectorSerializer.Serialize(stream, value.Origin);
+        _vectorSerializer.Serialize(stream, value.BoxExtent);
+        stream.WriteSingle(value.SphereRadius);
     }
 }

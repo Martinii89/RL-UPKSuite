@@ -27,6 +27,8 @@ public class DefaultStaticMeshComponentSerializer : BaseObjectSerializer<UStatic
     /// <inheritdoc />
     public override void SerializeObject(UStaticMeshComponent obj, IUnrealPackageStream objectStream)
     {
-        throw new NotImplementedException();
+        _componentSerializer.SerializeObject(obj, objectStream);
+
+        objectStream.WriteTArray(obj.FStaticMeshComponentLodInfos, (stream, info) => _staticMeshComponentSerializer.SerializeObject(info, stream));
     }
 }

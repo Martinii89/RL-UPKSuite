@@ -31,6 +31,21 @@ public readonly struct FName
     }
 
 
+    private sealed class NameIndexInstanceNumberEqualityComparer : IEqualityComparer<FName>
+    {
+        public bool Equals(FName x, FName y)
+        {
+            return x.NameIndex == y.NameIndex && x.InstanceNumber == y.InstanceNumber;
+        }
+
+        public int GetHashCode(FName obj)
+        {
+            return HashCode.Combine(obj.NameIndex, obj.InstanceNumber);
+        }
+    }
+
+    public static IEqualityComparer<FName> NameIndexInstanceNumberComparer { get; } = new NameIndexInstanceNumberEqualityComparer();
+
     /// <summary>
     ///     The index in the <see cref="NameTable" />
     /// </summary>

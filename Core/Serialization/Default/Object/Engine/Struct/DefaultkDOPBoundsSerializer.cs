@@ -23,8 +23,10 @@ public class DefaultkDOPBoundsSerializer : IStreamSerializer<FkDOPBounds>
         };
     }
 
+    /// <inheritdoc />
     public void Serialize(Stream stream, FkDOPBounds value)
     {
-        throw new NotImplementedException();
+        _vectorSerializer.Serialize(stream, value.V1);
+        _vectorSerializer.Serialize(stream, value.V2);
     }
 }

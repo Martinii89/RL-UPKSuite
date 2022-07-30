@@ -31,6 +31,11 @@ public class DefaultColorStreamSerializer : IStreamSerializer<ColorStream>
     /// <inheritdoc />
     public void Serialize(Stream stream, ColorStream value)
     {
-        throw new NotImplementedException();
+        stream.WriteInt32(value.ItemSize);
+        stream.WriteInt32(value.NumVerts);
+        if (value.NumVerts > 0)
+        {
+            _colorSerializer.BulkWriteTArray(stream, value.Colors);
+        }
     }
 }

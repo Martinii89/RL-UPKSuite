@@ -38,6 +38,12 @@ public class DefaultFMeshBoneSerializer : IStreamSerializer<FMeshBone>
     /// <inheritdoc />
     public void Serialize(Stream stream, FMeshBone value)
     {
-        throw new NotImplementedException();
+        _nameSerializer.Serialize(stream, value.Name);
+        stream.WriteUInt32(value.Flags);
+        _vectorSerializer.Serialize(stream, value.BonePos.Position);
+        _quatSerializer.Serialize(stream, value.BonePos.Orientation);
+        stream.WriteInt32(value.NumChildren);
+        stream.WriteInt32(value.ParentIndex);
+        _colorSerializer.Serialize(stream, value.BoneColor);
     }
 }

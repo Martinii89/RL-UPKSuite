@@ -42,4 +42,58 @@ public interface IUnrealPackageStream
     void WriteBool(bool value);
     void WriteSingle(float value);
     void WriteBytes(byte[] bytes);
+    void WriteUInt16(ushort value);
+    void WriteInt16(short value);
+}
+
+public static class UnrealPackageStreamExtensions
+{
+    /// <summary>
+    ///     Helper method for serializing a array with a IStreamSerializer
+    /// </summary>
+    /// <param name="stream"></param>
+    /// <param name="arr"></param>
+    /// <param name="serializer"></param>
+    /// <typeparam name="T"></typeparam>
+    public static void WriteTArray<T>(this IUnrealPackageStream stream, List<T> arr, IStreamSerializer<T> serializer)
+    {
+        stream.WriteTArray(arr, (packageStream, value) => serializer.Serialize(packageStream.BaseStream, value));
+    }
+
+
+    /// <summary>
+    ///     Helper method for serializing a list with a IObjectSerializer
+    /// </summary>
+    /// <param name="stream"></param>
+    /// <param name="arr"></param>
+    /// <param name="serializer"></param>
+    /// <typeparam name="T"></typeparam>
+    public static void WriteTArray<T>(this IUnrealPackageStream stream, List<T> arr, IObjectSerializer<T> serializer)
+    {
+        stream.WriteTArray(arr, (packageStream, value) => serializer.SerializeObject(value, packageStream));
+    }
+
+    /// <summary>
+    ///     Helper method for serializing a TArray with a IObjectSerializer
+    /// </summary>
+    /// <param name="stream"></param>
+    /// <param name="arr"></param>
+    /// <param name="serializer"></param>
+    /// <typeparam name="T"></typeparam>
+    public static void BulkWriteTArray<T>(this IUnrealPackageStream stream, TArray<T> arr, IObjectSerializer<T> serializer)
+    {
+        stream.BulkWriteTArray(arr, (packageStream, value) => serializer.SerializeObject(value, packageStream));
+    }
+
+    /// <summary>
+    ///     Helper method for serializing a TArray with a IStreamSerializer
+    /// </summary>
+    /// <param name="stream"></param>
+    /// <param name="arr"></param>
+    /// <param name="serializer"></param>
+    /// <typeparam name="T"></typeparam>
+    public static void BulkWriteTArray<T>(this IUnrealPackageStream stream, TArray<T> arr, IStreamSerializer<T> serializer)
+    {
+        stream.BulkWriteTArray(arr, (packageStream, value) => serializer.Serialize(packageStream.BaseStream, value));
+    }
 }

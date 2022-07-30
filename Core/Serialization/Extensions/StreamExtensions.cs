@@ -137,4 +137,19 @@ public static class StreamExtensions
 
         return res;
     }
+
+    public static void WriteTArray<T>(this Stream stream, List<T> arr, Action<Stream, T> writeFunc)
+    {
+        stream.WriteInt32(arr.Count);
+        foreach (var value in arr)
+        {
+            writeFunc(stream, value);
+        }
+    }
+
+    public static void BulkWriteTArray<T>(this Stream stream, TArray<T> arr, Action<Stream, T> writeFunc)
+    {
+        stream.WriteInt32(arr.ElementSize);
+        WriteTArray(stream, arr, writeFunc);
+    }
 }

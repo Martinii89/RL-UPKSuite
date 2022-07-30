@@ -10,10 +10,10 @@ namespace Core.Serialization;
 
 public class UnrealPackageStream : IUnrealPackageStream
 {
-    private readonly IStreamSerializer<FName> _nameSerializer;
-    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
+    protected readonly IStreamSerializer<FName> _nameSerializer;
+    protected readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
 
-    private readonly UnrealPackage _unrealPackage;
+    protected readonly UnrealPackage _unrealPackage;
 
     public UnrealPackageStream(Stream baseStream, IStreamSerializer<ObjectIndex> objectIndexSerializer, IStreamSerializer<FName> nameSerializer,
         UnrealPackage unrealPackage)
@@ -220,7 +220,7 @@ public class UnrealPackageStream : IUnrealPackageStream
     }
 
     /// <inheritdoc />
-    public void WriteObject(UObject? obj)
+    public virtual void WriteObject(UObject? obj)
     {
         if (obj == null)
         {
@@ -274,5 +274,15 @@ public class UnrealPackageStream : IUnrealPackageStream
     public void WriteBytes(byte[] bytes)
     {
         BaseStream.WriteBytes(bytes);
+    }
+
+    public void WriteUInt16(ushort value)
+    {
+        BaseStream.WriteUInt16(value);
+    }
+
+    public void WriteInt16(short value)
+    {
+        BaseStream.WriteInt16(value);
     }
 }

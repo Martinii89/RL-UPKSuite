@@ -26,12 +26,12 @@ public class VersionDetector
 
     private static string GetBuild(short fileVersion, short licenseeVersion)
     {
-        if (fileVersion == 868 && licenseeVersion == 0)
+        if (fileVersion is 868 or 867 && licenseeVersion == 0)
         {
             return "";
         }
 
-        if (fileVersion == 868 && licenseeVersion >= 18 && licenseeVersion <= 32)
+        if (fileVersion == 868 && licenseeVersion is >= 18 and <= 32)
         {
             return RocketLeagueBase.FileVersion;
         }

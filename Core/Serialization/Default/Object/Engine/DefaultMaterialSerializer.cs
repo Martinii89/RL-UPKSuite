@@ -19,6 +19,7 @@ public class DefaultMaterialSerializer : BaseObjectSerializer<UMaterial>
 
     public override void DeserializeObject(UMaterial obj, IUnrealPackageStream objectStream)
     {
+        var start = objectStream.BaseStream.Position;
         _objectSerializer.DeserializeObject(obj, objectStream);
 
         obj.FMaterialResources[0] = new FMaterialResource();
@@ -30,7 +31,9 @@ public class DefaultMaterialSerializer : BaseObjectSerializer<UMaterial>
 
     public override void SerializeObject(UMaterial obj, IUnrealPackageStream objectStream)
     {
+        var start = objectStream.BaseStream.Position;
         _objectSerializer.SerializeObject(obj, objectStream);
+        objectStream.WriteInt32(1); // YOLO
         _materialResourceSerializer.SerializeObject(obj.FMaterialResources[0], objectStream);
     }
 }
@@ -76,6 +79,7 @@ public class FmaterialResourceSerializer : BaseObjectSerializer<FMaterialResourc
 
     public override void SerializeObject(FMaterialResource obj, IUnrealPackageStream objectStream)
     {
+        var start = objectStream.BaseStream.Position;
         objectStream.WriteTArray(obj.CompileErrors, (stream, val) => stream.WriteFString(val));
         objectStream.WriteDictionary(obj.TextureDependencyLengthMap, (stream, expression) => stream.WriteObject(expression),
             (stream, i) => stream.WriteInt32(i));

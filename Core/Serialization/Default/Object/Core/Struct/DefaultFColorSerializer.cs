@@ -19,6 +19,9 @@ public class DefaultFColorStreamSerializer : IStreamSerializer<FColor>
     /// <inheritdoc />
     public void Serialize(Stream stream, FColor value)
     {
-        throw new NotImplementedException();
+        stream.WriteByte(value.R);
+        stream.WriteByte(value.G);
+        stream.WriteByte(value.B);
+        stream.WriteByte(value.A);
     }
 }

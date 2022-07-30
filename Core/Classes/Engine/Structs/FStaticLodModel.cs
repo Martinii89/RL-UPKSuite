@@ -1,4 +1,6 @@
-﻿namespace Core.Classes.Engine.Structs;
+﻿using Core.Classes.Core.Structs;
+
+namespace Core.Classes.Engine.Structs;
 
 public class FStaticLodModel
 {
@@ -14,4 +16,7 @@ public class FStaticLodModel
     public FSkeletalMeshVertexBuffer GpuSkin { get; set; } = new();
     public FSkelIndexBuffer AdjacencyIndexBuffer { get; set; } = new();
     public List<FSkeletalMeshVertexInfluences> ExtraVertexInfluences { get; set; } = new();
+    public bool OwnerHasVertexColors { get; set; }
+    public TArray<FColor> VertexColor { get; set; } = new();
+    public int ExtraVertexInfluencesCount { get; set; }
 }

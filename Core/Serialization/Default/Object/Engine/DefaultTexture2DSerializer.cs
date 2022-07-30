@@ -38,6 +38,14 @@ public class DefaultTexture2DSerializer : BaseObjectSerializer<UTexture2D>
     /// <inheritdoc />
     public override void SerializeObject(UTexture2D obj, IUnrealPackageStream objectStream)
     {
-        throw new NotImplementedException();
+        _textureSerializer.SerializeObject(obj, objectStream);
+
+        _mipSerializer.WriteTArray(objectStream.BaseStream, obj.Mips.Where(x => !x.Data.StoredInSeparateFile).ToArray());
+        _guidSerializer.Serialize(objectStream.BaseStream, obj.TextureFileCacheGuid);
+        _mipSerializer.WriteTArray(objectStream.BaseStream, obj.CachedPVRTCMips.ToArray());
+        objectStream.WriteInt32(obj.CachedFlashMipsMaxResolution);
+        _mipSerializer.WriteTArray(objectStream.BaseStream, obj.CachedATITCMips.ToArray());
+        _bulkDataSerializer.Serialize(objectStream.BaseStream, obj.CachedFlashMips);
+        _mipSerializer.WriteTArray(objectStream.BaseStream, obj.CachedETCMips.ToArray());
     }
 }

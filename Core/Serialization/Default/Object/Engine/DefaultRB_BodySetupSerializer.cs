@@ -28,6 +28,7 @@ public class DefaultRB_BodySetupSerializer : BaseObjectSerializer<URB_BodySetup>
     /// <inheritdoc />
     public override void SerializeObject(URB_BodySetup obj, IUnrealPackageStream objectStream)
     {
-        throw new NotImplementedException();
+        _objectSerializer.SerializeObject(obj, objectStream);
+        objectStream.WriteTArray(obj.PreCachedPhysData, _kCachedConvexDataSerializer);
     }
 }

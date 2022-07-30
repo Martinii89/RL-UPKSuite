@@ -51,6 +51,11 @@ public class DefaultStaticMeshSerializer : BaseObjectSerializer<UStaticMesh>
         }
 
         obj.F178ElementsCount = objectStream.ReadInt32();
+        if (obj.F178ElementsCount != 0)
+        {
+            Debugger.Break();
+        }
+
         obj.F74 = objectStream.ReadInt32();
         obj.Unk = objectStream.ReadInt32();
         obj.LODModels = _staticMeshLodModel3Serializer.ReadTArrayToList(objectStream);
@@ -78,6 +83,28 @@ public class DefaultStaticMeshSerializer : BaseObjectSerializer<UStaticMesh>
     /// <inheritdoc />
     public override void SerializeObject(UStaticMesh obj, IUnrealPackageStream objectStream)
     {
-        throw new NotImplementedException();
+        _objectSerializer.SerializeObject(obj, objectStream);
+        _boxSphereBoundsSerializer.Serialize(objectStream.BaseStream, obj.FBoxSphereBounds);
+        objectStream.WriteObject(obj.BodySetup);
+        _kDopBoundsSerializer.Serialize(objectStream.BaseStream, obj.FkDopBounds);
+        objectStream.BulkWriteTArray(obj.NewNodes, _kDopNode3NewSerializer);
+        objectStream.BulkWriteTArray(obj.Triangles, _kDopTrianglesSerializer);
+        objectStream.WriteInt32(obj.InternalVersion);
+        objectStream.WriteInt32(obj.UnkFlag);
+        objectStream.WriteInt32(obj.F178ElementsCount);
+        objectStream.WriteInt32(obj.F74);
+        objectStream.WriteInt32(obj.Unk);
+        objectStream.WriteTArray(obj.LODModels, (stream, model) => _staticMeshLodModel3Serializer.SerializeObject(model, stream));
+        objectStream.WriteInt32(obj.LodInfoCount);
+        _rotatorSerializer.Serialize(objectStream.BaseStream, obj.ThumbnailAngle);
+        objectStream.WriteSingle(obj.ThumbnailDistance);
+        objectStream.WriteFString(obj.HighResSourceMeshName);
+        objectStream.WriteUInt32(obj.HighResSourceMeshCRC);
+        _guidSerializer.Serialize(objectStream.BaseStream, obj.LightingGuid);
+        objectStream.WriteInt32(obj.Unk2);
+        objectStream.WriteTArray(obj.UnkIntArray, (stream, i) => stream.WriteInt32(i));
+        objectStream.WriteInt32(obj.Unk3);
+        objectStream.WriteInt32(obj.Unk4);
+        objectStream.WriteInt32(obj.Unk5);
     }
 }

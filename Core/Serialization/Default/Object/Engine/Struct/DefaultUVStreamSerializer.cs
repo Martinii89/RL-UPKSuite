@@ -40,7 +40,18 @@ public class DefaultUVStreamSerializer : IStreamSerializer<UvStream>
     /// <inheritdoc />
     public void Serialize(Stream stream, UvStream value)
     {
-        throw new NotImplementedException();
+        stream.WriteInt32(value.NumTexCords);
+        stream.WriteInt32(value.ItemSize);
+        stream.WriteInt32(value.NumVerts);
+        stream.WriteInt32(value.BUseFullPrecisionUVs);
+
+        stream.WriteInt32(value.UvStreamItems.ElementSize);
+        stream.WriteInt32(value.UvStreamItems.Count);
+
+        foreach (var uvItem in value.UvStreamItems)
+        {
+            SerializeUvItem(uvItem, stream);
+        }
     }
 
     private void DeserializeUvItem(UvItem obj, Stream stream)
@@ -61,6 +72,38 @@ public class DefaultUVStreamSerializer : IStreamSerializer<UvStream>
                 obj.UvFull[index] = DeserializeUvFull(stream);
             }
         }
+    }
+
+    private void SerializeUvItem(UvItem obj, Stream stream)
+    {
+        stream.WriteUInt32(obj.N0);
+        stream.WriteUInt32(obj.N1);
+        if (obj.Uv is not null)
+        {
+            foreach (var t in obj.Uv)
+            {
+                SerializeUvHalf(stream, t);
+            }
+        }
+        else if (obj.UvFull is not null)
+        {
+            foreach (var t in obj.UvFull)
+            {
+                SerializeUvFull(stream, t);
+            }
+        }
+    }
+
+    private void SerializeUvFull(Stream stream, UvFull uvFull)
+    {
+        stream.WriteSingle(uvFull.A);
+        stream.WriteSingle(uvFull.B);
+    }
+
+    private void SerializeUvHalf(Stream stream, UvHalf uvHalf)
+    {
+        stream.WriteUInt16(uvHalf.A);
+        stream.WriteUInt16(uvHalf.B);
     }
 
     private UvFull DeserializeUvFull(Stream stream)

@@ -390,7 +390,17 @@ public class UnrealPackage
         // Top level package import
         if (importTableItem.OuterIndex.Index == 0 && GetName(importTableItem.ClassName) == "Package")
         {
-            importTableItem.ImportedObject = new UPackage(importTableItem.ObjectName, FindClass("Package"), null, this);
+            var packageName = GetName(importTableItem.ObjectName);
+            var importedPackage = PackageCache.ResolveExportPackage(packageName);
+            if (importedPackage?.PackageRoot is not null)
+            {
+                importTableItem.ImportedObject = importedPackage.PackageRoot;
+            }
+            else
+            {
+                importTableItem.ImportedObject = new UPackage(importTableItem.ObjectName, FindClass("Package"), null, this);
+            }
+
             return importTableItem.ImportedObject;
         }
 

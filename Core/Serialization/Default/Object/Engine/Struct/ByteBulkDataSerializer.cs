@@ -22,6 +22,13 @@ public class ByteBulkDataSerializer : IStreamSerializer<FByteBulkData>
 
     public void Serialize(Stream stream, FByteBulkData value)
     {
-        throw new NotImplementedException();
+        stream.Write((uint) value.BulkDataFlags);
+        stream.Write(value.ElementCount);
+        stream.Write(value.BulkDataSizeOnDisk);
+        stream.Write((int) (stream.Position + 4));
+        if (value.BulkDataSizeOnDisk > 0 && !value.StoredInSeparateFile)
+        {
+            stream.Write(value.BulkData, 0, value.BulkDataSizeOnDisk);
+        }
     }
 }

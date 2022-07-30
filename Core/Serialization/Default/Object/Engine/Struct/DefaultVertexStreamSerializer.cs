@@ -26,7 +26,11 @@ public class DefaultVertexStreamSerializer : IStreamSerializer<VertexStream>
     /// <inheritdoc />
     public void Serialize(Stream stream, VertexStream value)
     {
-        throw new NotImplementedException();
+        stream.WriteInt32(value.VertexSize);
+        stream.WriteInt32(value.VertexCount);
+
+        stream.WriteInt32(value.VertexStreamArray.ElementSize);
+        _vectorSerializer.WriteTArray(stream, value.VertexStreamArray.ToArray());
     }
 }
 
@@ -44,6 +48,6 @@ public class DefaultkDOPTrianglesSerializer : IStreamSerializer<FkDOPTriangles>
     /// <inheritdoc />
     public void Serialize(Stream stream, FkDOPTriangles value)
     {
-        throw new NotImplementedException();
+        stream.WriteInt16s(value.Triangles);
     }
 }

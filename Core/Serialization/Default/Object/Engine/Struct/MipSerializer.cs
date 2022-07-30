@@ -23,6 +23,8 @@ public class MipSerializer : IStreamSerializer<Mip>
 
     public void Serialize(Stream stream, Mip value)
     {
-        throw new NotImplementedException();
+        _bulkDataSerializer.Serialize(stream, value.Data);
+        stream.WriteInt32(value.SizeX);
+        stream.WriteInt32(value.SizeY);
     }
 }

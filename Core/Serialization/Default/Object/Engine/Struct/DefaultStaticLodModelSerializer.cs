@@ -9,6 +9,7 @@ namespace Core.Serialization.Default.Object.Engine.Struct;
 public class DefaultStaticLodModelSerializer : BaseObjectSerializer<FStaticLodModel>
 {
     private readonly IStreamSerializer<FByteBulkData> _BulkDataSerializer;
+    private readonly IStreamSerializer<FColor> _colorSerializer;
     private readonly IObjectSerializer<FSkeletalMeshVertexBuffer> _SkeletalMeshVertexBufferSerializer;
     private readonly IStreamSerializer<FSkelIndexBuffer> _SkelIndexBufferSerializer;
     private readonly IStreamSerializer<FSkelMeshChunk> _SkelMeshChunkSerializer;
@@ -17,13 +18,15 @@ public class DefaultStaticLodModelSerializer : BaseObjectSerializer<FStaticLodMo
 
     public DefaultStaticLodModelSerializer(IStreamSerializer<FSkelMeshSection> skelMeshSectionSerializer,
         IStreamSerializer<FSkelIndexBuffer> skelIndexBufferSerializer, IStreamSerializer<FSkelMeshChunk> skelMeshChunkSerializer,
-        IStreamSerializer<FByteBulkData> bulkDataSerializer, IObjectSerializer<FSkeletalMeshVertexBuffer> skeletalMeshVertexBufferSerializer)
+        IStreamSerializer<FByteBulkData> bulkDataSerializer, IObjectSerializer<FSkeletalMeshVertexBuffer> skeletalMeshVertexBufferSerializer,
+        IStreamSerializer<FColor> colorSerializer)
     {
         _SkelMeshSectionSerializer = skelMeshSectionSerializer;
         _SkelIndexBufferSerializer = skelIndexBufferSerializer;
         _SkelMeshChunkSerializer = skelMeshChunkSerializer;
         _BulkDataSerializer = bulkDataSerializer;
         _SkeletalMeshVertexBufferSerializer = skeletalMeshVertexBufferSerializer;
+        _colorSerializer = colorSerializer;
     }
 
 
@@ -32,7 +35,7 @@ public class DefaultStaticLodModelSerializer : BaseObjectSerializer<FStaticLodMo
     {
         obj.Sections = _SkelMeshSectionSerializer.ReadTArrayToList(objectStream.BaseStream);
         obj.IndexBuffer = _SkelIndexBufferSerializer.Deserialize(objectStream.BaseStream);
-        if (obj.IndexBuffer.Size != 4 || obj.IndexBuffer.Indices.ElementSize != 4)
+        if (obj.IndexBuffer.Size is not 4 and not 2 || obj.IndexBuffer.Indices.ElementSize is not 4 and not 2)
         {
             Debugger.Break();
         }
@@ -45,10 +48,15 @@ public class DefaultStaticLodModelSerializer : BaseObjectSerializer<FStaticLodMo
         obj.FBulkData = _BulkDataSerializer.Deserialize(objectStream.BaseStream);
         obj.NumUvSets = objectStream.ReadInt32();
         _SkeletalMeshVertexBufferSerializer.DeserializeObject(obj.GpuSkin, objectStream);
-        // I don't think these properties are actually part of the FSkeletalMeshVertexBuffer. but separate objects in FStaticLodModel
 
-        var extraVertexInfluencesCount = objectStream.ReadInt32();
-        if (extraVertexInfluencesCount > 0)
+        if (obj.OwnerHasVertexColors)
+        {
+            obj.VertexColor = _colorSerializer.ReadTArrayWithElementSize(objectStream.BaseStream);
+        }
+
+
+        obj.ExtraVertexInfluencesCount = objectStream.ReadInt32();
+        if (obj.ExtraVertexInfluencesCount > 0)
         {
             Debugger.Break();
         }
@@ -59,7 +67,25 @@ public class DefaultStaticLodModelSerializer : BaseObjectSerializer<FStaticLodMo
     /// <inheritdoc />
     public override void SerializeObject(FStaticLodModel obj, IUnrealPackageStream objectStream)
     {
-        throw new NotImplementedException();
+        objectStream.WriteTArray(obj.Sections, _SkelMeshSectionSerializer);
+        _SkelIndexBufferSerializer.Serialize(objectStream.BaseStream, obj.IndexBuffer);
+        objectStream.WriteTArray(obj.UsedBones, (stream, s) => stream.WriteInt16(s));
+        objectStream.WriteTArray(obj.Chunks, _SkelMeshChunkSerializer);
+        objectStream.WriteInt32(obj.Size);
+        objectStream.WriteInt32(obj.NumVerts);
+        objectStream.WriteTArray(obj.RequiredBones, (stream, s) => stream.WriteByte(s));
+        _BulkDataSerializer.Serialize(objectStream.BaseStream, obj.FBulkData);
+        objectStream.WriteInt32(obj.NumUvSets);
+        _SkeletalMeshVertexBufferSerializer.SerializeObject(obj.GpuSkin, objectStream);
+
+        if (obj.OwnerHasVertexColors)
+
+        {
+            _colorSerializer.BulkWriteTArray(objectStream.BaseStream, obj.VertexColor);
+        }
+
+        objectStream.WriteInt32(obj.ExtraVertexInfluencesCount);
+        _SkelIndexBufferSerializer.Serialize(objectStream.BaseStream, obj.AdjacencyIndexBuffer);
     }
 }
 
@@ -81,7 +107,11 @@ public class DefaultSkelMeshSectionSerializer : IStreamSerializer<FSkelMeshSecti
     /// <inheritdoc />
     public void Serialize(Stream stream, FSkelMeshSection value)
     {
-        throw new NotImplementedException();
+        stream.WriteUInt16(value.MaterialIndex);
+        stream.WriteUInt16(value.ChunkIndex);
+        stream.WriteInt32(value.FirstIndex);
+        stream.WriteInt32(value.NumTriangles);
+        stream.WriteByte(value.TriangleSorting);
     }
 }
 
@@ -93,24 +123,31 @@ public class DefaultSkelIndexBufferSerializer : IStreamSerializer<FSkelIndexBuff
         var buffer = new FSkelIndexBuffer();
         buffer.Unk = stream.ReadInt32();
         buffer.Size = (byte) stream.ReadByte();
-        switch (buffer.Size)
+        buffer.Indices = buffer.Size switch
         {
-            case 4:
-                buffer.Indices = stream.ReadTarrayWithElementSize(stream1 => stream1.ReadUInt32());
-                break;
-            case 2:
-                buffer.Indices = stream.ReadTarrayWithElementSize(stream1 => (uint) stream1.ReadUInt16());
-                break;
-            default:
-                throw new InvalidDataException();
-        }
+            4 => stream.ReadTarrayWithElementSize(stream1 => stream1.ReadUInt32()),
+            2 => stream.ReadTarrayWithElementSize(stream1 => (uint) stream1.ReadUInt16()),
+            _ => throw new InvalidDataException()
+        };
 
         return buffer;
     }
 
     public void Serialize(Stream stream, FSkelIndexBuffer value)
     {
-        throw new NotImplementedException();
+        stream.WriteInt32(value.Unk);
+        stream.WriteByte(value.Size);
+        switch (value.Size)
+        {
+            case 4:
+                stream.BulkWriteTArray(value.Indices, (stream1, u) => stream1.WriteUInt32(u));
+                break;
+            case 2:
+                stream.BulkWriteTArray(value.Indices, (stream1, u) => stream1.WriteUInt16((ushort) u));
+                break;
+            default:
+                throw new InvalidDataException();
+        }
     }
 }
 
@@ -143,7 +180,13 @@ public class DefaultSkelMeshChunkSerializer : IStreamSerializer<FSkelMeshChunk>
     /// <inheritdoc />
     public void Serialize(Stream stream, FSkelMeshChunk value)
     {
-        throw new NotImplementedException();
+        stream.WriteInt32(value.FirstVertex);
+        _rigidVertexSerializer.WriteTArray(stream, value.RigidVerts.ToArray());
+        _softVertexSerializer.WriteTArray(stream, value.SoftVerts.ToArray());
+        stream.WriteTArray(value.Bones, (stream1, s) => stream1.WriteInt16(s));
+        stream.WriteInt32(value.NumRigidVerts);
+        stream.WriteInt32(value.NumSoftVerts);
+        stream.WriteInt32(value.MaxInfluences);
     }
 }
 
@@ -179,7 +222,14 @@ public class DefaultRigidVertexSerializer : IStreamSerializer<FRigidVertex>
     /// <inheritdoc />
     public void Serialize(Stream stream, FRigidVertex value)
     {
-        throw new NotImplementedException();
+        _vectorSerializer.Serialize(stream, value.Pos);
+        stream.WriteUInt32s(value.Normal);
+        _vector2DSerializer.Serialize(stream, value.UV[0]);
+        _vector2DSerializer.Serialize(stream, value.UV[1]);
+        _vector2DSerializer.Serialize(stream, value.UV[2]);
+        _vector2DSerializer.Serialize(stream, value.UV[3]);
+        _colorSerializer.Serialize(stream, value.Color);
+        stream.WriteByte(value.BoneIndex);
     }
 }
 
@@ -216,7 +266,15 @@ public class DefaultSoftVertexSerializer : IStreamSerializer<FSoftVertex>
     /// <inheritdoc />
     public void Serialize(Stream stream, FSoftVertex value)
     {
-        throw new NotImplementedException();
+        _vectorSerializer.Serialize(stream, value.Pos);
+        stream.WriteUInt32s(value.Normal);
+        _vector2DSerializer.Serialize(stream, value.UV[0]);
+        _vector2DSerializer.Serialize(stream, value.UV[1]);
+        _vector2DSerializer.Serialize(stream, value.UV[2]);
+        _vector2DSerializer.Serialize(stream, value.UV[3]);
+        _colorSerializer.Serialize(stream, value.Color);
+        stream.WriteBytes(value.BoneIndex);
+        stream.WriteBytes(value.BoneWeight);
     }
 }
 
@@ -259,7 +317,12 @@ public class DefaultSkeletalMeshVertexBufferSerializer : BaseObjectSerializer<FS
     /// <inheritdoc />
     public override void SerializeObject(FSkeletalMeshVertexBuffer obj, IUnrealPackageStream objectStream)
     {
-        throw new NotImplementedException();
+        objectStream.WriteInt32(obj.NumUVSets);
+        objectStream.WriteInt32(obj.bUseFullPrecisionUVs);
+        objectStream.WriteInt32(obj.bUsePackedPosition);
+        _vectorSerializer.Serialize(objectStream.BaseStream, obj.MeshExtension);
+        _vectorSerializer.Serialize(objectStream.BaseStream, obj.MeshOrigin);
+        objectStream.BulkWriteTArray(obj.VertexBuffer, _gpuVertSerializer);
     }
 }
 
@@ -272,6 +335,7 @@ public class DefaultGpuVertSerializer : BaseObjectSerializer<GpuVert>
         _vectorSerializer = vectorSerializer;
     }
 
+    /// <inheritdoc />
     public override void DeserializeObject(GpuVert obj, IUnrealPackageStream objectStream)
     {
         obj.N0 = objectStream.ReadUInt32();
@@ -289,8 +353,18 @@ public class DefaultGpuVertSerializer : BaseObjectSerializer<GpuVert>
         }
     }
 
+    /// <inheritdoc />
     public override void SerializeObject(GpuVert obj, IUnrealPackageStream objectStream)
     {
-        throw new NotImplementedException();
+        objectStream.WriteUInt32(obj.N0);
+        objectStream.WriteUInt32(obj.N1);
+        objectStream.WriteBytes(obj.BoneIndex);
+        objectStream.WriteBytes(obj.BoneWeight);
+        _vectorSerializer.Serialize(objectStream.BaseStream, obj.Pos);
+        foreach (var uvHalf in obj.UV)
+        {
+            objectStream.WriteUInt16(uvHalf.A);
+            objectStream.WriteUInt16(uvHalf.B);
+        }
     }
 }

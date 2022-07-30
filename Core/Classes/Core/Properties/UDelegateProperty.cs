@@ -25,6 +25,17 @@ public class UDelegateProperty : UProperty
         var delegateName = objStream.ReadFNameStr();
         return new FScriptDelegate { Object = delegateObject, FunctionName = delegateName };
     }
+
+    public override void SerializeValue(object? valueObject, UObject uObject, IUnrealPackageStream objectStream, int propertySize)
+    {
+        if (valueObject is not FScriptDelegate value)
+        {
+            return;
+        }
+
+        objectStream.WriteObject(value.Object);
+        objectStream.WriteFName(value.FunctionName);
+    }
 }
 
 internal class FScriptDelegate
