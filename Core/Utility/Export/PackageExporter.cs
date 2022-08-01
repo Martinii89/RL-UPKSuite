@@ -1,5 +1,6 @@
 ﻿using Core.Classes;
 using Core.Classes.Core;
+using Core.Classes.Core.Properties;
 using Core.Classes.Engine;
 using Core.Serialization;
 using Core.Serialization.Abstraction;
@@ -40,11 +41,126 @@ public class PackageExporter
         _exportExportTable = CopyExportTable(_package.ExportTable);
         _exportImportTable = CopyImportTable(_package.ImportTable);
         RemoveNullObjects(_exportImportTable, _exportExportTable);
+        // Do not do this before RemoveNullObjects!
+        AddDumyNodesToMaterials();
         ModifyHeaderFieldsForExport(_exportHeader);
         ModifyExportTableFieldsForExport(_exportExportTable);
         FixObjectIndexReferences(_exportImportTable, _exportExportTable);
         _outputPackageStream =
             new ExportUnrealPackageStream(_exportStream, _objectIndexSerializer, _nameSerializer, _package, _exportExportTable, _exportImportTable);
+    }
+
+    private void AddDumyNodesToMaterials()
+    {
+        var customNodeClass = AddClassImport("Engine", "MaterialExpressionCustom");
+        customNodeClass.Deserialize();
+        customNodeClass.InitProperties();
+        var customName = GetOrAddName("WizardNode");
+        var materialExports = _exportExportTable.Select(x => x.Object).OfType<UMaterial>().ToList();
+        foreach (var material in materialExports)
+        {
+            var customNode = new UMaterialExpression(customName, customNodeClass, material, _package);
+            AddExport(customNode);
+            material.Deserialize();
+            AddSubsurfaceScatteringRadiusProperty(material, customNode);
+            AddMaterialParamsToCustomNodeInputs(material, customNode);
+            var matExpressions = material.ScriptProperties.Find(x => x.Name == "Expressions");
+            if (matExpressions is not null)
+            {
+                matExpressions.Size += 4;
+                (matExpressions.Value as List<object?>)?.Add(customNode);
+            }
+
+            //material.AddScriptProperty("SubsurfaceScatteringRadius")
+
+            customName = new FName(customName.NameIndex, customName.InstanceNumber + 1);
+        }
+    }
+
+    private void AddMaterialParamsToCustomNodeInputs(UMaterial material, UMaterialExpression customNode)
+    {
+        ArgumentNullException.ThrowIfNull(customNode.Class);
+        ArgumentNullException.ThrowIfNull(customNode.Class);
+        GetOrAddName("Inputs");
+        GetOrAddName("Input");
+        var materialParams = material.GetMaterialParams();
+        var inputsParams = customNode.Class.GetProperty("Inputs");
+        ArgumentNullException.ThrowIfNull(inputsParams);
+        inputsParams.Deserialize();
+        var valueObject = new List<object>();
+        foreach (var materialParam in materialParams)
+        {
+            var materialInput = new Dictionary<string, object>
+            {
+                ["Expression"] = materialParam
+            };
+            var input = new Dictionary<string, object>
+            {
+                ["Input"] = materialInput
+            };
+            valueObject.Add(input);
+        }
+
+        customNode.ScriptProperties.Add(inputsParams.CreateFProperty(valueObject));
+    }
+
+    private void AddSubsurfaceScatteringRadiusProperty(UMaterial material, UMaterialExpression customNode)
+    {
+        GetOrAddName("SubsurfaceScatteringRadius");
+        GetOrAddName("Expression");
+        var valueObject = new Dictionary<string, object>
+        {
+            ["Expression"] = customNode
+        };
+        ArgumentNullException.ThrowIfNull(material.Class);
+        var clz = material.Class;
+        var rootProperty = clz.GetProperty("SubsurfaceScatteringRadius") as UStructProperty;
+        ArgumentNullException.ThrowIfNull(rootProperty);
+        rootProperty.Deserialize();
+        var fproperty = rootProperty.CreateFProperty(valueObject);
+        material.ScriptProperties.Add(fproperty);
+    }
+
+    private UClass AddClassImport(string classPackage, string className)
+    {
+        ArgumentNullException.ThrowIfNull(_package.PackageCache);
+        var package = _package.PackageCache.GetCachedPackage(classPackage);
+        ArgumentNullException.ThrowIfNull(package);
+        var importItem = new ImportTableItem(GetOrAddName("Core"), GetOrAddName("Class"), FindObjectIndex(package.PackageRoot), GetOrAddName(className));
+        var importedClass = package.FindClass(className);
+        ArgumentNullException.ThrowIfNull(importedClass);
+        importItem.ImportedObject = importedClass;
+        _exportImportTable.Add(importItem);
+        return importedClass;
+    }
+
+    /// <summary>
+    ///     Adds a new export to the export table with serial size 0. Important to not do this before filtering out null
+    ///     objects!
+    /// </summary>
+    /// <param name="obj"></param>
+    private void AddExport(UObject obj)
+    {
+        // serial size 0  to just make sure it doesn't try to deserialize this object. M
+        var exportItem = new ExportTableItem(FindObjectIndex(obj.Class), new ObjectIndex(), FindObjectIndex(obj.Outer), obj._FName,
+            FindObjectIndex(obj.ObjectArchetype), obj.ObjectFlags, 0, 0, 0, new List<int>(), new FGuid(), 0)
+        {
+            Object = obj
+        };
+        obj.ExportTableItem = exportItem;
+        _exportExportTable.Add(exportItem);
+    }
+
+    /// <summary>
+    ///     Abstracting this in case I decide to use a separate name table as well later (Doing this will require rethinking
+    ///     the FName serialization). For now it will just use add to the original table.
+    ///     name table.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <returns></returns>
+    private FName GetOrAddName(string name)
+    {
+        return _package.GetOrAddName(name);
     }
 
     private void FixObjectIndexReferences(ImportTable importTable, ExportTable exportTable)
@@ -228,6 +344,7 @@ public class PackageExporter
     {
         ExportHeader();
         _exportHeader.NameOffset = (int) _exportStream.Position;
+        _exportHeader.NameCount = _package.NameTable.Count;
         ExportNameTable();
         _exportHeader.ImportOffset = (int) _exportStream.Position;
         _exportHeader.ImportCount = _exportImportTable.Count;

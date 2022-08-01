@@ -91,4 +91,48 @@ public class UStructProperty : UProperty
         var scriptPropertiesSerializer = new ScriptPropertiesSerializer();
         scriptPropertiesSerializer.WriteScriptProperties(fPropertyList, uObject, objectStream);
     }
+
+    public override FProperty CreateFProperty(object? value)
+    {
+        if (value is not Dictionary<string, object?> structValues)
+        {
+            throw new InvalidDataException("Value should be of type Dictionary<string, object?>");
+        }
+
+        ArgumentNullException.ThrowIfNull(Struct);
+        if (Struct.HasFlag(StructFlag.Immutable))
+        {
+            throw new NotImplementedException();
+        }
+
+        var fProperty = new FProperty
+        {
+            Value = value,
+            uProperty = this,
+            Size = 8, // at least a None FName
+            StructName = Struct.Name,
+            Type = PropertyType.StructProperty,
+            Name = Name
+        };
+
+        var fPropertyList = new List<FProperty>();
+        foreach (var (paramName, paramValue) in structValues)
+        {
+            var parameter = Struct.GetProperty(paramName);
+            ArgumentNullException.ThrowIfNull(parameter);
+            var paramFProperty = parameter.CreateFProperty(paramValue);
+            var additionalSize = 24 + paramFProperty.Size; // 24 is the size of Name\Type\size\array index
+            if (paramFProperty.Type is PropertyType.StructProperty or PropertyType.ByteProperty)
+            {
+                additionalSize += 8;
+            }
+
+            fProperty.Size += additionalSize;
+            fPropertyList.Add(paramFProperty);
+        }
+
+        structValues[FpropertyListKey] = fPropertyList;
+
+        return fProperty;
+    }
 }

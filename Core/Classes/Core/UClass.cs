@@ -99,6 +99,16 @@ public class UClass : UState
     }
 
     /// <summary>
+    ///     Iterates the superclasses and compares their name to the className given.
+    /// </summary>
+    /// <param name="className"></param>
+    /// <returns></returns>
+    public bool IsA(string className)
+    {
+        return GetSuperClassIterator().Any(x => x.Name == className);
+    }
+
+    /// <summary>
     ///     Constructs a UObject with this as their class.
     /// </summary>
     /// <param name="name"></param>

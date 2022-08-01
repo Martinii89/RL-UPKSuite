@@ -30,4 +30,16 @@ public class UObjectProperty : UProperty
     {
         objectStream.WriteObject(valueObject as UObject);
     }
+
+    public override FProperty CreateFProperty(object? value)
+    {
+        return new FProperty
+        {
+            Value = value as UObject,
+            uProperty = this,
+            Size = 4,
+            Type = PropertyType.ObjectProperty,
+            Name = Name
+        };
+    }
 }

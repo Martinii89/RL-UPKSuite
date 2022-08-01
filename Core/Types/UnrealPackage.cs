@@ -769,6 +769,6 @@ public class UnrealPackage
             return new FName(registeredName);
         }
 
-        throw new KeyNotFoundException();
+        throw new KeyNotFoundException(name);
     }
 }

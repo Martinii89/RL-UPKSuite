@@ -11,23 +11,59 @@ public class UMaterial : UMaterialInterface
     {
     }
 
+    public List<UMaterialExpression> Expressions { get; set; } = new();
+
     public List<FMaterialResource> FMaterialResources { get; set; } = new();
     public int ResourceCountFlag { get; set; }
+
+    /// <summary>
+    ///     Find the Expressions FProperty in the ScriptProperties and adds all the MaterialExpressions in there to the
+    ///     expressions list for easy access
+    /// </summary>
+    public void InitMateralExpressionsList()
+    {
+        if (Expressions.Count > 0)
+        {
+            return;
+        }
+
+        var expressionsProperty = ScriptProperties.Find(x => x.Name == "Expressions");
+
+        if (expressionsProperty?.Value is not List<object> expressionsList)
+        {
+            return;
+        }
+
+        foreach (var o in expressionsList)
+        {
+            if (o is UMaterialExpression expr)
+            {
+                Expressions.Add(expr);
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Returns a list of all the material expressions that are material parameters. The material has to be deserialized
+    ///     first
+    /// </summary>
+    /// <returns></returns>
+    public List<UMaterialExpression> GetMaterialParams()
+    {
+        InitMateralExpressionsList();
+        return Expressions.Where(x =>
+            x.Class != null && (x.Class.IsA("MaterialExpressionParameter") || x.Class.IsA("MaterialExpressionTextureSampleParameter"))).ToList();
+    }
 }
 
 public class FMaterial
 {
     public List<string> CompileErrors { get; set; } = new();
     public Dictionary<UMaterialExpression, int> TextureDependencyLengthMap { get; set; } = new();
-
     public int MaxTextureDependencyLength { get; set; }
-
     public FGuid ID { get; set; }
-
     public uint NumUserTexCoords { get; set; }
-
     public List<UTexture?> UniformExpressionTextures { get; set; } = new();
-
     public bool bUsesSceneColorTemp { get; set; }
     public bool bUsesSceneDepthTemp { get; set; }
     public bool bUsesDynamicParameterTemp { get; set; }
@@ -35,7 +71,6 @@ public class FMaterial
     public bool bUsesMaterialVertexPositionOffsetTemp { get; set; }
     public bool UsingTransforms { get; set; }
     public List<FTextureLookupInfo> FTextureLookupInfos { get; set; } = new();
-    public bool DummyDroppedFallbackComponents { get; set; }
     public int Unk { get; set; }
 }
 

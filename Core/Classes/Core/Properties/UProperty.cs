@@ -55,4 +55,15 @@ public abstract class UProperty : UField
     {
         throw new NotImplementedException(Class?.Name);
     }
+
+    /// <summary>
+    ///     Create a serializable FProperty for adding custom script properties to UObjects
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    /// <exception cref="NotImplementedException"></exception>
+    public virtual FProperty CreateFProperty(object? value)
+    {
+        throw new NotImplementedException(Class?.Name);
+    }
 }

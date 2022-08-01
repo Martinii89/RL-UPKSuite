@@ -18,7 +18,7 @@ public class UObject
     /// <summary>
     ///     The FName of this object
     /// </summary>
-    protected FName _FName;
+    public FName _FName;
 
     protected bool IsDeserialized;
 
