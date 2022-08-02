@@ -2,6 +2,7 @@
 using Core.Classes.Core;
 using Core.Classes.Core.Properties;
 using Core.Classes.Engine;
+using Core.Flags;
 using Core.Serialization;
 using Core.Serialization.Abstraction;
 using Core.Types;
@@ -64,14 +65,14 @@ public class PackageExporter
             material.Deserialize();
             AddSubsurfaceScatteringRadiusProperty(material, customNode);
             AddMaterialParamsToCustomNodeInputs(material, customNode);
+            GuessAndConnectDiffuseParam(material);
+            ClearLightingModel(material);
             var matExpressions = material.ScriptProperties.Find(x => x.Name == "Expressions");
             if (matExpressions is not null)
             {
                 matExpressions.Size += 4;
                 (matExpressions.Value as List<object?>)?.Add(customNode);
             }
-
-            //material.AddScriptProperty("SubsurfaceScatteringRadius")
 
             customName = new FName(customName.NameIndex, customName.InstanceNumber + 1);
         }
@@ -113,12 +114,57 @@ public class PackageExporter
             ["Expression"] = customNode
         };
         ArgumentNullException.ThrowIfNull(material.Class);
-        var clz = material.Class;
-        var rootProperty = clz.GetProperty("SubsurfaceScatteringRadius") as UStructProperty;
+        var rootProperty = material.Class.GetProperty("SubsurfaceScatteringRadius") as UStructProperty;
         ArgumentNullException.ThrowIfNull(rootProperty);
         rootProperty.Deserialize();
         var fproperty = rootProperty.CreateFProperty(valueObject);
         material.ScriptProperties.Add(fproperty);
+    }
+
+    private void GuessAndConnectDiffuseParam(UMaterial material)
+    {
+        GetOrAddName("DiffuseColor");
+        GetOrAddName("Expression");
+        var paramList = material.GetMaterialParams();
+        UMaterialExpression? diffuseExpression = null;
+        foreach (var expression in paramList)
+        {
+            expression.Deserialize();
+            var paramName = expression.ScriptProperties.FirstOrDefault(x => x.Name == "ParameterName")?.Value as string;
+            if (paramName?.Contains("diffuse", StringComparison.OrdinalIgnoreCase) ?? false)
+            {
+                diffuseExpression = expression;
+                break;
+            }
+        }
+
+        if (diffuseExpression == null)
+        {
+            return;
+        }
+
+        ArgumentNullException.ThrowIfNull(material.Class);
+        if (material.Class.GetProperty("DiffuseColor") is not UStructProperty rootProperty)
+        {
+            return;
+        }
+
+        var valueObject = new Dictionary<string, object>
+        {
+            ["Expression"] = diffuseExpression
+        };
+        rootProperty.Deserialize();
+        var fproperty = rootProperty.CreateFProperty(valueObject);
+        material.ScriptProperties.Add(fproperty);
+    }
+
+    /// <summary>
+    ///     Removes the script property for the lighting model. Should make it default to Phong
+    /// </summary>
+    /// <param name="material"></param>
+    private void ClearLightingModel(UMaterial material)
+    {
+        material.ScriptProperties.RemoveAll(x => x.Name == "LightingModel");
     }
 
     private UClass AddClassImport(string classPackage, string className)
@@ -229,10 +275,11 @@ public class PackageExporter
     {
         var noneFName = _package.GetFName("None");
         importTable.RemoveAll(x => Equals(x.ObjectName, noneFName) && Equals(x.ClassName, noneFName) && Equals(x.ClassPackage, noneFName));
+        importTable.RemoveAll(x => x.ImportedObject is null);
         exportTable.RemoveAll(x => x.SerialSize == 0);
-        //var index = 300; ok, but material functions crashes
+        //var index = 2000; ok, but material functions crashes
         //var index = ?? // crash
-        var index = 300;
+        var index = 2000;
         //exportTable.RemoveRange(index, exportTable.Count - index);
     }
 
@@ -252,6 +299,7 @@ public class PackageExporter
                 case USkeletalMesh:
                 case UStaticMesh:
                 case UTexture:
+                case UMaterialInstance:
                     export.ObjectFlags = 0xF000400000000u;
                     export.PackageFlags = 0;
                     break;
@@ -269,36 +317,35 @@ public class PackageExporter
         exportHeader.ThumbnailTableOffset = 0;
         exportHeader.CookerVersion = 0;
         exportHeader.EngineVersion = 12791;
-        exportHeader.PackageFlags = 1;
-        /*
-        //var flags = (PackageFlags) exportHeader.PackageFlags;
-        //flags &= ~PackageFlags.PKG_Cooked;
-        //flags &= ~PackageFlags.PKG_StoreCompressed;
+        //exportHeader.PackageFlags = 1;
 
-        ////var a = flags.HasFlag(PackageFlags.PKG_AllowDownload);
-        ////var a1 = flags.HasFlag(PackageFlags.PKG_ClientOptional);
-        ////var a2 = flags.HasFlag(PackageFlags.PKG_ServerSideOnly);
-        ////var a3 = flags.HasFlag(PackageFlags.PKG_Cooked);
-        ////var a4 = flags.HasFlag(PackageFlags.PKG_Unsecure);
-        ////var a5 = flags.HasFlag(PackageFlags.PKG_SavedWithNewerVersion);
-        ////var a6 = flags.HasFlag(PackageFlags.PKG_Need);
-        ////var a7 = flags.HasFlag(PackageFlags.PKG_Compiling);
-        ////var a8 = flags.HasFlag(PackageFlags.PKG_ContainsMap);
-        ////var a9 = flags.HasFlag(PackageFlags.PKG_Trash);
-        ////var a10 = flags.HasFlag(PackageFlags.PKG_DisallowLazyLoading);
-        ////var a11 = flags.HasFlag(PackageFlags.PKG_PlayInEditor);
-        ////var a12 = flags.HasFlag(PackageFlags.PKG_ContainsScript);
-        ////var a13 = flags.HasFlag(PackageFlags.PKG_ContainsDebugInfo);
-        ////var a14 = flags.HasFlag(PackageFlags.PKG_RequireImportsAlreadyLoaded);
-        ////var a15 = flags.HasFlag(PackageFlags.PKG_SelfContainedLighting);
-        ////var a16 = flags.HasFlag(PackageFlags.PKG_StoreCompressed);
-        ////var a17 = flags.HasFlag(PackageFlags.PKG_StoreFullyCompressed);
-        ////var a18 = flags.HasFlag(PackageFlags.PKG_ContainsInlinedShaders);
-        ////var a19 = flags.HasFlag(PackageFlags.PKG_ContainsFaceFXData);
-        ////var a20 = flags.HasFlag(PackageFlags.PKG_NoExportAllowed);
-        ////var a21 = flags.HasFlag(PackageFlags.PKG_StrippedSource);
-        //exportHeader.PackageFlags = (uint) flags;
-        */
+        var flags = (PackageFlags) exportHeader.PackageFlags;
+        flags &= ~PackageFlags.PKG_Cooked;
+        flags &= ~PackageFlags.PKG_StoreCompressed;
+
+        var a = flags.HasFlag(PackageFlags.PKG_AllowDownload);
+        var a1 = flags.HasFlag(PackageFlags.PKG_ClientOptional);
+        var a2 = flags.HasFlag(PackageFlags.PKG_ServerSideOnly);
+        var a3 = flags.HasFlag(PackageFlags.PKG_Cooked);
+        var a4 = flags.HasFlag(PackageFlags.PKG_Unsecure);
+        var a5 = flags.HasFlag(PackageFlags.PKG_SavedWithNewerVersion);
+        var a6 = flags.HasFlag(PackageFlags.PKG_Need);
+        var a7 = flags.HasFlag(PackageFlags.PKG_Compiling);
+        var a8 = flags.HasFlag(PackageFlags.PKG_ContainsMap);
+        var a9 = flags.HasFlag(PackageFlags.PKG_Trash);
+        var a10 = flags.HasFlag(PackageFlags.PKG_DisallowLazyLoading);
+        var a11 = flags.HasFlag(PackageFlags.PKG_PlayInEditor);
+        var a12 = flags.HasFlag(PackageFlags.PKG_ContainsScript);
+        var a13 = flags.HasFlag(PackageFlags.PKG_ContainsDebugInfo);
+        var a14 = flags.HasFlag(PackageFlags.PKG_RequireImportsAlreadyLoaded);
+        var a15 = flags.HasFlag(PackageFlags.PKG_SelfContainedLighting);
+        var a16 = flags.HasFlag(PackageFlags.PKG_StoreCompressed);
+        var a17 = flags.HasFlag(PackageFlags.PKG_StoreFullyCompressed);
+        var a18 = flags.HasFlag(PackageFlags.PKG_ContainsInlinedShaders);
+        var a19 = flags.HasFlag(PackageFlags.PKG_ContainsFaceFXData);
+        var a20 = flags.HasFlag(PackageFlags.PKG_NoExportAllowed);
+        var a21 = flags.HasFlag(PackageFlags.PKG_StrippedSource);
+        exportHeader.PackageFlags = (uint) flags;
     }
 
     private FileSummary CopyHeader(FileSummary header)
@@ -405,6 +452,8 @@ public class PackageExporter
             }
         }
 
+        //_exportImportTable.RemoveAll(x => x.ImportedObject.Outer?.OwnerPackage == _package && x.ImportedObject.Outer?.ExportTableItem is not null);
+
         _importTableItemSerializer.WriteTArray(_exportStream, _exportImportTable.ToArray(), StreamSerializerForExtension.ArraySizeSerialization.NoSize);
     }
 
@@ -451,6 +500,11 @@ public class PackageExporter
             if (!obj.FullyDeserialized)
             {
                 obj.Deserialize();
+            }
+
+            if (obj.HasObjectFlag(ObjectFlagsLO.HasStack))
+            {
+                obj.ExportTableItem.ObjectFlags = export.ObjectFlags;
             }
 
             var offset = _exportStream.Position;

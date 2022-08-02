@@ -34,11 +34,6 @@ public class DefaultSkeletalMeshSerializer : BaseObjectSerializer<USkeletalMesh>
     {
         _objectSerializer.DeserializeObject(obj, objectStream);
         var hasVertexColors = obj.ScriptProperties.FindIndex(x => x.Name == "bHasVertexColors") >= 0;
-        if (obj.ScriptProperties.FindIndex(x => x.Name == "bHasVertexColors") >= 0)
-        {
-            //Add color stream thing
-            Debugger.Break();
-        }
 
         obj.BoxSphereBounds = _boxSphereBoundsSerializer.Deserialize(objectStream.BaseStream);
         obj.Materials = objectStream.ReadTArray(stream => stream.ReadObject() as UMaterialInterface);
@@ -94,12 +89,5 @@ public class DefaultSkeletalMeshSerializer : BaseObjectSerializer<USkeletalMesh>
         objectStream.WriteTArray(obj.CachedStreamingTextureFactors, (stream, i) => stream.WriteInt32(i));
         //objectStream.WriteInt32(obj.unk);
         objectStream.WriteInt32(0);
-        //var unk = objectStream.ReadInt32();
-        //if (unk != 0)
-        //{
-        //    Debugger.Break();
-        //}
-
-        //DropRamainingNativeData(obj, objectStream.BaseStream);
     }
 }

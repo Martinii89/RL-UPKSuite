@@ -27,6 +27,11 @@ public class ScriptPropertiesSerializer
                 yield break;
             }
 
+            if (name.Contains("unnamed"))
+            {
+                Debugger.Break();
+            }
+
 
             var typeFName = objectStream.ReadFNameStr();
             var propType = Enum.Parse<PropertyType>(typeFName);

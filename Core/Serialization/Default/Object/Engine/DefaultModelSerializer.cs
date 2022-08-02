@@ -15,6 +15,7 @@ public class DefaultModelSerializer : BaseObjectSerializer<UModel>
     private readonly IObjectSerializer<FBspSurf> _bspSurfSerializer;
     private readonly IStreamSerializer<FGuid> _guidSerializer;
     private readonly IStreamSerializer<FLightmassPrimitiveSettings> _lightmassPrimitiveSettingsSerializer;
+    private readonly IStreamSerializer<FModelVertex> _modelVertexSerializer;
     private readonly IObjectSerializer<UObject> _objectSerializer;
     private readonly IStreamSerializer<FVector> _vectorSerializer;
     private readonly IStreamSerializer<FVert> _vertSerializer;
@@ -22,7 +23,8 @@ public class DefaultModelSerializer : BaseObjectSerializer<UModel>
     public DefaultModelSerializer(IObjectSerializer<UObject> objectSerializer, IStreamSerializer<FBoxSphereBounds> boxSphereBoundsSerializer,
         IStreamSerializer<FVector> vectorSerializer, IStreamSerializer<FBspNode> bspNodeSerializer,
         IObjectSerializer<FBspSurf> bspSurfSerializer, IStreamSerializer<FVert> vertSerializer,
-        IStreamSerializer<FGuid> guidSerializer, IStreamSerializer<FLightmassPrimitiveSettings> lightmassPrimitiveSettingsSerializer)
+        IStreamSerializer<FGuid> guidSerializer, IStreamSerializer<FLightmassPrimitiveSettings> lightmassPrimitiveSettingsSerializer,
+        IStreamSerializer<FModelVertex> modelVertexSerializer)
     {
         _objectSerializer = objectSerializer;
         _boxSphereBoundsSerializer = boxSphereBoundsSerializer;
@@ -32,6 +34,7 @@ public class DefaultModelSerializer : BaseObjectSerializer<UModel>
         _vertSerializer = vertSerializer;
         _guidSerializer = guidSerializer;
         _lightmassPrimitiveSettingsSerializer = lightmassPrimitiveSettingsSerializer;
+        _modelVertexSerializer = modelVertexSerializer;
     }
 
     /// <inheritdoc />
@@ -60,14 +63,7 @@ public class DefaultModelSerializer : BaseObjectSerializer<UModel>
         obj.Linked = objectStream.ReadUInt32();
         obj.PortalNodes = objectStream.BulkReadTArray(stream => stream.ReadInt32());
         obj.NumVertices = objectStream.ReadInt32();
-        var elementSize = objectStream.ReadInt32();
-        var verticies = objectStream.ReadInt32();
-        if (verticies > 0)
-        {
-            Debugger.Break();
-            return;
-        }
-
+        obj.VertexBuffer.Vertices = _modelVertexSerializer.ReadTArrayWithElementSize(objectStream.BaseStream);
         obj.lightingGuid = _guidSerializer.Deserialize(objectStream.BaseStream);
         obj.LightmassPrimitiveSettings = _lightmassPrimitiveSettingsSerializer.ReadTArrayToList(objectStream.BaseStream);
     }
@@ -75,7 +71,26 @@ public class DefaultModelSerializer : BaseObjectSerializer<UModel>
     /// <inheritdoc />
     public override void SerializeObject(UModel obj, IUnrealPackageStream objectStream)
     {
-        throw new NotImplementedException();
+        _objectSerializer.SerializeObject(obj, objectStream);
+        _boxSphereBoundsSerializer.Serialize(objectStream.BaseStream, obj.Bounds);
+        objectStream.BulkWriteTArray(obj.Vectors, _vectorSerializer);
+        objectStream.BulkWriteTArray(obj.Points, _vectorSerializer);
+        objectStream.BulkWriteTArray(obj.Nodes, _bspNodeSerializer);
+        objectStream.WriteObject(obj.Surfs.Super);
+        objectStream.WriteTArray(obj.Surfs.Data, _bspSurfSerializer);
+        objectStream.BulkWriteTArray(obj.Verts, _vertSerializer);
+        objectStream.WriteInt32(obj.NumSharedSides);
+        objectStream.WriteInt32(obj.NumZones);
+        objectStream.WriteObject(obj.Polys);
+        objectStream.BulkWriteTArray(obj.PortalNodes, (stream, i) => stream.WriteInt32(i));
+        objectStream.BulkWriteTArray(obj.Leaves, (stream, i) => stream.WriteInt32(i));
+        objectStream.WriteUInt32(obj.RootOutside);
+        objectStream.WriteUInt32(obj.Linked);
+        objectStream.BulkWriteTArray(obj.PortalNodes, (stream, i) => stream.WriteInt32(i));
+        objectStream.WriteInt32(obj.NumVertices);
+        objectStream.BulkWriteTArray(obj.VertexBuffer.Vertices, _modelVertexSerializer);
+        _guidSerializer.Serialize(objectStream.BaseStream, obj.lightingGuid);
+        objectStream.WriteTArray(obj.LightmassPrimitiveSettings, _lightmassPrimitiveSettingsSerializer);
     }
 }
 
@@ -88,6 +103,7 @@ public class DefaultBspNodeSerializer : IStreamSerializer<FBspNode>
         _planeSerializer = planeSerializer;
     }
 
+    /// <inheritdoc />
     public FBspNode Deserialize(Stream stream)
     {
         return new FBspNode
@@ -108,9 +124,22 @@ public class DefaultBspNodeSerializer : IStreamSerializer<FBspNode>
         };
     }
 
+    /// <inheritdoc />
     public void Serialize(Stream stream, FBspNode value)
     {
-        throw new NotImplementedException();
+        _planeSerializer.Serialize(stream, value.plane);
+        stream.WriteInt32(value.iVertPool);
+        stream.WriteInt32(value.iSurf);
+        stream.WriteInt32(value.iVertexIndex);
+        stream.WriteUInt16(value.ComponentIndex);
+        stream.WriteUInt16(value.ComponentNodeIndex);
+        stream.WriteInt32(value.ComponentElementIndex);
+        stream.WriteInt32s(value.iChild);
+        stream.WriteInt32(value.iCollisionBound);
+        stream.WriteBytes(value.iZone);
+        stream.WriteByte(value.NumVertices);
+        stream.WriteByte(value.NodeFlags);
+        stream.WriteInt32s(value.iLeaf);
     }
 }
 
@@ -120,7 +149,6 @@ public class DefaultBspSurfSerializer : BaseObjectSerializer<FBspSurf>
 
     public DefaultBspSurfSerializer(IStreamSerializer<FPlane> planeSerializer)
     {
-        ;
         _planeSerializer = planeSerializer;
     }
 
@@ -145,7 +173,18 @@ public class DefaultBspSurfSerializer : BaseObjectSerializer<FBspSurf>
     /// <inheritdoc />
     public override void SerializeObject(FBspSurf obj, IUnrealPackageStream objectStream)
     {
-        throw new NotImplementedException();
+        objectStream.WriteObject(obj.Material);
+        objectStream.WriteUInt32(obj.PolyFlags);
+        objectStream.WriteInt32(obj.pBase);
+        objectStream.WriteInt32(obj.vNormal);
+        objectStream.WriteInt32(obj.vTextureU);
+        objectStream.WriteInt32(obj.vTextureV);
+        objectStream.WriteInt32(obj.iBrushPoly);
+        objectStream.WriteObject(obj.Actor);
+        _planeSerializer.Serialize(objectStream.BaseStream, obj.plane);
+        objectStream.WriteSingle(obj.ShadowMapScale);
+        objectStream.WriteUInt32(obj.LightingChannels);
+        objectStream.WriteInt32(obj.iLightmassIndex);
     }
 }
 
@@ -158,6 +197,7 @@ public class DefaultVertSerializer : IStreamSerializer<FVert>
         _vector2DSerializer = vector2DSerializer;
     }
 
+    /// <inheritdoc />
     public FVert Deserialize(Stream stream)
     {
         return new FVert
@@ -169,14 +209,19 @@ public class DefaultVertSerializer : IStreamSerializer<FVert>
         };
     }
 
+    /// <inheritdoc />
     public void Serialize(Stream stream, FVert value)
     {
-        throw new NotImplementedException();
+        stream.WriteInt32(value.pVertex);
+        stream.WriteInt32(value.iSide);
+        _vector2DSerializer.Serialize(stream, value.ShadowTexCoord);
+        _vector2DSerializer.Serialize(stream, value.BackfaceShadowTexCoord);
     }
 }
 
 public class DefaultLightmassPrimitiveSettingsSerializer : IStreamSerializer<FLightmassPrimitiveSettings>
 {
+    /// <inheritdoc />
     public FLightmassPrimitiveSettings Deserialize(Stream stream)
     {
         return new FLightmassPrimitiveSettings
@@ -193,8 +238,53 @@ public class DefaultLightmassPrimitiveSettingsSerializer : IStreamSerializer<FLi
         };
     }
 
+    /// <inheritdoc />
     public void Serialize(Stream stream, FLightmassPrimitiveSettings value)
     {
-        throw new NotImplementedException();
+        stream.WriteInt32(value.bUseTwoSidedLighting);
+        stream.WriteInt32(value.bShadowIndirectOnly);
+        stream.WriteSingle(value.FullyOccludedSamplesFraction);
+        stream.WriteInt32(value.bUseEmissiveForStaticLighting);
+        stream.WriteSingle(value.EmissiveLightFalloffExponent);
+        stream.WriteSingle(value.EmissiveLightExplicitInfluenceRadius);
+        stream.WriteSingle(value.EmissiveBoost);
+        stream.WriteSingle(value.DiffuseBoost);
+        stream.WriteSingle(value.SpecularBoost);
+    }
+}
+
+public class DefaultModelVertexSerializer : IStreamSerializer<FModelVertex>
+{
+    private readonly IStreamSerializer<FVector2D> _vector2DSerializer;
+
+    private readonly IStreamSerializer<FVector> _vectorSerializer;
+
+    public DefaultModelVertexSerializer(IStreamSerializer<FVector> vectorSerializer, IStreamSerializer<FVector2D> vector2DSerializer)
+    {
+        _vectorSerializer = vectorSerializer;
+        _vector2DSerializer = vector2DSerializer;
+    }
+
+    /// <inheritdoc />
+    public FModelVertex Deserialize(Stream stream)
+    {
+        return new FModelVertex
+        {
+            Position = _vectorSerializer.Deserialize(stream),
+            TangentX = stream.ReadUInt32(),
+            TangentY = stream.ReadUInt32(),
+            TexCoord = _vector2DSerializer.Deserialize(stream),
+            ShadowTexCoord = _vector2DSerializer.Deserialize(stream)
+        };
+    }
+
+    /// <inheritdoc />
+    public void Serialize(Stream stream, FModelVertex value)
+    {
+        _vectorSerializer.Serialize(stream, value.Position);
+        stream.WriteUInt32(value.TangentX);
+        stream.WriteUInt32(value.TangentY);
+        _vector2DSerializer.Serialize(stream, value.TexCoord);
+        _vector2DSerializer.Serialize(stream, value.ShadowTexCoord);
     }
 }

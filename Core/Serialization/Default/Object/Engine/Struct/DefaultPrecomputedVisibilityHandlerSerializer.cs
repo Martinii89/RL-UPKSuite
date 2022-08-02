@@ -36,6 +36,11 @@ public class DefaultPrecomputedVisibilityHandlerSerializer : IStreamSerializer<F
     /// <inheritdoc />
     public void Serialize(Stream stream, FPrecomputedVisibilityHandler value)
     {
-        throw new NotImplementedException();
+        _vector2dSerializer.Serialize(stream, value.PrecomputedVisibilityCellBucketOriginXY);
+        stream.WriteSingle(value.PrecomputedVisibilityCellSizeXY);
+        stream.WriteSingle(value.PrecomputedVisibilityCellSizeZ);
+        stream.WriteInt32(value.PrecomputedVisibilityCellBucketSizeXY);
+        stream.WriteInt32(value.PrecomputedVisibilityNumCellBuckets);
+        stream.WriteInt32(0); // precomputedVisibilityCellBucketsCount
     }
 }

@@ -18,6 +18,6 @@ public class FStringSerializer : IStreamSerializer<FString>
     /// <inheritdoc />
     public void Serialize(Stream stream, FString value)
     {
-        throw new NotImplementedException();
+        stream.WriteFString(value.InnerString);
     }
 }

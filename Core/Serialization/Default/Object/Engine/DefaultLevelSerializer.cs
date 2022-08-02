@@ -39,13 +39,14 @@ public class DefaultLevelSerializer : BaseObjectSerializer<ULevel>
         _objectSerializer.DeserializeObject(obj, objectStream);
 
         obj.Actors.Super = objectStream.ReadObject();
-        obj.Actors.Data = objectStream.ReadTArray(stream => objectStream.ReadObject());
+        obj.Actors.Data = objectStream.ReadTArray(stream => stream.ReadObject());
         obj.URL = _urlSerializer.Deserialize(objectStream.BaseStream);
         obj.Model = objectStream.ReadObject();
-        obj.ModelComponents = objectStream.ReadTArray(stream => objectStream.ReadObject());
-        obj.GameSequences = objectStream.ReadTArray(stream => objectStream.ReadObject());
+        obj.ModelComponents = objectStream.ReadTArray(stream => stream.ReadObject());
+        obj.GameSequences = objectStream.ReadTArray(stream => stream.ReadObject());
         ReadTextureToInstancesMap(obj, objectStream);
         ReadDynamicTextureInstances(obj, objectStream);
+        // When writing we can just write a zero here
         var size = objectStream.ReadInt32();
         objectStream.BaseStream.Move(size);
         obj.CachedPhysBSPData = objectStream.BulkReadTArray(stream => stream.ReadByte());
@@ -195,6 +196,79 @@ public class DefaultLevelSerializer : BaseObjectSerializer<ULevel>
     /// <inheritdoc />
     public override void SerializeObject(ULevel obj, IUnrealPackageStream objectStream)
     {
-        throw new NotImplementedException();
+        _objectSerializer.SerializeObject(obj, objectStream);
+        objectStream.WriteObject(obj.Actors.Super);
+        objectStream.WriteTArray(obj.Actors.Data, (stream, val) => stream.WriteObject(val));
+        _urlSerializer.Serialize(objectStream.BaseStream, obj.URL);
+        objectStream.WriteObject(obj.Model);
+        objectStream.WriteTArray(obj.ModelComponents, (stream, val) => stream.WriteObject(val));
+        objectStream.WriteTArray(obj.GameSequences, (stream, val) => stream.WriteObject(val));
+
+        objectStream.WriteDictionary(obj.TextureToInstancesMap,
+            (stream, texture) => stream.WriteObject(texture),
+            (stream, list) => stream.WriteTArray(list, (packageStream, instance) =>
+            {
+                _vectorSerializer.Serialize(packageStream.BaseStream, instance.Center);
+                packageStream.WriteInt32(instance.W);
+                packageStream.WriteSingle(instance.TexelFactor);
+            }));
+
+        objectStream.WriteDictionary(obj.DynamicTextureInstances,
+            (stream, component) => stream.WriteObject(component),
+            (stream, list) => stream.WriteTArray(list, (packageStream, instance) =>
+            {
+                _vectorSerializer.Serialize(packageStream.BaseStream, instance.Center);
+                packageStream.WriteInt32(instance.W);
+                packageStream.WriteSingle(instance.TexelFactor);
+                packageStream.WriteInt32(instance.BAttached);
+                packageStream.WriteSingle(instance.OriginalRadius);
+            }));
+        objectStream.WriteInt32(0); // zero size 
+        objectStream.BulkWriteTArray(obj.CachedPhysBSPData, (stream, b) => stream.WriteByte(b)); //easy but probably inefficient
+
+        objectStream.WriteTMap(obj.CachedPhysSMDataMap,
+            (stream, mesh) => stream.WriteObject(mesh),
+            (stream, data) =>
+            {
+                _vectorSerializer.Serialize(stream.BaseStream, data.Scale3d);
+                stream.WriteInt32(data.CachedDataIndex);
+            });
+
+        objectStream.WriteTArray(obj.CachedPhysSMDataStore, _kCachedConvexDataSerializer);
+
+        objectStream.WriteTMap(obj.CachedPhysPerTriSMDataMap,
+            (stream, mesh) => stream.WriteObject(mesh),
+            (stream, data) =>
+            {
+                _vectorSerializer.Serialize(stream.BaseStream, data.Scale3d);
+                stream.WriteInt32(data.CachedDataIndex);
+            });
+        objectStream.WriteTArray(obj.CachedPhysPerTriSMDataStore,
+            (stream, data) => stream.BulkWriteTArray(data.CachedPerTriData, (stream2, b) => stream2.WriteByte(b)));
+        objectStream.WriteInt32(obj.CachedPhysBSPDataVersion);
+        objectStream.WriteInt32(obj.CachedPhysSMDataVersion);
+        objectStream.WriteDictionary(obj.ForceStreamTextures,
+            (stream, texture) => stream.WriteObject(texture),
+            (stream, b) => stream.WriteBool(b));
+        objectStream.WriteTArray(obj.CachedPhysConvexBSPData,
+            (stream, element) => stream.BulkWriteTArray(element.ConvexElementData, (packageStream, b) => packageStream.WriteByte(b)));
+        objectStream.WriteInt32(obj.CachedPhysConvexBSPVersion);
+        objectStream.WriteObject(obj.NavListStart);
+        objectStream.WriteObject(obj.NavListEnd);
+        objectStream.WriteObject(obj.CoverListStart);
+        objectStream.WriteObject(obj.CoverListEnd);
+        objectStream.WriteObject(obj.PylonListStart);
+        objectStream.WriteObject(obj.PylonListEnd);
+        objectStream.WriteInt32(0); // UnkArrayCountOf20Bytes
+        objectStream.WriteTArray(obj.SomeObjectArray, (stream, o) => stream.WriteObject(o));
+        objectStream.WriteTArray(obj.SomeObjectBytePairArray, (stream, tuple) =>
+        {
+            stream.WriteObject(tuple.Item1);
+            stream.WriteByte(tuple.Item2);
+        });
+        objectStream.WriteTArray(obj.CrossLevelActors, (stream, o) => stream.WriteObject(o));
+        _precomputedLightVolumeSerializer.Serialize(objectStream.BaseStream, obj.FPrecomputedLightVolume);
+        _precomputedVisibilityHandlerSerializer.Serialize(objectStream.BaseStream, obj.PrecomputedLightVolume);
+        _precomputedVolumeDistanceFieldSerializer.Serialize(objectStream.BaseStream, obj.PrecomputedVolumeDistanceField);
     }
 }

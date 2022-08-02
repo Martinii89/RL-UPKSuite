@@ -6,6 +6,7 @@ namespace Core.Serialization.Default.Object.Engine.Struct;
 
 public class DefaultFURLSerialize : IStreamSerializer<FURL>
 {
+    /// <inheritdoc />
     public FURL Deserialize(Stream stream)
     {
         return new FURL
@@ -20,9 +21,16 @@ public class DefaultFURLSerialize : IStreamSerializer<FURL>
         };
     }
 
+    /// <inheritdoc />
     public void Serialize(Stream stream, FURL value)
     {
-        throw new NotImplementedException();
+        stream.WriteFString(value.Protocol);
+        stream.WriteFString(value.Host);
+        stream.WriteFString(value.Map);
+        stream.WriteFString(value.Portal);
+        stream.WriteTArray(value.Op, (stream1, s) => stream1.WriteFString(s));
+        stream.WriteInt32(value.Port);
+        stream.WriteInt32(value.Valid);
     }
 }
 
@@ -38,10 +46,13 @@ public class DefaultPrecomputedLightVolumeSerializer : IStreamSerializer<FPrecom
         _volumeLightingSampleSerializer = volumeLightingSampleSerializer;
     }
 
+    /// <inheritdoc />
     public FPrecomputedLightVolume Deserialize(Stream stream)
     {
-        var res = new FPrecomputedLightVolume();
-        res.Initialized = stream.ReadInt32();
+        var res = new FPrecomputedLightVolume
+        {
+            Initialized = stream.ReadInt32()
+        };
         if (res.Initialized != 1)
         {
             return res;
@@ -53,8 +64,17 @@ public class DefaultPrecomputedLightVolumeSerializer : IStreamSerializer<FPrecom
         return res;
     }
 
+    /// <inheritdoc />
     public void Serialize(Stream stream, FPrecomputedLightVolume value)
     {
-        throw new NotImplementedException();
+        stream.WriteInt32(value.Initialized);
+        if (value.Initialized != 1)
+        {
+            return;
+        }
+
+        _boxSerializer.Serialize(stream, value.Bounds);
+        stream.WriteSingle(value.SampleSpacing);
+        _volumeLightingSampleSerializer.WriteTArray(stream, value.samples.ToArray());
     }
 }

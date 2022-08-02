@@ -90,6 +90,8 @@ public class UObject
 
     public bool FullyDeserialized { get; set; }
 
+    public StateFrame StateFrame { get; set; } = new();
+
 
     [MemberNotNullWhen(true, nameof(ExportTableItem))]
     [MemberNotNullWhen(true, nameof(OwnerPackageStream))]
@@ -163,4 +165,14 @@ public class UObject
 
         return stringBuilder.ToString();
     }
+}
+
+public class StateFrame
+{
+    public UObject? Node { get; set; }
+    public UObject? StateNode { get; set; }
+    public uint ProbeMask { get; set; }
+    public ushort LatentAction { get; set; }
+    public uint StateStackCount { get; set; }
+    public int Offset { get; set; }
 }

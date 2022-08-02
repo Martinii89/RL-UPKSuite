@@ -19,8 +19,8 @@ public class DefaultBrushComponentSerializer : BaseObjectSerializer<UBrushCompon
     {
         _componentSerializer.DeserializeObject(obj, objectStream);
 
-        var cachedPhysBrushDataCount = objectStream.ReadInt32();
-        if (cachedPhysBrushDataCount > 0)
+        obj.CachedPhysBrushDataCount = objectStream.ReadInt32();
+        if (obj.CachedPhysBrushDataCount > 0)
         {
             Debugger.Break();
         }
@@ -29,6 +29,7 @@ public class DefaultBrushComponentSerializer : BaseObjectSerializer<UBrushCompon
     /// <inheritdoc />
     public override void SerializeObject(UBrushComponent obj, IUnrealPackageStream objectStream)
     {
-        throw new NotImplementedException();
+        _componentSerializer.SerializeObject(obj, objectStream);
+        objectStream.WriteInt32(0);
     }
 }

@@ -35,6 +35,10 @@ public interface IUnrealPackageStream
         Action<IUnrealPackageStream, TVal> valWrite) where TKey : notnull;
 
     TMultiMap<TKey, TVal> ReadTMap<TKey, TVal>(Func<IUnrealPackageStream, TKey> keyRead, Func<IUnrealPackageStream, TVal> valRead) where TKey : notnull;
+
+    void WriteTMap<TKey, TVal>(TMultiMap<TKey, TVal> multiMap, Action<IUnrealPackageStream, TKey> keyWrite, Action<IUnrealPackageStream, TVal> valWrite)
+        where TKey : notnull;
+
     void WriteInt32(int value);
     void WriteObject(UObject? obj);
     void WriteByte(byte value);

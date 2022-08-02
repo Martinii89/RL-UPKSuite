@@ -87,6 +87,11 @@ public class FModelVertexBuffer
 
 public class FModelVertex
 {
+    public FVector Position { get; set; } = new();
+    public uint TangentX { get; set; }
+    public uint TangentY { get; set; }
+    public FVector2D TexCoord { get; set; } = new();
+    public FVector2D ShadowTexCoord { get; set; } = new();
 }
 
 public class FZoneProperties
@@ -107,11 +112,11 @@ public class FBspSurf
     public UObject? Actor { get; set; }
     public int iBrushPoly { get; set; }
     public int iLightmassIndex { get; set; }
-    public ulong LightingChannels { get; set; }
+    public uint LightingChannels { get; set; }
     public UMaterialInterface? Material { get; set; }
     public int pBase { get; set; }
     public FPlane plane { get; set; }
-    public ulong PolyFlags { get; set; }
+    public uint PolyFlags { get; set; }
     public float ShadowMapScale { get; set; }
     public int vNormal { get; set; }
     public int vTextureU { get; set; }

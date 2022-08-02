@@ -24,6 +24,7 @@ public class DefaultKCachedConvexDataSerializer : IStreamSerializer<FKCachedConv
     /// <inheritdoc />
     public void Serialize(Stream stream, FKCachedConvexData value)
     {
-        throw new NotImplementedException();
+        stream.WriteTArray(value.CachedConvexElements,
+            (stream1, element) => stream1.BulkWriteTArray(element.ConvexElementData, (stream2, b) => stream2.WriteByte(b)));
     }
 }

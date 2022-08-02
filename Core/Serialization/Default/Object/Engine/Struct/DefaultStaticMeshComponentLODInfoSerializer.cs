@@ -3,6 +3,7 @@ using Core.Classes.Core.Structs;
 using Core.Classes.Engine;
 using Core.Classes.Engine.Structs;
 using Core.Serialization.Abstraction;
+using Core.Serialization.Extensions;
 using Core.Types;
 
 namespace Core.Serialization.Default.Object.Engine.Struct;
@@ -39,7 +40,16 @@ public class DefaultStaticMeshComponentLODInfoSerializer : BaseObjectSerializer<
     /// <inheritdoc />
     public override void SerializeObject(FStaticMeshComponentLODInfo obj, IUnrealPackageStream objectStream)
     {
-        throw new NotImplementedException();
+        objectStream.WriteTArray(obj.ShadowMaps, (stream, o) => stream.WriteObject(o));
+        objectStream.WriteTArray(obj.ShadowVertexBuffers, (stream, o) => stream.WriteObject(o));
+        _LightMapSerializer.SerializeObject(obj.FLightMapRef, objectStream);
+        objectStream.WriteByte(obj.BLoadVertexColorData);
+        if (obj.BLoadVertexColorData != 0)
+        {
+            _colorVertexBufferSerializer.Serialize(objectStream.BaseStream, obj.ColorVertexBuffer);
+        }
+
+        objectStream.WriteInt32(obj.UnkInt);
     }
 }
 
@@ -61,38 +71,65 @@ public class DefaultLightMapSerializer : BaseObjectSerializer<FLightMap>
     }
 
 
-    private FLightMap1D DeSerializeLightMap1D(IUnrealPackageStream objStream)
+    private void DeSerializeLightMap1D(IUnrealPackageStream objStream, FLightMap fLightMap)
     {
         var res = new FLightMap1D();
-        res.Type = FLightMap.LightMapType.LightMap1D;
-        res.LightGuids = _guidSerializer.ReadTArrayToList(objStream.BaseStream);
+        fLightMap.LightGuids = _guidSerializer.ReadTArrayToList(objStream.BaseStream);
         res.ActorOwner = objStream.ReadObject();
         res.DirectionalSamples = _bulkDataSerializer.Deserialize(objStream.BaseStream);
-        res.ScaleVectors[0] = _vectorSerializer.Deserialize(objStream.BaseStream);
-        res.ScaleVectors[1] = _vectorSerializer.Deserialize(objStream.BaseStream);
-        res.ScaleVectors[2] = _vectorSerializer.Deserialize(objStream.BaseStream);
+        fLightMap.ScaleVectors[0] = _vectorSerializer.Deserialize(objStream.BaseStream);
+        fLightMap.ScaleVectors[1] = _vectorSerializer.Deserialize(objStream.BaseStream);
+        fLightMap.ScaleVectors[2] = _vectorSerializer.Deserialize(objStream.BaseStream);
         res.SimpleSamples = _bulkDataSerializer.Deserialize(objStream.BaseStream);
-        return res;
+        fLightMap.FLightMap1D = res;
     }
 
-    private FLightMap2D DeSerializeLightMap2D(IUnrealPackageStream objStream)
+
+    private void SerializeLightMap1D(IUnrealPackageStream objectStream, FLightMap fLightMap)
+    {
+        var fLightMap1D = fLightMap.FLightMap1D;
+        ArgumentNullException.ThrowIfNull(fLightMap1D);
+        objectStream.WriteTArray(fLightMap.LightGuids, _guidSerializer);
+        objectStream.WriteObject(fLightMap1D.ActorOwner);
+        _bulkDataSerializer.Serialize(objectStream.BaseStream, fLightMap1D.DirectionalSamples);
+        _vectorSerializer.Serialize(objectStream.BaseStream, fLightMap.ScaleVectors[0]);
+        _vectorSerializer.Serialize(objectStream.BaseStream, fLightMap.ScaleVectors[1]);
+        _vectorSerializer.Serialize(objectStream.BaseStream, fLightMap.ScaleVectors[2]);
+        _bulkDataSerializer.Serialize(objectStream.BaseStream, fLightMap1D.SimpleSamples);
+    }
+
+    private void DeSerializeLightMap2D(IUnrealPackageStream objStream, FLightMap fLightMap)
     {
         var map2D = new FLightMap2D();
-        map2D.Type = FLightMap.LightMapType.LightMap2D;
-        map2D.LightGuids = _guidSerializer.ReadTArrayToList(objStream.BaseStream);
+        fLightMap.LightGuids = _guidSerializer.ReadTArrayToList(objStream.BaseStream);
         for (var i = 0; i < 3; i++)
         {
             map2D.Textures[i] = objStream.ReadObject() as ULightMapTexture2D;
-            map2D.ScaleVectors[i] = _vectorSerializer.Deserialize(objStream.BaseStream);
+            fLightMap.ScaleVectors[i] = _vectorSerializer.Deserialize(objStream.BaseStream);
         }
 
         map2D.CoordinateScale = _vector2DSerializer.Deserialize(objStream.BaseStream);
         map2D.CoordinateBias = _vector2DSerializer.Deserialize(objStream.BaseStream);
-
-
-        return map2D;
+        fLightMap.FLightMap2D = map2D;
     }
 
+    private void SerializeLightMap2D(IUnrealPackageStream objectStream, FLightMap fLightMap)
+    {
+        var fLightMap2D = fLightMap.FLightMap2D;
+        ArgumentNullException.ThrowIfNull(fLightMap2D);
+
+        objectStream.WriteTArray(fLightMap.LightGuids, _guidSerializer);
+        for (var i = 0; i < 3; i++)
+        {
+            objectStream.WriteObject(fLightMap2D.Textures[i]);
+            _vectorSerializer.Serialize(objectStream.BaseStream, fLightMap.ScaleVectors[i]);
+        }
+
+        _vector2DSerializer.Serialize(objectStream.BaseStream, fLightMap2D.CoordinateScale);
+        _vector2DSerializer.Serialize(objectStream.BaseStream, fLightMap2D.CoordinateScale);
+    }
+
+    /// <inheritdoc />
     public override void DeserializeObject(FLightMap obj, IUnrealPackageStream objectStream)
     {
         // TODO: Refactor - I don't think this modifies the original object passed in
@@ -102,19 +139,33 @@ public class DefaultLightMapSerializer : BaseObjectSerializer<FLightMap>
             case FLightMap.LightMapType.None:
                 return;
             case FLightMap.LightMapType.LightMap1D:
-                obj = DeSerializeLightMap1D(objectStream);
+                DeSerializeLightMap1D(objectStream, obj);
                 return;
             case FLightMap.LightMapType.LightMap2D:
-                obj = DeSerializeLightMap2D(objectStream);
+                DeSerializeLightMap2D(objectStream, obj);
                 return;
             default:
                 throw new ArgumentOutOfRangeException(nameof(FLightMap.LightMapType));
         }
     }
 
+    /// <inheritdoc />
     public override void SerializeObject(FLightMap obj, IUnrealPackageStream objectStream)
     {
-        throw new NotImplementedException();
+        objectStream.WriteUInt32((uint) obj.Type);
+        switch (obj.Type)
+        {
+            case FLightMap.LightMapType.None:
+                return;
+            case FLightMap.LightMapType.LightMap1D:
+                SerializeLightMap1D(objectStream, obj);
+                return;
+            case FLightMap.LightMapType.LightMap2D:
+                SerializeLightMap2D(objectStream, obj);
+                return;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(FLightMap.LightMapType));
+        }
     }
 }
 
@@ -130,6 +181,7 @@ public class DefaultStaticLightCollectionActorSerializer : BaseObjectSerializer<
         _objectSerializer = objectSerializer;
     }
 
+    /// <inheritdoc />
     public override void DeserializeObject(AStaticLightCollectionActor obj, IUnrealPackageStream objectStream)
     {
         _objectSerializer.DeserializeObject(obj, objectStream);
@@ -141,9 +193,14 @@ public class DefaultStaticLightCollectionActorSerializer : BaseObjectSerializer<
         }
     }
 
+    /// <inheritdoc />
     public override void SerializeObject(AStaticLightCollectionActor obj, IUnrealPackageStream objectStream)
     {
-        throw new NotImplementedException();
+        _objectSerializer.SerializeObject(obj, objectStream);
+        foreach (var objLightComponentMatrix in obj.LightComponentMatrixes)
+        {
+            _matrixSerializer.Serialize(objectStream.BaseStream, objLightComponentMatrix);
+        }
     }
 }
 
@@ -157,6 +214,7 @@ public class DefaulColorVertexBufferSerializer : IStreamSerializer<FColorVertexB
         _colorSerializer = colorSerializer;
     }
 
+    /// <inheritdoc />
     public FColorVertexBuffer Deserialize(Stream stream)
     {
         return new FColorVertexBuffer
@@ -167,8 +225,11 @@ public class DefaulColorVertexBufferSerializer : IStreamSerializer<FColorVertexB
         };
     }
 
+    /// <inheritdoc />
     public void Serialize(Stream stream, FColorVertexBuffer value)
     {
-        throw new NotImplementedException();
+        stream.WriteUInt32(value.Stride);
+        stream.WriteUInt32(value.NumVertices);
+        stream.BulkWriteTArray(value.colorStream, (stream1, color) => _colorSerializer.Serialize(stream1, color));
     }
 }

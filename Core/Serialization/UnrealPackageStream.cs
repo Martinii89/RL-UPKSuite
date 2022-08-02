@@ -168,6 +168,20 @@ public class UnrealPackageStream : IUnrealPackageStream
         return res;
     }
 
+    public void WriteTMap<TKey, TVal>(TMultiMap<TKey, TVal> multiMap, Action<IUnrealPackageStream, TKey> keyWrite, Action<IUnrealPackageStream, TVal> valWrite)
+        where TKey : notnull
+    {
+        WriteInt32(multiMap.Count);
+        foreach (var (key, valuelist) in multiMap.Data)
+        {
+            foreach (var val in valuelist)
+            {
+                keyWrite(this, key);
+                valWrite(this, val);
+            }
+        }
+    }
+
     public byte ReadByte()
     {
         return (byte) BaseStream.ReadByte();

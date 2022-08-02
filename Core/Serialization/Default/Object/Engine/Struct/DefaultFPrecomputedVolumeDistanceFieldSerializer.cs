@@ -15,6 +15,7 @@ public class DefaultFPrecomputedVolumeDistanceFieldSerializer : IStreamSerialize
         _colorSerializer = colorSerializer;
     }
 
+    /// <inheritdoc />
     public FPrecomputedVolumeDistanceField Deserialize(Stream stream)
     {
         return new FPrecomputedVolumeDistanceField
@@ -28,8 +29,14 @@ public class DefaultFPrecomputedVolumeDistanceFieldSerializer : IStreamSerialize
         };
     }
 
+    /// <inheritdoc />
     public void Serialize(Stream stream, FPrecomputedVolumeDistanceField value)
     {
-        throw new NotImplementedException();
+        stream.WriteSingle(value.VolumeMaxDistance);
+        _boxSerializer.Serialize(stream, value.VolumeBox);
+        stream.WriteInt32(value.VolumeSizeX);
+        stream.WriteInt32(value.VolumeSizeY);
+        stream.WriteInt32(value.VolumeSizeZ);
+        _colorSerializer.WriteTArray(stream, value.Colors.ToArray());
     }
 }

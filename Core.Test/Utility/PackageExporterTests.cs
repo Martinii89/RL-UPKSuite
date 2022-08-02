@@ -236,7 +236,7 @@ public class PackageExporterTests
         var packageCache = new PackageCache(options);
         var UDKobjectSerializerFactory = SerializerHelper.GetService<IObjectSerializerFactory>(typeof(IObjectSerializerFactory));
         var loader = new PackageLoader(packageSerializer, packageCache, unpacker, nativeFactory, UDKobjectSerializerFactory);
-        var package = loader.LoadPackage("TestData/Body_Octane_SF.upk", "Body_Octane_SF");
+        var package = loader.LoadPackage("TestData/body_bb_SF.upk", "body_bb_SF");
         var sut = GetPackageExporter(stream, package);
 
         // Act
@@ -244,7 +244,38 @@ public class PackageExporterTests
         // Assert
         act.Should().NotThrow();
         var exportBuffer = new ArraySegment<byte>(stream.GetBuffer(), 0, (int) stream.Length);
-        File.WriteAllBytes("TestData/Body_Octane_SF_exported.upk", exportBuffer.ToArray());
+        File.WriteAllBytes("TestData/body_bb_SF_exported.upk", exportBuffer.ToArray());
+    }
+
+    [Fact]
+    public void ExportRLMapPackage_ExportPackage_ShouldNotThrow()
+    {
+        // Arrange
+        var stream = new MemoryStream();
+
+        // Arrange
+        var fileSummarySerializer = SerializerHelper.GetSerializerFor<FileSummary>(typeof(FileSummary), RocketLeagueBase.FileVersion);
+        var unpacker = new PackageUnpacker(fileSummarySerializer, new DecryptionProvider("keys.txt"));
+        var packageSerializer = SerializerHelper.GetSerializerFor<UnrealPackage>(typeof(UnrealPackage), RocketLeagueBase.FileVersion);
+        var nativeFactory = new NativeClassFactory();
+        var RLobjectSerializerFactory = SerializerHelper.GetService<IObjectSerializerFactory>(typeof(IObjectSerializerFactory), RocketLeagueBase.FileVersion);
+        var options = new PackageCacheOptions(packageSerializer, nativeFactory)
+        {
+            SearchPaths = { @"D:\SteamLibrary\steamapps\common\rocketleague\TAGame\CookedPCConsole" }, GraphLinkPackages = true, PackageUnpacker = unpacker,
+            NativeClassFactory = nativeFactory, ObjectSerializerFactory = RLobjectSerializerFactory
+        };
+        var packageCache = new PackageCache(options);
+        var UDKobjectSerializerFactory = SerializerHelper.GetService<IObjectSerializerFactory>(typeof(IObjectSerializerFactory));
+        var loader = new PackageLoader(packageSerializer, packageCache, unpacker, nativeFactory, UDKobjectSerializerFactory);
+        var package = loader.LoadPackage("TestData/Park_P.upk", "Park_P");
+        var sut = GetPackageExporter(stream, package);
+
+        // Act
+        var act = () => sut.ExportPackage(UDKobjectSerializerFactory);
+        // Assert
+        act.Should().NotThrow();
+        var exportBuffer = new ArraySegment<byte>(stream.GetBuffer(), 0, (int) stream.Length);
+        File.WriteAllBytes("TestData/Park_P_exported.upk", exportBuffer.ToArray());
     }
 
     private PackageExporter GetPackageExporter(Stream stream, UnrealPackage package)

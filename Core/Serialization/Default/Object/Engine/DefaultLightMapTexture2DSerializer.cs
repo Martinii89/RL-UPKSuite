@@ -23,6 +23,7 @@ public class DefaultLightMapTexture2DSerializer : BaseObjectSerializer<ULightMap
     /// <inheritdoc />
     public override void SerializeObject(ULightMapTexture2D obj, IUnrealPackageStream objectStream)
     {
-        throw new NotImplementedException();
+        _textureSerializer.SerializeObject(obj, objectStream);
+        objectStream.WriteUInt32((uint) obj.LightMapFlags);
     }
 }

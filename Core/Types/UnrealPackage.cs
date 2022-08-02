@@ -769,6 +769,23 @@ public class UnrealPackage
             return new FName(registeredName);
         }
 
-        throw new KeyNotFoundException(name);
+        var instanceSplit = name.LastIndexOf("_", StringComparison.Ordinal);
+        if (instanceSplit == -1)
+        {
+            throw new KeyNotFoundException(name);
+        }
+
+        if (!int.TryParse(name[(instanceSplit + 1)..], out var instanceNumber))
+        {
+            throw new KeyNotFoundException(name);
+        }
+
+        registeredName = NameTable.FindIndex(x => x.Name == name[..instanceSplit]);
+        if (registeredName == -1)
+        {
+            throw new KeyNotFoundException(name);
+        }
+
+        return new FName(registeredName, instanceNumber);
     }
 }

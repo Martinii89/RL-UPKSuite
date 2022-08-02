@@ -31,7 +31,7 @@ public class ULevel : ULevelBase
 
     public FURL URL { get; set; }
 
-    public TransientArray<UObject> Actors { get; set; } = new();
+    public TransientArray<UObject?> Actors { get; set; } = new();
     public FURL Url { get; set; } = new();
     public UObject? Model { get; set; }
     public List<UObject?> ModelComponents { get; set; } = new();

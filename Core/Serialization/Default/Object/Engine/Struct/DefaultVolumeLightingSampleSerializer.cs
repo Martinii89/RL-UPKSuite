@@ -33,8 +33,18 @@ public class DefaultVolumeLightingSampleSerializer : IStreamSerializer<FVolumeLi
         };
     }
 
+    /// <inheritdoc />
     public void Serialize(Stream stream, FVolumeLightingSample value)
     {
-        throw new NotImplementedException();
+        _vectorSerializer.Serialize(stream, value.Position);
+        stream.WriteSingle(value.Radius);
+        stream.WriteByte(value.IndirectDirectionTheta);
+        stream.WriteByte(value.IndirectDirectionPhi);
+        stream.WriteByte(value.EnvironmentDirectionTheta);
+        stream.WriteByte(value.EnvironmentDirectionPhi);
+        _colorSerializer.Serialize(stream, value.IndirectRadiance);
+        _colorSerializer.Serialize(stream, value.EnvironmentRadiance);
+        _colorSerializer.Serialize(stream, value.AmbientRadiance);
+        stream.WriteByte(value.bShadowedFromDominantLights);
     }
 }

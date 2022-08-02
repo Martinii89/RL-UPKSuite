@@ -50,9 +50,12 @@ public class FLightMap
     public List<FGuid> LightGuids { get; set; } = new();
     public FVector[] ScaleVectors { get; set; } = new FVector[3]; //Actually a FVector4 - but only x,y,z is serialized
     public LightMapType Type { get; set; } = LightMapType.None;
+
+    public FLightMap1D? FLightMap1D { get; set; }
+    public FLightMap2D? FLightMap2D { get; set; }
 }
 
-public class FLightMap1D : FLightMap
+public class FLightMap1D
 {
     public UObject? ActorOwner { get; set; }
     public FByteBulkData DirectionalSamples { get; set; } = new();
@@ -60,7 +63,7 @@ public class FLightMap1D : FLightMap
     public FByteBulkData SimpleSamples { get; set; } = new();
 }
 
-public class FLightMap2D : FLightMap
+public class FLightMap2D
 {
     public ULightMapTexture2D?[] Textures { get; set; } = new ULightMapTexture2D?[3];
     public FVector2D CoordinateScale { get; set; }

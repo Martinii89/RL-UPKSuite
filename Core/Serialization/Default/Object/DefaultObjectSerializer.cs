@@ -21,12 +21,12 @@ public class DefaultObjectSerializer : BaseObjectSerializer<UObject>
     {
         if (obj.HasObjectFlag(ObjectFlagsLO.HasStack))
         {
-            var node = objectStream.ReadObject();
-            var stateNode = objectStream.ReadObject();
-            var probeMask = objectStream.ReadUInt32();
-            var latentAction = objectStream.ReadUInt16();
-            var stateStackCount = objectStream.ReadUInt32();
-            var offset = objectStream.ReadInt32();
+            obj.StateFrame.Node = objectStream.ReadObject();
+            obj.StateFrame.StateNode = objectStream.ReadObject();
+            obj.StateFrame.ProbeMask = objectStream.ReadUInt32();
+            obj.StateFrame.LatentAction = objectStream.ReadUInt16();
+            obj.StateFrame.StateStackCount = objectStream.ReadUInt32();
+            obj.StateFrame.Offset = objectStream.ReadInt32();
         }
 
         obj.NetIndex = objectStream.ReadInt32();
@@ -44,7 +44,12 @@ public class DefaultObjectSerializer : BaseObjectSerializer<UObject>
     {
         if (obj.HasObjectFlag(ObjectFlagsLO.HasStack))
         {
-            throw new NotImplementedException();
+            objectStream.WriteObject(obj.StateFrame.Node);
+            objectStream.WriteObject(obj.StateFrame.StateNode);
+            objectStream.WriteUInt32(obj.StateFrame.ProbeMask);
+            objectStream.WriteUInt16(obj.StateFrame.LatentAction);
+            objectStream.WriteUInt32(obj.StateFrame.StateStackCount);
+            objectStream.WriteInt32(obj.StateFrame.Offset);
         }
 
         objectStream.WriteInt32(obj.NetIndex);

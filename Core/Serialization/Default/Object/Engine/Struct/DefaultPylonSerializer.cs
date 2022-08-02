@@ -24,6 +24,8 @@ public class DefaultPylonSerializer : BaseObjectSerializer<APylon>
     /// <inheritdoc />
     public override void SerializeObject(APylon obj, IUnrealPackageStream objectStream)
     {
-        throw new NotImplementedException();
+        _objectSerializer.SerializeObject(obj, objectStream);
+        objectStream.WriteObject(obj.NavMeshPtr);
+        objectStream.WriteObject(obj.ObstacleMesh);
     }
 }

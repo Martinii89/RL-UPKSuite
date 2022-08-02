@@ -40,6 +40,8 @@ public class DefaultPrefabInstanceSerializer : BaseObjectSerializer<APrefabInsta
     /// <inheritdoc />
     public override void SerializeObject(APrefabInstance obj, IUnrealPackageStream objectStream)
     {
-        throw new NotImplementedException();
+        _objectSerializer.SerializeObject(obj, objectStream);
+        objectStream.WriteDictionary(obj.ArchetypeToInstanceMap, (stream, o) => stream.WriteObject(o), (stream, o) => stream.WriteObject(o));
+        objectStream.WriteDictionary(obj.PI_ObjectMap, (stream, o) => stream.WriteObject(o), (stream, i) => stream.WriteInt32(i));
     }
 }
