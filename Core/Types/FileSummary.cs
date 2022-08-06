@@ -133,7 +133,7 @@ public class FileSummary
     /// </summary>
     public int CompressionFlagsOffset { get; internal set; }
 
-    internal List<FCompressedChunkInfo> CompressedChunkInfos { get; set; } = new();
+    internal List<FCompressedChunk> CompressedChunks { get; set; } = new();
 
     /// <summary>
     ///     List of other packages required by this package

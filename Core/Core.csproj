@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Classes\Compression\" />
     <Folder Include="Types\PackageTables\" />
   </ItemGroup>
 

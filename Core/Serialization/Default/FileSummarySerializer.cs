@@ -9,7 +9,7 @@ namespace Core.Serialization.Default;
 /// </summary>
 public class FileSummarySerializer : IStreamSerializer<FileSummary>
 {
-    private readonly IStreamSerializer<FCompressedChunkInfo> _compressedChunkInfoSerializer;
+    private readonly IStreamSerializer<FCompressedChunk> _compressedChunkSerializer;
     private readonly IStreamSerializer<FGenerationInfo> _generationsSerializer;
     private readonly IStreamSerializer<FGuid> _guidSerializer;
     private readonly IStreamSerializer<FString> _stringSerializer;
@@ -19,16 +19,16 @@ public class FileSummarySerializer : IStreamSerializer<FileSummary>
     ///     Construct the serializer with all required sub serializers
     /// </summary>
     /// <param name="guidSerializer"></param>
-    /// <param name="compressedChunkInfoSerializer"></param>
+    /// <param name="compressedChunkSerializer"></param>
     /// <param name="stringSerializer"></param>
     /// <param name="textureAllocationsSerializer"></param>
     /// <param name="generationsSerializer"></param>
     public FileSummarySerializer(IStreamSerializer<FGuid> guidSerializer,
-        IStreamSerializer<FCompressedChunkInfo> compressedChunkInfoSerializer, IStreamSerializer<FString> stringSerializer,
+        IStreamSerializer<FCompressedChunk> compressedChunkSerializer, IStreamSerializer<FString> stringSerializer,
         IStreamSerializer<FTextureType> textureAllocationsSerializer, IStreamSerializer<FGenerationInfo> generationsSerializer)
     {
         _guidSerializer = guidSerializer;
-        _compressedChunkInfoSerializer = compressedChunkInfoSerializer;
+        _compressedChunkSerializer = compressedChunkSerializer;
         _stringSerializer = stringSerializer;
         _textureAllocationsSerializer = textureAllocationsSerializer;
         _generationsSerializer = generationsSerializer;
@@ -71,7 +71,7 @@ public class FileSummarySerializer : IStreamSerializer<FileSummary>
         fileSummary.CookerVersion = stream.ReadUInt32();
         fileSummary.CompressionFlagsOffset = (int) stream.Position;
         fileSummary.CompressionFlags = (ECompressionFlags) stream.ReadUInt32();
-        _compressedChunkInfoSerializer.ReadTArrayToList(stream, fileSummary.CompressedChunkInfos);
+        _compressedChunkSerializer.ReadTArrayToList(stream, fileSummary.CompressedChunks);
         fileSummary.Unknown5 = stream.ReadInt32();
         _stringSerializer.ReadTArrayToList(stream, fileSummary.AdditionalPackagesToCook);
         _textureAllocationsSerializer.ReadTArrayToList(stream, fileSummary.TextureAllocations);
@@ -104,7 +104,7 @@ public class FileSummarySerializer : IStreamSerializer<FileSummary>
         stream.WriteUInt32(value.EngineVersion);
         stream.WriteUInt32(value.CookerVersion);
         stream.WriteUInt32((uint) value.CompressionFlags);
-        _compressedChunkInfoSerializer.WriteTArray(stream, value.CompressedChunkInfos.ToArray());
+        _compressedChunkSerializer.WriteTArray(stream, value.CompressedChunks.ToArray());
         stream.WriteInt32(value.Unknown5);
         _stringSerializer.WriteTArray(stream, value.AdditionalPackagesToCook.ToArray());
         _textureAllocationsSerializer.WriteTArray(stream, value.TextureAllocations.ToArray());
@@ -116,7 +116,7 @@ public class FileSummarySerializer : IStreamSerializer<FileSummary>
     /// <returns></returns>
     public static FileSummarySerializer GetDefaultSerializer()
     {
-        return new FileSummarySerializer(new FGuidSerializer(), new FCompressedChunkInfoSerializer(),
+        return new FileSummarySerializer(new FGuidSerializer(), new FCompressedChunkSerializer(),
             new FStringSerializer(), new FTextureAllocationsSerializer(new Int32Serializer()),
             new FGenerationInfoSerializer());
     }

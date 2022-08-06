@@ -149,6 +149,16 @@ public class UObject
         }
     }
 
+    /// <summary>
+    ///     checks if any objects in the outer chain is the given object.
+    /// </summary>
+    /// <param name="obj"></param>
+    /// <returns></returns>
+    public bool HasOuter(UObject obj)
+    {
+        return GetOuterEnumerable().Any(x => x == obj);
+    }
+
     /// <inheritdoc />
     public override string ToString()
     {

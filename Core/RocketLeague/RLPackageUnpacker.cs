@@ -14,9 +14,9 @@ namespace Core.RocketLeague;
 /// </summary>
 public class RLPackageUnpacker
 {
-    private readonly FCompressedChunkBlockSerializer _blockSerializer;
+    private readonly FCompressedChunkinfoSerializer _blockSerializer;
     private readonly FCompressedChunkHeaderSerializer _compressedChunkHeaderSerializer;
-    private readonly FCompressedChunkInfoSerializer _compressedChunkInfoSerializer;
+    private readonly FCompressedChunkSerializer _compressedChunkSerializer;
     private readonly IDecrypterProvider _decrypterProvider;
     private readonly Stream _inputStream;
 
@@ -33,8 +33,8 @@ public class RLPackageUnpacker
         _inputStream = inputStream;
         _decrypterProvider = decrypterProvider;
         // TODO: use DI
-        _compressedChunkInfoSerializer = new FCompressedChunkInfoSerializer();
-        _blockSerializer = new FCompressedChunkBlockSerializer();
+        _compressedChunkSerializer = new FCompressedChunkSerializer();
+        _blockSerializer = new FCompressedChunkinfoSerializer();
         _compressedChunkHeaderSerializer = new FCompressedChunkHeaderSerializer(_blockSerializer);
 
         FileSummary = fileSummarySerializer.Deserialize(inputStream);
@@ -87,18 +87,18 @@ public class RLPackageUnpacker
 
     private void ProcessCompressedData(Stream outputStream, Stream inputBinaryReader)
     {
-        var uncompressedDataBuffer = new byte[FileSummary.CompressedChunkInfos.Sum(info => info.UncompressedSize)];
+        var uncompressedDataBuffer = new byte[FileSummary.CompressedChunks.Sum(info => info.UncompressedSize)];
         var uncompressOutputStream = new MemoryStream(uncompressedDataBuffer);
-        var firstUncompressedOffset = FileSummary.CompressedChunkInfos.First().UncompressedOffset;
+        var firstUncompressedOffset = FileSummary.CompressedChunks.First().UncompressedOffset;
         var uncompressProgress = 0L;
         // Decompress compressed chunks
-        foreach (var chunk in FileSummary.CompressedChunkInfos)
+        foreach (var chunk in FileSummary.CompressedChunks)
         {
             inputBinaryReader.Position = chunk.CompressedOffset;
             var chunkHeader = _compressedChunkHeaderSerializer.Deserialize(inputBinaryReader);
 
             var sumUncompressedSize = 0;
-            var blocks = new List<FCompressedChunkBlock>();
+            var blocks = new List<FCompressedChunkInfo>();
 
             while (sumUncompressedSize < chunkHeader.Summary.UncompressedSize)
             {
@@ -143,11 +143,11 @@ public class RLPackageUnpacker
 
         var decryptedDataReader = new BinaryReader(new MemoryStream(decryptedData));
 
-        decryptedDataReader.BaseStream.Position = FileCompressionMetaData.CompressedChunkInfoOffset;
+        decryptedDataReader.BaseStream.Position = FileCompressionMetaData.CompressedChunksffset;
 
-        _compressedChunkInfoSerializer.ReadTArrayToList(decryptedDataReader.BaseStream, FileSummary.CompressedChunkInfos);
+        _compressedChunkSerializer.ReadTArrayToList(decryptedDataReader.BaseStream, FileSummary.CompressedChunks);
         // The depends table is always empty. So The depends table marks the start of where the uncompressed data should go.
-        Debug.Assert(FileSummary.CompressedChunkInfos.First().UncompressedOffset == FileSummary.DependsOffset);
+        Debug.Assert(FileSummary.CompressedChunks.First().UncompressedOffset == FileSummary.DependsOffset);
         outputStream.Write(decryptedData);
         UnpackResult |= UnpackResult.Decrypted;
     }
@@ -194,8 +194,8 @@ public class RLPackageUnpacker
     /// <returns></returns>
     private bool VerifyDecryptor(ICryptoTransform decryptor, byte[] encryptedData)
     {
-        var blockOffset = FileCompressionMetaData.CompressedChunkInfoOffset % 16;
-        var blockStart = FileCompressionMetaData.CompressedChunkInfoOffset - blockOffset;
+        var blockOffset = FileCompressionMetaData.CompressedChunksffset % 16;
+        var blockStart = FileCompressionMetaData.CompressedChunksffset - blockOffset;
         var chunkInfoBytes = new byte[32];
 
         decryptor.TransformBlock(encryptedData, blockStart, 32, chunkInfoBytes, 0);

@@ -77,7 +77,7 @@ public class UnrealPackage
     /// <summary>
     ///     A object used to create the UClass objects for the native only classes
     /// </summary>
-    public INativeClassFactory NativeClassFactory { get; set; }
+    public INativeClassFactory? NativeClassFactory { get; set; }
 
     /// <summary>
     ///     The root. (May be removed)
@@ -132,6 +132,9 @@ public class UnrealPackage
     /// </summary>
     public Stream? PackageStream { get; set; }
 
+    /// <summary>
+    ///     Wrapper for the PackageStream with additional serialization capabilities
+    /// </summary>
     public IUnrealPackageStream? UnrealPackageStream { get; set; }
 
     /// <summary>
@@ -475,7 +478,8 @@ public class UnrealPackage
         var cls = classPackage.FindClass(className);
         if (cls is null)
         {
-            Debugger.Break();
+            return null;
+            //Debugger.Break();
         }
 
         ArgumentNullException.ThrowIfNull(cls);

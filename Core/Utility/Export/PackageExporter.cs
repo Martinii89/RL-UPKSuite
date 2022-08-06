@@ -1,4 +1,5 @@
-﻿using Core.Classes;
+﻿using System.Diagnostics;
+using Core.Classes;
 using Core.Classes.Core;
 using Core.Classes.Core.Properties;
 using Core.Classes.Engine;
@@ -42,6 +43,7 @@ public class PackageExporter
         _exportExportTable = CopyExportTable(_package.ExportTable);
         _exportImportTable = CopyImportTable(_package.ImportTable);
         RemoveNullObjects(_exportImportTable, _exportExportTable);
+        RemoveInternalImports();
         // Do not do this before RemoveNullObjects!
         AddDumyNodesToMaterials();
         ModifyHeaderFieldsForExport(_exportHeader);
@@ -49,6 +51,31 @@ public class PackageExporter
         FixObjectIndexReferences(_exportImportTable, _exportExportTable);
         _outputPackageStream =
             new ExportUnrealPackageStream(_exportStream, _objectIndexSerializer, _nameSerializer, _package, _exportExportTable, _exportImportTable);
+    }
+
+    private void RemoveInternalImports()
+    {
+        //var theWeirdOnes = new HashSet<UObject>();
+        var badImports = new List<ImportTableItem>();
+        foreach (var import in _exportImportTable)
+        {
+            var importImportedObject = import.ImportedObject;
+            if (importImportedObject is null)
+            {
+                continue;
+            }
+
+            if (importImportedObject.Outer?.OwnerPackage == _package && importImportedObject.Outer?.ExportTableItem is not null)
+            {
+                //theWeirdOnes.Add(importImportedObject);
+                badImports.Add(import);
+            }
+        }
+
+        foreach (var importTableItem in badImports)
+        {
+            _exportImportTable.Remove(importTableItem);
+        }
     }
 
     private void AddDumyNodesToMaterials()
@@ -218,6 +245,10 @@ public class PackageExporter
             if (import.OuterIndex.Index != 0)
             {
                 import.OuterIndex = FindObjectIndex(obj.Outer);
+                if (import.OuterIndex.Index == 0)
+                {
+                    Debugger.Break();
+                }
             }
         }
 
@@ -239,6 +270,10 @@ public class PackageExporter
             if (export.OuterIndex.Index != 0)
             {
                 export.OuterIndex = FindObjectIndex(obj.Outer);
+                if (export.OuterIndex.Index == 0)
+                {
+                    Debugger.Break();
+                }
             }
 
             if (export.ArchetypeIndex.Index != 0)
@@ -277,9 +312,30 @@ public class PackageExporter
         importTable.RemoveAll(x => Equals(x.ObjectName, noneFName) && Equals(x.ClassName, noneFName) && Equals(x.ClassPackage, noneFName));
         importTable.RemoveAll(x => x.ImportedObject is null);
         exportTable.RemoveAll(x => x.SerialSize == 0);
+
+
+        // remove all within world except level
+        //var world = exportTable.Find(x => x.Object is UWorld)?.Object ?? throw new InvalidDataException();
+        //var allWithinWorld = exportTable.FindAll(x => x.Object.HasOuter(world));
+        //// remove the level object
+        //allWithinWorld.RemoveAll(x => x.Object is ULevel);
+        //allWithinWorld.RemoveAll(x => x.Object.Class.IsA("WorldInfo"));
+        //allWithinWorld.RemoveAll(x => x.Object.Class.IsA("Brush"));
+        //allWithinWorld.RemoveAll(x => x.Object.Class.IsA("BrushComponent"));
+        //allWithinWorld.RemoveAll(x => x.Object.Class.IsA("Model"));
+        //allWithinWorld.RemoveAll(x => x.Object.Class.IsA("Polys"));
+        //allWithinWorld.RemoveAll(x => x.Object.Class.IsA("StaticMeshActor"));
+        //allWithinWorld.RemoveAll(x => x.Object.Class.IsA("StaticMeshComponent"));
+        //allWithinWorld.RemoveAll(x => x.Object.Name == "Main_Sequence");
+        //foreach (var item in allWithinWorld)
+        //{
+        //    exportTable.Remove(item);
+        //}
+        //exportTable.RemoveAll(x => x.Object.HasOuter(level));
+
         //var index = 2000; ok, but material functions crashes
         //var index = ?? // crash
-        var index = 2000;
+        //var index = 2000;
         //exportTable.RemoveRange(index, exportTable.Count - index);
     }
 
@@ -317,35 +373,39 @@ public class PackageExporter
         exportHeader.ThumbnailTableOffset = 0;
         exportHeader.CookerVersion = 0;
         exportHeader.EngineVersion = 12791;
-        //exportHeader.PackageFlags = 1;
+        exportHeader.PackageFlags = 1;
+        exportHeader.AdditionalPackagesToCook.Clear();
+        exportHeader.TextureAllocations.Clear();
 
-        var flags = (PackageFlags) exportHeader.PackageFlags;
-        flags &= ~PackageFlags.PKG_Cooked;
-        flags &= ~PackageFlags.PKG_StoreCompressed;
 
-        var a = flags.HasFlag(PackageFlags.PKG_AllowDownload);
-        var a1 = flags.HasFlag(PackageFlags.PKG_ClientOptional);
-        var a2 = flags.HasFlag(PackageFlags.PKG_ServerSideOnly);
-        var a3 = flags.HasFlag(PackageFlags.PKG_Cooked);
-        var a4 = flags.HasFlag(PackageFlags.PKG_Unsecure);
-        var a5 = flags.HasFlag(PackageFlags.PKG_SavedWithNewerVersion);
-        var a6 = flags.HasFlag(PackageFlags.PKG_Need);
-        var a7 = flags.HasFlag(PackageFlags.PKG_Compiling);
-        var a8 = flags.HasFlag(PackageFlags.PKG_ContainsMap);
-        var a9 = flags.HasFlag(PackageFlags.PKG_Trash);
-        var a10 = flags.HasFlag(PackageFlags.PKG_DisallowLazyLoading);
-        var a11 = flags.HasFlag(PackageFlags.PKG_PlayInEditor);
-        var a12 = flags.HasFlag(PackageFlags.PKG_ContainsScript);
-        var a13 = flags.HasFlag(PackageFlags.PKG_ContainsDebugInfo);
-        var a14 = flags.HasFlag(PackageFlags.PKG_RequireImportsAlreadyLoaded);
-        var a15 = flags.HasFlag(PackageFlags.PKG_SelfContainedLighting);
-        var a16 = flags.HasFlag(PackageFlags.PKG_StoreCompressed);
-        var a17 = flags.HasFlag(PackageFlags.PKG_StoreFullyCompressed);
-        var a18 = flags.HasFlag(PackageFlags.PKG_ContainsInlinedShaders);
-        var a19 = flags.HasFlag(PackageFlags.PKG_ContainsFaceFXData);
-        var a20 = flags.HasFlag(PackageFlags.PKG_NoExportAllowed);
-        var a21 = flags.HasFlag(PackageFlags.PKG_StrippedSource);
-        exportHeader.PackageFlags = (uint) flags;
+        // This may be required at a later data. Possibly map packages and compressed packages?
+        //var flags = (PackageFlags) exportHeader.PackageFlags;
+        //flags &= ~PackageFlags.PKG_Cooked;
+        //flags &= ~PackageFlags.PKG_StoreCompressed;
+
+        //var a = flags.HasFlag(PackageFlags.PKG_AllowDownload);
+        //var a1 = flags.HasFlag(PackageFlags.PKG_ClientOptional);
+        //var a2 = flags.HasFlag(PackageFlags.PKG_ServerSideOnly);
+        //var a3 = flags.HasFlag(PackageFlags.PKG_Cooked);
+        //var a4 = flags.HasFlag(PackageFlags.PKG_Unsecure);
+        //var a5 = flags.HasFlag(PackageFlags.PKG_SavedWithNewerVersion);
+        //var a6 = flags.HasFlag(PackageFlags.PKG_Need);
+        //var a7 = flags.HasFlag(PackageFlags.PKG_Compiling);
+        //var a8 = flags.HasFlag(PackageFlags.PKG_ContainsMap);
+        //var a9 = flags.HasFlag(PackageFlags.PKG_Trash);
+        //var a10 = flags.HasFlag(PackageFlags.PKG_DisallowLazyLoading);
+        //var a11 = flags.HasFlag(PackageFlags.PKG_PlayInEditor);
+        //var a12 = flags.HasFlag(PackageFlags.PKG_ContainsScript);
+        //var a13 = flags.HasFlag(PackageFlags.PKG_ContainsDebugInfo);
+        //var a14 = flags.HasFlag(PackageFlags.PKG_RequireImportsAlreadyLoaded);
+        //var a15 = flags.HasFlag(PackageFlags.PKG_SelfContainedLighting);
+        //var a16 = flags.HasFlag(PackageFlags.PKG_StoreCompressed);
+        //var a17 = flags.HasFlag(PackageFlags.PKG_StoreFullyCompressed);
+        //var a18 = flags.HasFlag(PackageFlags.PKG_ContainsInlinedShaders);
+        //var a19 = flags.HasFlag(PackageFlags.PKG_ContainsFaceFXData);
+        //var a20 = flags.HasFlag(PackageFlags.PKG_NoExportAllowed);
+        //var a21 = flags.HasFlag(PackageFlags.PKG_StrippedSource);
+        //exportHeader.PackageFlags = (uint) flags;
     }
 
     private FileSummary CopyHeader(FileSummary header)
@@ -438,19 +498,19 @@ public class PackageExporter
     {
         //null out any outers that are exported from this package. Some kind of artifact from forced exports \ cooked packages
         // TODO: Convert these exports with internal imports into pure imports
-        foreach (var import in _exportImportTable)
-        {
-            var importImportedObject = import.ImportedObject;
-            if (importImportedObject is null)
-            {
-                continue;
-            }
+        //foreach (var import in _exportImportTable)
+        //{
+        //    var importImportedObject = import.ImportedObject;
+        //    if (importImportedObject is null)
+        //    {
+        //        continue;
+        //    }
 
-            if (importImportedObject.Outer?.OwnerPackage == _package && importImportedObject.Outer?.ExportTableItem is not null)
-            {
-                import.OuterIndex = new ObjectIndex();
-            }
-        }
+        //    if (importImportedObject.Outer?.OwnerPackage == _package && importImportedObject.Outer?.ExportTableItem is not null)
+        //    {
+        //        import.OuterIndex = new ObjectIndex();
+        //    }
+        //}
 
         //_exportImportTable.RemoveAll(x => x.ImportedObject.Outer?.OwnerPackage == _package && x.ImportedObject.Outer?.ExportTableItem is not null);
 

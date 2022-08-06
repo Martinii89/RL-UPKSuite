@@ -4,9 +4,9 @@ namespace Core.Serialization.Default;
 
 internal class FCompressedChunkHeaderSerializer : IStreamSerializer<FCompressedChunkHeader>
 {
-    private readonly IStreamSerializer<FCompressedChunkBlock> _blockSerializer;
+    private readonly IStreamSerializer<FCompressedChunkInfo> _blockSerializer;
 
-    public FCompressedChunkHeaderSerializer(IStreamSerializer<FCompressedChunkBlock> blockSerializer)
+    public FCompressedChunkHeaderSerializer(IStreamSerializer<FCompressedChunkInfo> blockSerializer)
     {
         _blockSerializer = blockSerializer;
     }
@@ -27,19 +27,22 @@ internal class FCompressedChunkHeaderSerializer : IStreamSerializer<FCompressedC
     }
 }
 
-internal class FCompressedChunkBlockSerializer : IStreamSerializer<FCompressedChunkBlock>
+public class FCompressedChunkinfoSerializer : IStreamSerializer<FCompressedChunkInfo>
 {
-    public FCompressedChunkBlock Deserialize(Stream stream)
+    /// <inheritdoc />
+    public FCompressedChunkInfo Deserialize(Stream stream)
     {
-        return new FCompressedChunkBlock
+        return new FCompressedChunkInfo
         {
             CompressedSize = stream.ReadInt32(),
             UncompressedSize = stream.ReadInt32()
         };
     }
 
-    public void Serialize(Stream stream, FCompressedChunkBlock value)
+    /// <inheritdoc />
+    public void Serialize(Stream stream, FCompressedChunkInfo value)
     {
-        throw new NotImplementedException();
+        stream.WriteInt32(value.CompressedSize);
+        stream.WriteInt32(value.UncompressedSize);
     }
 }
