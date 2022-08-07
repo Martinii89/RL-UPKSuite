@@ -15,7 +15,13 @@ using Microsoft.Extensions.DependencyInjection;
 
 //var parseResult = Parser.Default.ParseArguments<BatchProcessOptions>(args);
 //parseResult.WithParsed(BatchProcess);
-Environment.CurrentDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+var assemblyLocation = Assembly.GetExecutingAssembly().Location;
+var currentDirectory = Path.GetDirectoryName(assemblyLocation);
+if (currentDirectory != null)
+{
+    Environment.CurrentDirectory = currentDirectory;
+}
+
 var inputFile = args[0];
 var inputFileName = Path.GetFileNameWithoutExtension(inputFile);
 var inputDirectory = Path.GetDirectoryName(inputFile);
@@ -53,7 +59,8 @@ var options = new PackageCacheOptions(rlPackageSerializer, nativeFactory)
     GraphLinkPackages = true,
     PackageUnpacker = unpacker,
     NativeClassFactory = nativeFactory,
-    ObjectSerializerFactory = rLobjectSerializerFactory
+    ObjectSerializerFactory = rLobjectSerializerFactory,
+    PackageBlacklist = { "EngineMaterials", "EngineResources" }
 };
 var packageCache = new PackageCache(options);
 

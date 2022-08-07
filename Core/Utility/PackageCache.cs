@@ -22,6 +22,11 @@ public class PackageCacheOptions
     }
 
     /// <summary>
+    ///     a list of package that the cache should refuse to load
+    /// </summary>
+    public List<string> PackageBlacklist { get; set; } = new();
+
+    /// <summary>
     ///     The paths to search for related packages. Will default to cwd if no path is specified
     /// </summary>
     public List<string> SearchPaths { get; init; } = new();
@@ -87,6 +92,11 @@ public class PackageCache : IPackageCache
         if (_cachedPackages.TryGetValue(packageName, out var cachedPackage))
         {
             return cachedPackage;
+        }
+
+        if (_options.PackageBlacklist.Contains(packageName))
+        {
+            return null;
         }
 
 
