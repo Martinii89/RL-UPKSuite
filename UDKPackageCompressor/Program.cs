@@ -10,7 +10,8 @@ if (args.Length < 1)
 }
 
 var inputFile = args[0];
-var outputFile = Path.ChangeExtension(inputFile, "compressed.upk");
+var outputFileName = $"{Path.GetFileNameWithoutExtension(inputFile)}_compressed{Path.GetExtension(inputFile)}";
+var outputFile = Path.Combine(Path.GetDirectoryName(inputFile) ?? throw new InvalidOperationException(), outputFileName);
 
 try
 {
