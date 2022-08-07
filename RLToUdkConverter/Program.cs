@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using System.Reflection;
 using Core;
 using Core.RocketLeague;
 using Core.RocketLeague.Decryption;
@@ -14,7 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 //var parseResult = Parser.Default.ParseArguments<BatchProcessOptions>(args);
 //parseResult.WithParsed(BatchProcess);
-
+Environment.CurrentDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 var inputFile = args[0];
 var inputFileName = Path.GetFileNameWithoutExtension(inputFile);
 var inputDirectory = Path.GetDirectoryName(inputFile);
