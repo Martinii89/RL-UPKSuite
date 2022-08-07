@@ -6,6 +6,7 @@ using Core.Serialization;
 using Core.Serialization.Default;
 using Core.Types;
 using Core.Types.FileSummeryInner;
+using FCompressedChunkSerializer = Core.Serialization.RocketLeague.FCompressedChunkSerializer;
 
 namespace Core.RocketLeague;
 
@@ -14,9 +15,9 @@ namespace Core.RocketLeague;
 /// </summary>
 public class RLPackageUnpacker
 {
-    private readonly FCompressedChunkinfoSerializer _blockSerializer;
+    private readonly FCompressedChunkinfoSerializer _blockSerializer = new();
     private readonly FCompressedChunkHeaderSerializer _compressedChunkHeaderSerializer;
-    private readonly FCompressedChunkSerializer _compressedChunkSerializer;
+    private readonly FCompressedChunkSerializer _compressedChunkSerializer = new();
     private readonly IDecrypterProvider _decrypterProvider;
     private readonly Stream _inputStream;
 
@@ -33,10 +34,7 @@ public class RLPackageUnpacker
         _inputStream = inputStream;
         _decrypterProvider = decrypterProvider;
         // TODO: use DI
-        _compressedChunkSerializer = new FCompressedChunkSerializer();
-        _blockSerializer = new FCompressedChunkinfoSerializer();
         _compressedChunkHeaderSerializer = new FCompressedChunkHeaderSerializer(_blockSerializer);
-
         FileSummary = fileSummarySerializer.Deserialize(inputStream);
     }
 

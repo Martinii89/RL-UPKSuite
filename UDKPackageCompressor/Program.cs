@@ -26,6 +26,7 @@ try
 }
 catch (Exception e)
 {
+    File.Delete(outputFile);
     Console.WriteLine(e);
     throw;
 }
