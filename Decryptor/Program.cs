@@ -2,43 +2,12 @@
 
 using System.Diagnostics;
 using CommandLine;
-using Core;
 using Core.RocketLeague;
 using Core.RocketLeague.Decryption;
 using Core.Serialization.Default;
-using Core.Utility;
 using Decryptor;
 
-// Arrange
-
-
-var fileSummarySerializerFor = FileSummarySerializer.GetDefaultSerializer();
-var nameTableItemSerializer = new NameTableItemSerializer();
-var importTableItemSerializer = new ImportTableItemSerializer(new FNameSerializer(), new ObjectIndexSerializer());
-var exportTablItemeSerializer = new ExportTableItemSerializer(new FNameSerializer(), new ObjectIndexSerializer(), new Int32Serializer(), new FGuidSerializer());
-var serializer = new UnrealPackageSerializer(fileSummarySerializerFor, nameTableItemSerializer, importTableItemSerializer, exportTablItemeSerializer);
-var options = new PackageCacheOptions(serializer) { SearchPaths = { @"D:\Projects\RL UPKSuite\Core.Test\TestData\UDK\" }, GraphLinkPackages = false };
-
-var stopwatch = new Stopwatch();
-stopwatch.Start();
-for (var i = 0; i < 100; i++)
-{
-    var packageCache = new PackageCache(options);
-    var loader = new PackageLoader(serializer, packageCache, new NeverUnpackUnpacker());
-    loader.LoadPackage("D:\\Projects\\RL UPKSuite\\Core.Test\\TestData\\UDK\\TAGame.u", "TAGame");
-    var tagame = loader.GetPackage("TAGame");
-}
-
-Console.WriteLine($"CrossPackage Load took {stopwatch.Elapsed.TotalMilliseconds / 100} ms");
-return;
-// Act
-
-// Assert 
-
-
-return;
 var parseResult = Parser.Default.ParseArguments<BatchProcessOptions>(args);
-
 parseResult.WithParsed(BatchProcess);
 
 
@@ -73,7 +42,7 @@ void BatchProcess(BatchProcessOptions options)
 
         using var fileStream = File.Open(file, FileMode.Open, FileAccess.Read, FileShare.Read);
         using var decryptedStream = File.OpenWrite(outputFilePath);
-        var upkFile = new RLPackageUnpacker(fileStream, decryptionProvider, fileSummarySerializerFor);
+        var upkFile = new RLPackageUnpacker(fileStream, decryptionProvider, FileSummarySerializer.GetDefaultSerializer());
         upkFile.Unpack(decryptedStream);
         if (!upkFile.Valid)
         {
