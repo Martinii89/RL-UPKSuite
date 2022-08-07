@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.IO.Compression;
+using Core.Flags;
 using Core.Serialization;
 using Core.Types;
 using Core.Types.FileSummeryInner;
@@ -24,10 +25,19 @@ public class PackageCompressor
         _compressedChunkInfoSerializer = compressedChunkInfoSerializer;
     }
 
-    public Stream CompressFile(Stream sourceStream, Stream outputStream)
+    /// <summary>
+    /// </summary>
+    /// <param name="sourceStream">The stream of the uncompressed package</param>
+    /// <param name="outputStream">The stream where the compressed data will be written to</param>
+    /// <exception cref="InvalidDataException">If package is already compressed</exception>
+    public void CompressFile(Stream sourceStream, Stream outputStream)
     {
         sourceStream.Position = 0;
         var header = _headerSerializer.Deserialize(sourceStream);
+        if (((PackageFlags) header.PackageFlags).HasFlag(PackageFlags.PKG_StoreCompressed))
+        {
+            throw new InvalidDataException("Package already compressed");
+        }
 
         var startOffset = sourceStream.Position;
         var restHeaderSize = (int) (header.TotalHeaderSize - startOffset);
@@ -78,7 +88,6 @@ public class PackageCompressor
         outputStream.Position = 0;
         _headerSerializer.Serialize(outputStream, header);
         outputStream.Flush();
-        return outputStream;
     }
 
     private void SerializeCompressed(Stream srcStream, int dataSize, Stream outputStream)
