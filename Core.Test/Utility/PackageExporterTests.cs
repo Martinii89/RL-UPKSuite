@@ -234,9 +234,9 @@ public class PackageExporterTests
             NativeClassFactory = nativeFactory, ObjectSerializerFactory = RLobjectSerializerFactory
         };
         var packageCache = new PackageCache(options);
-        var UDKobjectSerializerFactory = SerializerHelper.GetService<IObjectSerializerFactory>(typeof(IObjectSerializerFactory));
-        var loader = new PackageLoader(packageSerializer, packageCache, unpacker, nativeFactory, UDKobjectSerializerFactory);
+        var loader = new PackageLoader(packageSerializer, packageCache, unpacker, nativeFactory, RLobjectSerializerFactory);
         var package = loader.LoadPackage("TestData/body_bb_SF.upk", "body_bb_SF");
+        var UDKobjectSerializerFactory = SerializerHelper.GetService<IObjectSerializerFactory>(typeof(IObjectSerializerFactory));
         var sut = GetPackageExporter(stream, package);
 
         // Act
@@ -265,10 +265,10 @@ public class PackageExporterTests
             NativeClassFactory = nativeFactory, ObjectSerializerFactory = RLobjectSerializerFactory
         };
         var packageCache = new PackageCache(options);
-        var UDKobjectSerializerFactory = SerializerHelper.GetService<IObjectSerializerFactory>(typeof(IObjectSerializerFactory));
-        var loader = new PackageLoader(packageSerializer, packageCache, unpacker, nativeFactory, UDKobjectSerializerFactory);
+        var loader = new PackageLoader(packageSerializer, packageCache, unpacker, nativeFactory, RLobjectSerializerFactory);
         var package = loader.LoadPackage("TestData/Park_P.upk", "Park_P");
         var sut = GetPackageExporter(stream, package);
+        var UDKobjectSerializerFactory = SerializerHelper.GetService<IObjectSerializerFactory>(typeof(IObjectSerializerFactory));
 
         // Act
         var act = () => sut.ExportPackage(UDKobjectSerializerFactory);

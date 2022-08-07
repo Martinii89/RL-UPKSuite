@@ -13,7 +13,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core.Test", "Core.Test\Core
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PackageExplorer", "PackageExplorer\PackageExplorer.csproj", "{AEB86A50-59E9-47C4-87CA-CC83001963E1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UDKPackageCompressor", "UDKPackageCompressor\UDKPackageCompressor.csproj", "{97615C46-30FE-4495-848B-0A19A4DC16C0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UDKPackageCompressor", "UDKPackageCompressor\UDKPackageCompressor.csproj", "{97615C46-30FE-4495-848B-0A19A4DC16C0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RLToUdkConverter", "RLToUdkConverter\RLToUdkConverter.csproj", "{35E6BEBA-6E35-4AAF-B823-773C16797EEF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{97615C46-30FE-4495-848B-0A19A4DC16C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{97615C46-30FE-4495-848B-0A19A4DC16C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{97615C46-30FE-4495-848B-0A19A4DC16C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35E6BEBA-6E35-4AAF-B823-773C16797EEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35E6BEBA-6E35-4AAF-B823-773C16797EEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35E6BEBA-6E35-4AAF-B823-773C16797EEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35E6BEBA-6E35-4AAF-B823-773C16797EEF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
