@@ -32,4 +32,17 @@ public class UIntProperty : UProperty
 
         objectStream.WriteInt32(value);
     }
+
+    /// <inheritdoc />
+    public override FProperty CreateFProperty(object? value)
+    {
+        return new FProperty
+        {
+            Value = value as int?,
+            uProperty = this,
+            Size = 4,
+            Type = PropertyType.IntProperty,
+            Name = Name
+        };
+    }
 }

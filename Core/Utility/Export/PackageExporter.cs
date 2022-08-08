@@ -1,7 +1,5 @@
-﻿using System.Diagnostics;
-using Core.Classes;
+﻿using Core.Classes;
 using Core.Classes.Core;
-using Core.Classes.Core.Properties;
 using Core.Classes.Engine;
 using Core.Flags;
 using Core.Serialization;
@@ -24,7 +22,6 @@ public class PackageExporter
     private readonly IStreamSerializer<NameTableItem> _nameTableItemSerializer;
     private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
     private readonly IUnrealPackageStream _outputPackageStream;
-    private readonly UnrealPackage _package;
 
     public PackageExporter(UnrealPackage package, Stream exportStream, IStreamSerializer<FileSummary> fileSummarySerializer,
         IStreamSerializer<NameTableItem> nameTableItemSerializer, IStreamSerializer<ImportTableItem> importTableItemSerializer,
@@ -38,20 +35,23 @@ public class PackageExporter
         _objectIndexSerializer = objectIndexSerializer;
         _nameSerializer = nameSerializer;
         _exportStream = exportStream;
-        _package = package;
-        _exportHeader = CopyHeader(_package.Header);
-        _exportExportTable = CopyExportTable(_package.ExportTable);
-        _exportImportTable = CopyImportTable(_package.ImportTable);
+        Package = package;
+        _exportHeader = CopyHeader(Package.Header);
+        _exportExportTable = CopyExportTable(Package.ExportTable);
+        _exportImportTable = CopyImportTable(Package.ImportTable);
         FilterObjects(_exportImportTable, _exportExportTable);
         RemoveInternalImports();
         // Do not do this before FilterObjects!
-        AddDumyNodesToMaterials();
+        var materialUtils = new MaterialExportUtils(this);
+        materialUtils.AddDumyNodesToMaterials(_exportExportTable.Select(x => x.Object).OfType<UMaterial>().ToList());
         ModifyHeaderFieldsForExport(_exportHeader);
         ModifyExportTableFieldsForExport(_exportExportTable);
         FixObjectIndexReferences(_exportImportTable, _exportExportTable);
         _outputPackageStream =
-            new ExportUnrealPackageStream(_exportStream, _objectIndexSerializer, _nameSerializer, _package, _exportExportTable, _exportImportTable);
+            new ExportUnrealPackageStream(_exportStream, _objectIndexSerializer, _nameSerializer, Package, _exportExportTable, _exportImportTable);
     }
+
+    public UnrealPackage Package { get; }
 
     private void RemoveInternalImports()
     {
@@ -65,7 +65,7 @@ public class PackageExporter
                 continue;
             }
 
-            if (importImportedObject.Outer?.OwnerPackage == _package && importImportedObject.Outer?.ExportTableItem is not null)
+            if (importImportedObject.Outer?.OwnerPackage == Package && importImportedObject.Outer?.ExportTableItem is not null)
             {
                 //theWeirdOnes.Add(importImportedObject);
                 badImports.Add(import);
@@ -78,126 +78,16 @@ public class PackageExporter
         }
     }
 
-    private void AddDumyNodesToMaterials()
-    {
-        var customNodeClass = AddClassImport("Engine", "MaterialExpressionCustom");
-        customNodeClass.Deserialize();
-        customNodeClass.InitProperties();
-        var customName = GetOrAddName("WizardNode");
-        var materialExports = _exportExportTable.Select(x => x.Object).OfType<UMaterial>().ToList();
-        foreach (var material in materialExports)
-        {
-            var customNode = new UMaterialExpression(customName, customNodeClass, material, _package);
-            AddExport(customNode);
-            material.Deserialize();
-            AddSubsurfaceScatteringRadiusProperty(material, customNode);
-            AddMaterialParamsToCustomNodeInputs(material, customNode);
-            GuessAndConnectDiffuseParam(material);
-            ClearLightingModel(material);
-            var matExpressions = material.ScriptProperties.Find(x => x.Name == "Expressions");
-            if (matExpressions is not null)
-            {
-                matExpressions.Size += 4;
-                (matExpressions.Value as List<object?>)?.Add(customNode);
-            }
-
-            customName = new FName(customName.NameIndex, customName.InstanceNumber + 1);
-        }
-    }
-
-    private void AddMaterialParamsToCustomNodeInputs(UMaterial material, UMaterialExpression customNode)
-    {
-        ArgumentNullException.ThrowIfNull(customNode.Class);
-        ArgumentNullException.ThrowIfNull(customNode.Class);
-        GetOrAddName("Inputs");
-        GetOrAddName("Input");
-        var materialParams = material.GetMaterialParams();
-        var inputsParams = customNode.Class.GetProperty("Inputs");
-        ArgumentNullException.ThrowIfNull(inputsParams);
-        inputsParams.Deserialize();
-        var valueObject = new List<object>();
-        foreach (var materialParam in materialParams)
-        {
-            var materialInput = new Dictionary<string, object>
-            {
-                ["Expression"] = materialParam
-            };
-            var input = new Dictionary<string, object>
-            {
-                ["Input"] = materialInput
-            };
-            valueObject.Add(input);
-        }
-
-        customNode.ScriptProperties.Add(inputsParams.CreateFProperty(valueObject));
-    }
-
-    private void AddSubsurfaceScatteringRadiusProperty(UMaterial material, UMaterialExpression customNode)
-    {
-        GetOrAddName("SubsurfaceScatteringRadius");
-        GetOrAddName("Expression");
-        var valueObject = new Dictionary<string, object>
-        {
-            ["Expression"] = customNode
-        };
-        ArgumentNullException.ThrowIfNull(material.Class);
-        var rootProperty = material.Class.GetProperty("SubsurfaceScatteringRadius") as UStructProperty;
-        ArgumentNullException.ThrowIfNull(rootProperty);
-        rootProperty.Deserialize();
-        var fproperty = rootProperty.CreateFProperty(valueObject);
-        material.ScriptProperties.Add(fproperty);
-    }
-
-    private void GuessAndConnectDiffuseParam(UMaterial material)
-    {
-        GetOrAddName("DiffuseColor");
-        GetOrAddName("Expression");
-        var paramList = material.GetMaterialParams();
-        UMaterialExpression? diffuseExpression = null;
-        foreach (var expression in paramList)
-        {
-            expression.Deserialize();
-            var paramName = expression.ScriptProperties.FirstOrDefault(x => x.Name == "ParameterName")?.Value as string;
-            if (paramName?.Contains("diffuse", StringComparison.OrdinalIgnoreCase) ?? false)
-            {
-                diffuseExpression = expression;
-                break;
-            }
-        }
-
-        if (diffuseExpression == null)
-        {
-            return;
-        }
-
-        ArgumentNullException.ThrowIfNull(material.Class);
-        if (material.Class.GetProperty("DiffuseColor") is not UStructProperty rootProperty)
-        {
-            return;
-        }
-
-        var valueObject = new Dictionary<string, object>
-        {
-            ["Expression"] = diffuseExpression
-        };
-        rootProperty.Deserialize();
-        var fproperty = rootProperty.CreateFProperty(valueObject);
-        material.ScriptProperties.Add(fproperty);
-    }
-
     /// <summary>
-    ///     Removes the script property for the lighting model. Should make it default to Phong
+    ///     Adds a new class to the import table
     /// </summary>
-    /// <param name="material"></param>
-    private void ClearLightingModel(UMaterial material)
+    /// <param name="classPackage"></param>
+    /// <param name="className"></param>
+    /// <returns></returns>
+    public UClass AddClassImport(string classPackage, string className)
     {
-        material.ScriptProperties.RemoveAll(x => x.Name == "LightingModel");
-    }
-
-    private UClass AddClassImport(string classPackage, string className)
-    {
-        ArgumentNullException.ThrowIfNull(_package.PackageCache);
-        var package = _package.PackageCache.GetCachedPackage(classPackage);
+        ArgumentNullException.ThrowIfNull(Package.PackageCache);
+        var package = Package.PackageCache.GetCachedPackage(classPackage);
         ArgumentNullException.ThrowIfNull(package);
         var importItem = new ImportTableItem(GetOrAddName("Core"), GetOrAddName("Class"), FindObjectIndex(package.PackageRoot), GetOrAddName(className));
         var importedClass = package.FindClass(className);
@@ -212,7 +102,7 @@ public class PackageExporter
     ///     objects!
     /// </summary>
     /// <param name="obj"></param>
-    private void AddExport(UObject obj)
+    public void AddExport(UObject obj)
     {
         // serial size 0  to just make sure it doesn't try to deserialize this object. M
         var exportItem = new ExportTableItem(FindObjectIndex(obj.Class), new ObjectIndex(), FindObjectIndex(obj.Outer), obj._FName,
@@ -231,9 +121,9 @@ public class PackageExporter
     /// </summary>
     /// <param name="name"></param>
     /// <returns></returns>
-    private FName GetOrAddName(string name)
+    public FName GetOrAddName(string name)
     {
-        return _package.GetOrAddName(name);
+        return Package.GetOrAddName(name);
     }
 
     private void FixObjectIndexReferences(ImportTable importTable, ExportTable exportTable)
@@ -245,10 +135,6 @@ public class PackageExporter
             if (import.OuterIndex.Index != 0)
             {
                 import.OuterIndex = FindObjectIndex(obj.Outer);
-                if (import.OuterIndex.Index == 0)
-                {
-                    Debugger.Break();
-                }
             }
         }
 
@@ -270,10 +156,6 @@ public class PackageExporter
             if (export.OuterIndex.Index != 0)
             {
                 export.OuterIndex = FindObjectIndex(obj.Outer);
-                if (export.OuterIndex.Index == 0)
-                {
-                    Debugger.Break();
-                }
             }
 
             if (export.ArchetypeIndex.Index != 0)
@@ -308,7 +190,7 @@ public class PackageExporter
 
     private void FilterObjects(ImportTable importTable, ExportTable exportTable)
     {
-        var noneFName = _package.GetFName("None");
+        var noneFName = Package.GetFName("None");
         importTable.RemoveAll(x => Equals(x.ObjectName, noneFName) && Equals(x.ClassName, noneFName) && Equals(x.ClassPackage, noneFName));
         importTable.RemoveAll(x => x.ImportedObject is null);
         exportTable.RemoveAll(x => x.SerialSize == 0);
@@ -462,7 +344,7 @@ public class PackageExporter
     {
         ExportHeader();
         _exportHeader.NameOffset = (int) _exportStream.Position;
-        _exportHeader.NameCount = _package.NameTable.Count;
+        _exportHeader.NameCount = Package.NameTable.Count;
         ExportNameTable();
         _exportHeader.ImportOffset = (int) _exportStream.Position;
         _exportHeader.ImportCount = _exportImportTable.Count;
@@ -498,7 +380,7 @@ public class PackageExporter
     /// </summary>
     public void ExportNameTable()
     {
-        _nameTableItemSerializer.WriteTArray(_exportStream, _package.NameTable.ToArray(), StreamSerializerForExtension.ArraySizeSerialization.NoSize);
+        _nameTableItemSerializer.WriteTArray(_exportStream, Package.NameTable.ToArray(), StreamSerializerForExtension.ArraySizeSerialization.NoSize);
     }
 
     /// <summary>
