@@ -17,9 +17,9 @@ try
 {
     var headerSerializer = FileSummarySerializer.GetDefaultSerializer();
     var exportTableIteSerializer =
-        new ExportTableItemSerializer(new FNameSerializer(), new ObjectIndexSerializer(), new Int32Serializer(), new FGuidSerializer());
+        new ExportTableItemSerializer(new FNameSerializer(), new ObjectIndexSerializer(), new FGuidSerializer());
     using var inputPackageStream = File.OpenRead(inputFile);
-    using var outputStream = File.OpenWrite(outputFile);
+    using var outputStream = File.Create(outputFile);
     var compressor = new PackageCompressor(headerSerializer, exportTableIteSerializer, new FCompressedChunkinfoSerializer());
     compressor.CompressFile(inputPackageStream, outputStream);
     Console.WriteLine($"Package compressed and written to {outputFile}");

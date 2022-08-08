@@ -1,21 +1,11 @@
-﻿using Core.Types.FileSummeryInner;
+﻿using Core.Serialization.Extensions;
+using Core.Types.FileSummeryInner;
 
 namespace Core.Serialization.Default;
 
 /// <inheritdoc />
 public class FTextureAllocationsSerializer : IStreamSerializer<FTextureType>
 {
-    private readonly IStreamSerializer<int> _intSerializer;
-
-    /// <summary>
-    ///     Constructs a FTextureAllocationsSerializer. Requires a int serializers for the exportIndices
-    /// </summary>
-    /// <param name="intSerializer"></param>
-    public FTextureAllocationsSerializer(IStreamSerializer<int> intSerializer)
-    {
-        _intSerializer = intSerializer;
-    }
-
     /// <inheritdoc />
     public FTextureType Deserialize(Stream stream)
     {
@@ -25,7 +15,7 @@ public class FTextureAllocationsSerializer : IStreamSerializer<FTextureType>
         type.NumMips = stream.ReadInt32();
         type.Format = stream.ReadInt32();
         type.TexCreateFlags = stream.ReadInt32();
-        _intSerializer.ReadTArrayToList(stream, type.ExportIndices);
+        type.ExportIndices = stream.ReadTarray(stream1 => stream1.ReadInt32());
         return type;
     }
 
@@ -37,6 +27,6 @@ public class FTextureAllocationsSerializer : IStreamSerializer<FTextureType>
         stream.Write(value.NumMips);
         stream.Write(value.Format);
         stream.Write(value.TexCreateFlags);
-        _intSerializer.WriteTArray(stream, value.ExportIndices.ToArray());
+        stream.WriteTArray(value.ExportIndices, (stream1, i) => stream1.WriteInt32(i));
     }
 }

@@ -39,7 +39,7 @@ directoryInfo.Create();
 
 Console.WriteLine("Service setup..");
 using var convertedStream = new MemoryStream();
-using var outputStream = File.OpenWrite(outputFile);
+using var outputStream = File.Create(outputFile);
 
 var rlServices = GetRLSerializerCollection();
 var udkServices = GetUdkSerializerCollection();

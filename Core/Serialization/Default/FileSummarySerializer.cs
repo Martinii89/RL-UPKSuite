@@ -117,7 +117,7 @@ public class FileSummarySerializer : IStreamSerializer<FileSummary>
     public static FileSummarySerializer GetDefaultSerializer()
     {
         return new FileSummarySerializer(new FGuidSerializer(), new FCompressedChunkSerializer(),
-            new FStringSerializer(), new FTextureAllocationsSerializer(new Int32Serializer()),
+            new FStringSerializer(), new FTextureAllocationsSerializer(),
             new FGenerationInfoSerializer());
     }
 }

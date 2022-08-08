@@ -31,7 +31,7 @@ public class FileSummarySerializerTests
         var reader = new MemoryStream(headerData);
 
         var mainSerializer = new FileSummarySerializer(new FGuidSerializer(), new FCompressedChunkSerializer(),
-            new FStringSerializer(), new FTextureAllocationsSerializer(new Int32Serializer()),
+            new FStringSerializer(), new FTextureAllocationsSerializer(),
             new FGenerationInfoSerializer());
 
         // Act

@@ -102,6 +102,10 @@ public class MaterialExportUtils
         material.ScriptProperties.Add(fproperty);
     }
 
+    /// <summary>
+    ///     Positions the materialExpressions in a grid in the material editor
+    /// </summary>
+    /// <param name="expressions"></param>
     public void SpreadOutExpressions(List<UMaterialExpression> expressions)
     {
         if (expressions.Count == 0)
