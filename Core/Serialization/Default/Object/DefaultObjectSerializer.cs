@@ -52,7 +52,11 @@ public class DefaultObjectSerializer : BaseObjectSerializer<UObject>
             objectStream.WriteInt32(obj.StateFrame.Offset);
         }
 
-        objectStream.WriteInt32(obj.NetIndex);
+#if DEBUG
+    objectStream.WriteInt32(obj.NetIndex); // seeing a bunch of warnings about bad net indexes are neat for debugging purposes
+#else
+        objectStream.WriteInt32(0);
+#endif
 
         if (obj.Class == UClass.StaticClass)
         {

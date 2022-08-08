@@ -42,9 +42,9 @@ public class PackageExporter
         _exportHeader = CopyHeader(_package.Header);
         _exportExportTable = CopyExportTable(_package.ExportTable);
         _exportImportTable = CopyImportTable(_package.ImportTable);
-        RemoveNullObjects(_exportImportTable, _exportExportTable);
+        FilterObjects(_exportImportTable, _exportExportTable);
         RemoveInternalImports();
-        // Do not do this before RemoveNullObjects!
+        // Do not do this before FilterObjects!
         AddDumyNodesToMaterials();
         ModifyHeaderFieldsForExport(_exportHeader);
         ModifyExportTableFieldsForExport(_exportExportTable);
@@ -306,12 +306,23 @@ public class PackageExporter
         return new ObjectIndex();
     }
 
-    private void RemoveNullObjects(ImportTable importTable, ExportTable exportTable)
+    private void FilterObjects(ImportTable importTable, ExportTable exportTable)
     {
         var noneFName = _package.GetFName("None");
         importTable.RemoveAll(x => Equals(x.ObjectName, noneFName) && Equals(x.ClassName, noneFName) && Equals(x.ClassPackage, noneFName));
         importTable.RemoveAll(x => x.ImportedObject is null);
         exportTable.RemoveAll(x => x.SerialSize == 0);
+
+        // Remove world objects for map packages
+        var world = exportTable.Find(x => x.Object is UWorld);
+        if (world == null)
+        {
+            return;
+        }
+
+        var worldObj = world.Object;
+        exportTable.RemoveAll(x => x.Object.HasOuter(worldObj));
+        exportTable.Remove(world);
 
 
         // remove all within world except level
