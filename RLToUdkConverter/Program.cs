@@ -16,11 +16,8 @@ using Microsoft.Extensions.DependencyInjection;
 //var parseResult = Parser.Default.ParseArguments<BatchProcessOptions>(args);
 //parseResult.WithParsed(BatchProcess);
 var assemblyLocation = Assembly.GetExecutingAssembly().Location;
-var currentDirectory = Path.GetDirectoryName(assemblyLocation);
-if (currentDirectory != null)
-{
-    Environment.CurrentDirectory = currentDirectory;
-}
+var currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
+Environment.CurrentDirectory = currentDirectory;
 
 var inputFile = args[0];
 var inputFileName = Path.GetFileNameWithoutExtension(inputFile);
