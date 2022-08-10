@@ -27,6 +27,7 @@ public class PackageExporterTests
     private readonly PackageLoader _packageLoader;
     private readonly UnrealPackage _testPackage;
     private readonly UnrealPackage _testPackageMaterial;
+    private readonly IObjectSerializerFactory _udKobjectSerializerFactory;
 
     public PackageExporterTests()
     {
@@ -47,6 +48,7 @@ public class PackageExporterTests
         _exportTableItemSerializer = SerializerHelper.GetSerializerFor<ExportTableItem>(typeof(ExportTableItem));
         _fNameSerializer = SerializerHelper.GetSerializerFor<FName>(typeof(FName));
         _objectIndexSerializer = SerializerHelper.GetSerializerFor<ObjectIndex>(typeof(ObjectIndex));
+        _udKobjectSerializerFactory = SerializerHelper.GetService<IObjectSerializerFactory>(typeof(IObjectSerializerFactory));
     }
 
 
@@ -194,9 +196,8 @@ public class PackageExporterTests
         // Arrange
         var stream = new MemoryStream();
         var sut = GetTestPackageExporter(stream);
-        var factory = SerializerHelper.GetService<IObjectSerializerFactory>(typeof(IObjectSerializerFactory));
         // Act
-        var act = () => sut.ExportObjectSerialData(factory);
+        var act = () => sut.ExportObjectSerialData();
         // Assert
         act.Should().NotThrow();
     }
@@ -236,11 +237,10 @@ public class PackageExporterTests
         var packageCache = new PackageCache(options);
         var loader = new PackageLoader(packageSerializer, packageCache, unpacker, nativeFactory, RLobjectSerializerFactory);
         var package = loader.LoadPackage("TestData/body_bb_SF.upk", "body_bb_SF");
-        var UDKobjectSerializerFactory = SerializerHelper.GetService<IObjectSerializerFactory>(typeof(IObjectSerializerFactory));
         var sut = GetPackageExporter(stream, package);
 
         // Act
-        var act = () => sut.ExportPackage(UDKobjectSerializerFactory);
+        var act = () => sut.ExportPackage();
         // Assert
         act.Should().NotThrow();
         var exportBuffer = new ArraySegment<byte>(stream.GetBuffer(), 0, (int) stream.Length);
@@ -268,10 +268,9 @@ public class PackageExporterTests
         var loader = new PackageLoader(packageSerializer, packageCache, unpacker, nativeFactory, RLobjectSerializerFactory);
         var package = loader.LoadPackage("TestData/Park_P.upk", "Park_P");
         var sut = GetPackageExporter(stream, package);
-        var UDKobjectSerializerFactory = SerializerHelper.GetService<IObjectSerializerFactory>(typeof(IObjectSerializerFactory));
 
         // Act
-        var act = () => sut.ExportPackage(UDKobjectSerializerFactory);
+        var act = () => sut.ExportPackage();
         // Assert
         act.Should().NotThrow();
         var exportBuffer = new ArraySegment<byte>(stream.GetBuffer(), 0, (int) stream.Length);
@@ -281,19 +280,19 @@ public class PackageExporterTests
     private PackageExporter GetPackageExporter(Stream stream, UnrealPackage package)
     {
         return new PackageExporter(package, stream, _headerserializer, _nameTableItemSerializer, _importTableItemSerializer, _exportTableItemSerializer,
-            _objectIndexSerializer, _fNameSerializer);
+            _objectIndexSerializer, _fNameSerializer, _udKobjectSerializerFactory);
     }
 
     private PackageExporter GetTestPackageExporter(Stream stream)
     {
         return new PackageExporter(_testPackage, stream, _headerserializer, _nameTableItemSerializer, _importTableItemSerializer, _exportTableItemSerializer,
-            _objectIndexSerializer, _fNameSerializer);
+            _objectIndexSerializer, _fNameSerializer, _udKobjectSerializerFactory);
     }
 
     private PackageExporter GetMaterialsTestPackageExporter(Stream stream)
     {
         return new PackageExporter(_testPackageMaterial, stream, _headerserializer, _nameTableItemSerializer, _importTableItemSerializer,
             _exportTableItemSerializer,
-            _objectIndexSerializer, _fNameSerializer);
+            _objectIndexSerializer, _fNameSerializer, _udKobjectSerializerFactory);
     }
 }

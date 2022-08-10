@@ -70,11 +70,10 @@ var package = loader.LoadPackage(inputFile, inputFileName);
 var exporterFactory = udkServices.GetRequiredService<PackageExporterFactory>();
 var exporter = exporterFactory.Create(package, convertedStream);
 
-var UDKobjectSerializerFactory = udkServices.GetRequiredService<IObjectSerializerFactory>();
 
 // Export and save the package
 Console.WriteLine("Converting..");
-exporter.ExportPackage(UDKobjectSerializerFactory);
+exporter.ExportPackage();
 convertedStream.Position = 0;
 Console.WriteLine($"Writing to {outputFile}..");
 convertedStream.CopyTo(outputStream);
