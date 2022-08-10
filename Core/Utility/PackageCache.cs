@@ -117,6 +117,7 @@ public class PackageCache : IPackageCache
                 throw new InvalidDataException($"Too many matches packages found: {string.Join(',', matchedFiles)}");
         }
 
+        Console.WriteLine($"[PackageCache]: Reading package {packageName}");
         var packageStream = new MemoryStream(File.ReadAllBytes(matchedFiles[0]));
 
         UnrealPackage unrealPackage;

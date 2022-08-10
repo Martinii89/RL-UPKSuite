@@ -62,6 +62,8 @@ public class PackageLoader
             return _packageCache.GetCachedPackage(packageName);
         }
 
+        Console.WriteLine($"[PackageLoader]: Loading package {packageName}");
+
         var packageStream = new MemoryStream(File.ReadAllBytes(packagePath));
         var unrealPackage = DeserializePackage(packageName, packageStream);
         unrealPackage.RootLoader = this;

@@ -8,10 +8,9 @@ using Core.Serialization;
 using Core.Serialization.Abstraction;
 using Core.Serialization.RocketLeague;
 using Core.Types;
-using Core.Types.PackageTables;
 using Core.Utility;
-using Core.Utility.Export;
 using Microsoft.Extensions.DependencyInjection;
+using RLToUdkConverter;
 
 //var parseResult = Parser.Default.ParseArguments<BatchProcessOptions>(args);
 //parseResult.WithParsed(BatchProcess);
@@ -68,13 +67,8 @@ Console.WriteLine("Parsing.. (this will take a while)");
 var package = loader.LoadPackage(inputFile, inputFileName);
 
 // Create the exporter
-var exporter = new PackageExporter(package, convertedStream,
-    udkServices.GetRequiredService<IStreamSerializer<FileSummary>>(),
-    udkServices.GetRequiredService<IStreamSerializer<NameTableItem>>(),
-    udkServices.GetRequiredService<IStreamSerializer<ImportTableItem>>(),
-    udkServices.GetRequiredService<IStreamSerializer<ExportTableItem>>(),
-    udkServices.GetRequiredService<IStreamSerializer<ObjectIndex>>(),
-    udkServices.GetRequiredService<IStreamSerializer<FName>>());
+var exporterFactory = udkServices.GetRequiredService<PackageExporterFactory>();
+var exporter = exporterFactory.Create(package, convertedStream);
 
 var UDKobjectSerializerFactory = udkServices.GetRequiredService<IObjectSerializerFactory>();
 
@@ -91,6 +85,7 @@ IServiceProvider GetUdkSerializerCollection()
     var serviceCollection = new ServiceCollection();
     serviceCollection.UseSerializers(typeof(UnrealPackage), new SerializerOptions());
     serviceCollection.AddSingleton<IObjectSerializerFactory, ObjectSerializerFactory>();
+    serviceCollection.AddSingleton<PackageExporterFactory>();
     var services = serviceCollection.BuildServiceProvider();
     return services;
 }

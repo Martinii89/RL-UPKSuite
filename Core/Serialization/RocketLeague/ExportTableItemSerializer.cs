@@ -1,4 +1,5 @@
-﻿using Core.Types;
+﻿using Core.Serialization.Extensions;
+using Core.Types;
 using Core.Types.PackageTables;
 
 namespace Core.Serialization.RocketLeague;
@@ -10,7 +11,6 @@ namespace Core.Serialization.RocketLeague;
 public class ExportTableItemSerializer : RocketLeagueBase, IStreamSerializer<ExportTableItem>
 {
     private readonly IStreamSerializer<FGuid> _guidSerializer;
-    private readonly IStreamSerializer<int> _intSerializer;
     private readonly IStreamSerializer<FName> _nameSerializer;
     private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
 
@@ -20,14 +20,12 @@ public class ExportTableItemSerializer : RocketLeagueBase, IStreamSerializer<Exp
     /// </summary>
     /// <param name="nameSerializer"></param>
     /// <param name="objectIndexSerializer"></param>
-    /// <param name="intSerializer"></param>
     /// <param name="guidSerializer"></param>
     public ExportTableItemSerializer(IStreamSerializer<FName> nameSerializer, IStreamSerializer<ObjectIndex> objectIndexSerializer,
-        IStreamSerializer<int> intSerializer, IStreamSerializer<FGuid> guidSerializer)
+        IStreamSerializer<FGuid> guidSerializer)
     {
         _nameSerializer = nameSerializer;
         _objectIndexSerializer = objectIndexSerializer;
-        _intSerializer = intSerializer;
         _guidSerializer = guidSerializer;
     }
 
@@ -44,7 +42,7 @@ public class ExportTableItemSerializer : RocketLeagueBase, IStreamSerializer<Exp
         item.SerialSize = stream.ReadInt32();
         item.SerialOffset = stream.ReadInt64();
         item.ExportFlags = stream.ReadInt32();
-        item.NetObjects = _intSerializer.ReadTArrayToList(stream);
+        item.NetObjects = stream.ReadTarray(stream1 => stream1.ReadInt32());
         item.PackageGuid = _guidSerializer.Deserialize(stream);
         item.PackageFlags = stream.ReadInt32();
         return item;
@@ -62,7 +60,7 @@ public class ExportTableItemSerializer : RocketLeagueBase, IStreamSerializer<Exp
         stream.WriteInt32(value.SerialSize);
         stream.WriteInt64(value.SerialOffset);
         stream.WriteInt32(value.ExportFlags);
-        _intSerializer.WriteTArray(stream, value.NetObjects.ToArray());
+        stream.WriteTArray(value.NetObjects, (stream1, i) => stream1.WriteInt32(i));
         _guidSerializer.Serialize(stream, value.PackageGuid);
         stream.WriteInt32(value.PackageFlags);
     }
