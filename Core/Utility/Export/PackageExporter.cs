@@ -6,6 +6,7 @@ using Core.Serialization;
 using Core.Serialization.Abstraction;
 using Core.Types;
 using Core.Types.PackageTables;
+using Core.Utility.Export.Filters;
 
 namespace Core.Utility.Export;
 
@@ -17,6 +18,8 @@ public class PackageExporter
     private readonly Stream _exportStream;
     private readonly IStreamSerializer<ExportTableItem> _exportTableItemSerializer;
     private readonly IStreamSerializer<FileSummary> _fileSummarySerializer;
+
+    private readonly List<IObjectFilter> _filters = new();
     private readonly IStreamSerializer<ImportTableItem> _importTableItemSerializer;
     private readonly IStreamSerializer<NameTableItem> _nameTableItemSerializer;
     private readonly IObjectSerializerFactory _objectSerializerFactory;
@@ -37,11 +40,16 @@ public class PackageExporter
         _exportHeader = CopyHeader(Package.Header);
         _exportExportTable = CopyExportTable(Package.ExportTable);
         _exportImportTable = CopyImportTable(Package.ImportTable);
+
+        _filters.Add(new CrashPreventionFilter());
+        _filters.Add(new MapObjectFilter());
         FilterObjects(_exportImportTable, _exportExportTable);
-        RemoveInternalImports();
+
         // Do not do this before FilterObjects!
         var materialUtils = new MaterialExportUtils(this);
         materialUtils.AddDumyNodesToMaterials(_exportExportTable.Select(x => x.Object).OfType<UMaterial>().ToList());
+
+
         ModifyHeaderFieldsForExport(_exportHeader);
         ModifyExportTableFieldsForExport(_exportExportTable);
         FixObjectIndexReferences(_exportImportTable, _exportExportTable);
@@ -54,29 +62,13 @@ public class PackageExporter
     /// </summary>
     public UnrealPackage Package { get; }
 
-    private void RemoveInternalImports()
+    /// <summary>
+    ///     Adds a object filter
+    /// </summary>
+    /// <param name="filter"></param>
+    public void AddFilter(IObjectFilter filter)
     {
-        //var theWeirdOnes = new HashSet<UObject>();
-        var badImports = new List<ImportTableItem>();
-        foreach (var import in _exportImportTable)
-        {
-            var importImportedObject = import.ImportedObject;
-            if (importImportedObject is null)
-            {
-                continue;
-            }
-
-            if (importImportedObject.Outer?.OwnerPackage == Package && importImportedObject.Outer?.ExportTableItem is not null)
-            {
-                //theWeirdOnes.Add(importImportedObject);
-                badImports.Add(import);
-            }
-        }
-
-        foreach (var importTableItem in badImports)
-        {
-            _exportImportTable.Remove(importTableItem);
-        }
+        _filters.Add(filter);
     }
 
     /// <summary>
@@ -117,8 +109,7 @@ public class PackageExporter
 
     /// <summary>
     ///     Abstracting this in case I decide to use a separate name table as well later (Doing this will require rethinking
-    ///     the FName serialization). For now it will just use add to the original table.
-    ///     name table.
+    ///     the FName serialization). For now it will just use add to the original name table.
     /// </summary>
     /// <param name="name"></param>
     /// <returns></returns>
@@ -190,49 +181,11 @@ public class PackageExporter
 
     private void FilterObjects(ImportTable importTable, ExportTable exportTable)
     {
-        var noneFName = Package.GetFName("None");
-        importTable.RemoveAll(x => Equals(x.ObjectName, noneFName) && Equals(x.ClassName, noneFName) && Equals(x.ClassPackage, noneFName));
-        importTable.RemoveAll(x => x.ImportedObject is null);
-        exportTable.RemoveAll(x => x.SerialSize == 0);
-
-        // Remove world objects for map packages
-        var world = exportTable.Find(x => x.Object is UWorld);
-        if (world == null)
-        {
-            return;
-        }
-
-        var worldObj = world.Object;
-        exportTable.RemoveAll(x => x.Object.HasOuter(worldObj));
-        exportTable.Remove(world);
-
-
-        // remove all within world except level
-        //var world = exportTable.Find(x => x.Object is UWorld)?.Object ?? throw new InvalidDataException();
-        //var allWithinWorld = exportTable.FindAll(x => x.Object.HasOuter(world));
-        //// remove the level object
-        //allWithinWorld.RemoveAll(x => x.Object is ULevel);
-        //allWithinWorld.RemoveAll(x => x.Object.Class.IsA("WorldInfo"));
-        //allWithinWorld.RemoveAll(x => x.Object.Class.IsA("Brush"));
-        //allWithinWorld.RemoveAll(x => x.Object.Class.IsA("BrushComponent"));
-        //allWithinWorld.RemoveAll(x => x.Object.Class.IsA("Model"));
-        //allWithinWorld.RemoveAll(x => x.Object.Class.IsA("Polys"));
-        //allWithinWorld.RemoveAll(x => x.Object.Class.IsA("StaticMeshActor"));
-        //allWithinWorld.RemoveAll(x => x.Object.Class.IsA("StaticMeshComponent"));
-        //allWithinWorld.RemoveAll(x => x.Object.Name == "Main_Sequence");
-        //foreach (var item in allWithinWorld)
-        //{
-        //    exportTable.Remove(item);
-        //}
-        //exportTable.RemoveAll(x => x.Object.HasOuter(level));
-
-        //var index = 2000; ok, but material functions crashes
-        //var index = ?? // crash
-        //var index = 2000;
-        //exportTable.RemoveRange(index, exportTable.Count - index);
+        importTable.RemoveAll(import => _filters.Any(objectFilter => objectFilter.ShouldRemove(Package, import)));
+        exportTable.RemoveAll(export => _filters.Any(objectFilter => objectFilter.ShouldRemove(Package, export)));
     }
 
-    private void ModifyExportTableFieldsForExport(ExportTable exportTable)
+    private static void ModifyExportTableFieldsForExport(ExportTable exportTable)
     {
         foreach (var export in exportTable)
         {
@@ -260,7 +213,7 @@ public class PackageExporter
         }
     }
 
-    private void ModifyHeaderFieldsForExport(FileSummary exportHeader)
+    private static void ModifyHeaderFieldsForExport(FileSummary exportHeader)
     {
         exportHeader.LicenseeVersion = 0;
         exportHeader.ThumbnailTableOffset = 0;
@@ -389,24 +342,6 @@ public class PackageExporter
     /// </summary>
     public void ExportImportTable()
     {
-        //null out any outers that are exported from this package. Some kind of artifact from forced exports \ cooked packages
-        // TODO: Convert these exports with internal imports into pure imports
-        //foreach (var import in _exportImportTable)
-        //{
-        //    var importImportedObject = import.ImportedObject;
-        //    if (importImportedObject is null)
-        //    {
-        //        continue;
-        //    }
-
-        //    if (importImportedObject.Outer?.OwnerPackage == _package && importImportedObject.Outer?.ExportTableItem is not null)
-        //    {
-        //        import.OuterIndex = new ObjectIndex();
-        //    }
-        //}
-
-        //_exportImportTable.RemoveAll(x => x.ImportedObject.Outer?.OwnerPackage == _package && x.ImportedObject.Outer?.ExportTableItem is not null);
-
         _importTableItemSerializer.WriteTArray(_exportStream, _exportImportTable.ToArray(), StreamSerializerForExtension.ArraySizeSerialization.NoSize);
     }
 
