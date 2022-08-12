@@ -3,7 +3,7 @@
 namespace Core.Serialization.Default;
 
 /// <inheritdoc />
-public class FGenerationInfoSerializer : IStreamSerializerFor<FGenerationInfo>
+public class FGenerationInfoSerializer : IStreamSerializer<FGenerationInfo>
 {
     /// <inheritdoc />
     public FGenerationInfo Deserialize(Stream stream)
@@ -19,6 +19,8 @@ public class FGenerationInfoSerializer : IStreamSerializerFor<FGenerationInfo>
     /// <inheritdoc />
     public void Serialize(Stream stream, FGenerationInfo value)
     {
-        throw new NotImplementedException();
+        stream.Write(value.ExportCount);
+        stream.Write(value.NameCount);
+        stream.Write(value.NetObjectCount);
     }
 }

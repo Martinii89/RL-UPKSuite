@@ -8,8 +8,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Serialization\RocketLeague\" />
+    <Folder Include="Classes\Compression\" />
     <Folder Include="Types\PackageTables\" />
+    <Folder Include="Utility\Export\Filters\" />
   </ItemGroup>
 
   <ItemGroup>

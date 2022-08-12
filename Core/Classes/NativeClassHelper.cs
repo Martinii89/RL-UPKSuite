@@ -33,7 +33,7 @@ public class NativeClassRegistrationHelper
             .ToList();
     }
 
-    private Dictionary<string, List<NativeClassRegistration>> GroupNativeBySuperClass(IList<NativeClassRegistration> nativeClassRegistrations)
+    private Dictionary<string, List<NativeClassRegistration>> GroupNativeBySuperClass(IEnumerable<NativeClassRegistration> nativeClassRegistrations)
     {
         return nativeClassRegistrations.GroupBy(x => x.NativeOnlyClassAttribute.SuperClass).ToDictionary(y => y.Key, y => y.ToList());
     }
@@ -61,8 +61,19 @@ public class NativeClassRegistrationHelper
 
             var className = attribute.ClassName;
             var superClass = attribute.SuperClass == string.Empty ? null : registeredClasses[attribute.SuperClass];
+            var packageName = attribute.PackageName;
+            //if (packageName != corePackage.PackageName)
+            //{
+            //    var realPackakge = corePackage.PackageCache?.GetCachedPackage(packageName);
+            //    var clz = realPackakge?.FindClass(className);
+            //}
+
             var classFName = corePackage.GetOrAddName(className);
             var newClass = new UClass(classFName, UClass.StaticClass, OuterPackage, corePackage, superClass);
+            var objectSerializer = corePackage.ObjectSerializerFactory?.GetSerializer(typeToRegister.Type);
+            newClass.InstanceSerializer = objectSerializer;
+            newClass.InstanceConstructor = (name, outer, package, objArchetype) =>
+                (UObject) Activator.CreateInstance(typeToRegister.Type, name, newClass, outer, package, objArchetype);
             registeredClasses[attribute.ClassName] = newClass;
             if (groupNativeBySuperClass.TryGetValue(className, out var derivedList))
             {
@@ -90,7 +101,7 @@ public class NativeClassRegistrationHelper
             NativeOnlyClassAttribute = nativeOnlyClassAttribute;
         }
 
-        private Type Type { get; }
+        public Type Type { get; }
         public NativeOnlyClassAttribute NativeOnlyClassAttribute { get; }
     }
 }

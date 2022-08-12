@@ -48,7 +48,7 @@ public class ThumbnailTableItem
     /// <summary>
     ///     The serial data of a thumbnail. Currently always null
     /// </summary>
-    public ThumbnailData? ThumbnailData { get; set; }
+    public ThumbnailData? ThumbnailData { get; set; } = new(0, 0, Array.Empty<byte>());
 }
 
 /// <summary>
@@ -57,7 +57,7 @@ public class ThumbnailTableItem
 public class ThumbnailData
 {
     /// <summary>
-    ///     Construts a thumbnail from deserialized data
+    ///     Constructs a thumbnail from deserialized data
     /// </summary>
     /// <param name="sizeX"></param>
     /// <param name="sizeY"></param>

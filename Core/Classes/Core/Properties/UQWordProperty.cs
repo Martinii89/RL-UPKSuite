@@ -5,7 +5,7 @@ namespace Core.Classes.Core.Properties;
 /// <summary>
 ///     A property for a 64bit int value
 /// </summary>
-[NativeOnlyClass("Core", "QWordProperty", "Property")]
+[NativeOnlyClass("Core", "QWordProperty", typeof(UProperty))]
 public class UQWordProperty : UProperty
 {
     /// <inheritdoc />

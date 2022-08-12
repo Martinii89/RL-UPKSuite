@@ -6,7 +6,7 @@ namespace Core.Classes;
 /// <summary>
 ///     A unreal script state
 /// </summary>
-[NativeOnlyClass("Core", "State", "Struct")]
+[NativeOnlyClass("Core", "State", typeof(UStruct))]
 public class UState : UStruct
 {
     /// <inheritdoc />
@@ -14,4 +14,9 @@ public class UState : UStruct
         ownerPackage, objectArchetype)
     {
     }
+
+    public uint ProbeMask { get; set; }
+    public ushort LabelTableOffset { get; set; }
+    public uint StateFlags { get; set; }
+    public Dictionary<string, UFunction> FuncMap { get; set; } = new();
 }

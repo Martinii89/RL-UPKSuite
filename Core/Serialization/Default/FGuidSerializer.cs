@@ -3,7 +3,7 @@
 namespace Core.Serialization.Default;
 
 /// <inheritdoc />
-public class FGuidSerializer : IStreamSerializerFor<FGuid>
+public class FGuidSerializer : IStreamSerializer<FGuid>
 {
     /// <inheritdoc />
     public FGuid Deserialize(Stream stream)

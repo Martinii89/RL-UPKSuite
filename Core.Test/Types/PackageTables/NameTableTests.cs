@@ -45,7 +45,7 @@ public class NameTableTests
         0x00, 0x00, 0x10, 0x00, 0x07, 0x00
     };
 
-    private readonly IStreamSerializerFor<NameTableItem> _serializer;
+    private readonly IStreamSerializer<NameTableItem> _serializer;
 
     public NameTableTests()
     {

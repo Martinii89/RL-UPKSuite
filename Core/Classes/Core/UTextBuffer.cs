@@ -6,7 +6,7 @@ namespace Core.Classes;
 /// <summary>
 ///     A text buffer object?
 /// </summary>
-[NativeOnlyClass("Core", "TextBuffer", "Object")]
+[NativeOnlyClass("Core", "TextBuffer", typeof(UObject))]
 public class UTextBuffer : UObject
 {
     /// <inheritdoc />
@@ -14,4 +14,8 @@ public class UTextBuffer : UObject
         ownerPackage, objectArchetype)
     {
     }
+
+    public uint Pos { get; set; }
+    public uint Top { get; set; }
+    public string ScriptText { get; set; } = string.Empty;
 }

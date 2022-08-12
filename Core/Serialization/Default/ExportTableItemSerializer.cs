@@ -1,4 +1,6 @@
-﻿using Core.Types;
+﻿using Core.Flags;
+using Core.Serialization.Extensions;
+using Core.Types;
 using Core.Types.PackageTables;
 
 namespace Core.Serialization.Default;
@@ -6,12 +8,11 @@ namespace Core.Serialization.Default;
 /// <summary>
 ///     Serializer for the items in the export table
 /// </summary>
-public class ExportTableItemSerializer : IStreamSerializerFor<ExportTableItem>
+public class ExportTableItemSerializer : IStreamSerializer<ExportTableItem>
 {
-    private readonly IStreamSerializerFor<FGuid> _guidSerializer;
-    private readonly IStreamSerializerFor<int> _intSerializer;
-    private readonly IStreamSerializerFor<FName> _nameSerializer;
-    private readonly IStreamSerializerFor<ObjectIndex> _objectIndexSerializer;
+    private readonly IStreamSerializer<FGuid> _guidSerializer;
+    private readonly IStreamSerializer<FName> _nameSerializer;
+    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
 
 
     /// <summary>
@@ -19,14 +20,12 @@ public class ExportTableItemSerializer : IStreamSerializerFor<ExportTableItem>
     /// </summary>
     /// <param name="nameSerializer"></param>
     /// <param name="objectIndexSerializer"></param>
-    /// <param name="intSerializer"></param>
     /// <param name="guidSerializer"></param>
-    public ExportTableItemSerializer(IStreamSerializerFor<FName> nameSerializer, IStreamSerializerFor<ObjectIndex> objectIndexSerializer,
-        IStreamSerializerFor<int> intSerializer, IStreamSerializerFor<FGuid> guidSerializer)
+    public ExportTableItemSerializer(IStreamSerializer<FName> nameSerializer, IStreamSerializer<ObjectIndex> objectIndexSerializer,
+        IStreamSerializer<FGuid> guidSerializer)
     {
         _nameSerializer = nameSerializer;
         _objectIndexSerializer = objectIndexSerializer;
-        _intSerializer = intSerializer;
         _guidSerializer = guidSerializer;
     }
 
@@ -43,7 +42,7 @@ public class ExportTableItemSerializer : IStreamSerializerFor<ExportTableItem>
         item.SerialSize = stream.ReadInt32();
         item.SerialOffset = stream.ReadInt32();
         item.ExportFlags = stream.ReadInt32();
-        item.NetObjects = _intSerializer.ReadTArrayToList(stream);
+        item.NetObjects = stream.ReadTarray(stream1 => stream1.ReadInt32());
         item.PackageGuid = _guidSerializer.Deserialize(stream);
         item.PackageFlags = stream.ReadInt32();
         return item;
@@ -60,8 +59,8 @@ public class ExportTableItemSerializer : IStreamSerializerFor<ExportTableItem>
         stream.WriteUInt64(value.ObjectFlags);
         stream.WriteInt32(value.SerialSize);
         stream.WriteInt32((int) value.SerialOffset);
-        stream.WriteInt32(value.ExportFlags);
-        _intSerializer.WriteTArray(stream, value.NetObjects.ToArray());
+        stream.WriteInt32((int) ExportFlag.None);
+        stream.WriteTArray(value.NetObjects, (stream1, i) => stream1.WriteInt32(i));
         _guidSerializer.Serialize(stream, value.PackageGuid);
         stream.WriteInt32(value.PackageFlags);
     }

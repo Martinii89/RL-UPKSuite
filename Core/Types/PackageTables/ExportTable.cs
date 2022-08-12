@@ -21,7 +21,7 @@ public class ExportTable : List<ExportTableItem>
     /// <param name="serializer"></param>
     /// <param name="stream">The stream to read from</param>
     /// <param name="exportCount">The number of exports to deserialize</param>
-    public ExportTable(IStreamSerializerFor<ExportTableItem> serializer, Stream stream, int exportCount)
+    public ExportTable(IStreamSerializer<ExportTableItem> serializer, Stream stream, int exportCount)
     {
         serializer.ReadTArrayToList(stream, this, exportCount);
     }

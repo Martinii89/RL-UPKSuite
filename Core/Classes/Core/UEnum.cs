@@ -6,7 +6,7 @@ namespace Core.Classes;
 /// <summary>
 ///     Represents a enumeration value
 /// </summary>
-[NativeOnlyClass("Core", "Enum", "Field")]
+[NativeOnlyClass("Core", "Enum", typeof(UField))]
 public class UEnum : UField
 {
     /// <inheritdoc />
@@ -14,4 +14,6 @@ public class UEnum : UField
         ownerPackage, objectArchetype)
     {
     }
+
+    public List<string> Names { get; set; } = new();
 }

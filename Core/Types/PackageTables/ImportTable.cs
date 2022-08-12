@@ -19,14 +19,12 @@ public class ImportTable : List<ImportTableItem>
     }
 
     /// <summary>
-    ///     Initialize and deserialize the table from the stream. Requires a serializer, the offset where the table data
-    ///     starts, and how many
-    ///     items to deserialize
+    ///     Initialize and deserialize the table from the stream. Requires a serializer  and how many items to deserialize
     /// </summary>
     /// <param name="serializer"></param>
     /// <param name="stream"></param>
     /// <param name="importCount"></param>
-    public ImportTable(IStreamSerializerFor<ImportTableItem> serializer, Stream stream, int importCount)
+    public ImportTable(IStreamSerializer<ImportTableItem> serializer, Stream stream, int importCount)
     {
         serializer.ReadTArrayToList(stream, this, importCount);
     }

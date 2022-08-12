@@ -1,11 +1,12 @@
-﻿using Core.Types;
+﻿using Core.Serialization.Abstraction;
+using Core.Types;
 
 namespace Core.Classes.Core.Properties;
 
 /// <summary>
 ///     A property for a FName value
 /// </summary>
-[NativeOnlyClass("Core", "NameProperty", "Property")]
+[NativeOnlyClass("Core", "NameProperty", typeof(UProperty))]
 public class UNameProperty : UProperty
 {
     /// <inheritdoc />
@@ -13,5 +14,21 @@ public class UNameProperty : UProperty
         outer,
         ownerPackage, objectArchetype)
     {
+    }
+
+    /// <inheritdoc />
+    public override object? DeserializeValue(UObject obj, IUnrealPackageStream objStream, int propertySize)
+    {
+        return objStream.ReadFNameStr();
+    }
+
+    public override void SerializeValue(object? valueObject, UObject uObject, IUnrealPackageStream objectStream, int propertySize)
+    {
+        if (valueObject is not string value)
+        {
+            return;
+        }
+
+        objectStream.WriteFName(value);
     }
 }

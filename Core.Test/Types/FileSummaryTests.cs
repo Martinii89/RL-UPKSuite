@@ -11,7 +11,7 @@ namespace Core.Types.Tests;
 
 public class FileSummaryTests
 {
-    private readonly IStreamSerializerFor<FileSummary> _serializer;
+    private readonly IStreamSerializer<FileSummary> _serializer;
 
     public FileSummaryTests()
     {

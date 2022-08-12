@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using Core.Serialization;
+using Core.Serialization.Abstraction;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 
@@ -68,9 +69,11 @@ public class SerializerOptions
 /// </summary>
 public static class SerializerExtensions
 {
-    private static readonly Type SerializerInterfaceType = typeof(IStreamSerializerFor<>);
+    private static readonly Type SerializerInterfaceType = typeof(IStreamSerializer<>);
+    private static readonly Type GenericObjectSerializers = typeof(IObjectSerializer<>);
+    private static readonly Type ObjectSerializers = typeof(IObjectSerializer);
 
-    private static IEnumerable<Type> GetLoadableTypes(Assembly assembly)
+    public static IEnumerable<Type> GetLoadableTypes(Assembly assembly)
     {
         if (assembly == null)
         {
@@ -90,12 +93,26 @@ public static class SerializerExtensions
     private static List<Type> GetImplementedSerializersOnType(Type type)
     {
         return type.GetInterfaces()
-            .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == SerializerInterfaceType).ToList();
+            .Where(i => i.IsGenericType &&
+                        (i.GetGenericTypeDefinition() == SerializerInterfaceType || i.GetGenericTypeDefinition() == GenericObjectSerializers))
+            .ToList();
     }
 
-    private static List<Tuple<Type, string>> GetSerializersFromAssembly(Assembly assembly, string tag)
+    private static List<Type> GetImplementedGenericSerializersOnType(Type type, Type genericInterface)
     {
-        var types = new List<Tuple<Type, string>>();
+        return type.GetInterfaces()
+            .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == genericInterface)
+            .ToList();
+    }
+
+    private static bool ImplementeInterface(Type type, Type @interface)
+    {
+        return type.IsAssignableTo(@interface);
+    }
+
+    private static List<AssemblySearchResult> GetSerializersFromAssembly(Assembly assembly, string tag)
+    {
+        var types = new List<AssemblySearchResult>();
         foreach (var type in GetLoadableTypes(assembly))
         {
             if (type.IsAbstract || type.IsInterface)
@@ -109,10 +126,21 @@ public static class SerializerExtensions
                 continue;
             }
 
-            var serializerInterfaces = GetImplementedSerializersOnType(type);
+            var serializerInterfaces = new List<Type>();
+            serializerInterfaces.AddRange(GetImplementedGenericSerializersOnType(type, SerializerInterfaceType));
+            serializerInterfaces.AddRange(GetImplementedGenericSerializersOnType(type, GenericObjectSerializers));
+            //if (ImplementeInterface(type, ObjectSerializers))
+            //{
+            //    serializerInterfaces.Add(ObjectSerializers);
+            //}
+
             if (serializerInterfaces.Any())
             {
-                types.Add(new Tuple<Type, string>(type, versionTag));
+                types.Add(new AssemblySearchResult(type)
+                {
+                    Interfaces = serializerInterfaces,
+                    VersionInfo = versionTag
+                });
             }
         }
 
@@ -144,31 +172,51 @@ public static class SerializerExtensions
     public static IServiceCollection UseSerializers(this IServiceCollection services, Assembly assembly, SerializerOptions options)
     {
         var serializersToAdd = GetSerializersFromAssembly(assembly, options.FileVersion);
+        Dictionary<Type, Type> interfaceImplementationMap = new();
+        foreach (var scanResult in serializersToAdd)
+        {
+            foreach (var serializerInterface in scanResult.Interfaces)
+            {
+                interfaceImplementationMap.Add(serializerInterface, scanResult.Type);
+            }
+        }
+
         if (options.UseDefaultSerializers == SerializerOptions.DefaultSerializers.Yes && !string.IsNullOrEmpty(options.FileVersion))
         {
             var defaultTypes = GetSerializersFromAssembly(options.DefaultAssembly ?? assembly, "");
-            // The default serializers should go first in the list so the version specific serializers comes later and replaces the defaults.
-            defaultTypes.AddRange(serializersToAdd);
-            serializersToAdd = defaultTypes;
-        }
-
-        foreach (var (type, tag) in serializersToAdd)
-        {
-            foreach (var serializerInterface in GetImplementedSerializersOnTypeWithBasedRemoved(type))
+            foreach (var scanResult in defaultTypes)
             {
-                var service = new ServiceDescriptor(serializerInterface, type, ServiceLifetime.Singleton);
-                if (services.Contains(service))
+                foreach (var serializerInterface in scanResult.Interfaces.Where(serializerInterface =>
+                             !interfaceImplementationMap.ContainsKey(serializerInterface)))
                 {
-                    services.Replace(service);
-                }
-                else
-                {
-                    services.Add(service);
+                    interfaceImplementationMap.Add(serializerInterface, scanResult.Type);
                 }
             }
         }
 
+        foreach (var (@interface, type) in interfaceImplementationMap)
+        {
+            AddOrReplaceSingletonService(services, @interface, type);
+            if (type.IsAssignableTo(ObjectSerializers))
+            {
+                AddOrReplaceSingletonService(services, ObjectSerializers, type);
+            }
+        }
+
         return services;
+    }
+
+    private static void AddOrReplaceSingletonService(IServiceCollection services, Type serializerInterface, Type type)
+    {
+        var service = new ServiceDescriptor(serializerInterface, type, ServiceLifetime.Singleton);
+        if (services.Contains(service))
+        {
+            services.Replace(service);
+        }
+        else
+        {
+            services.Add(service);
+        }
     }
 
 
@@ -183,5 +231,17 @@ public static class SerializerExtensions
     public static IServiceCollection UseSerializers(this IServiceCollection services, Type typeInAssembly, SerializerOptions options)
     {
         return services.UseSerializers(typeInAssembly.Assembly, options);
+    }
+
+    private class AssemblySearchResult
+    {
+        public readonly Type Type;
+        public List<Type> Interfaces = new();
+        public string VersionInfo = string.Empty;
+
+        public AssemblySearchResult(Type type)
+        {
+            Type = type;
+        }
     }
 }

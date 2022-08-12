@@ -6,7 +6,7 @@ namespace Core.Classes;
 /// <summary>
 ///     A unreal script constant value. The constant is represented as a string.
 /// </summary>
-[NativeOnlyClass("Core", "Const", "Field")]
+[NativeOnlyClass("Core", "Const", typeof(UField))]
 public class UConst : UField
 {
     /// <inheritdoc />
@@ -14,4 +14,6 @@ public class UConst : UField
         ownerPackage, objectArchetype)
     {
     }
+
+    public string Value { get; set; } = string.Empty;
 }

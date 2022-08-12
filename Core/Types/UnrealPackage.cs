@@ -1,11 +1,53 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System.Text;
 using Core.Classes;
 using Core.Classes.Core;
 using Core.Serialization;
+using Core.Serialization.Abstraction;
+using Core.Serialization.Default;
 using Core.Types.PackageTables;
 using Core.Utility;
 
 namespace Core.Types;
+
+public class UnrealPackageOptions
+{
+    public UnrealPackageOptions(IStreamSerializer<UnrealPackage> serializer, string packageName, INativeClassFactory nativeClassFactory,
+        IPackageCache? packageCache = null,
+        IObjectSerializerFactory? objectSerializerFactory = null)
+    {
+        Serializer = serializer;
+        PackageName = packageName;
+        NativeClassFactory = nativeClassFactory;
+        PackageCache = packageCache;
+        ObjectSerializerFactory = objectSerializerFactory;
+    }
+
+    /// <summary>
+    ///     Serializer to use with the package
+    /// </summary>
+    public IStreamSerializer<UnrealPackage> Serializer { get; set; }
+
+    /// <summary>
+    ///     The name of the package
+    /// </summary>
+    public string PackageName { get; set; }
+
+    /// <summary>
+    ///     Cache used to resolve\cache import packages
+    /// </summary>
+    public IPackageCache? PackageCache { get; set; }
+
+    /// <summary>
+    ///     Factory used to create serializers for all UObjects in the package
+    /// </summary>
+    public IObjectSerializerFactory? ObjectSerializerFactory { get; set; }
+
+    /// <summary>
+    ///     A object used to create the UClass objects for the native only classes
+    /// </summary>
+    public INativeClassFactory NativeClassFactory { get; set; }
+}
 
 /// <summary>
 ///     A UnrealPackage is the deserialized data from a UPK file. These files can contain all kinds of unreal object for a
@@ -14,6 +56,7 @@ namespace Core.Types;
 public class UnrealPackage
 {
     private const string CorePackageName = "Core";
+    private const string EnginePackageName = "Engine";
 
     /// <summary>
     ///     A List of classes defined in this package.
@@ -24,7 +67,17 @@ public class UnrealPackage
     /// <summary>
     ///     A Import resolver use to resolve the import objects
     /// </summary>
-    public IPackageCache? ImportResolver { get; set; }
+    public IPackageCache? PackageCache { get; set; }
+
+    /// <summary>
+    ///     Factory used to create serializers for all UObjects in the package
+    /// </summary>
+    public IObjectSerializerFactory? ObjectSerializerFactory { get; set; }
+
+    /// <summary>
+    ///     A object used to create the UClass objects for the native only classes
+    /// </summary>
+    public INativeClassFactory? NativeClassFactory { get; set; }
 
     /// <summary>
     ///     The root. (May be removed)
@@ -75,19 +128,33 @@ public class UnrealPackage
     public ThumbnailTable ThumbnailTable { get; } = new();
 
     /// <summary>
-    ///     Helper constructor to create and initialize a package from a <see cref="IStreamSerializerFor{T}" />
+    ///     The original data stream of the package
+    /// </summary>
+    public Stream? PackageStream { get; set; }
+
+    /// <summary>
+    ///     Wrapper for the PackageStream with additional serialization capabilities
+    /// </summary>
+    public IUnrealPackageStream? UnrealPackageStream { get; set; }
+
+    /// <summary>
+    ///     Helper constructor to create and initialize a package from a <see cref="IStreamSerializer{T}" />
     /// </summary>
     /// <param name="stream">The package stream</param>
-    /// <param name="deserializer">A Serializer compatible with the stream</param>
-    /// <param name="packageName">The name of this package.</param>
-    /// <param name="importResolver">Used to resolve import objects</param>
+    /// <param name="options"></param>
     /// <returns></returns>
-    public static UnrealPackage DeserializeAndInitialize(Stream stream, IStreamSerializerFor<UnrealPackage> deserializer, string packageName,
-        IPackageCache? importResolver = null)
+    public static UnrealPackage DeserializeAndInitialize(Stream stream, UnrealPackageOptions options)
     {
-        var package = deserializer.Deserialize(stream);
-        package.ImportResolver = importResolver;
-        package.PostDeserializeInitialize(packageName);
+        var package = options.Serializer.Deserialize(stream);
+        package.PackageStream = stream;
+
+        // TODO use DI for this
+        package.UnrealPackageStream = new UnrealPackageStream(stream, new ObjectIndexSerializer(), new FNameSerializer(), package);
+
+        package.PackageCache = options.PackageCache;
+        package.ObjectSerializerFactory = options.ObjectSerializerFactory;
+        package.NativeClassFactory = options.NativeClassFactory;
+        package.PostDeserializeInitialize(options.PackageName);
         return package;
     }
 
@@ -102,29 +169,34 @@ public class UnrealPackage
         PackageName = packageName;
 
         PackageRoot = new UPackage(GetOrAddName(packageName), null, null, this);
-        if (PackageName == CorePackageName)
+        switch (PackageName)
         {
-            AddCoreNativeClasses();
+            case CorePackageName:
+            case EnginePackageName:
+                AddCoreNativeClasses();
+                break;
         }
-        else
-        {
-            AddCoreNativeClassesFromImports();
-        }
+
+        AddNativeClassesFromImports();
 
         var packageClass = FindClass("Package");
         PackageRoot.Class = packageClass;
     }
 
-    private void AddCoreNativeClassesFromImports()
+    private void AddNativeClassesFromImports()
     {
-        var nativeObjects = GetNativeObjectsFromImportsInPackage();
+        var nativeObjects = GetNativeObjectsFromImportsInPackage().Where(x => x.ImportedObject is null).ToList();
+        //var names = nativeObjects.Select(GetFullName).ToList();
         var nativeClasses = nativeObjects.Where(x => GetName(x.ClassName) == "Class").ToList();
+        var corePackage = PackageName == "Core" ? this : PackageCache?.ResolveExportPackage("Core");
+        var objClass = corePackage?.FindClass("Object");
+
 
         foreach (var nativeClass in nativeClasses)
         {
             nativeObjects.Remove(nativeClass);
 
-            var nativeUClass = new UClass(nativeClass.ObjectName, UClass.StaticClass, PackageRoot, this);
+            var nativeUClass = new UClass(nativeClass.ObjectName, UClass.StaticClass, PackageRoot, this, objClass);
             nativeClass.ImportedObject = nativeUClass;
             PackageClasses.Add(nativeUClass);
         }
@@ -135,8 +207,8 @@ public class UnrealPackage
             UnrealPackage? classPackage;
             if (classPackageName != PackageName)
             {
-                ArgumentNullException.ThrowIfNull(ImportResolver);
-                classPackage = ImportResolver.ResolveExportPackage(classPackageName);
+                ArgumentNullException.ThrowIfNull(PackageCache);
+                classPackage = PackageCache.ResolveExportPackage(classPackageName);
             }
             else
             {
@@ -167,7 +239,7 @@ public class UnrealPackage
     /// <param name="index"></param>
     /// <returns></returns>
     /// <exception cref="IndexOutOfRangeException"></exception>
-    internal IObjectResource? GetObjectReference(ObjectIndex index)
+    public IObjectResource? GetObjectReference(ObjectIndex index)
     {
         return index.GetReferencedTable() switch
         {
@@ -179,6 +251,41 @@ public class UnrealPackage
     }
 
     /// <summary>
+    ///     Returns the ObjectResource of the ObjectIndex. This will either be a <see cref="ImportTableItem" /> from the import
+    ///     table or a <see cref="ExportTableItem" /> from the export table
+    /// </summary>
+    /// <param name="index"></param>
+    /// <returns></returns>
+    /// <exception cref="IndexOutOfRangeException"></exception>
+    public UObject? GetObject(ObjectIndex index)
+    {
+        try
+        {
+            var importedObject = index.GetReferencedTable() switch
+            {
+                ObjectIndex.ReferencedTable.Null => null,
+                ObjectIndex.ReferencedTable.Import => ImportTable[index.ImportIndex].ImportedObject,
+                ObjectIndex.ReferencedTable.Export => ExportTable[index.ExportIndex].Object,
+                _ => throw new IndexOutOfRangeException(index.GetReferencedTable().ToString())
+            };
+
+            if (index.Index != 0 && importedObject == null)
+            {
+                var fullname = GetFullName(GetObjectReference(index));
+                Debugger.Break();
+            }
+
+            return importedObject;
+        }
+        catch (Exception e)
+        {
+            return null;
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    /// <summary>
     ///     Returns the name from the name table
     /// </summary>
     /// <param name="name"></param>
@@ -187,12 +294,16 @@ public class UnrealPackage
     public string GetName(FName name)
     {
 #if DEBUG
-        if (name.NameIndex >= NameTable.Count)
+        if (name.NameIndex >= NameTable.Count || name.NameIndex < 0)
         {
-            throw new IndexOutOfRangeException($"Invalid FName index {name.NameIndex}");
+            Debugger.Break();
+            //throw new IndexOutOfRangeException($"Invalid FName index {name.NameIndex}");
         }
+
 #endif
-        return NameTable[name.NameIndex].Name;
+        var s = NameTable[name.NameIndex].Name;
+        //return s;
+        return name.InstanceNumber != 0 ? $"{s}_{name.InstanceNumber}" : s;
     }
 
     /// <summary>
@@ -242,7 +353,8 @@ public class UnrealPackage
     /// <returns></returns>
     public IObjectResource GetImportPackage(ImportTableItem objectResource)
     {
-        if (GetName(objectResource.ClassName) == "Package" && objectResource.OuterIndex.Index == 0)
+        var name = GetName(objectResource.ClassName);
+        if ((name == "Package" || name == "None") && objectResource.OuterIndex.Index == 0)
         {
             return objectResource;
         }
@@ -267,7 +379,7 @@ public class UnrealPackage
     /// <exception cref="InvalidDataException"></exception>
     public UObject? CreateImport(ImportTableItem importTableItem)
     {
-        if (ImportResolver == null)
+        if (PackageCache == null)
         {
             throw new InvalidDataException("Can't resolve imports without a import resolver");
         }
@@ -281,14 +393,24 @@ public class UnrealPackage
         // Top level package import
         if (importTableItem.OuterIndex.Index == 0 && GetName(importTableItem.ClassName) == "Package")
         {
-            importTableItem.ImportedObject = new UPackage(importTableItem.ObjectName, FindClass("Package"), null, this);
+            var packageName = GetName(importTableItem.ObjectName);
+            var importedPackage = PackageCache.ResolveExportPackage(packageName);
+            if (importedPackage?.PackageRoot is not null)
+            {
+                importTableItem.ImportedObject = importedPackage.PackageRoot;
+            }
+            else
+            {
+                importTableItem.ImportedObject = new UPackage(importTableItem.ObjectName, FindClass("Package"), null, this);
+            }
+
             return importTableItem.ImportedObject;
         }
 
         var importFullName = GetFullName(importTableItem);
         var importPackageName = importFullName.Split(".")[0];
 
-        var importPackage = ImportResolver.ResolveExportPackage(importPackageName);
+        var importPackage = PackageCache.ResolveExportPackage(importPackageName);
         // Object contained in a self imported package? Not sure what these really are.
         // Maybe it's a package defined in a unknown file somewhere else. 
         if (importPackage == null)
@@ -312,6 +434,7 @@ public class UnrealPackage
             if (importTableItem.ImportedObject == null)
             {
                 //most likely a native class. Stub it
+                //Debugger.Break();
                 var cls = new UClass(importTableItem.ObjectName, UClass.StaticClass, importPackage.PackageRoot, this);
                 importTableItem.ImportedObject = cls;
                 importPackage.PackageClasses.Add(cls);
@@ -340,16 +463,27 @@ public class UnrealPackage
     /// <param name="import"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private UObject CreateInternalImport(ImportTableItem import)
+    private UObject? CreateInternalImport(ImportTableItem import)
     {
         var classPackageName = GetName(import.ClassPackage);
-        var classPackage = ImportResolver!.ResolveExportPackage(classPackageName);
+        var classPackage = classPackageName != PackageName ? PackageCache!.ResolveExportPackage(classPackageName) : this;
         if (classPackage == null)
         {
-            throw new InvalidOperationException("Make sure the class is resolved before the object that needs it");
+            //Debugger.Break();
+            return null;
         }
 
-        var cls = classPackage.FindClass(GetName(import.ClassName));
+        ArgumentNullException.ThrowIfNull(classPackage);
+        var className = GetName(import.ClassName);
+        var cls = classPackage.FindClass(className);
+        if (cls is null)
+        {
+            return null;
+            //Debugger.Break();
+        }
+
+        ArgumentNullException.ThrowIfNull(cls);
+
         var outerRef = GetObjectReference(import.OuterIndex);
         var outer = outerRef switch
         {
@@ -357,7 +491,9 @@ public class UnrealPackage
             ExportTableItem export => export.Object,
             _ => null
         };
-        var obj = new UObject(import.ObjectName, cls, outer, this);
+
+        //var obj = new UObject(import.ObjectName, cls, outer, this);
+        var obj = cls.NewInstance(import.ObjectName, outer, this, null);
         return obj;
     }
 
@@ -408,22 +544,12 @@ public class UnrealPackage
     private void AddCoreNativeClasses()
     {
         ArgumentNullException.ThrowIfNull(PackageRoot);
+        ArgumentNullException.ThrowIfNull(NativeClassFactory);
 
-        if (PackageName != "Core")
-        {
-            return;
-        }
-
-
-        var corePackageImport = ImportTable.FirstOrDefault(x => GetName(x.ObjectName) == "Core" && GetName(x.ClassName) == "Package");
-        ArgumentNullException.ThrowIfNull(corePackageImport);
-        corePackageImport.ImportedObject = PackageRoot;
-        var nativeClassHelper = new NativeClassRegistrationHelper(PackageRoot);
-        var nativeClasses = nativeClassHelper.GetNativeClasses(this);
+        var nativeClasses = NativeClassFactory.GetNativeClasses(this);
 
         var coreFName = NameTable.FindIndex(x => x.Name == "Core");
         var classFName = NameTable.FindIndex(x => x.Name == "Class");
-        UClass.StaticClass = nativeClasses["Class"];
 
         foreach (var (_, @class) in nativeClasses)
         {
@@ -438,10 +564,13 @@ public class UnrealPackage
 
             var exportItem = ExportTable.FirstOrDefault(x =>
                 GetName(x.ObjectName) == @class.Name && x.ClassIndex.Index == 0 && x.OuterIndex.Index == 0);
-            if (exportItem != null)
+            if (exportItem == null)
             {
-                exportItem.Object = @class;
+                continue;
             }
+
+            exportItem.Object = @class;
+            @class.ExportTableItem = exportItem;
         }
     }
 
@@ -502,9 +631,17 @@ public class UnrealPackage
         }
         else
         {
-            exportObject = new UObject(exportItem.ObjectName, exportClass, exportOuter, this, exportArchetype);
+            if (exportClass is null)
+            {
+                exportObject = new UObject(exportItem.ObjectName, exportClass, exportOuter, this, exportArchetype);
+            }
+            else
+            {
+                exportObject = exportClass.NewInstance(exportItem.ObjectName, exportOuter, this, exportArchetype);
+            }
         }
 
+        exportObject.ExportTableItem = exportItem;
         exportItem.Object = exportObject;
     }
 
@@ -585,45 +722,27 @@ public class UnrealPackage
     /// <exception cref="InvalidOperationException"></exception>
     public void GraphLink()
     {
-        var graph = new ObjectDependencyGraph();
-        graph.AddImportTableDependencies(ImportTable);
-        graph.AddExportTableDependencies(ExportTable);
-
-        var topoSort = graph.TopologicalSort().Select(x => new ObjectIndex(x));
-        var visited = new HashSet<int>();
-        foreach (var i in topoSort)
+        ArgumentNullException.ThrowIfNull(PackageCache);
+        var dependencyGraph = new CrossPackageDependencyGraph(PackageCache);
+        for (var index = 0; index < ExportTable.Count; index++)
         {
-            var refObj = GetObjectReference(i);
-            switch (refObj)
+            dependencyGraph.AddObjectDependencies(new PackageObjectReference(PackageName, new ObjectIndex(ObjectIndex.FromExportIndex(index))));
+        }
+
+        for (var index = 0; index < ImportTable.Count; index++)
+        {
+            dependencyGraph.AddObjectDependencies(new PackageObjectReference(PackageName, new ObjectIndex(ObjectIndex.FromImportIndex(index))));
+        }
+
+        var loadOrder = dependencyGraph.TopologicalSort();
+        foreach (var packageObjectReference in loadOrder)
+        {
+            var package = PackageCache.ResolveExportPackage(packageObjectReference.PackageName);
+            ArgumentNullException.ThrowIfNull(package);
+            var obj = package?.GetObjectReference(packageObjectReference.ObjectIndex);
+            if (obj != null)
             {
-                case ExportTableItem export:
-                    visited.Add(i.Index);
-                    if (export.OuterIndex.Index != 0 && !visited.Contains(export.OuterIndex.Index))
-                    {
-                        throw new InvalidOperationException();
-                    }
-
-                    if (export.SuperIndex.Index != 0 && !visited.Contains(export.SuperIndex.Index))
-                    {
-                        throw new InvalidOperationException();
-                    }
-
-                    if (export.ArchetypeIndex.Index != 0 && !visited.Contains(export.ArchetypeIndex.Index))
-                    {
-                        throw new InvalidOperationException();
-                    }
-
-                    if (export.ClassIndex.Index != 0 && !visited.Contains(export.ClassIndex.Index))
-                    {
-                        throw new InvalidOperationException();
-                    }
-
-                    CreateExport(i.ExportIndex);
-
-                    break;
-                case ImportTableItem:
-                    visited.Add(i.Index);
-                    break;
+                package!.CreateObject(obj);
             }
         }
     }
@@ -644,5 +763,33 @@ public class UnrealPackage
                 CreateImport(import);
                 break;
         }
+    }
+
+    public FName GetFName(string name)
+    {
+        var registeredName = NameTable.FindIndex(x => x.Name == name);
+        if (registeredName != -1)
+        {
+            return new FName(registeredName);
+        }
+
+        var instanceSplit = name.LastIndexOf("_", StringComparison.Ordinal);
+        if (instanceSplit == -1)
+        {
+            throw new KeyNotFoundException(name);
+        }
+
+        if (!int.TryParse(name[(instanceSplit + 1)..], out var instanceNumber))
+        {
+            throw new KeyNotFoundException(name);
+        }
+
+        registeredName = NameTable.FindIndex(x => x.Name == name[..instanceSplit]);
+        if (registeredName == -1)
+        {
+            throw new KeyNotFoundException(name);
+        }
+
+        return new FName(registeredName, instanceNumber);
     }
 }

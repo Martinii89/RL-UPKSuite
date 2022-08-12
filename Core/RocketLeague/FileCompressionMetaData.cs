@@ -8,8 +8,8 @@ internal class FileCompressionMetaData
     // Number of bytes of (pos % 0xFF) at the end of the decrypted data, I don't know why it's needed
     internal int GarbageSize { get; set; }
 
-    // Offset to TArray<FCompressedChunkInfo> in decrypted data
-    internal int CompressedChunkInfoOffset { get; set; }
+    // Offset to TArray<FCompressedChunk> in decrypted data
+    internal int CompressedChunksffset { get; set; }
 
     // Size of the last AES block in the encrypted data
     internal int LastBlockSize { get; set; }
@@ -25,7 +25,7 @@ internal class FileCompressionMetaData
         return new FileCompressionMetaData
         {
             GarbageSize = reader.ReadInt32(),
-            CompressedChunkInfoOffset = reader.ReadInt32(),
+            CompressedChunksffset = reader.ReadInt32(),
             LastBlockSize = reader.ReadInt32()
         };
     }

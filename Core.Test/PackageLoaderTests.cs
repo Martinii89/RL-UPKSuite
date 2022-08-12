@@ -1,5 +1,4 @@
-﻿using System;
-using Core.RocketLeague;
+﻿using Core.RocketLeague;
 using Core.RocketLeague.Decryption;
 using Core.Serialization.RocketLeague;
 using Core.Test.TestUtilities;
@@ -23,9 +22,10 @@ public class PackageLoaderTests
     {
         // Arrange
         var serializer = SerializerHelper.GetSerializerFor<UnrealPackage>(typeof(UnrealPackage));
-        var options = new PackageCacheOptions(serializer) { SearchPaths = { @"TestData/UDK/" }, GraphLinkPackages = false };
+        var nativeFactory = new NativeClassFactory();
+        var options = new PackageCacheOptions(serializer, nativeFactory) { SearchPaths = { @"TestData/UDK/" }, GraphLinkPackages = false };
         var packageCache = new PackageCache(options);
-        var loader = new PackageLoader(serializer, packageCache, new NeverUnpackUnpacker());
+        var loader = new PackageLoader(serializer, packageCache, new NeverUnpackUnpacker(), nativeFactory);
 
         // Act
         loader.LoadPackage($"TestData/UDK/{packageName}.u", packageName);
@@ -41,16 +41,18 @@ public class PackageLoaderTests
         // Arrange
         var fileSummarySerializer = SerializerHelper.GetSerializerFor<FileSummary>(typeof(FileSummary), RocketLeagueBase.FileVersion);
         var unpacker = new PackageUnpacker(fileSummarySerializer, new DecryptionProvider("keys.txt"));
+        var nativeFactory = new NativeClassFactory();
         var packageSerializer = SerializerHelper.GetSerializerFor<UnrealPackage>(typeof(UnrealPackage), RocketLeagueBase.FileVersion);
-        var options = new PackageCacheOptions(packageSerializer) { SearchPaths = { @"TestData/" }, GraphLinkPackages = false, PackageUnpacker = unpacker };
+        var options = new PackageCacheOptions(packageSerializer, nativeFactory)
+            { SearchPaths = { @"TestData/" }, GraphLinkPackages = false, PackageUnpacker = unpacker };
         var packageCache = new PackageCache(options);
-        var loader = new PackageLoader(packageSerializer, packageCache, unpacker);
+        var loader = new PackageLoader(packageSerializer, packageCache, unpacker, nativeFactory);
 
         // Act
         var action = () => loader.LoadPackage("TestData\\RocketPass_Premium_T_SF.upk", "RocketPass_Premium_T_SF");
         var pckg = loader.GetPackage("RocketPass_Premium_T_SF");
         // Assert 
-        action.Should().ThrowExactly<InvalidOperationException>().WithMessage("Make sure the class is resolved before the object that needs it");
+        action.Should().NotThrow();
     }
 
     [Fact]
@@ -60,12 +62,13 @@ public class PackageLoaderTests
         var fileSummarySerializer = SerializerHelper.GetSerializerFor<FileSummary>(typeof(FileSummary), RocketLeagueBase.FileVersion);
         var unpacker = new PackageUnpacker(fileSummarySerializer, new DecryptionProvider("keys.txt"));
         var packageSerializer = SerializerHelper.GetSerializerFor<UnrealPackage>(typeof(UnrealPackage), RocketLeagueBase.FileVersion);
-        var options = new PackageCacheOptions(packageSerializer)
+        var nativeFactory = new NativeClassFactory();
+        var options = new PackageCacheOptions(packageSerializer, nativeFactory)
         {
             SearchPaths = { @"D:\SteamLibrary\steamapps\common\rocketleague\TAGame\CookedPCConsole" }, GraphLinkPackages = false, PackageUnpacker = unpacker
         };
         var packageCache = new PackageCache(options);
-        var loader = new PackageLoader(packageSerializer, packageCache, unpacker);
+        var loader = new PackageLoader(packageSerializer, packageCache, unpacker, nativeFactory);
 
         // Act
         loader.LoadPackage("D:\\SteamLibrary\\steamapps\\common\\rocketleague\\TAGame\\CookedPCConsole\\TAGame.upk", "TAGame");

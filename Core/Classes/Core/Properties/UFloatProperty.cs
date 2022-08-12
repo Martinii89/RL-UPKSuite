@@ -1,11 +1,12 @@
-﻿using Core.Types;
+﻿using Core.Serialization.Abstraction;
+using Core.Types;
 
 namespace Core.Classes.Core.Properties;
 
 /// <summary>
 ///     Property for a float value
 /// </summary>
-[NativeOnlyClass("Core", "FloatProperty", "Property")]
+[NativeOnlyClass("Core", "FloatProperty", typeof(UProperty))]
 public class UFloatProperty : UProperty
 {
     /// <inheritdoc />
@@ -13,5 +14,22 @@ public class UFloatProperty : UProperty
         outer,
         ownerPackage, objectArchetype)
     {
+    }
+
+    /// <inheritdoc />
+    public override object? DeserializeValue(UObject obj, IUnrealPackageStream objStream, int propertySize)
+    {
+        return objStream.ReadSingle();
+    }
+
+    /// <inheritdoc />
+    public override void SerializeValue(object? valueObject, UObject uObject, IUnrealPackageStream objectStream, int propertySize)
+    {
+        if (valueObject is not float value)
+        {
+            return;
+        }
+
+        objectStream.WriteSingle(value);
     }
 }

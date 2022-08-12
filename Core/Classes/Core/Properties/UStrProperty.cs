@@ -1,11 +1,12 @@
-﻿using Core.Types;
+﻿using Core.Serialization.Abstraction;
+using Core.Types;
 
 namespace Core.Classes.Core.Properties;
 
 /// <summary>
 ///     A Property for a FString value.
 /// </summary>
-[NativeOnlyClass("Core", "StrProperty", "Property")]
+[NativeOnlyClass("Core", "StrProperty", typeof(UProperty))]
 public class UStrProperty : UProperty
 {
     /// <inheritdoc />
@@ -13,5 +14,21 @@ public class UStrProperty : UProperty
         outer,
         ownerPackage, objectArchetype)
     {
+    }
+
+    /// <inheritdoc />
+    public override object? DeserializeValue(UObject obj, IUnrealPackageStream objStream, int propertySize)
+    {
+        return objStream.ReadFString();
+    }
+
+    public override void SerializeValue(object? valueObject, UObject uObject, IUnrealPackageStream objectStream, int propertySize)
+    {
+        if (valueObject is not string value)
+        {
+            return;
+        }
+
+        objectStream.WriteFString(value);
     }
 }

@@ -5,6 +5,7 @@ using Core.Classes.Core;
 using Core.RocketLeague;
 using Core.RocketLeague.Decryption;
 using Core.Serialization;
+using Core.Serialization.Abstraction;
 using Core.Serialization.RocketLeague;
 using Core.Test.TestUtilities;
 using Core.Utility;
@@ -15,30 +16,12 @@ using Xunit.Abstractions;
 
 namespace Core.Types.Tests;
 
-public class PackageStreamFixture
-{
-    private readonly byte[] _coreBytes;
-    private readonly byte[] _customGameBytes;
-    private readonly byte[] _engineBytes;
-
-    public PackageStreamFixture()
-    {
-        _coreBytes = File.ReadAllBytes(@"TestData/UDK/Core.u");
-        _engineBytes = File.ReadAllBytes("TestData/UDK/Engine.u");
-        _customGameBytes = File.ReadAllBytes(@"TestData/UDK/CustomGame.u");
-    }
-
-    public Stream CoreStream => new MemoryStream(_coreBytes, false);
-    public Stream EngineStream => new MemoryStream(_engineBytes, false);
-    public Stream CustomGameStream => new MemoryStream(_customGameBytes, false);
-}
-
 public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamFixture>
 {
-    private readonly IStreamSerializerFor<FileSummary> _fileSummarySerializer;
+    private readonly IStreamSerializer<FileSummary> _fileSummarySerializer;
     private readonly PackageStreamFixture _packageStreams;
     private readonly ITestOutputHelper _testOutputHelper;
-    private readonly IStreamSerializerFor<UnrealPackage> _udkPackageSerializer;
+    private readonly IStreamSerializer<UnrealPackage> _udkPackageSerializer;
 
     public UnrealPackageTests(ITestOutputHelper testOutputHelper, PackageStreamFixture packageStreams)
     {
@@ -86,6 +69,7 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
     {
         // Arrange
         var package = _udkPackageSerializer.Deserialize(_packageStreams.CoreStream);
+        package.NativeClassFactory = new NativeClassFactory();
         package.PostDeserializeInitialize("Core");
         // Act
 
@@ -101,7 +85,10 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
     public void FindClass_FindComponentClass_ReturnsNotNull()
     {
         // Arrange
-        var package = _udkPackageSerializer.Deserialize(_packageStreams.CoreStream);
+        var importResolver = Substitute.For<IPackageCache>();
+        var package = UnrealPackage.DeserializeAndInitialize(_packageStreams.CoreStream,
+            new UnrealPackageOptions(_udkPackageSerializer, "Core", new NativeClassFactory(), importResolver));
+        importResolver.ResolveExportPackage("Core").Returns(package);
         package.GraphLink();
         // Act
         var @class = package.FindClass("Component");
@@ -117,6 +104,7 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
     {
         // Arrange
         var package = _udkPackageSerializer.Deserialize(_packageStreams.CoreStream);
+        package.NativeClassFactory = new NativeClassFactory();
         package.PostDeserializeInitialize("Core");
         // Act
 
@@ -156,6 +144,7 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
     {
         // Arrange
         var package = _udkPackageSerializer.Deserialize(_packageStreams.CoreStream);
+        package.NativeClassFactory = new NativeClassFactory();
         package.PostDeserializeInitialize("Core");
         // Act
 
@@ -172,12 +161,106 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
         _testOutputHelper.WriteLine($"Initialized {string.Join(',', package.PackageClasses.Select(x => x.Name))}");
     }
 
+    [Theory]
+    [InlineData("BrushComponent")]
+    [InlineData("PrimitiveComponent")]
+    [InlineData("ActorComponent")]
+    public void EnginePackage_InitializesNativeClasses(string className)
+    {
+        // Arrange
+
+        var corePackage = _udkPackageSerializer.Deserialize(_packageStreams.CoreStream);
+        var nativeClassFactory = new NativeClassFactory();
+        corePackage.NativeClassFactory = nativeClassFactory;
+        corePackage.PostDeserializeInitialize("Core");
+        var packageCache = Substitute.For<IPackageCache>();
+        packageCache.GetCachedPackage("Core").Returns(corePackage);
+        packageCache.ResolveExportPackage("Core").Returns(corePackage);
+
+        var package = _udkPackageSerializer.Deserialize(_packageStreams.EngineStream);
+        package.PackageCache = packageCache;
+        package.NativeClassFactory = nativeClassFactory;
+        package.PostDeserializeInitialize("Engine");
+        // Act
+
+        var @class = package.FindClass(className);
+
+        // Assert 
+        @class.Should().NotBeNull();
+        @class!.Name.Should().Be(className);
+        @class.Outer.Should().NotBeNull();
+        @class.Outer!.Name.Should().Be("Engine");
+        @class.Class.Should().NotBeNull();
+        @class.Class!.Name.Should().Be("Class");
+    }
+
+    [Fact]
+    public void EnginePackage_NoCoreClassesInEnginePackage()
+    {
+        // Arrange
+
+        var coreNativeClasses = new[]
+        {
+            "Object", "Field", "Struct", "Function", "Property", "BoolProperty", "ByteProperty", "QWordProperty", "IntProperty", "FloatProperty", "StrProperty",
+            "NameProperty", "DelegateProperty", "ObjectProperty", "ClassProperty", "InterfaceProperty", "StructProperty", "ArrayProperty", "MapProperty",
+            "Enum", "Const", "ScriptStruct", "State", "Class"
+        };
+
+        var corePackage = _udkPackageSerializer.Deserialize(_packageStreams.CoreStream);
+        var nativeClassFactory = new NativeClassFactory();
+        corePackage.NativeClassFactory = nativeClassFactory;
+        corePackage.PostDeserializeInitialize("Core");
+        var packageCache = Substitute.For<IPackageCache>();
+        packageCache.GetCachedPackage("Core").Returns(corePackage);
+        packageCache.ResolveExportPackage("Core").Returns(corePackage);
+
+        var package = _udkPackageSerializer.Deserialize(_packageStreams.EngineStream);
+        package.PackageCache = packageCache;
+        package.NativeClassFactory = nativeClassFactory;
+        package.PostDeserializeInitialize("Engine");
+        // Act
+
+        List<UClass?> classes = new();
+        foreach (var @class in coreNativeClasses)
+        {
+            classes.Add(package.FindClass(@class));
+        }
+
+        // Assert 
+        classes.Should().AllSatisfy(x => { x.Should().BeNull(); });
+    }
+
+    [Fact]
+    public void EnginePackage_StaticMeshHasNativeProperties()
+    {
+        // Arrange
+
+        var corePackage = _udkPackageSerializer.Deserialize(_packageStreams.CoreStream);
+        var nativeClassFactory = new NativeClassFactory();
+        corePackage.NativeClassFactory = nativeClassFactory;
+        corePackage.PostDeserializeInitialize("Core");
+        var packageCache = Substitute.For<IPackageCache>();
+        packageCache.GetCachedPackage("Core").Returns(corePackage);
+        packageCache.ResolveExportPackage("Core").Returns(corePackage);
+
+        var package = _udkPackageSerializer.Deserialize(_packageStreams.EngineStream);
+        package.PackageCache = packageCache;
+        package.NativeClassFactory = nativeClassFactory;
+        package.PostDeserializeInitialize("Engine");
+
+        // Act
+
+        var staticMeshClass = package.FindClass("StaticMesh");
+
+        // Assert 
+        staticMeshClass.NativeProperties.Should().NotBeNull();
+    }
+
     [Fact]
     public void CorePackage_InitializesNativeClasses_NoDuplicates()
     {
         // Arrange
         // Act
-
         var package = _udkPackageSerializer.Deserialize(_packageStreams.CoreStream);
 
         // Assert 
@@ -189,6 +272,7 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
     {
         // Arrange
         var package = _udkPackageSerializer.Deserialize(_packageStreams.CoreStream);
+        package.NativeClassFactory = new NativeClassFactory();
         package.PostDeserializeInitialize("Core");
         // Act
 
@@ -201,6 +285,7 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
     {
         // Arrange
         var package = _udkPackageSerializer.Deserialize(_packageStreams.CoreStream);
+        package.NativeClassFactory = new NativeClassFactory();
         package.PostDeserializeInitialize("Core");
 
         // Act
@@ -215,6 +300,7 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
     {
         // Arrange
         var package = _udkPackageSerializer.Deserialize(_packageStreams.CoreStream);
+        package.NativeClassFactory = new NativeClassFactory();
         package.PostDeserializeInitialize("Core");
 
         // Act
@@ -238,7 +324,7 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
     {
         // Arrange
         var package = _udkPackageSerializer.Deserialize(_packageStreams.CoreStream);
-
+        package.NativeClassFactory = new NativeClassFactory();
         // Act
 
         package.CreateExportObjects();
@@ -251,8 +337,10 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
     public void GraphLink_CorePackage_AllExportsLinked()
     {
         // Arrange
-        var package = _udkPackageSerializer.Deserialize(_packageStreams.CoreStream);
-        package.PostDeserializeInitialize("Core");
+        var importResolver = Substitute.For<IPackageCache>();
+        var package = UnrealPackage.DeserializeAndInitialize(_packageStreams.CoreStream,
+            new UnrealPackageOptions(_udkPackageSerializer, "Core", new NativeClassFactory(), importResolver));
+        importResolver.ResolveExportPackage("Core").Returns(package);
 
         // Act
 
@@ -283,6 +371,7 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
     {
         // Arrange
         var package = _udkPackageSerializer.Deserialize(_packageStreams.CoreStream);
+        package.NativeClassFactory = new NativeClassFactory();
         package.PostDeserializeInitialize("Core");
         // Act
 
@@ -297,6 +386,7 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
     {
         // Arrange
         var package = _udkPackageSerializer.Deserialize(_packageStreams.CoreStream);
+        package.NativeClassFactory = new NativeClassFactory();
         package.PostDeserializeInitialize("Core");
         // Act
 
@@ -311,6 +401,7 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
     {
         // Arrange
         var package = _udkPackageSerializer.Deserialize(_packageStreams.CoreStream);
+        package.NativeClassFactory = new NativeClassFactory();
         package.PostDeserializeInitialize("Core");
         // Act
 
@@ -325,6 +416,7 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
     {
         // Arrange
         var package = _udkPackageSerializer.Deserialize(_packageStreams.CoreStream);
+        package.NativeClassFactory = new NativeClassFactory();
         package.PostDeserializeInitialize("Core");
         // Act
 
@@ -339,10 +431,13 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
     {
         // Arrange
         var package = _udkPackageSerializer.Deserialize(_packageStreams.CustomGameStream);
+        var nativeFactory = new NativeClassFactory();
+        package.NativeClassFactory = nativeFactory;
         package.PostDeserializeInitialize("CustomGame");
-        var importResolver = new PackageCache(new PackageCacheOptions(_udkPackageSerializer)
+
+        var importResolver = new PackageCache(new PackageCacheOptions(_udkPackageSerializer, nativeFactory)
             { Extensions = { "*.u", "*.upk" }, SearchPaths = { @"TestData/UDK" } });
-        package.ImportResolver = importResolver;
+        package.PackageCache = importResolver;
         // Act
 
         var obj = package.CreateImport(package.ImportTable[1]);
@@ -356,10 +451,13 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
     {
         // Arrange
         var package = _udkPackageSerializer.Deserialize(_packageStreams.CustomGameStream);
+        var nativeFactory = new NativeClassFactory();
+
+        package.NativeClassFactory = nativeFactory;
         package.PostDeserializeInitialize("CustomGame");
-        var importResolver = new PackageCache(new PackageCacheOptions(_udkPackageSerializer)
+        var importResolver = new PackageCache(new PackageCacheOptions(_udkPackageSerializer, nativeFactory)
             { Extensions = { "*.u", "*.upk" }, SearchPaths = { @"TestData/UDK" } });
-        package.ImportResolver = importResolver;
+        package.PackageCache = importResolver;
         // Act
 
         var obj = package.CreateImport(package.ImportTable[2]);
@@ -373,10 +471,12 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
     {
         // Arrange
         var package = _udkPackageSerializer.Deserialize(_packageStreams.CustomGameStream);
+        var nativeFactory = new NativeClassFactory();
+        package.NativeClassFactory = nativeFactory;
         package.PostDeserializeInitialize("CustomGame");
-        var importResolver = new PackageCache(new PackageCacheOptions(_udkPackageSerializer)
+        var importResolver = new PackageCache(new PackageCacheOptions(_udkPackageSerializer, nativeFactory)
             { Extensions = { "*.u", "*.upk" }, SearchPaths = { @"TestData/UDK" } });
-        package.ImportResolver = importResolver;
+        package.PackageCache = importResolver;
         // Act
 
         var obj = package.CreateImport(package.ImportTable[3]);
@@ -390,10 +490,12 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
     {
         // Arrange
         var package = _udkPackageSerializer.Deserialize(_packageStreams.CustomGameStream);
+        var nativeFactory = new NativeClassFactory();
+        package.NativeClassFactory = nativeFactory;
         package.PostDeserializeInitialize("CustomGame");
-        var importResolver = new PackageCache(new PackageCacheOptions(_udkPackageSerializer)
+        var importResolver = new PackageCache(new PackageCacheOptions(_udkPackageSerializer, nativeFactory)
             { Extensions = { "*.u", "*.upk" }, SearchPaths = { @"TestData/UDK" } });
-        package.ImportResolver = importResolver;
+        package.PackageCache = importResolver;
 
         var coreImports = package.ImportTable.Where(x => package.GetFullName(x).StartsWith("Core.")).ToList();
 
@@ -409,17 +511,17 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
     public void CreateImport_EnginePackage_NativeClassesInjected()
     {
         // Arrange
-
-        var corePackage = UnrealPackage.DeserializeAndInitialize(_packageStreams.CoreStream, _udkPackageSerializer, "Core");
         var packageImportResolver = Substitute.For<IPackageCache>();
+        var nativeFactory = new NativeClassFactory();
+        var loadOptions = new UnrealPackageOptions(_udkPackageSerializer, "Core", nativeFactory, packageImportResolver);
+        var corePackage = UnrealPackage.DeserializeAndInitialize(_packageStreams.CoreStream, loadOptions);
         packageImportResolver.ResolveExportPackage("Core").Returns(corePackage);
-
-
         var engineNativeClasses = new List<string>
             { "ChildConnection", "Client", "FracturedStaticMesh", "Level", "Model", "NetConnection", "PendingLevel", "ShadowMap1D", "StaticMesh" };
 
         // Act
-        var enginePackage = UnrealPackage.DeserializeAndInitialize(_packageStreams.EngineStream, _udkPackageSerializer, "Engine", packageImportResolver);
+        var enginePackage = UnrealPackage.DeserializeAndInitialize(_packageStreams.EngineStream,
+            new UnrealPackageOptions(_udkPackageSerializer, "Engine", nativeFactory, packageImportResolver));
         packageImportResolver.ResolveExportPackage("Engine").Returns(enginePackage);
 
         var classes = engineNativeClasses.Select(enginePackage.FindClass);
@@ -433,9 +535,11 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
     {
         // Arrange
         var package = _udkPackageSerializer.Deserialize(_packageStreams.EngineStream);
-        var importResolver = new PackageCache(new PackageCacheOptions(_udkPackageSerializer)
+        var nativeFactory = new NativeClassFactory();
+        var importResolver = new PackageCache(new PackageCacheOptions(_udkPackageSerializer, nativeFactory)
             { Extensions = { "*.u", "*.upk" }, SearchPaths = { @"TestData/UDK" } });
-        package.ImportResolver = importResolver;
+        package.PackageCache = importResolver;
+        package.NativeClassFactory = nativeFactory;
         package.PostDeserializeInitialize("Engine");
 
         var coreImports = package.ImportTable.Where(x => package.GetName(package.GetImportPackage(x).ObjectName) == "Core").ToList();
@@ -446,5 +550,26 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
 
         // Assert 
         importObjects.Should().AllSatisfy(x => { x.Should().NotBeNull(); });
+    }
+
+    [Fact]
+    public void CreateImport_CorePackage_AllClassAndObjectSerializersNonNull()
+    {
+        // Arrange
+        var importResolver = Substitute.For<IPackageCache>();
+
+        var serializerFactory = GetService<IObjectSerializerFactory>(typeof(UnrealPackage));
+        var package = UnrealPackage.DeserializeAndInitialize(_packageStreams.CoreStream,
+            new UnrealPackageOptions(_udkPackageSerializer, "Core", new NativeClassFactory(), importResolver, serializerFactory));
+        importResolver.ResolveExportPackage("Core").Returns(package);
+        package.GraphLink();
+
+        // Act
+        var classes = package.PackageClasses;
+        var objects = package.ExportTable.Select(x => x.Object);
+
+        // Assert 
+        classes.Should().AllSatisfy(x => { x.GetInstanceSerializer().Should().NotBeNull(); });
+        objects.Should().AllSatisfy(x => { x.Serializer.Should().NotBeNull(); });
     }
 }

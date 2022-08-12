@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Core.Serialization.Tests.TestClasses;
 
-internal class MySerializeTestOnlyDefaultSerializer : IStreamSerializerFor<MySerializableTestOnlyDefault>
+internal class MySerializeTestOnlyDefaultSerializer : IStreamSerializer<MySerializableTestOnlyDefault>
 {
     public MySerializableTestOnlyDefault Deserialize(Stream stream)
     {
@@ -16,7 +16,7 @@ internal class MySerializeTestOnlyDefaultSerializer : IStreamSerializerFor<MySer
     }
 }
 
-public class MyTestSerializer : IStreamSerializerFor<MySerializableTest>
+public class MyTestSerializer : IStreamSerializer<MySerializableTest>
 {
     public MySerializableTest Deserialize(Stream stream)
     {
@@ -30,7 +30,7 @@ public class MyTestSerializer : IStreamSerializerFor<MySerializableTest>
 }
 
 [FileVersion("MyTag")]
-public class MyTaggedTestSerializer : IStreamSerializerFor<MySerializableTest>
+public class MyTaggedTestSerializer : IStreamSerializer<MySerializableTest>
 {
     public MySerializableTest Deserialize(Stream stream)
     {
@@ -44,7 +44,7 @@ public class MyTaggedTestSerializer : IStreamSerializerFor<MySerializableTest>
 }
 
 [FileVersion("InheritGroup")]
-public class MyInheritTestSerializer : MyTestSerializer, IStreamSerializerFor<InheritTest>
+public class MyInheritTestSerializer : MyTestSerializer, IStreamSerializer<InheritTest>
 {
     public new InheritTest Deserialize(Stream stream)
     {
@@ -60,10 +60,10 @@ public class MyInheritTestSerializer : MyTestSerializer, IStreamSerializerFor<In
 }
 
 [FileVersion("MultipleInheritance")]
-public class SerializersWithMultipleInterfaces : IStreamSerializerFor<MySerializableTest>,
-    IStreamSerializerFor<MySerializableTest2>
+public class SerializersWithMultipleInterfaces : IStreamSerializer<MySerializableTest>,
+    IStreamSerializer<MySerializableTest2>
 {
-    MySerializableTest IStreamSerializerFor<MySerializableTest>.Deserialize(Stream stream)
+    MySerializableTest IStreamSerializer<MySerializableTest>.Deserialize(Stream stream)
     {
         throw new NotImplementedException();
     }
@@ -78,7 +78,7 @@ public class SerializersWithMultipleInterfaces : IStreamSerializerFor<MySerializ
         throw new NotImplementedException();
     }
 
-    MySerializableTest2 IStreamSerializerFor<MySerializableTest2>.Deserialize(Stream stream)
+    MySerializableTest2 IStreamSerializer<MySerializableTest2>.Deserialize(Stream stream)
     {
         throw new NotImplementedException();
     }

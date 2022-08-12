@@ -1,4 +1,5 @@
 ﻿using Core.Serialization;
+using Core.Serialization.Abstraction;
 using Core.Types;
 using Core.Types.PackageTables;
 using Core.Utility;
@@ -11,8 +12,10 @@ namespace Core;
 /// </summary>
 public class PackageLoader
 {
+    private readonly INativeClassFactory _nativeClassFactory;
+    private readonly IObjectSerializerFactory? _objectSerializerFactory;
     private readonly IPackageCache _packageCache;
-    private readonly IStreamSerializerFor<UnrealPackage> _packageSerializer;
+    private readonly IStreamSerializer<UnrealPackage> _packageSerializer;
     private readonly IPackageUnpacker _packageUnpacker;
 
     /// <summary>
@@ -22,11 +25,16 @@ public class PackageLoader
     /// <param name="packageSerializer"></param>
     /// <param name="packageCache"></param>
     /// <param name="packageUnpacker"></param>
-    public PackageLoader(IStreamSerializerFor<UnrealPackage> packageSerializer, IPackageCache packageCache, IPackageUnpacker packageUnpacker)
+    /// <param name="nativeClassFactory"></param>
+    /// <param name="objectSerializerFactory"></param>
+    public PackageLoader(IStreamSerializer<UnrealPackage> packageSerializer, IPackageCache packageCache, IPackageUnpacker packageUnpacker,
+        INativeClassFactory nativeClassFactory, IObjectSerializerFactory? objectSerializerFactory = null)
     {
         _packageSerializer = packageSerializer;
         _packageCache = packageCache;
         _packageUnpacker = packageUnpacker;
+        _nativeClassFactory = nativeClassFactory;
+        _objectSerializerFactory = objectSerializerFactory;
     }
 
     /// <summary>
@@ -54,7 +62,9 @@ public class PackageLoader
             return _packageCache.GetCachedPackage(packageName);
         }
 
-        var packageStream = File.OpenRead(packagePath);
+        Console.WriteLine($"[PackageLoader]: Loading package {packageName}");
+
+        var packageStream = new MemoryStream(File.ReadAllBytes(packagePath));
         var unrealPackage = DeserializePackage(packageName, packageStream);
         unrealPackage.RootLoader = this;
         _packageCache.AddPackage(unrealPackage);
@@ -85,19 +95,20 @@ public class PackageLoader
         return unrealPackage;
     }
 
-    private UnrealPackage DeserializePackage(string packageName, FileStream packageStream)
+    private UnrealPackage DeserializePackage(string packageName, Stream packageStream)
     {
         UnrealPackage unrealPackage;
+        var loadOptions = new UnrealPackageOptions(_packageSerializer, packageName, _nativeClassFactory, _packageCache, _objectSerializerFactory);
         if (_packageUnpacker.IsPackagePacked(packageStream))
         {
             var unpackedStream = new MemoryStream();
             _packageUnpacker.Unpack(packageStream, unpackedStream);
             unpackedStream.Position = 0;
-            unrealPackage = UnrealPackage.DeserializeAndInitialize(unpackedStream, _packageSerializer, packageName, _packageCache);
+            unrealPackage = UnrealPackage.DeserializeAndInitialize(unpackedStream, loadOptions);
         }
         else
         {
-            unrealPackage = UnrealPackage.DeserializeAndInitialize(packageStream, _packageSerializer, packageName, _packageCache);
+            unrealPackage = UnrealPackage.DeserializeAndInitialize(packageStream, loadOptions);
         }
 
         return unrealPackage;

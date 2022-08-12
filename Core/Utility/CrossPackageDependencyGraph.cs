@@ -1,113 +1,8 @@
-﻿using Core.Classes.Core;
+﻿using System.Diagnostics;
 using Core.Types;
 using Core.Types.PackageTables;
 
 namespace Core.Utility;
-
-/// <summary>
-///     A PackageObjectReference points to a unique object in a package, or a native only class for self imported
-///     classes.
-/// </summary>
-public readonly struct PackageObjectReference : IEquatable<PackageObjectReference>
-{
-    /// <summary>
-    ///     This references a native only class in a specific package
-    /// </summary>
-    public readonly UClass? NativeClass;
-
-    /// <summary>
-    ///     A index representing either a import or a export object from a package
-    /// </summary>
-    public readonly ObjectIndex ObjectIndex;
-
-    /// <summary>
-    ///     The name of the package that the ObjectIndex originates from
-    /// </summary>
-    public readonly string PackageName;
-
-    /// <summary>
-    ///     Creates a null reference
-    /// </summary>
-    public PackageObjectReference()
-    {
-        ObjectIndex = new ObjectIndex(0);
-        PackageName = string.Empty;
-        NativeClass = null;
-    }
-
-    /// <summary>
-    ///     References a unique object in a package
-    /// </summary>
-    /// <param name="packageName"></param>
-    /// <param name="objectIndex"></param>
-    public PackageObjectReference(string packageName, ObjectIndex objectIndex)
-    {
-        ObjectIndex = objectIndex;
-        PackageName = packageName;
-        NativeClass = null;
-    }
-
-    /// <summary>
-    ///     A package reference for a native only class object with no export\import table entry
-    /// </summary>
-    /// <param name="packageName"></param>
-    /// <param name="nativeClass"></param>
-    public PackageObjectReference(string packageName, UClass nativeClass)
-    {
-        ObjectIndex = new ObjectIndex();
-        PackageName = packageName;
-        NativeClass = nativeClass;
-    }
-
-    /// <summary>
-    ///     Check for a null reference
-    /// </summary>
-    /// <returns></returns>
-    public bool IsNull()
-    {
-        return string.IsNullOrEmpty(PackageName) && ObjectIndex.Index == 0;
-    }
-
-    /// <inheritdoc />
-    public bool Equals(PackageObjectReference other)
-    {
-        return Equals(NativeClass, other.NativeClass) && ObjectIndex.Equals(other.ObjectIndex) && PackageName == other.PackageName;
-    }
-
-    /// <inheritdoc />
-    public override bool Equals(object? obj)
-    {
-        return obj is PackageObjectReference other && Equals(other);
-    }
-
-    /// <inheritdoc />
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(NativeClass, ObjectIndex, PackageName);
-    }
-
-    /// <summary>
-    ///     Uses the Equals method to overload the == operator
-    /// </summary>
-    /// <param name="left"></param>
-    /// <param name="right"></param>
-    /// <returns></returns>
-    public static bool operator ==(PackageObjectReference left, PackageObjectReference right)
-    {
-        return left.Equals(right);
-    }
-
-    /// <summary>
-    ///     Uses the == operator to overload the != operator
-    /// </summary>
-    /// <param name="left"></param>
-    /// <param name="right"></param>
-    /// <returns></returns>
-    public static bool operator !=(PackageObjectReference left, PackageObjectReference right)
-    {
-        return !(left == right);
-    }
-}
 
 /// <summary>
 ///     Helper class to construct a complete dependency graph, including all required objects from imported packages
@@ -115,6 +10,7 @@ public readonly struct PackageObjectReference : IEquatable<PackageObjectReferenc
 public class CrossPackageDependencyGraph
 {
     private readonly Dictionary<PackageObjectReference, HashSet<Edge>> _adj = new();
+    private readonly Dictionary<string, PackageObjectReference> _fullNameToReferenceCache = new();
 
     private readonly IPackageCache _packagePackageCache;
 
@@ -127,10 +23,14 @@ public class CrossPackageDependencyGraph
         _packagePackageCache = packagePackageCache;
     }
 
+
     /// <summary>
     ///     How many objects in the graph
     /// </summary>
     public int NodeCount => _adj.Count;
+
+    public int CacheHits { get; set; }
+    public int CacheMisses { get; set; }
 
 
     /// <summary>
@@ -167,6 +67,13 @@ public class CrossPackageDependencyGraph
 
         var objName = objPackage.GetName(import.ObjectName);
         var fullName = objPackage.GetFullName(import);
+        if (_fullNameToReferenceCache.ContainsKey(fullName))
+        {
+            CacheHits++;
+            return _fullNameToReferenceCache[fullName];
+        }
+
+        CacheMisses++;
 
         for (var index = 0; index < importPackage.ExportTable.Count; index++)
         {
@@ -177,7 +84,9 @@ public class CrossPackageDependencyGraph
             }
 
             var exportIndex = new ObjectIndex(ObjectIndex.FromExportIndex(index));
-            return new PackageObjectReference(packageName, exportIndex);
+            var resolveImportObjectReference = new PackageObjectReference(packageName, exportIndex);
+            _fullNameToReferenceCache.Add(fullName, resolveImportObjectReference);
+            return resolveImportObjectReference;
         }
 
         for (var index = 0; index < importPackage.ImportTable.Count; index++)
@@ -189,18 +98,24 @@ public class CrossPackageDependencyGraph
             }
 
             var importIndex = new ObjectIndex(ObjectIndex.FromImportIndex(index));
-            return new PackageObjectReference(packageName, importIndex);
+            var resolveImportObjectReference = new PackageObjectReference(packageName, importIndex);
+            _fullNameToReferenceCache.Add(fullName, resolveImportObjectReference);
+            return resolveImportObjectReference;
         }
 
 
         var nativeClass = importPackage.FindClass(objPackage.GetName(import.ObjectName));
         if (nativeClass is not null)
         {
-            return new PackageObjectReference(packageName, nativeClass);
+            var resolveImportObjectReference = new PackageObjectReference(packageName, nativeClass);
+            _fullNameToReferenceCache.Add(fullName, resolveImportObjectReference);
+            return resolveImportObjectReference;
         }
 
         // null reference
-        return new PackageObjectReference();
+        var packageObjectReference = new PackageObjectReference();
+        _fullNameToReferenceCache.Add(fullName, packageObjectReference);
+        return packageObjectReference;
     }
 
     /// <summary>
@@ -220,6 +135,7 @@ public class CrossPackageDependencyGraph
             var objPackage = _packagePackageCache.ResolveExportPackage(currentObj.PackageName);
             if (objPackage is null)
             {
+                Debugger.Break();
                 throw new InvalidOperationException($"Can't find the package to resolve dependencies for {currentObj.PackageName}");
             }
 
@@ -243,12 +159,24 @@ public class CrossPackageDependencyGraph
     private void AddImportDependencies(ImportTableItem import, PackageObjectReference currentObj, Queue<PackageObjectReference> objQueue,
         UnrealPackage objPackage)
     {
+        var clzReference = ResolveImportClassReference(import, objPackage);
+        if (!clzReference.IsNull() && clzReference.NativeClass is null && !_adj.ContainsKey(clzReference))
+        {
+            objQueue.Enqueue(clzReference);
+        }
+
+        // class of UClass could return itself
+        if (!clzReference.IsNull() && clzReference != currentObj)
+        {
+            AddEdge(clzReference, currentObj);
+        }
+
+
         if (import.OuterIndex.Index == 0)
         {
             return;
         }
 
-        // Native imports has no export reference to resolve
         var outerReference = new PackageObjectReference(currentObj.PackageName, import.OuterIndex);
         if (!_adj.ContainsKey(outerReference))
         {
@@ -258,6 +186,7 @@ public class CrossPackageDependencyGraph
         AddEdge(outerReference, currentObj);
 
 
+        // Native imports has no export reference to resolve
         if (ImportIsNative(import, objPackage))
         {
             return;
@@ -275,6 +204,73 @@ public class CrossPackageDependencyGraph
         }
 
         AddEdge(exportReference, currentObj);
+    }
+
+    private PackageObjectReference ResolveImportClassReference(ImportTableItem import, UnrealPackage objPackage)
+    {
+        var fullName = objPackage.GetFullName(import);
+        if (_fullNameToReferenceCache.ContainsKey(fullName))
+        {
+            CacheHits++;
+            return _fullNameToReferenceCache[fullName];
+        }
+
+        CacheMisses++;
+
+        var clsPackageName = objPackage.GetName(import.ClassPackage);
+        var className = objPackage.GetName(import.ClassName);
+
+
+        var importPackage = clsPackageName == objPackage.PackageName ? objPackage : _packagePackageCache.ResolveExportPackage(clsPackageName);
+        if (importPackage is null)
+        {
+            //Debugger.Break();
+            // null reference
+            return new PackageObjectReference();
+        }
+
+
+        for (var index = 0; index < importPackage.ExportTable.Count; index++)
+        {
+            var exportTableItem = importPackage.ExportTable[index];
+            if (exportTableItem.ClassIndex.Index != 0 || importPackage.GetName(exportTableItem.ObjectName) != className)
+            {
+                continue;
+            }
+
+            var exportIndex = new ObjectIndex(ObjectIndex.FromExportIndex(index));
+            var resolveImportClassReference = new PackageObjectReference(clsPackageName, exportIndex);
+            _fullNameToReferenceCache.Add(fullName, resolveImportClassReference);
+            return resolveImportClassReference;
+        }
+
+        for (var index = 0; index < importPackage.ImportTable.Count; index++)
+        {
+            var x = importPackage.ImportTable[index];
+            if (importPackage.GetName(x.ObjectName) != className)
+            {
+                continue;
+            }
+
+            var importIndex = new ObjectIndex(ObjectIndex.FromImportIndex(index));
+            var resolveImportClassReference = new PackageObjectReference(clsPackageName, importIndex);
+            _fullNameToReferenceCache.Add(fullName, resolveImportClassReference);
+            return resolveImportClassReference;
+        }
+
+        var nativeClass = importPackage.FindClass(className);
+        if (nativeClass is not null)
+        {
+            var resolveImportClassReference = new PackageObjectReference(clsPackageName, nativeClass);
+            _fullNameToReferenceCache.Add(fullName, resolveImportClassReference);
+            return resolveImportClassReference;
+        }
+
+
+        var packageObjectReference = new PackageObjectReference();
+        _fullNameToReferenceCache.Add(fullName, packageObjectReference);
+        //Debugger.Break();
+        return packageObjectReference;
     }
 
     private void AddImportDependencies(ExportTableItem export, PackageObjectReference currentObj, Queue<PackageObjectReference> objQueue)

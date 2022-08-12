@@ -1,7 +1,7 @@
 ﻿namespace Core.Serialization;
 
 /// <summary>
-///     A <see cref="FileVersionAttribute" /> is a tag used to mark <see cref="IStreamSerializerFor{T}" /> implementations.
+///     A <see cref="FileVersionAttribute" /> is a tag used to mark <see cref="IStreamSerializer{T}" /> implementations.
 ///     It tells which version of a file format the serializers is compatible with
 /// </summary>
 [AttributeUsage(AttributeTargets.Class)]

@@ -11,14 +11,14 @@ namespace Core.RocketLeague;
 public class PackageUnpacker : IPackageUnpacker
 {
     private readonly IDecrypterProvider _decryptionProvider;
-    private readonly IStreamSerializerFor<FileSummary> _fileSummarySerializer;
+    private readonly IStreamSerializer<FileSummary> _fileSummarySerializer;
 
     /// <summary>
     ///     Initialize with decryption and file summary serializers
     /// </summary>
     /// <param name="fileSummarySerializer"></param>
     /// <param name="decryptionProvider"></param>
-    public PackageUnpacker(IStreamSerializerFor<FileSummary> fileSummarySerializer, IDecrypterProvider decryptionProvider)
+    public PackageUnpacker(IStreamSerializer<FileSummary> fileSummarySerializer, IDecrypterProvider decryptionProvider)
     {
         _fileSummarySerializer = fileSummarySerializer;
         _decryptionProvider = decryptionProvider;

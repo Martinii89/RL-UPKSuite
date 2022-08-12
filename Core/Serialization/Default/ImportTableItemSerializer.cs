@@ -6,17 +6,17 @@ namespace Core.Serialization.Default;
 /// <summary>
 ///     Serializer for the items in the import table
 /// </summary>
-public class ImportTableItemSerializer : IStreamSerializerFor<ImportTableItem>
+public class ImportTableItemSerializer : IStreamSerializer<ImportTableItem>
 {
-    private readonly IStreamSerializerFor<FName> _nameSerializer;
-    private readonly IStreamSerializerFor<ObjectIndex> _objectIndexSerializer;
+    private readonly IStreamSerializer<FName> _nameSerializer;
+    private readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
 
     /// <summary>
     ///     The serializers requires a name and object reference serializer
     /// </summary>
     /// <param name="nameSerializer"></param>
     /// <param name="objectIndexSerializer"></param>
-    public ImportTableItemSerializer(IStreamSerializerFor<FName> nameSerializer, IStreamSerializerFor<ObjectIndex> objectIndexSerializer)
+    public ImportTableItemSerializer(IStreamSerializer<FName> nameSerializer, IStreamSerializer<ObjectIndex> objectIndexSerializer)
     {
         _nameSerializer = nameSerializer;
         _objectIndexSerializer = objectIndexSerializer;

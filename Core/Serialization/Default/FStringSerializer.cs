@@ -1,10 +1,10 @@
-﻿using Core.Extensions;
+﻿using Core.Serialization.Extensions;
 using Core.Types;
 
 namespace Core.Serialization.Default;
 
 /// <inheritdoc />
-public class FStringSerializer : IStreamSerializerFor<FString>
+public class FStringSerializer : IStreamSerializer<FString>
 {
     /// <inheritdoc />
     public FString Deserialize(Stream stream)
@@ -18,6 +18,6 @@ public class FStringSerializer : IStreamSerializerFor<FString>
     /// <inheritdoc />
     public void Serialize(Stream stream, FString value)
     {
-        throw new NotImplementedException();
+        stream.WriteFString(value.InnerString);
     }
 }

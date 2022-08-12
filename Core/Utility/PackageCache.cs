@@ -1,4 +1,5 @@
 ﻿using Core.Serialization;
+using Core.Serialization.Abstraction;
 using Core.Types;
 using Microsoft.Extensions.FileSystemGlobbing;
 
@@ -12,11 +13,18 @@ public class PackageCacheOptions
     /// <summary>
     ///     The serializer is required. The other members are optional
     /// </summary>
-    /// <param name="unrealPackageSerializerFor"></param>
-    public PackageCacheOptions(IStreamSerializerFor<UnrealPackage> unrealPackageSerializerFor)
+    /// <param name="unrealPackageSerializer"></param>
+    /// <param name="nativeClassFactory"></param>
+    public PackageCacheOptions(IStreamSerializer<UnrealPackage> unrealPackageSerializer, INativeClassFactory nativeClassFactory)
     {
-        UnrealPackageSerializerFor = unrealPackageSerializerFor;
+        UnrealPackageSerializer = unrealPackageSerializer;
+        NativeClassFactory = nativeClassFactory;
     }
+
+    /// <summary>
+    ///     a list of package that the cache should refuse to load
+    /// </summary>
+    public List<string> PackageBlacklist { get; set; } = new();
 
     /// <summary>
     ///     The paths to search for related packages. Will default to cwd if no path is specified
@@ -36,12 +44,23 @@ public class PackageCacheOptions
     /// <summary>
     ///     The serializer to use when loading packages
     /// </summary>
-    public IStreamSerializerFor<UnrealPackage> UnrealPackageSerializerFor { get; init; }
+    public IStreamSerializer<UnrealPackage> UnrealPackageSerializer { get; init; }
 
     /// <summary>
     ///     Optional. Use a package unpacker to enable auto-loading of packed\compressed packages
     /// </summary>
     public IPackageUnpacker PackageUnpacker { get; set; } = new NeverUnpackUnpacker();
+
+
+    /// <summary>
+    ///     Factory used to create serializers for all UObjects in the package
+    /// </summary>
+    public IObjectSerializerFactory? ObjectSerializerFactory { get; set; }
+
+    /// <summary>
+    ///     A object used to create the UClass objects for the native only classes
+    /// </summary>
+    public INativeClassFactory NativeClassFactory { get; set; }
 }
 
 /// <summary>
@@ -75,6 +94,11 @@ public class PackageCache : IPackageCache
             return cachedPackage;
         }
 
+        if (_options.PackageBlacklist.Contains(packageName))
+        {
+            return null;
+        }
+
 
         Matcher matcher = new();
         matcher.AddIncludePatterns(_options.Extensions.Select(ext => $"{packageName}.{ext}"));
@@ -93,29 +117,32 @@ public class PackageCache : IPackageCache
                 throw new InvalidDataException($"Too many matches packages found: {string.Join(',', matchedFiles)}");
         }
 
-        var packageStream = File.OpenRead(matchedFiles[0]);
+        Console.WriteLine($"[PackageCache]: Reading package {packageName}");
+        var packageStream = new MemoryStream(File.ReadAllBytes(matchedFiles[0]));
 
         UnrealPackage unrealPackage;
+        var loadOptions = new UnrealPackageOptions(_options.UnrealPackageSerializer, packageName, _options.NativeClassFactory, this,
+            _options.ObjectSerializerFactory);
         if (_options.PackageUnpacker.IsPackagePacked(packageStream))
         {
             var unpackedStream = new MemoryStream();
             _options.PackageUnpacker.Unpack(packageStream, unpackedStream);
             unpackedStream.Position = 0;
-            unrealPackage = UnrealPackage.DeserializeAndInitialize(unpackedStream, _options.UnrealPackageSerializerFor, packageName, this);
+            unrealPackage = UnrealPackage.DeserializeAndInitialize(unpackedStream, loadOptions);
         }
         else
         {
-            unrealPackage = UnrealPackage.DeserializeAndInitialize(packageStream, _options.UnrealPackageSerializerFor, packageName, this);
+            unrealPackage = UnrealPackage.DeserializeAndInitialize(packageStream, loadOptions);
         }
 
+        // Add to cache before linking to avoid infinite recursive loop
+        _cachedPackages.Add(packageName, unrealPackage);
 
-        // TODO: Reconsider if the import resolver should link the objects.
         if (_options.GraphLinkPackages)
         {
             unrealPackage.GraphLink();
         }
 
-        _cachedPackages.Add(packageName, unrealPackage);
 
         return unrealPackage;
     }

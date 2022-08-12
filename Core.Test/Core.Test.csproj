@@ -93,6 +93,9 @@
     <None Update="TestData\UDK\TAGame.u">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="TestData\UDK\TestMaterials.upk">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="TestData\UDK\UDKBase.u">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

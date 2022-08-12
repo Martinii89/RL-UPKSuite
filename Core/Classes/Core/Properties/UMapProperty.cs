@@ -5,7 +5,7 @@ namespace Core.Classes.Core.Properties;
 /// <summary>
 ///     Property for a TMap value
 /// </summary>
-[NativeOnlyClass("Core", "MapProperty", "Property")]
+[NativeOnlyClass("Core", "MapProperty", typeof(UProperty))]
 public class UMapProperty : UProperty
 {
     /// <inheritdoc />
@@ -14,4 +14,7 @@ public class UMapProperty : UProperty
         ownerPackage, objectArchetype)
     {
     }
+
+    public UProperty? Key { get; set; }
+    public UProperty? Value { get; set; }
 }

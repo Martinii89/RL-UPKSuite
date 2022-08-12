@@ -41,7 +41,7 @@ public partial class MainWindowViewModel : ObservableObject
 
     public ObservableCollection<FileReference> FilesAdded { get; } = new();
 
-    [ICommand]
+    [RelayCommand]
     public void OpenFileDialog()
     {
         var openFileDialog = new OpenFileDialog
@@ -57,7 +57,7 @@ public partial class MainWindowViewModel : ObservableObject
         AddFiles(openFileDialog.FileNames);
     }
 
-    [ICommand]
+    [RelayCommand]
     public void OpenFolderSelectionDialog()
     {
         using var folderSelectDialog = new FolderBrowserDialog();
@@ -70,7 +70,7 @@ public partial class MainWindowViewModel : ObservableObject
         OutputDirectory = folderSelectDialog.SelectedPath;
     }
 
-    [ICommand]
+    [RelayCommand]
     public void RemoveSelected(IList<object> selectedItems)
     {
         var fileReferences = selectedItems.Cast<FileReference>().ToList();
@@ -82,7 +82,7 @@ public partial class MainWindowViewModel : ObservableObject
         DecryptFilesCommand.NotifyCanExecuteChanged();
     }
 
-    [ICommand]
+    [RelayCommand]
     public void AddFiles(string[] files)
     {
         var validFiles = files.Where(file => Path.GetExtension(file) == ".upk");
@@ -110,7 +110,7 @@ public partial class MainWindowViewModel : ObservableObject
         return FilesAdded.Count != 0;
     }
 
-    [ICommand(CanExecute = nameof(CanStartUnpacking))]
+    [RelayCommand(CanExecute = nameof(CanStartUnpacking))]
     private void DecryptFiles()
     {
         _unpackBackgroundWorker = new BackgroundWorker { WorkerReportsProgress = true };
