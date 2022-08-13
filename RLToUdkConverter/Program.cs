@@ -19,12 +19,17 @@ var currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
 Environment.CurrentDirectory = currentDirectory;
 
 var inputFile = args[0];
+string keysFile = args[1];
+string outputLocation = args[2];
+Console.WriteLine(args[0]);
+Console.WriteLine(args[1]);
+Console.WriteLine(args[2]);
 var inputFileName = Path.GetFileNameWithoutExtension(inputFile);
 var inputDirectory = Path.GetDirectoryName(inputFile);
 ArgumentNullException.ThrowIfNull(inputDirectory);
 var outputFileName = $"{Path.GetFileNameWithoutExtension(inputFile)}_converted{Path.GetExtension(inputFile)}";
 //var outputFile = Path.Combine(Path.GetDirectoryName(inputFile) ?? throw new InvalidOperationException(), outputFileName);
-var outputFile = Path.Combine("Converted packages", outputFileName);
+var outputFile = Path.Combine(outputLocation, outputFileName);
 var directoryInfo = new FileInfo(outputFile).Directory;
 if (directoryInfo == null)
 {
@@ -47,7 +52,7 @@ var rlFileSummarySerializer = rlServices.GetRequiredService<IStreamSerializer<Fi
 var rlPackageSerializer = rlServices.GetRequiredService<IStreamSerializer<UnrealPackage>>();
 var rLobjectSerializerFactory = rlServices.GetRequiredService<IObjectSerializerFactory>();
 
-var unpacker = new PackageUnpacker(rlFileSummarySerializer, new DecryptionProvider("keys.txt"));
+var unpacker = new PackageUnpacker(rlFileSummarySerializer, new DecryptionProvider(keysFile));
 var nativeFactory = new NativeClassFactory();
 var options = new PackageCacheOptions(rlPackageSerializer, nativeFactory)
 {
