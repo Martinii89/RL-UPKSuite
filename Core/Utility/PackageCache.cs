@@ -1,4 +1,5 @@
-﻿using Core.Serialization;
+﻿using System.Collections.Concurrent;
+using Core.Serialization;
 using Core.Serialization.Abstraction;
 using Core.Types;
 using Microsoft.Extensions.FileSystemGlobbing;
@@ -69,7 +70,7 @@ public class PackageCacheOptions
 /// </summary>
 public class PackageCache : IPackageCache
 {
-    private readonly Dictionary<string, UnrealPackage> _cachedPackages = new();
+    private readonly ConcurrentDictionary<string, UnrealPackage> _cachedPackages = new();
     private readonly PackageCacheOptions _options;
 
     /// <summary>
@@ -105,7 +106,6 @@ public class PackageCache : IPackageCache
         var matchedFiles = new List<string>();
         foreach (var searchPath in _options.SearchPaths)
         {
-            //var directoryPath = "D:\\Projects\\RL UPKSuite\\Core.Test\\TestData\\UDK";
             matchedFiles.AddRange(matcher.GetResultsInFullPath(searchPath));
         }
 
@@ -136,7 +136,16 @@ public class PackageCache : IPackageCache
         }
 
         // Add to cache before linking to avoid infinite recursive loop
-        _cachedPackages.Add(packageName, unrealPackage);
+        var added = _cachedPackages.TryAdd(packageName, unrealPackage);
+        if (!added)
+        {
+            // Some other thread must have already added the package while this thread were parsing it. Return the object in the dictionary and discard whatever we created here
+            Console.WriteLine($"[PackageCache]: Concurrent interference, reusing cached package {packageName}");
+            return _cachedPackages[packageName];
+        }
+
+        Console.WriteLine($"[PackageCache]: Caching package {packageName}");
+
 
         if (_options.GraphLinkPackages)
         {
@@ -156,7 +165,7 @@ public class PackageCache : IPackageCache
     /// <inheritdoc />
     public void AddPackage(UnrealPackage package)
     {
-        _cachedPackages.Add(package.PackageName, package);
+        _cachedPackages.TryAdd(package.PackageName, package);
     }
 
     /// <inheritdoc />

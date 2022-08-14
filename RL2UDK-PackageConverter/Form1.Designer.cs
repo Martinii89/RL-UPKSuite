@@ -1,4 +1,5 @@
 ﻿
+
 namespace RL2UDK_PackageConverter
 {
     partial class Title
@@ -59,7 +60,7 @@ namespace RL2UDK_PackageConverter
             this.runButton.TabIndex = 0;
             this.runButton.Text = "Run";
             this.runButton.UseVisualStyleBackColor = true;
-            this.runButton.Click += new System.EventHandler(this.runButton_Click);
+            this.runButton.Click += new System.EventHandler(this.RunButton_Click);
             // 
             // tabViewController
             // 
@@ -129,8 +130,8 @@ namespace RL2UDK_PackageConverter
             this.outputFolderText.Name = "outputFolderText";
             this.outputFolderText.Size = new System.Drawing.Size(752, 20);
             this.outputFolderText.TabIndex = 5;
-            this.outputFolderText.DragDrop += new System.Windows.Forms.DragEventHandler(this.outputFolderDrop);
-            this.outputFolderText.DragEnter += new System.Windows.Forms.DragEventHandler(this.outputFolderEnter);
+            this.outputFolderText.DragDrop += new System.Windows.Forms.DragEventHandler(this.OutputFolderDrop);
+            this.outputFolderText.DragEnter += new System.Windows.Forms.DragEventHandler(this.OutputFolderEnter);
             // 
             // outputFolderButton
             // 
@@ -140,7 +141,7 @@ namespace RL2UDK_PackageConverter
             this.outputFolderButton.TabIndex = 4;
             this.outputFolderButton.Text = "Output Folder";
             this.outputFolderButton.UseVisualStyleBackColor = true;
-            this.outputFolderButton.Click += new System.EventHandler(this.outputFolderButton_Click);
+            this.outputFolderButton.Click += new System.EventHandler(this.OutputFolderButton_Click);
             // 
             // keyFileText
             // 
@@ -149,8 +150,8 @@ namespace RL2UDK_PackageConverter
             this.keyFileText.Name = "keyFileText";
             this.keyFileText.Size = new System.Drawing.Size(752, 20);
             this.keyFileText.TabIndex = 3;
-            this.keyFileText.DragDrop += new System.Windows.Forms.DragEventHandler(this.keyFileDrop);
-            this.keyFileText.DragEnter += new System.Windows.Forms.DragEventHandler(this.keyFileEnter);
+            this.keyFileText.DragDrop += new System.Windows.Forms.DragEventHandler(this.KeyFileDrop);
+            this.keyFileText.DragEnter += new System.Windows.Forms.DragEventHandler(this.KeyFileEnter);
             // 
             // keyFileButton
             // 
@@ -160,7 +161,7 @@ namespace RL2UDK_PackageConverter
             this.keyFileButton.TabIndex = 2;
             this.keyFileButton.Text = "Key File";
             this.keyFileButton.UseVisualStyleBackColor = true;
-            this.keyFileButton.Click += new System.EventHandler(this.keyFileButton_Click);
+            this.keyFileButton.Click += new System.EventHandler(this.KeyFileButton_Click);
             // 
             // materialExportToggle
             // 

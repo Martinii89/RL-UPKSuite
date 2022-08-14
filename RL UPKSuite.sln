@@ -19,6 +19,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RLToUdkConverter", "RLToUdk
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RL2UDK-PackageConverter", "RL2UDK-PackageConverter\RL2UDK-PackageConverter.csproj", "{2BEBE8BE-70CB-46A7-A7EA-C136145DEDC5}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Decryption", "Decryption", "{08C59A06-AC79-4DCA-9F7D-95581FB47DB7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -60,6 +62,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{200AE902-A7CB-412F-A64D-D7FF2F0CA980} = {08C59A06-AC79-4DCA-9F7D-95581FB47DB7}
+		{2660AE06-92C8-4A31-8266-DD2AEF25E4BF} = {08C59A06-AC79-4DCA-9F7D-95581FB47DB7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {49DFFAEA-1DF7-4C8D-B122-711B0719E7EC}

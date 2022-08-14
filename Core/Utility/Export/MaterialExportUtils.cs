@@ -80,6 +80,7 @@ public class MaterialExportUtils
     {
         _packageExporter.GetOrAddName("DiffuseColor");
         _packageExporter.GetOrAddName("Expression");
+        _packageExporter.GetOrAddName("OutputIndex");
         var diffuseExpression = FindDiffuseParameterExpression(material);
         if (diffuseExpression is null)
         {
@@ -165,6 +166,7 @@ public class MaterialExportUtils
     {
         _packageExporter.GetOrAddName("SubsurfaceScatteringRadius");
         _packageExporter.GetOrAddName("Expression");
+        _packageExporter.GetOrAddName("ExpressionInput");
         var valueObject = new Dictionary<string, object>
         {
             ["Expression"] = expression
