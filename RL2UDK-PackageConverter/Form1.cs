@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
+using RL2UDK_PackageConverter.Properties;
 
 namespace RL2UDK_PackageConverter;
 
@@ -12,6 +13,9 @@ public partial class Title : Form
     public Title()
     {
         InitializeComponent();
+        keyFileText.Text = Settings.Default.keyFile;
+        outputFolderText.Text = Settings.Default.outputFolder;
+        compressPackageToggle.Checked = Settings.Default.addCompression;
     }
 
     private string GetFilePName(string path)
@@ -50,14 +54,14 @@ public partial class Title : Form
                         CreateNoWindow = true
                     }
                 };
-                Invoke((MethodInvoker) delegate { tabViewController.SelectedTab = consoleLogTab; });
+                Invoke(() => tabViewController.SelectedTab = consoleLogTab);
 
                 proc.Start();
                 while (!proc.StandardOutput.EndOfStream)
                 {
                     var line = proc.StandardOutput.ReadLine();
                     // do something with line
-                    Invoke((MethodInvoker) delegate { outputLogConsole.AppendText($"\r\n CoreLog: {line}"); });
+                    Invoke(() => outputLogConsole.AppendText($"\r\n CoreLog: {line}"));
                 }
 
                 Invoke(() => outputLogConsole.AppendText("\nFinished!"));
@@ -105,9 +109,17 @@ public partial class Title : Form
         foreach (var file in droppedFiles)
         {
             keyFileText.Text = file;
-            //this.dataGridView1.Rows.Add(file);
             outputLogConsole.AppendText($"\r\n Added {GetFilePName(file)} to keyFile.");
         }
+
+        StoreSettings();
+    }
+
+    private void StoreSettings()
+    {
+        Settings.Default.keyFile = keyFileText.Text;
+        Settings.Default.outputFolder = outputFolderText.Text;
+        Settings.Default.Save();
     }
 
     private void KeyFileEnter(object sender, DragEventArgs e)
@@ -132,9 +144,10 @@ public partial class Title : Form
         foreach (var file in droppedFiles)
         {
             outputFolderText.Text = file;
-            //this.dataGridView1.Rows.Add(file);
             outputLogConsole.AppendText($"\r\n Added {GetFilePName(file)} to keyFile.");
         }
+
+        StoreSettings();
     }
 
     private void OutputFolderEnter(object sender, DragEventArgs e)
@@ -155,6 +168,7 @@ public partial class Title : Form
 
         var oSelectedFile = oDlg.FileName;
         keyFileText.Text = oSelectedFile;
+        StoreSettings();
         // Do whatever you want with oSelectedFile
     }
 
@@ -168,11 +182,20 @@ public partial class Title : Form
         folderBrowser.CheckPathExists = true;
         // Always default to Folder Selection.
         folderBrowser.FileName = "Folder Selection.";
-        if (folderBrowser.ShowDialog() == DialogResult.OK)
+        if (folderBrowser.ShowDialog() != DialogResult.OK)
         {
-            var folderPath = Path.GetDirectoryName(folderBrowser.FileName);
-            outputFolderText.Text = folderPath;
-            // ...
+            return;
         }
+
+        var folderPath = Path.GetDirectoryName(folderBrowser.FileName);
+        outputFolderText.Text = folderPath;
+        StoreSettings();
+    }
+
+    private void OnCompressPackageChange(object sender, EventArgs e)
+    {
+        var checkBox = sender as CheckBox;
+        Settings.Default.addCompression = checkBox.Checked;
+        StoreSettings();
     }
 }

@@ -54,9 +54,10 @@ namespace RL2UDK_PackageConverter
             // runButton
             // 
             this.runButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.runButton.Location = new System.Drawing.Point(12, 395);
+            this.runButton.Location = new System.Drawing.Point(14, 456);
+            this.runButton.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.runButton.Name = "runButton";
-            this.runButton.Size = new System.Drawing.Size(75, 23);
+            this.runButton.Size = new System.Drawing.Size(88, 27);
             this.runButton.TabIndex = 0;
             this.runButton.Text = "Run";
             this.runButton.UseVisualStyleBackColor = true;
@@ -67,10 +68,11 @@ namespace RL2UDK_PackageConverter
             this.tabViewController.Controls.Add(this.MainPage);
             this.tabViewController.Controls.Add(this.OptionsPage);
             this.tabViewController.Controls.Add(this.consoleLogTab);
-            this.tabViewController.Location = new System.Drawing.Point(12, 12);
+            this.tabViewController.Location = new System.Drawing.Point(14, 14);
+            this.tabViewController.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.tabViewController.Name = "tabViewController";
             this.tabViewController.SelectedIndex = 0;
-            this.tabViewController.Size = new System.Drawing.Size(864, 377);
+            this.tabViewController.Size = new System.Drawing.Size(1008, 435);
             this.tabViewController.TabIndex = 1;
             // 
             // MainPage
@@ -78,10 +80,11 @@ namespace RL2UDK_PackageConverter
             this.MainPage.BackColor = System.Drawing.Color.Transparent;
             this.MainPage.Controls.Add(this.dataGridView1);
             this.MainPage.ForeColor = System.Drawing.SystemColors.GradientActiveCaption;
-            this.MainPage.Location = new System.Drawing.Point(4, 22);
+            this.MainPage.Location = new System.Drawing.Point(4, 24);
+            this.MainPage.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.MainPage.Name = "MainPage";
-            this.MainPage.Padding = new System.Windows.Forms.Padding(3);
-            this.MainPage.Size = new System.Drawing.Size(856, 351);
+            this.MainPage.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.MainPage.Size = new System.Drawing.Size(1000, 407);
             this.MainPage.TabIndex = 0;
             this.MainPage.Text = "Main";
             // 
@@ -93,9 +96,10 @@ namespace RL2UDK_PackageConverter
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.Packages});
-            this.dataGridView1.Location = new System.Drawing.Point(6, 6);
+            this.dataGridView1.Location = new System.Drawing.Point(7, 7);
+            this.dataGridView1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.Size = new System.Drawing.Size(847, 339);
+            this.dataGridView1.Size = new System.Drawing.Size(988, 391);
             this.dataGridView1.TabIndex = 0;
             this.dataGridView1.DragDrop += new System.Windows.Forms.DragEventHandler(this.Form1_DragDrop);
             this.dataGridView1.DragEnter += new System.Windows.Forms.DragEventHandler(this.Form1_DragEnter);
@@ -115,10 +119,11 @@ namespace RL2UDK_PackageConverter
             this.OptionsPage.Controls.Add(this.keyFileButton);
             this.OptionsPage.Controls.Add(this.materialExportToggle);
             this.OptionsPage.Controls.Add(this.compressPackageToggle);
-            this.OptionsPage.Location = new System.Drawing.Point(4, 22);
+            this.OptionsPage.Location = new System.Drawing.Point(4, 24);
+            this.OptionsPage.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.OptionsPage.Name = "OptionsPage";
-            this.OptionsPage.Padding = new System.Windows.Forms.Padding(3);
-            this.OptionsPage.Size = new System.Drawing.Size(856, 351);
+            this.OptionsPage.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.OptionsPage.Size = new System.Drawing.Size(1000, 407);
             this.OptionsPage.TabIndex = 1;
             this.OptionsPage.Text = "Options";
             this.OptionsPage.UseVisualStyleBackColor = true;
@@ -126,18 +131,20 @@ namespace RL2UDK_PackageConverter
             // outputFolderText
             // 
             this.outputFolderText.AllowDrop = true;
-            this.outputFolderText.Location = new System.Drawing.Point(98, 46);
+            this.outputFolderText.Location = new System.Drawing.Point(114, 53);
+            this.outputFolderText.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.outputFolderText.Name = "outputFolderText";
-            this.outputFolderText.Size = new System.Drawing.Size(752, 20);
+            this.outputFolderText.Size = new System.Drawing.Size(877, 23);
             this.outputFolderText.TabIndex = 5;
             this.outputFolderText.DragDrop += new System.Windows.Forms.DragEventHandler(this.OutputFolderDrop);
             this.outputFolderText.DragEnter += new System.Windows.Forms.DragEventHandler(this.OutputFolderEnter);
             // 
             // outputFolderButton
             // 
-            this.outputFolderButton.Location = new System.Drawing.Point(6, 44);
+            this.outputFolderButton.Location = new System.Drawing.Point(7, 51);
+            this.outputFolderButton.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.outputFolderButton.Name = "outputFolderButton";
-            this.outputFolderButton.Size = new System.Drawing.Size(86, 23);
+            this.outputFolderButton.Size = new System.Drawing.Size(100, 27);
             this.outputFolderButton.TabIndex = 4;
             this.outputFolderButton.Text = "Output Folder";
             this.outputFolderButton.UseVisualStyleBackColor = true;
@@ -146,18 +153,20 @@ namespace RL2UDK_PackageConverter
             // keyFileText
             // 
             this.keyFileText.AllowDrop = true;
-            this.keyFileText.Location = new System.Drawing.Point(98, 8);
+            this.keyFileText.Location = new System.Drawing.Point(114, 9);
+            this.keyFileText.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.keyFileText.Name = "keyFileText";
-            this.keyFileText.Size = new System.Drawing.Size(752, 20);
+            this.keyFileText.Size = new System.Drawing.Size(877, 23);
             this.keyFileText.TabIndex = 3;
             this.keyFileText.DragDrop += new System.Windows.Forms.DragEventHandler(this.KeyFileDrop);
             this.keyFileText.DragEnter += new System.Windows.Forms.DragEventHandler(this.KeyFileEnter);
             // 
             // keyFileButton
             // 
-            this.keyFileButton.Location = new System.Drawing.Point(6, 6);
+            this.keyFileButton.Location = new System.Drawing.Point(7, 7);
+            this.keyFileButton.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.keyFileButton.Name = "keyFileButton";
-            this.keyFileButton.Size = new System.Drawing.Size(86, 23);
+            this.keyFileButton.Size = new System.Drawing.Size(100, 27);
             this.keyFileButton.TabIndex = 2;
             this.keyFileButton.Text = "Key File";
             this.keyFileButton.UseVisualStyleBackColor = true;
@@ -166,9 +175,10 @@ namespace RL2UDK_PackageConverter
             // materialExportToggle
             // 
             this.materialExportToggle.AutoSize = true;
-            this.materialExportToggle.Location = new System.Drawing.Point(130, 82);
+            this.materialExportToggle.Location = new System.Drawing.Point(152, 95);
+            this.materialExportToggle.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.materialExportToggle.Name = "materialExportToggle";
-            this.materialExportToggle.Size = new System.Drawing.Size(228, 17);
+            this.materialExportToggle.Size = new System.Drawing.Size(258, 19);
             this.materialExportToggle.TabIndex = 1;
             this.materialExportToggle.Text = "Material Export \"Fixups\" (Not Implemented)";
             this.materialExportToggle.UseVisualStyleBackColor = true;
@@ -176,40 +186,45 @@ namespace RL2UDK_PackageConverter
             // compressPackageToggle
             // 
             this.compressPackageToggle.AutoSize = true;
-            this.compressPackageToggle.Location = new System.Drawing.Point(6, 82);
+            this.compressPackageToggle.Location = new System.Drawing.Point(7, 95);
+            this.compressPackageToggle.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.compressPackageToggle.Name = "compressPackageToggle";
-            this.compressPackageToggle.Size = new System.Drawing.Size(118, 17);
+            this.compressPackageToggle.Size = new System.Drawing.Size(126, 19);
             this.compressPackageToggle.TabIndex = 0;
             this.compressPackageToggle.Text = "Compress Package";
             this.compressPackageToggle.UseVisualStyleBackColor = true;
+            this.compressPackageToggle.CheckedChanged += new System.EventHandler(this.OnCompressPackageChange);
             // 
             // consoleLogTab
             // 
             this.consoleLogTab.Controls.Add(this.outputLogConsole);
-            this.consoleLogTab.Location = new System.Drawing.Point(4, 22);
+            this.consoleLogTab.Location = new System.Drawing.Point(4, 24);
+            this.consoleLogTab.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.consoleLogTab.Name = "consoleLogTab";
-            this.consoleLogTab.Padding = new System.Windows.Forms.Padding(3);
-            this.consoleLogTab.Size = new System.Drawing.Size(856, 351);
+            this.consoleLogTab.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.consoleLogTab.Size = new System.Drawing.Size(1000, 407);
             this.consoleLogTab.TabIndex = 2;
             this.consoleLogTab.Text = "Console Log";
             this.consoleLogTab.UseVisualStyleBackColor = true;
             // 
             // outputLogConsole
             // 
-            this.outputLogConsole.Location = new System.Drawing.Point(3, 6);
+            this.outputLogConsole.Location = new System.Drawing.Point(4, 7);
+            this.outputLogConsole.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.outputLogConsole.Name = "outputLogConsole";
-            this.outputLogConsole.Size = new System.Drawing.Size(847, 339);
+            this.outputLogConsole.Size = new System.Drawing.Size(987, 391);
             this.outputLogConsole.TabIndex = 0;
             this.outputLogConsole.Text = "";
             // 
             // Title
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.GradientActiveCaption;
-            this.ClientSize = new System.Drawing.Size(900, 423);
+            this.ClientSize = new System.Drawing.Size(1050, 488);
             this.Controls.Add(this.tabViewController);
             this.Controls.Add(this.runButton);
+            this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.Name = "Title";
             this.Text = "RL2UDK Converter";
             this.tabViewController.ResumeLayout(false);
