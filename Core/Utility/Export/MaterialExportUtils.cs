@@ -76,7 +76,7 @@ public class MaterialExportUtils
                 }
             }
 
-            ConnectRandomColorToDiffuseColor(material);
+            ConnectRandomColorToDiffuseColorProperty(material);
             SpreadOutExpressions(material.Expressions);
             RemoveBlendMode(material);
             RemoveLightingModel(material);
@@ -124,7 +124,7 @@ public class MaterialExportUtils
     ///     Create and link a vector parameter with random RGB values to the material's diffuse property
     /// </summary>
     /// <param name="material"></param>
-    public void ConnectRandomColorToDiffuseColor(UMaterial material)
+    public void ConnectRandomColorToDiffuseColorProperty(UMaterial material)
     {
         _packageExporter.GetOrAddName("DiffuseColor");
         _packageExporter.GetOrAddName("Expression");
@@ -182,7 +182,12 @@ public class MaterialExportUtils
 
         diffuseColorProperty.Deserialize();
         var fproperty = diffuseColorProperty.CreateFProperty(valueObject);
-        material.ScriptProperties.Add(fproperty);
+        var matDiffuseColorIndex = material.ScriptProperties.FindIndex(x => x.Name == "DiffuseColor");
+
+        if (matDiffuseColorIndex != -1)
+            material.ScriptProperties[matDiffuseColorIndex] = fproperty;
+        else
+            material.ScriptProperties.Add(fproperty);
 
         var matExpressions = material.ScriptProperties.Find(x => x.Name == "Expressions");
         if (matExpressions is not null)
