@@ -32,4 +32,17 @@ public class UFloatProperty : UProperty
 
         objectStream.WriteSingle(value);
     }
+
+    /// <inheritdoc />
+    public override FProperty CreateFProperty(object? value)
+    {
+        return new FProperty
+        {
+            Value = value as float?,
+            uProperty = this,
+            Size = 4,
+            Type = PropertyType.FloatProperty,
+            Name = Name
+        };
+    }
 }

@@ -1,5 +1,6 @@
 ﻿using Core.Classes.Core.Properties;
 using Core.Classes.Engine;
+using Core.Flags;
 using Core.Types;
 
 namespace Core.Utility.Export;
@@ -22,13 +23,23 @@ public class MaterialExportUtils
     }
 
     /// <summary>
-    ///     Removes the script property for the lighting model if it is MLM_Custom. We do this because UDK knows nothing about
-    ///     this lighting model.This should make it default to Phong
+    ///     Removes the script property for the blend mode. This should make it default to opaque.
+    ///     We do this to for the randomly colored diffuse material
     /// </summary>
     /// <param name="material"></param>
-    public void RemoveCustomLightingModel(UMaterial material)
+    public static void RemoveBlendMode(UMaterial material)
     {
-        material.ScriptProperties.RemoveAll(x => x.Name == "LightingModel" && x.Value as string == "MLM_Custom");
+        material.ScriptProperties.RemoveAll(x => x.Name == "BlendMode");
+    }
+
+    /// <summary>
+    ///     Removes the script property for the lighting model. This should make it default to phong.
+    ///     We do this to for the randomly colored diffuse material
+    /// </summary>
+    /// <param name="material"></param>
+    public static void RemoveLightingModel(UMaterial material)
+    {
+        material.ScriptProperties.RemoveAll(x => x.Name == "LightingModel");
     }
 
     /// <summary>
@@ -38,7 +49,7 @@ public class MaterialExportUtils
     ///     not all be completely black
     /// </summary>
     /// <param name="materialExports"></param>
-    public void AddDumyNodesToMaterials(List<UMaterial> materialExports)
+    public void AddDummyNodesToMaterials(List<UMaterial> materialExports)
     {
         var customNodeClass = _packageExporter.AddClassImport("Engine", "MaterialExpressionCustom");
         customNodeClass.Deserialize();
@@ -57,7 +68,6 @@ public class MaterialExportUtils
 
                 ConnectToSubsurfaceScatteringRadiusProperty(material, customNode);
                 ConnectMaterialParamsToCustomNode(materialParameterExpressions, customNode);
-                ConnectDiffuseParamToDiffuseColor(material);
                 var matExpressions = material.ScriptProperties.Find(x => x.Name == "Expressions");
                 if (matExpressions is not null)
                 {
@@ -66,40 +76,11 @@ public class MaterialExportUtils
                 }
             }
 
+            ConnectRandomColorToDiffuseColor(material);
             SpreadOutExpressions(material.Expressions);
-            RemoveCustomLightingModel(material);
+            RemoveBlendMode(material);
+            RemoveLightingModel(material);
         }
-    }
-
-    /// <summary>
-    ///     Searches for a parameter with diffuse in its name. If found it will connect this to the DiffuseColor input of the
-    ///     material
-    /// </summary>
-    /// <param name="material"></param>
-    public void ConnectDiffuseParamToDiffuseColor(UMaterial material)
-    {
-        _packageExporter.GetOrAddName("DiffuseColor");
-        _packageExporter.GetOrAddName("Expression");
-        var diffuseExpression = FindDiffuseParameterExpression(material);
-        if (diffuseExpression is null)
-        {
-            return;
-        }
-
-        ArgumentNullException.ThrowIfNull(material.Class);
-        if (material.Class.GetProperty("DiffuseColor") is not UStructProperty diffuseColorProperty)
-        {
-            return;
-        }
-
-        var valueObject = new Dictionary<string, object>
-        {
-            ["Expression"] = diffuseExpression,
-            ["OutputIndex"] = 0
-        };
-        diffuseColorProperty.Deserialize();
-        var fproperty = diffuseColorProperty.CreateFProperty(valueObject);
-        material.ScriptProperties.Add(fproperty);
     }
 
     /// <summary>
@@ -115,8 +96,9 @@ public class MaterialExportUtils
 
         var spreadAmount = 150;
         var columns = 6;
-        var x = spreadAmount;
-        var y = spreadAmount;
+        var startingX = 300;
+        var x = startingX;
+        var y = 0;
         _packageExporter.GetOrAddName("MaterialExpressionEditorX");
         _packageExporter.GetOrAddName("MaterialExpressionEditorY");
         var editorXProperty = expressions.First().Class?.GetProperty("MaterialExpressionEditorX");
@@ -132,28 +114,82 @@ public class MaterialExportUtils
             x += spreadAmount;
             if (x > columns * spreadAmount)
             {
-                x = spreadAmount;
+                x = startingX;
                 y += spreadAmount;
             }
         }
     }
 
-    private static UMaterialExpression? FindDiffuseParameterExpression(UMaterial material)
+    /// <summary>
+    ///     Create and link a vector parameter with random RGB values to the material's diffuse property
+    /// </summary>
+    /// <param name="material"></param>
+    public void ConnectRandomColorToDiffuseColor(UMaterial material)
     {
-        var paramList = material.GetMaterialParams();
-        UMaterialExpression? diffuseExpression = null;
-        foreach (var parameterExpression in paramList)
+        _packageExporter.GetOrAddName("DiffuseColor");
+        _packageExporter.GetOrAddName("Expression");
+
+        ArgumentNullException.ThrowIfNull(material.Class);
+        if (material.Class.GetProperty("DiffuseColor") is not UStructProperty diffuseColorProperty)
         {
-            parameterExpression.Deserialize();
-            var paramName = parameterExpression.ScriptProperties.FirstOrDefault(x => x.Name == "ParameterName")?.Value as string;
-            if (paramName?.Contains("diffuse", StringComparison.OrdinalIgnoreCase) ?? false)
-            {
-                diffuseExpression = parameterExpression;
-                break;
-            }
+            return;
         }
 
-        return diffuseExpression;
+        var vectorNodeClass = _packageExporter.AddClassImport("Engine", "MaterialExpressionVectorParameter");
+        vectorNodeClass.Deserialize();
+        vectorNodeClass.InitProperties();
+        var vectorNodeName = _packageExporter.GetOrAddName("EditorColorVector");
+
+        var vectorNode = new UMaterialExpression(vectorNodeName, vectorNodeClass, material, _packageExporter.Package);
+        _packageExporter.AddExport(vectorNode);
+        material.Expressions.Add(vectorNode);
+
+        ArgumentNullException.ThrowIfNull(vectorNode.Class);
+        var defaultValue = vectorNode.Class.GetProperty("DefaultValue") as UStructProperty;
+        ArgumentNullException.ThrowIfNull(defaultValue?.Struct);
+        defaultValue.Deserialize();
+
+        var random = new Random();
+        var defaultValueObject = new Dictionary<string, object>
+        {
+            ["R"] = random.NextSingle(),
+            ["G"] = random.NextSingle(),
+            ["B"] = random.NextSingle(),
+            ["A"] = 1f
+        };
+
+        var paramName = vectorNode.Class.GetProperty("ParameterName");
+        ArgumentNullException.ThrowIfNull(paramName);
+        paramName.Deserialize();
+        _packageExporter.GetOrAddName("EditorColor");
+
+        var defaultValueIsImmutable = defaultValue.Struct.HasFlag(StructFlag.Immutable);
+        // Temporarily remove the immutable flag so that we can create a FProperty from it
+        defaultValue.Struct.StructFlags &= ~(int)StructFlag.Immutable;
+        vectorNode.ScriptProperties.Add(defaultValue.CreateFProperty(defaultValueObject));
+        vectorNode.ScriptProperties.Add(paramName.CreateFProperty("EditorColor"));
+        // Set immutable flag back if needed
+        if (defaultValueIsImmutable)
+        {
+            defaultValue.Struct.StructFlags |= (int)StructFlag.Immutable;
+        }
+
+        var valueObject = new Dictionary<string, object>
+        {
+            ["Expression"] = vectorNode,
+            ["OutputIndex"] = 0
+        };
+
+        diffuseColorProperty.Deserialize();
+        var fproperty = diffuseColorProperty.CreateFProperty(valueObject);
+        material.ScriptProperties.Add(fproperty);
+
+        var matExpressions = material.ScriptProperties.Find(x => x.Name == "Expressions");
+        if (matExpressions is not null)
+        {
+            matExpressions.Size += 4;
+            (matExpressions.Value as List<object?>)?.Add(vectorNode);
+        }
     }
 
     /// <summary>
