@@ -50,4 +50,19 @@ public class UByteProperty : UProperty
 
         objectStream.WriteFName(stringValue);
     }
+
+    /// <inheritdoc />
+    public override FProperty CreateFProperty(object? value)
+    {
+        ArgumentNullException.ThrowIfNull(Enum);
+        return new FProperty
+        {
+            Value = value as string,
+            uProperty = this,
+            Size = 4,
+            Type = PropertyType.ByteProperty,
+            Name = Name,
+            EnumName = Enum.Name
+        };
+    }
 }
