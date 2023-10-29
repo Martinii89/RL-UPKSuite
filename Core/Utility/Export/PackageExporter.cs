@@ -43,6 +43,7 @@ public class PackageExporter
 
         _filters.Add(new CrashPreventionFilter());
         _filters.Add(new MapObjectFilter());
+        _filters.Add(new UnreversedClassFilter());
         FilterObjects(_exportImportTable, _exportExportTable);
 
         // Do not do this before FilterObjects!
