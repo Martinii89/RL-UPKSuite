@@ -31,4 +31,17 @@ public class UNameProperty : UProperty
 
         objectStream.WriteFName(value);
     }
+
+    /// <inheritdoc />
+    public override FProperty CreateFProperty(object? value)
+    {
+        return new FProperty
+        {
+            Value = value as string,
+            uProperty = this,
+            Size = 8,
+            Type = PropertyType.NameProperty,
+            Name = Name
+        };
+    }
 }

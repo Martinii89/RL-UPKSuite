@@ -47,7 +47,7 @@ public class PackageExporter
 
         // Do not do this before FilterObjects!
         var materialUtils = new MaterialExportUtils(this);
-        materialUtils.AddDumyNodesToMaterials(_exportExportTable.Select(x => x.Object).OfType<UMaterial>().ToList());
+        materialUtils.AddDummyNodesToMaterials(_exportExportTable.Select(x => x.Object).OfType<UMaterial>().ToList());
 
 
         ModifyHeaderFieldsForExport(_exportHeader);
