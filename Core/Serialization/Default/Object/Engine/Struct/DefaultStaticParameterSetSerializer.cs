@@ -155,6 +155,12 @@ public class DefaultStaticTerrainLayerWeightParameterSerializer : IStreamSeriali
     private readonly IStreamSerializer<FGuid> _guidSerializer;
     private readonly IStreamSerializer<FName> _nameSerializer;
 
+    public DefaultStaticTerrainLayerWeightParameterSerializer(IStreamSerializer<FGuid> guidSerializer, IStreamSerializer<FName> nameSerializer)
+    {
+        _guidSerializer = guidSerializer;
+        _nameSerializer = nameSerializer;
+    }
+
     /// <inheritdoc />
     public FStaticTerrainLayerWeightParameter Deserialize(Stream stream)
     {
