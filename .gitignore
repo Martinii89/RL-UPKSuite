@@ -361,3 +361,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/UDKPackageCompressor/Properties/launchSettings.json
+/RLToUdkConverter/Properties/launchSettings.json

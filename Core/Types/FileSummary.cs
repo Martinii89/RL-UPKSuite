@@ -1,100 +1,147 @@
-﻿using Core.Compression;
-using Core.Types.FileSummeryInner;
+﻿using Core.Types.FileSummeryInner;
 
 namespace Core.Types;
 
+/// <summary>
+///     A FileSummary represents the first part of a unreal package.
+///     It contains all the required data to process the serial data of the package
+/// </summary>
 public class FileSummary
 {
-    private const uint PACKAGE_FILE_TAG = 0x9E2A83C1;
-
-    public uint Tag { get; private set; }
-    public ushort FileVersion { get; private set; }
-    public ushort LicenseeVersion { get; private set; }
-    public int TotalHeaderSize { get; private set; }
-    public FString FolderName { get; private set; } = new();
-    public uint PackageFlags { get; private set; }
-    public int NameCount { get; private set; }
-    public int NameOffset { get; private set; }
-    public int ExportCount { get; private set; }
-    public int ExportOffset { get; private set; }
-    public int ImportCount { get; private set; }
-    public int ImportOffset { get; private set; }
-    public int DependsOffset { get; private set; }
-    public int ImportExportGuidsOffset { get; private set; }
-    public int ImportGuidsCount { get; private set; }
-    public int ExportGuidsCount { get; private set; }
-    public int ThumbnailTableOffset { get; private set; }
-    public FGuid Guid { get; private set; } = new();
-    public TArray<FGenerationInfo> Generations { get; private set; } = new();
-    public uint EngineVersion { get; private set; }
-    public uint CookerVersion { get; private set; }
-    public ECompressionFlags CompressionFlags { get; private set; }
-    internal TArray<FCompressedChunkInfo> CompressedChunks { get; private set; } = new();
+    /// <summary>
+    ///     Magic constant all compatible packages start with
+    /// </summary>
+    public const uint PackageFileTag = 0x9E2A83C1;
 
     // ReSharper disable once NotAccessedField.Local
-    private int _unknown5; // Probably a hash
-    public TArray<FString> AdditionalPackagesToCook { get; private set; } = new();
-    public TArray<FTextureType> TextureAllocations { get; private set; } = new();
+#pragma warning disable IDE0052 // Remove unread private members
+    internal int Unknown5 { get; set; } // Probably a hash
+#pragma warning restore IDE0052 // Remove unread private members
 
-    // Number of bytes of (pos % 0xFF) at the end of the decrypted data, I don't know why it's needed
-    internal int GarbageSize { get; private set; }
+    /// <summary>
+    ///     The Magic package header tag. Should always be equal to <see cref="PackageFileTag" />
+    /// </summary>
+    public uint Tag { get; internal set; }
 
-    // Offset to TArray<FCompressedChunkInfo> in decrypted data
-    internal int CompressedChunkInfoOffset { get; private set; }
+    /// <summary>
+    ///     The FileVersion of this package
+    /// </summary>
+    public ushort FileVersion { get; internal set; }
 
-    // Size of the last AES block in the encrypted data
-    internal int LastBlockSize { get; private set; }
+    /// <summary>
+    ///     The licensee version used to save this package. Can be used to identify the origin of this package
+    /// </summary>
+    public ushort LicenseeVersion { get; internal set; }
 
-    public void Deserialize(BinaryReader Reader)
-    {
-        Tag = Reader.ReadUInt32();
-        if (Tag != PACKAGE_FILE_TAG)
-        {
-            throw new Exception("Not a valid Unreal Engine package.");
-        }
+    /// <summary>
+    ///     The total header size is the sum of the FileSummary the encrypted part and the garbage padding
+    /// </summary>
+    public int TotalHeaderSize { get; internal set; }
 
-        FileVersion = Reader.ReadUInt16();
-        LicenseeVersion = Reader.ReadUInt16();
+    /// <summary>
+    ///     Folder name. Unused for cooked packages and always "None"
+    /// </summary>
+    public string FolderName { get; internal set; } = string.Empty;
 
-        TotalHeaderSize = Reader.ReadInt32();
-        FolderName.Deserialize(Reader);
-        PackageFlags = Reader.ReadUInt32();
+    /// <summary>
+    ///     BitFlag defining some properties for this package. No clue what they actually mean in psyonix cooked packages.
+    /// </summary>
+    public uint PackageFlags { get; internal set; }
 
-        NameCount = Reader.ReadInt32();
-        NameOffset = Reader.ReadInt32();
+    /// <summary>
+    ///     The number of names in the names table
+    /// </summary>
+    public int NameCount { get; internal set; }
 
-        ExportCount = Reader.ReadInt32();
-        ExportOffset = Reader.ReadInt32();
+    /// <summary>
+    ///     The offset where the name table starts in the file
+    /// </summary>
+    public int NameOffset { get; internal set; }
 
-        ImportCount = Reader.ReadInt32();
-        ImportOffset = Reader.ReadInt32();
+    /// <summary>
+    ///     The number of exported objects from this package
+    /// </summary>
+    public int ExportCount { get; internal set; }
 
-        DependsOffset = Reader.ReadInt32();
+    /// <summary>
+    ///     The offset where the export table starts in the file
+    /// </summary>
+    public int ExportOffset { get; internal set; }
 
-        ImportExportGuidsOffset = Reader.ReadInt32();
-        ImportGuidsCount = Reader.ReadInt32();
-        ExportGuidsCount = Reader.ReadInt32();
-        ThumbnailTableOffset = Reader.ReadInt32();
+    /// <summary>
+    ///     The number of imported objects in this package
+    /// </summary>
+    public int ImportCount { get; internal set; }
 
-        Guid.Deserialize(Reader);
+    /// <summary>
+    ///     The offset where the import table in the file
+    /// </summary>
+    public int ImportOffset { get; internal set; }
 
-        Generations.Deserialize(Reader);
+    /// <summary>
+    ///     The offset to the depends array in the file. Unused for cooked (Psyonix?) packages
+    /// </summary>
+    public int DependsOffset { get; internal set; }
 
-        EngineVersion = Reader.ReadUInt32();
-        CookerVersion = Reader.ReadUInt32();
+    /// <summary>
+    ///     The offset to the import/export guids data
+    /// </summary>
+    public int ImportExportGuidsOffset { get; internal set; }
 
-        CompressionFlags = (ECompressionFlags) (Reader.ReadUInt32());
+    /// <summary>
+    ///     The number of guid imports
+    /// </summary>
+    public int ImportGuidsCount { get; internal set; }
 
-        CompressedChunks = new TArray<FCompressedChunkInfo>(() => new FCompressedChunkInfo(this));
-        CompressedChunks.Deserialize(Reader);
+    /// <summary>
+    ///     The number of guid exports
+    /// </summary>
+    public int ExportGuidsCount { get; internal set; }
 
-        _unknown5 = Reader.ReadInt32();
+    /// <summary>
+    ///     The offset to the Thumbnails table in the file
+    /// </summary>
+    public int ThumbnailTableOffset { get; internal set; }
 
-        AdditionalPackagesToCook.Deserialize(Reader);
-        TextureAllocations.Deserialize(Reader);
+    /// <summary>
+    ///     The package GUID
+    /// </summary>
+    public FGuid Guid { get; set; } = new();
 
-        GarbageSize = Reader.ReadInt32();
-        CompressedChunkInfoOffset = Reader.ReadInt32();
-        LastBlockSize = Reader.ReadInt32();
-    }
+    /// <summary>
+    ///     Data about previous versions of this package
+    /// </summary>
+    public List<FGenerationInfo> Generations { get; set; } = new();
+
+    /// <summary>
+    ///     The version of the engine that serialized this package
+    /// </summary>
+    public uint EngineVersion { get; internal set; }
+
+    /// <summary>
+    ///     The version of the cooker that cooked this package
+    /// </summary>
+    public uint CookerVersion { get; internal set; }
+
+    /// <summary>
+    ///     Flag denoting if this package is compressed and what kind of compression is used
+    /// </summary>
+    public ECompressionFlags CompressionFlags { get; internal set; }
+
+    /// <summary>
+    ///     Offset into the file to where the compression flag is set
+    /// </summary>
+    public int CompressionFlagsOffset { get; internal set; }
+
+    internal List<FCompressedChunk> CompressedChunks { get; set; } = new();
+
+    /// <summary>
+    ///     List of other packages required by this package
+    /// </summary>
+    public List<FString> AdditionalPackagesToCook { get; set; } = new();
+
+    /// <summary>
+    ///     Textures stored in this package
+    /// </summary>
+    public List<FTextureType> TextureAllocations { get; set; } = new();
 }

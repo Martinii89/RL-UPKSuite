@@ -8,29 +8,30 @@ using System.Windows.Data;
 using System.Windows.Forms;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core;
 using Core.RocketLeague;
 using Core.RocketLeague.Decryption;
+using Core.Serialization.Default;
 using Decryptor.Wpf.MVVM.Model;
-using Binding = System.Windows.Data.Binding;
+using MessageBox = System.Windows.MessageBox;
+using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 
 namespace Decryptor.Wpf.MVVM.ViewModel;
 
 public partial class MainWindowViewModel : ObservableObject
 {
-    public ObservableCollection<FileReference> FilesAdded { get; } = new();
-
-    public ICollectionView FilesAddedView;
+    [ObservableProperty]
+    private string _outputDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Unpacked");
 
     [ObservableProperty]
     private string _statusText = "Ready";
 
+    private BackgroundWorker? _unpackBackgroundWorker;
+
     [ObservableProperty]
     private double _unpackProgress;
 
-    [ObservableProperty]
-    private string _outputDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Unpacked");
-
-    private BackgroundWorker? _unpackBackgroundWorker;
+    public ICollectionView FilesAddedView;
 
     public MainWindowViewModel()
     {
@@ -38,10 +39,12 @@ public partial class MainWindowViewModel : ObservableObject
         FilesAddedView.GroupDescriptions.Add(new PropertyGroupDescription("UnpackResult"));
     }
 
-    [ICommand]
+    public ObservableCollection<FileReference> FilesAdded { get; } = new();
+
+    [RelayCommand]
     public void OpenFileDialog()
     {
-        var openFileDialog = new Microsoft.Win32.OpenFileDialog
+        var openFileDialog = new OpenFileDialog
         {
             Multiselect = true,
             Filter = "UPK files (*.upk)|*.upk"
@@ -54,7 +57,7 @@ public partial class MainWindowViewModel : ObservableObject
         AddFiles(openFileDialog.FileNames);
     }
 
-    [ICommand]
+    [RelayCommand]
     public void OpenFolderSelectionDialog()
     {
         using var folderSelectDialog = new FolderBrowserDialog();
@@ -67,7 +70,7 @@ public partial class MainWindowViewModel : ObservableObject
         OutputDirectory = folderSelectDialog.SelectedPath;
     }
 
-    [ICommand]
+    [RelayCommand]
     public void RemoveSelected(IList<object> selectedItems)
     {
         var fileReferences = selectedItems.Cast<FileReference>().ToList();
@@ -79,7 +82,7 @@ public partial class MainWindowViewModel : ObservableObject
         DecryptFilesCommand.NotifyCanExecuteChanged();
     }
 
-    [ICommand]
+    [RelayCommand]
     public void AddFiles(string[] files)
     {
         var validFiles = files.Where(file => Path.GetExtension(file) == ".upk");
@@ -87,11 +90,11 @@ public partial class MainWindowViewModel : ObservableObject
         {
             if (!File.Exists(file))
             {
-                System.Windows.MessageBox.Show("Error: File does not exist");
+                MessageBox.Show("Error: File does not exist");
             }
 
 
-            FilesAdded.Add(new FileReference() { FilePath = file });
+            FilesAdded.Add(new FileReference { FilePath = file });
         }
 
         DecryptFilesCommand.NotifyCanExecuteChanged();
@@ -107,7 +110,7 @@ public partial class MainWindowViewModel : ObservableObject
         return FilesAdded.Count != 0;
     }
 
-    [ICommand(CanExecute = nameof(CanStartUnpacking))]
+    [RelayCommand(CanExecute = nameof(CanStartUnpacking))]
     private void DecryptFiles()
     {
         _unpackBackgroundWorker = new BackgroundWorker { WorkerReportsProgress = true };
@@ -128,7 +131,7 @@ public partial class MainWindowViewModel : ObservableObject
         var decryptionProvider = new DecryptionProvider("keys.txt");
         double filesToProcess = FilesAdded.Count;
         var filesProcessed = 0;
-        Parallel.ForEach(FilesAdded, parallelOptions: new ParallelOptions { MaxDegreeOfParallelism = -1 }, (fileReference) =>
+        Parallel.ForEach(FilesAdded, new ParallelOptions { MaxDegreeOfParallelism = -1 }, fileReference =>
         {
             var inputFileName = Path.GetFileNameWithoutExtension(fileReference.FilePath);
             var outputFilePath = Path.Combine(OutputDirectory, inputFileName + "_decrypted.upk");
@@ -137,14 +140,15 @@ public partial class MainWindowViewModel : ObservableObject
             directoryInfo.Create();
             using var fileStream = File.Open(fileReference.FilePath, FileMode.Open, FileAccess.Read, FileShare.Read);
             using var decryptedStream = File.OpenWrite(outputFilePath);
-            var unpacked = new PackageUnpacker(fileStream, decryptedStream, decryptionProvider);
-            fileReference.UnpackResult = unpacked.DeserializationState switch
+            var unpacked = new RLPackageUnpacker(fileStream, decryptionProvider, FileSummarySerializer.GetDefaultSerializer());
+            unpacked.Unpack(decryptedStream);
+            fileReference.UnpackResult = unpacked.UnpackResult switch
             {
-                DeserializationState.Success => "Success",
+                UnpackResult.Success => "Success",
                 _ => "Fail"
             };
             var counter = Interlocked.Increment(ref filesProcessed);
-            worker.ReportProgress((int) ((counter) / filesToProcess * 100), fileReference);
+            worker.ReportProgress((int) (counter / filesToProcess * 100), fileReference);
         });
 
 

@@ -1,0 +1,105 @@
+﻿<UserControl x:Class="PackageExplorer.View.PackageUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:PackageExplorer.View"
+             xmlns:vm="clr-namespace:PackageExplorer.ViewModel"
+             xmlns:Syncfusion="http://schemas.syncfusion.com/wpf"
+             xmlns:model="clr-namespace:PackageExplorer.Model"
+             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:packageExplorer="clr-namespace:PackageExplorer"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800">
+
+    <Grid d:DataContext="{d:DesignInstance vm:PackageUserControlViewModel }">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" MaxWidth="600" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="4*" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <!--package filters-->
+            <StackPanel Grid.Row="0">
+                <CheckBox IsChecked="{Binding ShowDefaultObjects}" Command="{Binding OnShowDefaultChangedCommand}"
+                          CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}">
+                    Show Default Objects
+                </CheckBox>
+            </StackPanel>
+            <!--package content-->
+            <Syncfusion:TabControlExt Grid.Column="0" Grid.Row="1" TabStripPlacement="Top" CloseButtonType="Hide">
+                <Syncfusion:TabItemExt Header="Objects">
+                    <Syncfusion:SfTreeView
+                        ChildPropertyName="Children"
+                        ShowLines="True"
+                        LoadOnDemandCommand="{Binding ExecuteOnDemandLoadingCommand}"
+                        SelectedItem="{Binding SelectedNode, Mode=TwoWay}"
+                        ItemsSource="{Binding PackageView}">
+                        <Syncfusion:SfTreeView.ItemTemplate>
+                            <DataTemplate DataType="model:PackageObject">
+                                <TextBlock Text="{Binding NameWithType}" />
+                            </DataTemplate>
+                        </Syncfusion:SfTreeView.ItemTemplate>
+                    </Syncfusion:SfTreeView>
+                </Syncfusion:TabItemExt>
+                <Syncfusion:TabItemExt Header="Classes">
+                    <Syncfusion:SfTreeView
+                        ChildPropertyName="Children"
+                        ShowLines="True"
+                        LoadOnDemandCommand="{Binding ExecuteOnDemandLoadingCommand}"
+                        SelectedItem="{Binding SelectedNode, Mode=TwoWay}"
+                        ItemsSource="{Binding PackageClasses}">
+                        <Syncfusion:SfTreeView.ItemTemplate>
+                            <DataTemplate DataType="model:PackageObject">
+                                <TextBlock Text="{Binding NameWithType}" />
+                            </DataTemplate>
+                        </Syncfusion:SfTreeView.ItemTemplate>
+                    </Syncfusion:SfTreeView>
+                </Syncfusion:TabItemExt>
+            </Syncfusion:TabControlExt>
+
+            <GridSplitter Grid.Row="2" Height="2" HorizontalAlignment="Stretch" />
+            <!--selected meta data-->
+            <StackPanel Grid.Row="3" Grid.Column="0">
+                <TextBlock Text="{Binding SelectedNode.FullName, StringFormat=FullName: {0}}" />
+                <TextBlock Text="{Binding SelectedNode.ArchetypeName, StringFormat=ArchetypeName: {0}}" />
+                <TextBlock Text="{Binding SelectedNode.IsDefaultObject, StringFormat=DefaultObject: {0}}" />
+                <TextBlock Text="{Binding SelectedNode.IsArchetypeObject, StringFormat=Archetype: {0}}" />
+            </StackPanel>
+        </Grid>
+        <GridSplitter Grid.Column="1" Width="2" HorizontalAlignment="Stretch" />
+
+        <!--selected object content-->
+        <ScrollViewer Grid.Row="0" Grid.Column="2" Padding="10, 0">
+            <StackPanel Grid.Row="0" Grid.Column="2">
+                <Syncfusion:PropertyGrid
+                    SelectedObject="{Binding SelectedNode.Object}"
+                    PropertyExpandMode="NestedMode"
+                    AutoGeneratingPropertyGridItem="PropertyGrid_OnAutoGeneratingPropertyGridItem"
+                    SelectedPropertyItemChanged="PropertyGrid_OnSelectedPropertyItemChanged">
+                    <b:Interaction.Behaviors>
+                        <packageExplorer:BubbleScrollEvent />
+                    </b:Interaction.Behaviors>
+                </Syncfusion:PropertyGrid>
+                <Syncfusion:PropertyGrid
+                    SelectedObject="{Binding SelectedNode.Object.ScriptProperties}"
+                    PropertyExpandMode="NestedMode">
+                    <b:Interaction.Behaviors>
+                        <packageExplorer:BubbleScrollEvent />
+                    </b:Interaction.Behaviors>
+                </Syncfusion:PropertyGrid>
+            </StackPanel></ScrollViewer>
+
+
+    </Grid>
+</UserControl>

@@ -1,18 +1,23 @@
-﻿using Core.Serialization;
+﻿namespace Core.Types.FileSummeryInner;
 
-namespace Core.Types.FileSummeryInner;
-
-public class FGenerationInfo : IBinaryDeserializableClass
+/// <summary>
+///     A FGenerationInfo is a member of a <see cref="FileSummary" /> If present it will give information about previous
+///     versions of the package
+/// </summary>
+public class FGenerationInfo
 {
-    public int ExportCount { get; private set; }
-    public int NameCount { get; private set; }
+    /// <summary>
+    ///     How many Exports there was
+    /// </summary>
+    public int ExportCount { get; internal set; }
 
-    public int NetObjectCount { get; private set; }
+    /// <summary>
+    ///     How many names there were
+    /// </summary>
+    public int NameCount { get; internal set; }
 
-    public void Deserialize(BinaryReader reader)
-    {
-        ExportCount = reader.ReadInt32();
-        NameCount = reader.ReadInt32();
-        NetObjectCount = reader.ReadInt32();
-    }
+    /// <summary>
+    ///     How many NetObjects there were
+    /// </summary>
+    public int NetObjectCount { get; internal set; }
 }
