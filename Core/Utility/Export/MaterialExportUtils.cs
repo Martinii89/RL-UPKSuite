@@ -127,6 +127,7 @@ public class MaterialExportUtils
     public void ConnectRandomColorToDiffuseColorProperty(UMaterial material)
     {
         _packageExporter.GetOrAddName("DiffuseColor");
+        _packageExporter.GetOrAddName("LinearColor");
         _packageExporter.GetOrAddName("Expression");
 
         ArgumentNullException.ThrowIfNull(material.Class);
@@ -145,6 +146,7 @@ public class MaterialExportUtils
         material.Expressions.Add(vectorNode);
 
         ArgumentNullException.ThrowIfNull(vectorNode.Class);
+        _packageExporter.GetOrAddName("DefaultValue");
         var defaultValue = vectorNode.Class.GetProperty("DefaultValue") as UStructProperty;
         ArgumentNullException.ThrowIfNull(defaultValue?.Struct);
         defaultValue.Deserialize();
@@ -158,6 +160,7 @@ public class MaterialExportUtils
             ["A"] = 1f
         };
 
+        _packageExporter.GetOrAddName("ParameterName");
         var paramName = vectorNode.Class.GetProperty("ParameterName");
         ArgumentNullException.ThrowIfNull(paramName);
         paramName.Deserialize();
@@ -165,15 +168,16 @@ public class MaterialExportUtils
 
         var defaultValueIsImmutable = defaultValue.Struct.HasFlag(StructFlag.Immutable);
         // Temporarily remove the immutable flag so that we can create a FProperty from it
-        defaultValue.Struct.StructFlags &= ~(int)StructFlag.Immutable;
+        defaultValue.Struct.StructFlags &= ~(int) StructFlag.Immutable;
         vectorNode.ScriptProperties.Add(defaultValue.CreateFProperty(defaultValueObject));
         vectorNode.ScriptProperties.Add(paramName.CreateFProperty("EditorColor"));
         // Set immutable flag back if needed
         if (defaultValueIsImmutable)
         {
-            defaultValue.Struct.StructFlags |= (int)StructFlag.Immutable;
+            defaultValue.Struct.StructFlags |= (int) StructFlag.Immutable;
         }
 
+        _packageExporter.GetOrAddName("OutputIndex");
         var valueObject = new Dictionary<string, object>
         {
             ["Expression"] = vectorNode,
@@ -185,9 +189,13 @@ public class MaterialExportUtils
         var matDiffuseColorIndex = material.ScriptProperties.FindIndex(x => x.Name == "DiffuseColor");
 
         if (matDiffuseColorIndex != -1)
+        {
             material.ScriptProperties[matDiffuseColorIndex] = fproperty;
+        }
         else
+        {
             material.ScriptProperties.Add(fproperty);
+        }
 
         var matExpressions = material.ScriptProperties.Find(x => x.Name == "Expressions");
         if (matExpressions is not null)
