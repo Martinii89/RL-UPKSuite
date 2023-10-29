@@ -10,4 +10,6 @@ public class UDecalComponent : UPrimitiveComponent
         : base(name, @class, outer, ownerPackage, objectArchetype)
     {
     }
+
+    public int NumStaticReceivers { get; set; }
 }

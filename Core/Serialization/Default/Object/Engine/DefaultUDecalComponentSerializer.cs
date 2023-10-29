@@ -19,8 +19,8 @@ public class DefaultDecalComponentSerializer : BaseObjectSerializer<UDecalCompon
     {
         _componentSerializer.DeserializeObject(obj, objectStream);
 
-        var NumStaticReceivers = objectStream.ReadInt32();
-        if (NumStaticReceivers > 0)
+        obj.NumStaticReceivers = objectStream.ReadInt32();
+        if (obj.NumStaticReceivers > 0)
         {
             Debugger.Break();
         }
@@ -29,6 +29,7 @@ public class DefaultDecalComponentSerializer : BaseObjectSerializer<UDecalCompon
     /// <inheritdoc />
     public override void SerializeObject(UDecalComponent obj, IUnrealPackageStream objectStream)
     {
-        throw new NotImplementedException();
+        _componentSerializer.SerializeObject(obj, objectStream);
+        objectStream.WriteInt32(obj.NumStaticReceivers);
     }
 }
