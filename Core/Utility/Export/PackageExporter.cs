@@ -383,6 +383,7 @@ public class PackageExporter
     public void ExportObjectSerialData()
     {
         var exports = _exportExportTable;
+        var serialSizes = new List<Tuple<string, long>>();
         foreach (var export in exports)
         {
             var obj = export.Object;
@@ -404,9 +405,16 @@ public class PackageExporter
             var serializer = GetObjectSerializer(obj);
             serializer.SerializeObject(obj, _outputPackageStream);
             var size = _exportStream.Position - offset;
+            serialSizes.Add(new Tuple<string, long>($"({export.Object?.Class?.Name}){export.Object?.Name}", size));
             export.SerialOffset = offset;
             export.SerialSize = (int) size;
         }
+
+        //serialSizes = serialSizes.OrderByDescending(x => x.Item2).Take(50).ToList();
+        //foreach (var serialSize in serialSizes)
+        //{
+        //    Console.WriteLine($"SerialSize: {serialSize.Item1} : {serialSize.Item2 / 1048576} Mb");
+        //}
     }
 
     private IObjectSerializer GetObjectSerializer(UObject obj)

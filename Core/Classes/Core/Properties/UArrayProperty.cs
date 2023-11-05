@@ -1,4 +1,5 @@
-﻿using Core.Serialization.Abstraction;
+﻿using System.Diagnostics;
+using Core.Serialization.Abstraction;
 using Core.Types;
 
 namespace Core.Classes.Core.Properties;
@@ -22,6 +23,8 @@ public class UArrayProperty : UProperty
     public override object? DeserializeValue(UObject obj, IUnrealPackageStream objStream, int propertySize)
     {
         //objStream.Move(propertySize);
+        var position = objStream.BaseStream.Position;
+
         var result = new List<object?>();
         var arrayCount = objStream.ReadInt32();
         if (arrayCount == 0 || InnerProperty is null)
@@ -36,11 +39,22 @@ public class UArrayProperty : UProperty
             structProperty.Struct?.Deserialize();
         }
 
+        if (InnerProperty is UByteProperty byteProperty)
+        {
+            byteProperty.Deserialize();
+        }
+
         // subtract the size of the count
         var elementSize = (propertySize - 4) / arrayCount;
         for (var i = 0; i < arrayCount; i++)
         {
             result.Add(InnerProperty?.DeserializeValue(obj, objStream, elementSize));
+        }
+
+        var newPosition = objStream.BaseStream.Position;
+        if (newPosition - position != propertySize)
+        {
+            Debugger.Break();
         }
 
         return result;

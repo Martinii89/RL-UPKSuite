@@ -129,6 +129,7 @@ public class MaterialExportUtils
         _packageExporter.GetOrAddName("DiffuseColor");
         _packageExporter.GetOrAddName("LinearColor");
         _packageExporter.GetOrAddName("Expression");
+        _packageExporter.GetOrAddName("ScalarMaterialInput");
 
         ArgumentNullException.ThrowIfNull(material.Class);
         if (material.Class.GetProperty("DiffuseColor") is not UStructProperty diffuseColorProperty)

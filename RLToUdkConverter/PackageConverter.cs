@@ -32,6 +32,12 @@ internal class PackageConverter
         var inputFileName = Path.GetFileNameWithoutExtension(file);
         using var convertedStream = new MemoryStream();
         var package = _packageLoader.LoadPackage(file, inputFileName);
+        if (package is null)
+        {
+            Console.WriteLine($"Failed to load package {inputFileName}");
+            return;
+        }
+
         var exporter = _packageExporterFactory.Create(package, convertedStream);
         exporter.ExportPackage();
         convertedStream.Position = 0;

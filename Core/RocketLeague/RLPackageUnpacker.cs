@@ -177,6 +177,7 @@ public class RLPackageUnpacker
             .FirstOrDefault(x => VerifyDecryptor(x, encryptedData));
         if (validDecryptor == null)
         {
+            Console.WriteLine("Unknown Decryption key");
             throw new InvalidDataException("Unknown Decryption key");
         }
 
