@@ -44,11 +44,18 @@ public class PackageExporter
         _filters.Add(new CrashPreventionFilter());
         _filters.Add(new MapObjectFilter());
         _filters.Add(new UnreversedClassFilter());
+        _filters.Add(new ClassExportFilter());
+        //_filters.Add(new ClassWhitelist());
+        //_filters.Add(new ExportIndexFilter(1756)); // ok
+        //_filters.Add(new ExportIndexFilter(1760)); // crash
+        //_filters.Add(new ExportIndexFilter(0, 2500)); // maybe ok
+        //_filters.Add(new ExportIndexFilter(2000));
         FilterObjects(_exportImportTable, _exportExportTable);
 
         // Do not do this before FilterObjects!
         var materialUtils = new MaterialExportUtils(this);
-        materialUtils.AddDummyNodesToMaterials(_exportExportTable.Select(x => x.Object).OfType<UMaterial>().ToList());
+        //materialUtils.AddDummyNodesToMaterials(_exportExportTable.Select(x => x.Object).OfType<UMaterial>().ToList());
+        AddPackageImport("tagame");
 
 
         ModifyHeaderFieldsForExport(_exportHeader);
@@ -89,6 +96,20 @@ public class PackageExporter
         importItem.ImportedObject = importedClass;
         _exportImportTable.Add(importItem);
         return importedClass;
+    }
+
+    public void AddPackageImport(string packageName)
+    {
+        var package = Package.PackageCache.GetCachedPackage(packageName)?.PackageRoot;
+        ArgumentNullException.ThrowIfNull(package);
+        if (_exportImportTable.FirstOrDefault(x => x.ImportedObject == package) != null)
+        {
+            return;
+        }
+
+        var importItem = new ImportTableItem(GetOrAddName("Core"), GetOrAddName("Package"), new ObjectIndex(0), GetOrAddName(packageName));
+        importItem.ImportedObject = package;
+        _exportImportTable.Add(importItem);
     }
 
     /// <summary>

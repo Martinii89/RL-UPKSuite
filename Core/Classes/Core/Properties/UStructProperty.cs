@@ -31,6 +31,14 @@ public class UStructProperty : UProperty
     {
         ArgumentNullException.ThrowIfNull(Struct);
         Struct.Deserialize();
+        var superStruct = Struct.SuperStruct;
+        while (superStruct is not null)
+        {
+            superStruct.Deserialize();
+            superStruct = superStruct.SuperStruct;
+        }
+
+
         var structValues = new Dictionary<string, object?>();
         if (Struct.HasFlag(StructFlag.Immutable))
         {

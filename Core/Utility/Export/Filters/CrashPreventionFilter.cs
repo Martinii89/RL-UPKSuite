@@ -33,7 +33,7 @@ public class CrashPreventionFilter : IObjectFilter
     /// <inheritdoc />
     public bool ShouldRemove(UnrealPackage package, ExportTableItem exportTableItem)
     {
-        return IsNullExport(package, exportTableItem);
+        return IsNullExport(package, exportTableItem) || exportTableItem.Object.Name.StartsWith("Default__");
     }
 
     /// <summary>

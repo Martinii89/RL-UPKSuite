@@ -70,7 +70,7 @@ public class PackageCacheOptions
 /// </summary>
 public class PackageCache : IPackageCache
 {
-    private readonly ConcurrentDictionary<string, UnrealPackage> _cachedPackages = new();
+    private readonly ConcurrentDictionary<string, UnrealPackage> _cachedPackages = new(StringComparer.CurrentCultureIgnoreCase);
     private readonly PackageCacheOptions _options;
 
     /// <summary>
