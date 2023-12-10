@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using Core.Serialization;
+﻿using Core.Serialization;
 using Core.Serialization.RocketLeague;
 using Core.Test.TestUtilities;
 using Core.Types.FileSummeryInner;

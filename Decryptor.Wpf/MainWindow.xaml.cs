@@ -1,4 +1,6 @@
 ﻿using Decryptor.Wpf.MVVM.ViewModel;
+using DataFormats = System.Windows.DataFormats;
+using DragEventArgs = System.Windows.DragEventArgs;
 
 namespace Decryptor.Wpf;
 

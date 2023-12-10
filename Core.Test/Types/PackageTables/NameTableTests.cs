@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using Core.Serialization;
+﻿using Core.Serialization;
 using Core.Test.TestUtilities;
 using FluentAssertions;
 using Xunit;

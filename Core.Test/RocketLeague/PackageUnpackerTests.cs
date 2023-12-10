@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using Core.RocketLeague.Decryption;
+﻿using Core.RocketLeague.Decryption;
 using Core.Serialization;
 using Core.Serialization.RocketLeague;
 using Core.Test.TestUtilities;

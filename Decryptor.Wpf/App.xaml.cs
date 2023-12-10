@@ -1,6 +1,4 @@
-﻿using System.Configuration;
-using System.Data;
-using System.Threading.Tasks;
+﻿using Application = System.Windows.Application;
 
 namespace Decryptor.Wpf;
 /// <summary>

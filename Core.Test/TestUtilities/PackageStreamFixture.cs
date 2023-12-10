@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace Core.Test.TestUtilities;
+﻿namespace Core.Test.TestUtilities;
 
 public class PackageStreamFixture
 {

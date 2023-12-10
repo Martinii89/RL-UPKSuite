@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using Core;
 using Core.RocketLeague;
 using Core.RocketLeague.Decryption;

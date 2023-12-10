@@ -1,5 +1,4 @@
-﻿using System;
-using Core.Serialization.Tests.TestClasses;
+﻿using Core.Serialization.Tests.TestClasses;
 using FluentAssertions;
 using Xunit;
 

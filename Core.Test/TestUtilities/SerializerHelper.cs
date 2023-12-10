@@ -1,5 +1,4 @@
-﻿using System;
-using Core.Serialization;
+﻿using Core.Serialization;
 using Core.Serialization.Abstraction;
 using Microsoft.Extensions.DependencyInjection;
 

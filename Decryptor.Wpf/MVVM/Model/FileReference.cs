@@ -8,7 +8,7 @@ namespace Decryptor.Wpf.MVVM.Model;
 /// </summary>
 public partial class FileReference: ObservableObject
 {
-    public string FilePath { get; set; } = string.Empty;
+    public string FilePath { get; init; } = string.Empty;
     public string FileName => Path.GetFileNameWithoutExtension(FilePath);
 
     [ObservableProperty]

@@ -1,14 +1,15 @@
 ﻿using System.Globalization;
 using System.Windows.Data;
+using DataFormats = System.Windows.DataFormats;
+using DragEventArgs = System.Windows.DragEventArgs;
 
 namespace Decryptor.Wpf.Converters;
 
 public class FileDropEventArgsConverter: IValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        var dropArgs = value as DragEventArgs;
-        if (dropArgs == null)
+        if (value is not DragEventArgs dropArgs)
         {
             throw new ArgumentException("Expected value to be of type DragEventArgs");
         }
@@ -19,11 +20,12 @@ public class FileDropEventArgsConverter: IValueConverter
         }
 
         string[] files = (string[])dropArgs.Data.GetData(DataFormats.FileDrop);
+        
         return files;
 
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         throw new NotImplementedException();
     }

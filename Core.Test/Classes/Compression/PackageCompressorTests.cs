@@ -1,5 +1,4 @@
-﻿using System.IO;
-using Core.Serialization.Default;
+﻿using Core.Serialization.Default;
 using FluentAssertions;
 using Xunit;
 

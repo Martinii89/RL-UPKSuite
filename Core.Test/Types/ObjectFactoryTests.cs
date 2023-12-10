@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Core.Classes;
+﻿using Core.Classes;
 using Core.Classes.Core;
 using Core.Classes.Core.Properties;
 using Core.Serialization;

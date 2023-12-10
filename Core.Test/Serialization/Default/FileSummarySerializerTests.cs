@@ -1,5 +1,4 @@
-﻿using System.IO;
-using Core.Types;
+﻿using Core.Types;
 using Core.Types.FileSummeryInner;
 using FluentAssertions;
 using Xunit;

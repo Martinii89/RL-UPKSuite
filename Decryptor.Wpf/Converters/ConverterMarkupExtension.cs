@@ -8,11 +8,8 @@ public abstract class ConverterMarkupExtension<T> : MarkupExtension, IValueConve
 {
     private static readonly T Converter = new();
 
-    public override object ProvideValue(IServiceProvider serviceProvider)
-    {
-        return Converter;
-    }
-    
-    public abstract object Convert(object value, Type targetType, object parameter, CultureInfo culture);
-    public abstract object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture);
+    public override object ProvideValue(IServiceProvider serviceProvider) => Converter;
+
+    public abstract object Convert(object? value, Type targetType, object? parameter, CultureInfo culture);
+    public abstract object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture);
 }

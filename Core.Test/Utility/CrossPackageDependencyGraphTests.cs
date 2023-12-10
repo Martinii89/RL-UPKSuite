@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using Core.Test.TestUtilities;
+﻿using Core.Test.TestUtilities;
 using Core.Types;
 using Core.Types.PackageTables;
 using FluentAssertions;

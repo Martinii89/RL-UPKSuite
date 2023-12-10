@@ -1,6 +1,4 @@
-﻿using System.IO;
-using System.Linq;
-using Core.Serialization.RocketLeague;
+﻿using Core.Serialization.RocketLeague;
 using Core.Types;
 using Core.Utility;
 using FluentAssertions;

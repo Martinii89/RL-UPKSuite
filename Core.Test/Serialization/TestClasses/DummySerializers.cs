@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace Core.Serialization.Tests.TestClasses;
+﻿namespace Core.Serialization.Tests.TestClasses;
 
 internal class MySerializeTestOnlyDefaultSerializer : IStreamSerializer<MySerializableTestOnlyDefault>
 {

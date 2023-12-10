@@ -3,10 +3,8 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
-    <ImplicitUsings>false</ImplicitUsings>
     <PackageIcon>wizard-unlock.png</PackageIcon>
     <ApplicationIcon>Images\wizard-unlock.ico</ApplicationIcon>
   </PropertyGroup>

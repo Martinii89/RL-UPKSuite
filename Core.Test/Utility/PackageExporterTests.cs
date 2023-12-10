@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using Core.RocketLeague;
+﻿using Core.RocketLeague;
 using Core.RocketLeague.Decryption;
 using Core.Serialization;
 using Core.Serialization.Abstraction;
