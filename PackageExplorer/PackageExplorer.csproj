@@ -2,66 +2,49 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
-    <UseWindowsForms>true</UseWindowsForms>
     <UserSecretsId>7aba00b8-30eb-48da-bf8d-c8ab6cff1a94</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="App.ico" />
+    <None Remove="App.ico"/>
   </ItemGroup>
+
   <ItemGroup>
-
-<PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
-
-<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="5.0.0" />
-
-<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
-
-<PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.39" />
-
-<PackageReference Include="Syncfusion.Licensing" Version="20.2.0.43" />
-
-<PackageReference Include="Syncfusion.PropertyGrid.WPF" Version="20.2.0.43" />
-
-<PackageReference Include="Syncfusion.SfInput.WPF" Version="20.2.0.43" />
-
-<PackageReference Include="Syncfusion.SfTreeView.WPF" Version="20.2.0.43" />
-
-<PackageReference Include="Syncfusion.Shared.WPF" Version="20.2.0.43" />
-<PackageReference Include="Syncfusion.Themes.FluentDark.Wpf" Version="20.2.0.43" />
-<PackageReference Include="Syncfusion.SfSkinManager.WPF" Version="20.2.0.43" />
-<PackageReference Include="Syncfusion.Themes.FluentLight.WPF" Version="20.2.0.43" />
-<PackageReference Include="Syncfusion.Tools.WPF" Version="20.2.0.43" />
-</ItemGroup>
-  
-  <ItemGroup>
-    <None Include="Project_Readme.html" />
+    <None Include="Project_Readme.html"/>
   </ItemGroup>
-  
+
   <ItemGroup>
-    <Resource Include="App.ico" />
+    <Resource Include="App.ico"/>
   </ItemGroup>
-  
+
   <ItemGroup>
-    <Folder Include="Utils\" />
-    <Folder Include="ViewModel\" />
+    <Folder Include="Utils\"/>
+    <Folder Include="ViewModel\"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Core.csproj"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection"/>
+    <PackageReference Include="CommunityToolkit.Mvvm"/>
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf"/>
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.0"/>
+
+    <!--syncfusion stuff-->
+    <PackageReference Include="Syncfusion.Licensing" Version="23.2.7"/>
+    <PackageReference Include="Syncfusion.PropertyGrid.WPF" Version="23.2.7"/>
+    <PackageReference Include="Syncfusion.SfInput.WPF" Version="23.2.7"/>
+    <PackageReference Include="Syncfusion.SfTreeView.WPF" Version="23.2.7"/>
+    <PackageReference Include="Syncfusion.Shared.WPF" Version="23.2.7"/>
+    <PackageReference Include="Syncfusion.Themes.FluentDark.Wpf" Version="23.2.7"/>
+    <PackageReference Include="Syncfusion.SfSkinManager.WPF" Version="23.2.7"/>
+    <PackageReference Include="Syncfusion.Themes.FluentLight.WPF" Version="23.2.7"/>
+    <PackageReference Include="Syncfusion.Tools.WPF" Version="23.2.7"/>
   </ItemGroup>
   
-  <ItemGroup>
-    <ProjectReference Include="..\Core\Core.csproj" />
-  </ItemGroup>
-  <Target Name="RemoveDuplicateAnalyzers" BeforeTargets="CoreCompile">
-
-    <RemoveDuplicates Inputs="@(Analyzer)">
-      <Output TaskParameter="Filtered" ItemName="FilteredAnalyzer" />
-    </RemoveDuplicates>
-
-    <ItemGroup>
-      <Analyzer Remove="@(Analyzer)" />
-      <Analyzer Include="@(FilteredAnalyzer)" />
-    </ItemGroup>
-  </Target>
 </Project>
