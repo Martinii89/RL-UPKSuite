@@ -1,0 +1,79 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:viewModels="clr-namespace:RLUpkSuite.ViewModels"
+                    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+
+  <DataTemplate DataType="{x:Type viewModels:DecryptorPageViewModel}">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+      </Grid.RowDefinitions>
+
+      <!-- file grid -->
+      <DataGrid
+        x:Name="FileGrid"
+        ItemsSource="{Binding FileReferences}"
+        Margin="0, 0, 0, 8"
+        SelectionMode="Extended"
+        SelectionUnit="FullRow"
+        IsReadOnly="True"
+        AutoGenerateColumns="False">
+        <DataGrid.InputBindings>
+          <KeyBinding Key="Delete"
+                      Command="{Binding DeleteSelectedCommand}"
+                      CommandParameter="{Binding Path=SelectedItems, ElementName=FileGrid}" />
+        </DataGrid.InputBindings>
+        <DataGrid.Columns>
+          <DataGridCheckBoxColumn Header="Success"
+                                  Binding="{Binding ProcessSuccess}" />
+          <DataGridTextColumn Header="FileName" Binding="{Binding FileName}" />
+        </DataGrid.Columns>
+      </DataGrid>
+      <Separator Grid.Row="1" Margin="0 8" />
+
+      <!-- buttons under file grid -->
+      <StackPanel Grid.Row="2">
+        <StackPanel.Resources>
+          <Thickness x:Key="GridSpacing" Right="8" Bottom="8" />
+        </StackPanel.Resources>
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+          </Grid.RowDefinitions>
+          <TextBox Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+                   Text="{Binding OutputDirectory}"
+                   materialDesign:HintAssist.Hint="Output directory"
+                   Margin="{StaticResource GridSpacing}"
+                   Style="{StaticResource MaterialDesignFloatingHintTextBox}" />
+          <Button Grid.Row="0" Grid.Column="2"
+                  Content="Select"
+                  Margin="{StaticResource GridSpacing}" />
+
+          <Button
+            Grid.Row="1" Grid.Column="1"
+            Content="AddFiles"
+            Margin="{StaticResource GridSpacing}"
+            Command="{Binding OpenFileDialogCommand}" />
+          <Button
+            Grid.Row="1" Grid.Column="2"
+            Content="Decrypt"
+            materialDesign:ButtonProgressAssist.IsIndeterminate="True"
+            materialDesign:ButtonProgressAssist.IsIndicatorVisible="{Binding DecryptFilesCommand.IsRunning}"
+            Margin="{StaticResource GridSpacing}"
+            Command="{Binding DecryptFilesCommand}" />
+        </Grid>
+      </StackPanel>
+
+    </Grid>
+  </DataTemplate>
+
+
+</ResourceDictionary>

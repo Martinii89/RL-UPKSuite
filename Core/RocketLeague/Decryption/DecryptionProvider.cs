@@ -22,6 +22,12 @@ public interface IDecrypterProvider
     /// <param name="key"></param>
     /// <returns></returns>
     ICryptoTransform GetCryptoTransform(byte[] key);
+
+    /// <summary>
+    /// Use the base64 encoded keys from the file
+    /// </summary>
+    /// <param name="keysPath"></param>
+    void UseKeyFile(string keysPath);
 }
 
 /// <summary>
@@ -42,6 +48,13 @@ public class DecryptionProvider : IDecrypterProvider
         new(new ByteArrayEqualityComparer());
 
     /// <summary>
+    /// Constructs the decryption provider. Using only the default decryption key
+    /// </summary>
+    public DecryptionProvider()
+    {
+    }
+
+    /// <summary>
     ///     Constructs the decryption provider. Taking in a path to a file with base64 encoded keys.
     /// </summary>
     /// <param name="keyFilePath">Path key file</param>
@@ -49,18 +62,32 @@ public class DecryptionProvider : IDecrypterProvider
     {
         if (!File.Exists(keyFilePath))
         {
-            Console.WriteLine("Failed to load the key file. Using only the default key");
-            return;
+            throw new FileNotFoundException("Failed to load the key file");
         }
 
         var stringKeys = File.ReadAllLines(keyFilePath);
         foreach (var key in stringKeys) DecryptionKeys.Add(Convert.FromBase64String(key));
     }
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="keysPath"></param>
+    public void UseKeyFile(string keysPath)
+    {
+        if (!File.Exists(keysPath))
+        {
+            throw new FileNotFoundException("Failed to load the key file");
+        }
+
+        var stringKeys = File.ReadAllLines(keysPath);
+        DecryptionKeys = [DefaultKey, ..stringKeys.Select(Convert.FromBase64String)];
+    }
 
     /// <summary>
     ///     The list of decryption keys this provider knows about
     /// </summary>
-    public List<byte[]> DecryptionKeys { get; } = new() { DefaultKey };
+    public List<byte[]> DecryptionKeys { get; private set; } = [DefaultKey];
 
     /// <summary>
     ///     Return a decryptor instance. The instances are cached in a thread safe container.
@@ -71,7 +98,8 @@ public class DecryptionProvider : IDecrypterProvider
     {
         if (_decryptorCache.TryGetValue(key, out var cacheTransform)) return cacheTransform;
 
-        var decryptor = Aes.Create("AesManaged");
+        var decryptor = Aes.Create();
+        // var decryptor = Aes.Create("AesManaged");
         Debug.Assert(decryptor != null, nameof(decryptor) + " != null");
         decryptor.KeySize = 256;
         decryptor.Key = key;
@@ -82,6 +110,8 @@ public class DecryptionProvider : IDecrypterProvider
         _decryptorCache.TryAdd(key, cryptoTransform);
         return cryptoTransform;
     }
+
+
 
     private class ByteArrayEqualityComparer : EqualityComparer<byte[]>
     {
