@@ -10,7 +10,7 @@ namespace RLUpkSuite.ViewModels
         {
         }
     }
-    
+
     public class SettingsPageViewModel : PageBase
     {
         public SettingsPageViewModel() : base("Settings", PackIconKind.Cog)

@@ -1,9 +1,11 @@
 ﻿using System.ComponentModel;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 
 using MaterialDesignThemes.Wpf;
 
+using RLUpkSuite.Config;
 using RLUpkSuite.ViewModels;
 
 namespace RLUpkSuite.Windows
@@ -13,18 +15,39 @@ namespace RLUpkSuite.Windows
     /// </summary>
     public partial class MainWindow
     {
+        private readonly AppConfigStore _configStore;
         private readonly MainWindowViewModel _viewModel;
+        private string _configPath;
 
-        public MainWindow(MainWindowViewModel viewModel)
+        public MainWindow(MainWindowViewModel viewModel, AppConfigStore configStore)
         {
+            _configStore = configStore;
             DataContext = _viewModel = viewModel;
             InitializeComponent();
             UseDarkTheme.IsChecked = Theme.GetSystemTheme() == BaseTheme.Dark;
         }
 
+        public void InitConfig(string path)
+        {
+            _configPath = path;
+            if (File.Exists(path))
+            {
+                string str = File.ReadAllText(path);
+                _configStore.Load(str);
+            }
+        }
+
+        private void WriteConfig()
+        {
+            string config = _configStore.Export();
+            string directory = Path.GetDirectoryName(_configPath) ?? throw new InvalidOperationException($"Failed to resolve directory from {_configPath}");
+            Directory.CreateDirectory(directory);
+            File.WriteAllText(_configPath, config);
+        }
+
         protected override void OnClosing(CancelEventArgs e)
         {
-            _viewModel.SaveConfig();
+            WriteConfig();
             base.OnClosing(e);
         }
 

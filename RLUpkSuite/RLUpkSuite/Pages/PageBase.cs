@@ -16,15 +16,15 @@ namespace RLUpkSuite.Pages
         private Thickness _marginRequirement = new(8, 8, 4, 4);
 
         [ObservableProperty]
-        private string _pageName;
+        private PackIconKind _pageIcon;
 
         [ObservableProperty]
-        private PackIconKind _pageIcon;
+        private string _pageName;
 
         [ObservableProperty]
         private ScrollBarVisibility _verticalScrollBarVisibilityRequirement = ScrollBarVisibility.Auto;
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         protected PageBase(string pageName, PackIconKind pageIcon)
         {
             _pageName = pageName;

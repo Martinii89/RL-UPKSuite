@@ -11,9 +11,10 @@
                  Height="720"
                  WindowStartupLocation="CenterScreen"
                  FontFamily="{DynamicResource MahApps.Fonts.Family.Window.Title}"
-                 GlowBrush="{DynamicResource MahApps.Brushes.Accent}"
-                 Style="{StaticResource MaterialDesignWindow}"
+                 BorderThickness="0"
+                 GlowBrush="Black"
                  WindowTransitionsEnabled="False"
+                 Style="{StaticResource MaterialDesignWindow}"
                  d:DataContext="{d:DesignInstance {x:Type viewModels:MainWindowViewModel }}">
   <mah:MetroWindow.Resources>
     <DataTemplate DataType="{x:Type viewModels:DecryptorPageViewModel}" x:Key="PageNavigatorTemplate">
@@ -69,42 +70,41 @@
   </mah:MetroWindow.RightWindowCommands>
   <mah:MetroWindow.LeftWindowCommands>
     <mah:WindowCommands>
-      <ToggleButton Width="24"
-                    Height="24"
+      <ToggleButton Width="24" Height="24"
                     IsChecked="{Binding IsNavigatorOpen}"
                     Style="{StaticResource MaterialDesignHamburgerToggleButton}" />
     </mah:WindowCommands>
   </mah:MetroWindow.LeftWindowCommands>
+
+  <!-- main content shell -->
   <Grid>
     <Grid.RowDefinitions>
       <RowDefinition Height="*" />
       <RowDefinition Height="Auto" />
     </Grid.RowDefinitions>
-    <md:DialogHost DialogTheme="Inherit"
-                   Identifier="Root">
-      <md:DrawerHost IsLeftDrawerOpen="{Binding IsNavigatorOpen}">
+    <md:DialogHost DialogTheme="Inherit" Identifier="Root">
+      <md:DrawerHost x:Name="ShellDrawerHost"
+                     IsLeftDrawerOpen="{Binding IsNavigatorOpen}"
+                     OpenMode="Standard">
         <md:DrawerHost.LeftDrawerContent>
-          <ListBox ItemsSource="{Binding Pages}"
-                   SelectedItem="{Binding SelectedPage}"
-                   ItemTemplate="{StaticResource PageNavigatorTemplate}" />
+          <md:Card UniformCornerRadius="0" md:ElevationAssist.Elevation="Dp4">
+            <ListBox ItemsSource="{Binding Pages}"
+                     SelectedItem="{Binding SelectedPage}"
+                     ItemTemplate="{StaticResource PageNavigatorTemplate}" />
+          </md:Card>
         </md:DrawerHost.LeftDrawerContent>
 
         <Grid>
           <ContentControl x:Name="PageContentPresenter"
-            Margin="{Binding SelectedPage.MarginRequirement, FallbackValue=16}"
-            Content="{Binding SelectedPage, UpdateSourceTrigger=PropertyChanged, FallbackValue={x:Null}}"
-            />
-          <!-- <ContentPresenter -->
-          <!--   DataContext="{Binding SelectedPage}" -->
-          <!--   Margin="{Binding MarginRequirement, FallbackValue=16}" -->
-          <!--   Content="{Binding SelectedPage, UpdateSourceTrigger=PropertyChanged, FallbackValue={x:Null}}" /> -->
-
-          <md:Snackbar x:Name="MainSnackbar"
-                       MessageQueue="{Binding MessageQueue}" />
+                          Margin="{Binding SelectedPage.MarginRequirement, FallbackValue=16}"
+                          Content="{Binding SelectedPage, UpdateSourceTrigger=PropertyChanged, FallbackValue={x:Null}}" />
+          <md:Snackbar x:Name="MainSnackbar" MessageQueue="{Binding MessageQueue}" />
         </Grid>
 
       </md:DrawerHost>
     </md:DialogHost>
+
+
     <StatusBar Grid.Row="1">
       <StatusBarItem>
         <TextBlock>My status is: Awesome!</TextBlock>

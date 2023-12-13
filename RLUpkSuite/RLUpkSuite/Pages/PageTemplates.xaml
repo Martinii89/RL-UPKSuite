@@ -1,7 +1,8 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:viewModels="clr-namespace:RLUpkSuite.ViewModels"
-                    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+                    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+                    xmlns:system="clr-namespace:System;assembly=System.Runtime">
 
   <DataTemplate DataType="{x:Type viewModels:DecryptorPageViewModel}">
     <Grid>
@@ -12,31 +13,33 @@
       </Grid.RowDefinitions>
 
       <!-- file grid -->
+      <!-- AlternationCount="2" -->
+      <!-- AlternatingRowBackground="#11FFFFFF" -->
       <DataGrid
         x:Name="FileGrid"
         ItemsSource="{Binding FileReferences}"
         Margin="0, 0, 0, 8"
+        BorderThickness="1"
         SelectionMode="Extended"
         SelectionUnit="FullRow"
-        IsReadOnly="True"
+        IsReadOnly="False"
+        CanUserDeleteRows="True"
+        CanUserAddRows="False"
+        CanUserReorderColumns="False"
         AutoGenerateColumns="False">
-        <DataGrid.InputBindings>
-          <KeyBinding Key="Delete"
-                      Command="{Binding DeleteSelectedCommand}"
-                      CommandParameter="{Binding Path=SelectedItems, ElementName=FileGrid}" />
-        </DataGrid.InputBindings>
         <DataGrid.Columns>
-          <DataGridCheckBoxColumn Header="Success"
-                                  Binding="{Binding ProcessSuccess}" />
-          <DataGridTextColumn Header="FileName" Binding="{Binding FileName}" />
+          <DataGridCheckBoxColumn Header="Success" Binding="{Binding ProcessSuccess}" IsReadOnly="True" />
+          <DataGridTextColumn Header="FileName" Binding="{Binding FileName}" IsReadOnly="True" Width="*" />
         </DataGrid.Columns>
       </DataGrid>
+      
       <Separator Grid.Row="1" Margin="0 8" />
 
       <!-- buttons under file grid -->
       <StackPanel Grid.Row="2">
         <StackPanel.Resources>
           <Thickness x:Key="GridSpacing" Right="8" Bottom="8" />
+          <system:Double x:Key="IconSize">18</system:Double>
         </StackPanel.Resources>
         <Grid>
           <Grid.ColumnDefinitions>
@@ -47,28 +50,47 @@
           <Grid.RowDefinitions>
             <RowDefinition />
             <RowDefinition />
+            <RowDefinition />
           </Grid.RowDefinitions>
+          
           <TextBox Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
                    Text="{Binding OutputDirectory}"
+                   materialDesign:TextFieldAssist.HasClearButton="true"
                    materialDesign:HintAssist.Hint="Output directory"
                    Margin="{StaticResource GridSpacing}"
                    Style="{StaticResource MaterialDesignFloatingHintTextBox}" />
           <Button Grid.Row="0" Grid.Column="2"
-                  Content="Select"
+                  Content="{materialDesign:PackIcon Folder, Size={StaticResource IconSize}}"
+                  ToolTip="Select output folder"
                   Margin="{StaticResource GridSpacing}" />
-
-          <Button
-            Grid.Row="1" Grid.Column="1"
-            Content="AddFiles"
-            Margin="{StaticResource GridSpacing}"
-            Command="{Binding OpenFileDialogCommand}" />
-          <Button
-            Grid.Row="1" Grid.Column="2"
-            Content="Decrypt"
-            materialDesign:ButtonProgressAssist.IsIndeterminate="True"
-            materialDesign:ButtonProgressAssist.IsIndicatorVisible="{Binding DecryptFilesCommand.IsRunning}"
-            Margin="{StaticResource GridSpacing}"
-            Command="{Binding DecryptFilesCommand}" />
+          
+          <TextBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                   Text="{Binding KeyPath}"
+                   materialDesign:TextFieldAssist.HasClearButton="true"
+                   materialDesign:HintAssist.Hint="Keys input"
+                   Margin="{StaticResource GridSpacing}"
+                   Style="{StaticResource MaterialDesignFloatingHintTextBox}" />
+          <Button Grid.Row="1" Grid.Column="2"
+                  Content="{materialDesign:PackIcon FileLock, Size={StaticResource IconSize}}"
+                  ToolTip="Select keys File"
+                  Margin="{StaticResource GridSpacing}" />
+          
+          <CheckBox Grid.Row="2" Grid.Column="0" Style="{StaticResource MaterialDesignCheckBox}"
+                    Content="Open output"
+                    IsChecked="{Binding OpenOutputDirectoryOnFinished}" />
+          
+          <Button Grid.Row="2" Grid.Column="1"
+                  Content="{materialDesign:PackIcon Plus, Size={StaticResource IconSize}}"
+                  ToolTip="Add files"
+                  Margin="{StaticResource GridSpacing}"
+                  Command="{Binding OpenFileDialogCommand}" />
+          <Button Grid.Row="2" Grid.Column="2"
+                  Content="{materialDesign:PackIcon Play, Size={StaticResource IconSize}}"
+                  ToolTip="Decrypt files"
+                  materialDesign:ButtonProgressAssist.IsIndeterminate="True"
+                  materialDesign:ButtonProgressAssist.IsIndicatorVisible="{Binding DecryptFilesCommand.IsRunning}"
+                  Margin="{StaticResource GridSpacing}"
+                  Command="{Binding DecryptFilesCommand}" />
         </Grid>
       </StackPanel>
 
