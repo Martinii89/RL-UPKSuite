@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Messaging;
 
 using MaterialDesignThemes.Wpf;
 
+using RLUpkSuite.Config;
 using RLUpkSuite.Pages;
 
 namespace RLUpkSuite.ViewModels
@@ -12,7 +13,7 @@ namespace RLUpkSuite.ViewModels
     public partial class MainWindowViewModel : ObservableObject, IRecipient<ShowError>
     {
         private const string TitleBase = "RlUpkSuite";
-        private readonly UserConfiguration _userConfiguration;
+        private readonly ShellConfig _shellConfig;
 
         [ObservableProperty]
         private bool _isNavigatorOpen;
@@ -25,16 +26,16 @@ namespace RLUpkSuite.ViewModels
 
         /// <inheritdoc />
         public MainWindowViewModel(
-            UserConfiguration userConfiguration,
             IEnumerable<PageBase> pages,
+            ShellConfig shellConfig,
             ISnackbarMessageQueue messageQueue,
             IMessenger messenger)
         {
-            _userConfiguration = userConfiguration;
+            _shellConfig = shellConfig;
             messenger.Register(this);
             MessageQueue = messageQueue;
             Pages = [..pages];
-            SelectedPage = Pages.FirstOrDefault(x => x.PageName == _userConfiguration.StartPage) ?? Pages.FirstOrDefault();
+            SelectedPage = Pages.FirstOrDefault(x => x.PageName == shellConfig.StartPage) ?? Pages.FirstOrDefault();
         }
 
         public ObservableCollection<PageBase> Pages { get; }
@@ -46,11 +47,6 @@ namespace RLUpkSuite.ViewModels
             MessageQueue.Enqueue(message.Message, "Details", OnShowErrorDetails, message.Details);
         }
 
-        public void SaveConfig()
-        {
-            _userConfiguration.Save();
-        }
-
         partial void OnSelectedPageChanged(PageBase? value)
         {
             IsNavigatorOpen = false;
@@ -60,7 +56,7 @@ namespace RLUpkSuite.ViewModels
             }
 
             Title = $"{TitleBase} - {value.PageName}";
-            _userConfiguration.StartPage = value.PageName;
+            _shellConfig.StartPage = value.PageName;
         }
 
         private async void OnShowErrorDetails(string? details)
