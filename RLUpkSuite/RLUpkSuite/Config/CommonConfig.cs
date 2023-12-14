@@ -1,12 +1,12 @@
 ﻿using System.Text.Json.Nodes;
 
-namespace RLUpkSuite.Config
+namespace RLUpkSuite.Config;
+
+public class CommonConfig : AppConfig
 {
-    public class CommonConfig : AppConfig
+    public override string GetKey() => "Common";
+    public override void UpdateFromConfig(JsonObject? jsonObject)
     {
-        public override string GetKey() => "Common";
-        public override void UpdateFromConfig(JsonObject? jsonObject)
-        {
             if (jsonObject is null)
             {
                 return;
@@ -17,6 +17,5 @@ namespace RLUpkSuite.Config
             }
         }
 
-        public string? KeysPath { get; set; }
-    }
+    public string? KeysPath { get; set; }
 }
