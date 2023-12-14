@@ -97,5 +97,12 @@
     </Grid>
   </DataTemplate>
 
+  
+  <DataTemplate DataType="{x:Type viewModels:SettingsPageViewModel}">
+    <StackPanel>
+      <materialDesign:ColorPicker Color="{Binding PrimaryColor}" />
+      <materialDesign:ColorPicker Color="{Binding SecondaryColor}"/>
+    </StackPanel>
+  </DataTemplate>
 
 </ResourceDictionary>

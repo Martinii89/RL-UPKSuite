@@ -1,20 +1,20 @@
 ﻿using System.Text.Json.Nodes;
 
-namespace RLUpkSuite.Config
-{
-    [Serializable]
-    public class DecryptionConfig : AppConfig
-    {
-        public bool ShowOutputDirectory { get; set; }
-        public string? OutputDirectory { get; set; }
+namespace RLUpkSuite.Config;
 
-        public override string GetKey()
-        {
+[Serializable]
+public class DecryptionConfig : AppConfig
+{
+    public bool ShowOutputDirectory { get; set; }
+    public string? OutputDirectory { get; set; }
+
+    public override string GetKey()
+    {
             return "Decryption";
         }
 
-        public override void UpdateFromConfig(JsonObject? jsonObject)
-        {
+    public override void UpdateFromConfig(JsonObject? jsonObject)
+    {
             if (jsonObject is null)
             {
                 return;
@@ -29,5 +29,4 @@ namespace RLUpkSuite.Config
                 OutputDirectory = jsonObject[nameof(OutputDirectory)]?.GetValue<string>();
             }
         }
-    }
 }

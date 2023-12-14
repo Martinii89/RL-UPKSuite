@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace RLUpkSuite.Config
+namespace RLUpkSuite.Config;
+
+public static class ConfigExtensions
 {
-    public static class ConfigExtensions
+    public static IServiceCollection AddAppConfigs(this IServiceCollection services)
     {
-        public static IServiceCollection AddAppConfigs(this IServiceCollection services)
-        {
             services.AddSingleton<AppConfigStore>();
             Type configBaseType = typeof(AppConfig);
 
@@ -22,12 +22,11 @@ namespace RLUpkSuite.Config
             return services;
         }
 
-        public static IServiceCollection AddAppConfig<T>(this IServiceCollection services) where T : AppConfig
-        {
+    public static IServiceCollection AddAppConfig<T>(this IServiceCollection services) where T : AppConfig
+    {
             services.AddSingleton<T>();
             services.AddSingleton<AppConfig, T>(provider => provider.GetRequiredService<T>());
 
             return services;
         }
-    }
 }

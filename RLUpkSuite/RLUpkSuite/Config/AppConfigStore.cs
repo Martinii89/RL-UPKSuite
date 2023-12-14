@@ -1,19 +1,19 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Nodes;
 
-namespace RLUpkSuite.Config
-{
-    public class AppConfigStore
-    {
-        private readonly Dictionary<string, AppConfig> _configSections;
+namespace RLUpkSuite.Config;
 
-        public AppConfigStore(IEnumerable<AppConfig> configs)
-        {
+public class AppConfigStore
+{
+    private readonly Dictionary<string, AppConfig> _configSections;
+
+    public AppConfigStore(IEnumerable<AppConfig> configs)
+    {
             _configSections = configs.ToDictionary(x => x.GetKey(), x => x);
         }
 
-        public string Export()
-        {
+    public string Export()
+    {
             JsonObject jsonObject = new JsonObject();
             foreach ((string key, AppConfig value) in _configSections)
             {
@@ -25,8 +25,8 @@ namespace RLUpkSuite.Config
             return jsonObject.ToJsonString();
         }
 
-        public void Load(string jsonText)
-        {
+    public void Load(string jsonText)
+    {
             if (JsonNode.Parse(jsonText) is not JsonObject configs)
             {
                 return;
@@ -49,5 +49,4 @@ namespace RLUpkSuite.Config
                 // }
             }
         }
-    }
 }
