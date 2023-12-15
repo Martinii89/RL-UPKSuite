@@ -1,5 +1,4 @@
 using MaterialDesignThemes.Wpf;
-
 using RLUpkSuite.Pages;
 
 namespace RLUpkSuite.ViewModels;

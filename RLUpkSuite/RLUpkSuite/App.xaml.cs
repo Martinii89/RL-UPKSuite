@@ -1,17 +1,12 @@
 ﻿using System.IO;
 using System.Windows;
 using System.Windows.Threading;
-
 using CommunityToolkit.Mvvm.Messaging;
-
 using Core.RocketLeague.Decryption;
-
 using MaterialDesignThemes.Wpf;
-
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-
 using RLUpkSuite.Config;
 using RLUpkSuite.Pages;
 using RLUpkSuite.ViewModels;
@@ -32,12 +27,12 @@ public partial class App : Application
 
     private static async Task MainAsync(string[] args)
     {
-        using IHost host = CreateHostBuilder(args).Build();
+        using var host = CreateHostBuilder(args).Build();
         await host.StartAsync().ConfigureAwait(true);
 
         App app = new();
         app.InitializeComponent();
-        MainWindow appMainWindow = host.Services.GetRequiredService<MainWindow>();
+        var appMainWindow = host.Services.GetRequiredService<MainWindow>();
         appMainWindow.InitConfig(GetAppConfigPath());
         app.MainWindow = appMainWindow;
         app.MainWindow.Visibility = Visibility.Visible;
@@ -48,7 +43,8 @@ public partial class App : Application
 
     private static string GetAppConfigPath()
     {
-        return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "rlupksuite", "rlupksuite.config");
+        return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "rlupksuite",
+            "rlupksuite.config");
     }
 
     public static IHostBuilder CreateHostBuilder(string[] args)
@@ -60,11 +56,12 @@ public partial class App : Application
             {
                 // Plumbing
                 services.AddSingleton<WeakReferenceMessenger>();
-                services.AddSingleton<IMessenger, WeakReferenceMessenger>(provider => provider.GetRequiredService<WeakReferenceMessenger>());
+                services.AddSingleton<IMessenger, WeakReferenceMessenger>(provider =>
+                    provider.GetRequiredService<WeakReferenceMessenger>());
                 services.AddSingleton(_ => Current.Dispatcher);
                 services.AddTransient<ISnackbarMessageQueue>(provider =>
                 {
-                    Dispatcher dispatcher = provider.GetRequiredService<Dispatcher>();
+                    var dispatcher = provider.GetRequiredService<Dispatcher>();
                     return new SnackbarMessageQueue(TimeSpan.FromSeconds(3.0), dispatcher);
                 });
 

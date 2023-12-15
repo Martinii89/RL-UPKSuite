@@ -1,8 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-
 using CommunityToolkit.Mvvm.ComponentModel;
-
 using MaterialDesignThemes.Wpf;
 
 namespace RLUpkSuite.Pages;
@@ -27,7 +25,7 @@ public abstract partial class PageBase : ObservableObject
     /// <inheritdoc />
     protected PageBase(string pageName, PackIconKind pageIcon)
     {
-            _pageName = pageName;
-            _pageIcon = pageIcon;
-        }
+        _pageName = pageName;
+        _pageIcon = pageIcon;
+    }
 }

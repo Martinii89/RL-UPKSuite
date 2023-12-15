@@ -6,27 +6,27 @@ public static class ConfigExtensions
 {
     public static IServiceCollection AddAppConfigs(this IServiceCollection services)
     {
-            services.AddSingleton<AppConfigStore>();
-            Type configBaseType = typeof(AppConfig);
+        services.AddSingleton<AppConfigStore>();
+        var configBaseType = typeof(AppConfigBase);
 
-            IEnumerable<Type> configImplementations = typeof(App).Assembly.GetTypes()
-                .Where(x => x is { IsAbstract: false, IsInterface: false } && x.IsAssignableTo(configBaseType));
+        var configImplementations = typeof(App).Assembly.GetTypes()
+            .Where(x => x is { IsAbstract: false, IsInterface: false } && x.IsAssignableTo(configBaseType));
 
-            foreach (Type configImplementation in configImplementations)
-            {
-                ServiceDescriptor service = new ServiceDescriptor(configBaseType, configImplementation, ServiceLifetime.Singleton);
-                services.AddSingleton(service);
-                services.AddSingleton(configImplementation);
-            }
-
-            return services;
+        foreach (var configImplementation in configImplementations)
+        {
+            ServiceDescriptor service = new(configBaseType, configImplementation, ServiceLifetime.Singleton);
+            services.AddSingleton(service);
+            services.AddSingleton(configImplementation);
         }
 
-    public static IServiceCollection AddAppConfig<T>(this IServiceCollection services) where T : AppConfig
+        return services;
+    }
+
+    public static IServiceCollection AddAppConfig<T>(this IServiceCollection services) where T : AppConfigBase
     {
-            services.AddSingleton<T>();
-            services.AddSingleton<AppConfig, T>(provider => provider.GetRequiredService<T>());
+        services.AddSingleton<T>();
+        services.AddSingleton<AppConfigBase, T>(provider => provider.GetRequiredService<T>());
 
-            return services;
-        }
+        return services;
+    }
 }
