@@ -1,10 +1,7 @@
 ﻿using System.Collections.ObjectModel;
-
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
-
 using MaterialDesignThemes.Wpf;
-
 using RLUpkSuite.Config;
 using RLUpkSuite.Pages;
 
@@ -13,6 +10,7 @@ namespace RLUpkSuite.ViewModels;
 public partial class MainWindowViewModel : ObservableObject, IRecipient<ShowError>
 {
     private const string TitleBase = "RlUpkSuite";
+
     private readonly ShellConfig _shellConfig;
 
     [ObservableProperty]
@@ -50,10 +48,7 @@ public partial class MainWindowViewModel : ObservableObject, IRecipient<ShowErro
     partial void OnSelectedPageChanged(PageBase? value)
     {
         IsNavigatorOpen = false;
-        if (value is null)
-        {
-            return;
-        }
+        if (value is null) return;
 
         Title = $"{TitleBase} - {value.PageName}";
         _shellConfig.StartPage = value.PageName;
@@ -61,10 +56,7 @@ public partial class MainWindowViewModel : ObservableObject, IRecipient<ShowErro
 
     private async void OnShowErrorDetails(string? details)
     {
-        if (string.IsNullOrEmpty(details))
-        {
-            return;
-        }
+        if (string.IsNullOrEmpty(details)) return;
 
         await DialogHost.Show(new ErrorDetailsViewModel(details), "Root");
     }

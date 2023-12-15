@@ -2,20 +2,19 @@
 
 namespace RLUpkSuite.Config;
 
-public class CommonConfig : AppConfig
+public class CommonConfig : AppConfigBase
 {
-    public override string GetKey() => "Common";
+    public string? KeysPath { get; set; }
+
+    public override string GetKey()
+    {
+        return "Common";
+    }
+
     public override void UpdateFromConfig(JsonObject? jsonObject)
     {
-            if (jsonObject is null)
-            {
-                return;
-            }
-            if (jsonObject.ContainsKey(nameof(KeysPath)))
-            {
-                KeysPath = jsonObject[nameof(KeysPath)]?.GetValue<string?>();
-            }
-        }
+        if (jsonObject is null) return;
 
-    public string? KeysPath { get; set; }
+        if (jsonObject.ContainsKey(nameof(KeysPath))) KeysPath = jsonObject[nameof(KeysPath)]?.GetValue<string?>();
+    }
 }
