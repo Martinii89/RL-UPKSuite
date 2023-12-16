@@ -5,6 +5,8 @@ namespace RLUpkSuite.Config;
 public class CommonConfig : AppConfigBase
 {
     public string? KeysPath { get; set; }
+    
+    public bool OpenOutputOnFinish { get; set; }
 
     public override string GetKey()
     {
@@ -13,8 +15,19 @@ public class CommonConfig : AppConfigBase
 
     public override void UpdateFromConfig(JsonObject? jsonObject)
     {
-        if (jsonObject is null) return;
+        if (jsonObject is null)
+        {
+            return;
+        }
 
-        if (jsonObject.ContainsKey(nameof(KeysPath))) KeysPath = jsonObject[nameof(KeysPath)]?.GetValue<string?>();
+        if (jsonObject.ContainsKey(nameof(KeysPath)))
+        {
+            KeysPath = jsonObject[nameof(KeysPath)]?.GetValue<string?>();
+        }
+        
+        if (jsonObject.ContainsKey(nameof(OpenOutputOnFinish)))
+        {
+            OpenOutputOnFinish = jsonObject[nameof(OpenOutputOnFinish)]!.GetValue<bool>();
+        }
     }
 }

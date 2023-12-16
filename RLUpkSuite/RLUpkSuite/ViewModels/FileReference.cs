@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System.Collections.ObjectModel;
+using System.IO;
+
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace RLUpkSuite.ViewModels;
@@ -16,4 +18,9 @@ public partial class FileReference(string filePath) : ObservableObject
     private bool _processSuccess;
 
     public string FileName => Path.GetFileName(FilePath);
+}
+
+public class FileReferenceCollection : ObservableCollection<FileReference>
+{
+    
 }

@@ -1,0 +1,97 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+                    xmlns:system="clr-namespace:System;assembly=System.Runtime"
+                    xmlns:viewModels="clr-namespace:RLUpkSuite.ViewModels">
+
+  <DataTemplate DataType="{x:Type viewModels:PackageGeneratorPageViewModel}">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+      </Grid.RowDefinitions>
+
+      <!-- file grid -->
+      <ContentPresenter Content="{Binding FileReferences}" />
+
+      <Separator Grid.Row="1" Margin="0,8" />
+
+      <!-- buttons under file grid -->
+      <StackPanel Grid.Row="2">
+        <StackPanel.Resources>
+          <Thickness x:Key="GridSpacing"
+                     Bottom="8"
+                     Right="8" />
+          <system:Double x:Key="IconSize">18</system:Double>
+        </StackPanel.Resources>
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+          </Grid.RowDefinitions>
+
+          <TextBox Grid.Row="0"
+                   Grid.Column="0"
+                   Grid.ColumnSpan="2"
+                   Margin="{StaticResource GridSpacing}"
+                   materialDesign:HintAssist.Hint="Output directory"
+                   materialDesign:TextFieldAssist.HasClearButton="true"
+                   Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                   Text="{Binding OutputDirectory}" />
+          <Button Grid.Row="0"
+                  Grid.Column="2"
+                  Margin="{StaticResource GridSpacing}"
+                  Content="{materialDesign:PackIcon Folder,
+                                                    Size={StaticResource IconSize}}"
+                  ToolTip="Select output folder" />
+
+          <TextBox Grid.Row="1"
+                   Grid.Column="0"
+                   Grid.ColumnSpan="2"
+                   Margin="{StaticResource GridSpacing}"
+                   materialDesign:HintAssist.Hint="Keys input"
+                   materialDesign:TextFieldAssist.HasClearButton="true"
+                   Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                   Text="{Binding KeyPath}" />
+          <Button Grid.Row="1"
+                  Grid.Column="2"
+                  Margin="{StaticResource GridSpacing}"
+                  Content="{materialDesign:PackIcon FileLock,
+                                                    Size={StaticResource IconSize}}"
+                  ToolTip="Select keys File" />
+
+          <CheckBox Grid.Row="2"
+                    Grid.Column="0"
+                    Content="Open output"
+                    IsChecked="{Binding OpenOutputDirectoryOnFinished}"
+                    Style="{StaticResource MaterialDesignCheckBox}" />
+
+          <Button Grid.Row="2"
+                  Grid.Column="1"
+                  Margin="{StaticResource GridSpacing}"
+                  Command="{Binding OpenFileDialogCommand}"
+                  Content="{materialDesign:PackIcon Plus,
+                                                    Size={StaticResource IconSize}}"
+                  ToolTip="Add files" />
+          <Button Grid.Row="2"
+                  Grid.Column="2"
+                  Margin="{StaticResource GridSpacing}"
+                  materialDesign:ButtonProgressAssist.IsIndeterminate="True"
+                  materialDesign:ButtonProgressAssist.IsIndicatorVisible="{Binding DecryptFilesCommand.IsRunning}"
+                  Command="{Binding ConvertFilesCommand}"
+                  Content="{materialDesign:PackIcon Play,
+                                                    Size={StaticResource IconSize}}"
+                  ToolTip="Decrypt files" />
+        </Grid>
+      </StackPanel>
+
+    </Grid>
+  </DataTemplate>
+</ResourceDictionary>

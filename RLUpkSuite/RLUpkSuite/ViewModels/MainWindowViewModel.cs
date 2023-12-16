@@ -1,7 +1,10 @@
 ﻿using System.Collections.ObjectModel;
+
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
+
 using MaterialDesignThemes.Wpf;
+
 using RLUpkSuite.Config;
 using RLUpkSuite.Pages;
 
@@ -33,7 +36,6 @@ public partial class MainWindowViewModel : ObservableObject, IRecipient<ShowErro
         messenger.Register(this);
         MessageQueue = messageQueue;
         Pages = [..pages];
-        SelectedPage = Pages.FirstOrDefault(x => x.PageName == shellConfig.StartPage) ?? Pages.FirstOrDefault();
     }
 
     public ObservableCollection<PageBase> Pages { get; }
@@ -48,7 +50,10 @@ public partial class MainWindowViewModel : ObservableObject, IRecipient<ShowErro
     partial void OnSelectedPageChanged(PageBase? value)
     {
         IsNavigatorOpen = false;
-        if (value is null) return;
+        if (value is null)
+        {
+            return;
+        }
 
         Title = $"{TitleBase} - {value.PageName}";
         _shellConfig.StartPage = value.PageName;
@@ -56,7 +61,10 @@ public partial class MainWindowViewModel : ObservableObject, IRecipient<ShowErro
 
     private async void OnShowErrorDetails(string? details)
     {
-        if (string.IsNullOrEmpty(details)) return;
+        if (string.IsNullOrEmpty(details))
+        {
+            return;
+        }
 
         await DialogHost.Show(new ErrorDetailsViewModel(details), "Root");
     }
