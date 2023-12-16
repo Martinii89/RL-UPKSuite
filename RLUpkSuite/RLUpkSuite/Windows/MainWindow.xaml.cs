@@ -1,8 +1,14 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
+using System.Windows.Media;
+
 using MaterialDesignColors;
+
 using MaterialDesignThemes.Wpf;
+
 using RLUpkSuite.Config;
+using RLUpkSuite.Pages;
 using RLUpkSuite.ViewModels;
 
 namespace RLUpkSuite.Windows;
@@ -34,19 +40,26 @@ public partial class MainWindow
         _configPath = path;
         if (File.Exists(path))
         {
-            var str = File.ReadAllText(path);
+            string str = File.ReadAllText(path);
             _configStore.Load(str);
         }
 
+        var viewModelPages = _viewModel.Pages;
+        _viewModel.SelectedPage = viewModelPages.FirstOrDefault(x => x.PageName == _shellConfig.StartPage) ?? viewModelPages.FirstOrDefault();
         InitThemeFromConfig();
+    }
+
+    private void InitStartPageFromConfig()
+    {
+        
     }
 
     private void InitThemeFromConfig()
     {
         PaletteHelper paletteHelper = new();
-        var theme = paletteHelper.GetTheme();
-        var primary = SwatchHelper.Lookup[(MaterialDesignColor)_shellConfig.PrimaryColor];
-        var secondary = SwatchHelper.Lookup[(MaterialDesignColor)_shellConfig.SecondaryColor];
+        Theme theme = paletteHelper.GetTheme();
+        Color primary = SwatchHelper.Lookup[(MaterialDesignColor)_shellConfig.PrimaryColor];
+        Color secondary = SwatchHelper.Lookup[(MaterialDesignColor)_shellConfig.SecondaryColor];
 
         theme.SetBaseTheme(_shellConfig.BaseTheme);
         theme.SetPrimaryColor(primary);
@@ -56,9 +69,9 @@ public partial class MainWindow
 
     private void WriteConfig()
     {
-        var config = _configStore.Export();
-        var directory = Path.GetDirectoryName(_configPath) ??
-                        throw new InvalidOperationException($"Failed to resolve directory from {_configPath}");
+        string config = _configStore.Export();
+        string directory = Path.GetDirectoryName(_configPath) ??
+                           throw new InvalidOperationException($"Failed to resolve directory from {_configPath}");
         Directory.CreateDirectory(directory);
         File.WriteAllText(_configPath, config);
     }
@@ -68,19 +81,4 @@ public partial class MainWindow
         WriteConfig();
         base.OnClosing(e);
     }
-
-    // private void ThemeToggleChanged(object sender, RoutedEventArgs e)
-    // {
-    //     bool? useDarkTheme = ((ToggleButton)sender).IsChecked;
-    //     if (useDarkTheme is null)
-    //     {
-    //         return;
-    //     }
-    //
-    //     PaletteHelper paletteHelper = new();
-    //     //Retrieve the app's existing theme
-    //     Theme theme = paletteHelper.GetTheme();
-    //     theme.SetBaseTheme(useDarkTheme.Value ? BaseTheme.Dark : BaseTheme.Light);
-    //     paletteHelper.SetTheme(theme);
-    // }
 }

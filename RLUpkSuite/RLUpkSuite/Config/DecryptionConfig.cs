@@ -2,10 +2,20 @@
 
 namespace RLUpkSuite.Config;
 
-[Serializable]
-public class DecryptionConfig : AppConfigBase
+public class DecryptionConfig(CommonConfig commonConfig) : AppConfigBase
 {
-    public bool ShowOutputDirectory { get; set; }
+    
+    public string? KeysPath
+    {
+        get => commonConfig.KeysPath;
+        set => commonConfig.KeysPath = value;
+    }
+
+    public bool OpenOutputOnFinish     {
+        get => commonConfig.OpenOutputOnFinish;
+        set => commonConfig.OpenOutputOnFinish = value;
+    }
+
     public string? OutputDirectory { get; set; }
 
     public override string GetKey()
@@ -15,12 +25,14 @@ public class DecryptionConfig : AppConfigBase
 
     public override void UpdateFromConfig(JsonObject? jsonObject)
     {
-        if (jsonObject is null) return;
-
-        if (jsonObject.ContainsKey(nameof(ShowOutputDirectory)))
-            ShowOutputDirectory = jsonObject[nameof(ShowOutputDirectory)]!.GetValue<bool>();
+        if (jsonObject is null)
+        {
+            return;
+        }
 
         if (jsonObject.ContainsKey(nameof(OutputDirectory)))
+        {
             OutputDirectory = jsonObject[nameof(OutputDirectory)]?.GetValue<string>();
+        }
     }
 }

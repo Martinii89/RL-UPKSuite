@@ -1,154 +1,41 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:viewModels="clr-namespace:RLUpkSuite.ViewModels"
-                    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-                    xmlns:system="clr-namespace:System;assembly=System.Runtime"
-                    xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors">
+                    xmlns:viewModels="clr-namespace:RLUpkSuite.ViewModels">
+  <ResourceDictionary.MergedDictionaries>
+    <ResourceDictionary Source="DecryptionPage.xaml"/>
+    <ResourceDictionary Source="SettingsPage.xaml"/>
+    <ResourceDictionary Source="ConversionPage.xaml"/>
+  </ResourceDictionary.MergedDictionaries>
 
-  <DataTemplate DataType="{x:Type viewModels:DecryptorPageViewModel}">
-    <Grid>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="*"/>
-        <RowDefinition Height="Auto"/>
-        <RowDefinition Height="Auto"/>
-      </Grid.RowDefinitions>
-
-      <!-- file grid -->
-      <!-- AlternationCount="2" -->
-      <!-- AlternatingRowBackground="#11FFFFFF" -->
-      <DataGrid
-        x:Name="FileGrid"
-        ItemsSource="{Binding FileReferences}"
-        Margin="0, 0, 0, 8"
-        BorderThickness="1"
-        SelectionMode="Extended"
-        SelectionUnit="FullRow"
-        IsReadOnly="False"
-        CanUserDeleteRows="True"
-        CanUserAddRows="False"
-        CanUserReorderColumns="False"
-        AutoGenerateColumns="False">
-        <DataGrid.Columns>
-          <DataGridCheckBoxColumn Header="Success" Binding="{Binding ProcessSuccess}" IsReadOnly="True"/>
-          <DataGridTextColumn Header="FileName" Binding="{Binding FileName}" IsReadOnly="True" Width="*"/>
-        </DataGrid.Columns>
-      </DataGrid>
-
-      <Separator Grid.Row="1" Margin="0 8"/>
-
-      <!-- buttons under file grid -->
-      <StackPanel Grid.Row="2">
-        <StackPanel.Resources>
-          <Thickness x:Key="GridSpacing" Right="8" Bottom="8"/>
-          <system:Double x:Key="IconSize">18</system:Double>
-        </StackPanel.Resources>
-        <Grid>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
-          </Grid.ColumnDefinitions>
-          <Grid.RowDefinitions>
-            <RowDefinition/>
-            <RowDefinition/>
-            <RowDefinition/>
-          </Grid.RowDefinitions>
-
-          <TextBox Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
-                   Text="{Binding OutputDirectory}"
-                   materialDesign:TextFieldAssist.HasClearButton="true"
-                   materialDesign:HintAssist.Hint="Output directory"
-                   Margin="{StaticResource GridSpacing}"
-                   Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
-          <Button Grid.Row="0" Grid.Column="2"
-                  Content="{materialDesign:PackIcon Folder, Size={StaticResource IconSize}}"
-                  ToolTip="Select output folder"
-                  Margin="{StaticResource GridSpacing}"/>
-
-          <TextBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
-                   Text="{Binding KeyPath}"
-                   materialDesign:TextFieldAssist.HasClearButton="true"
-                   materialDesign:HintAssist.Hint="Keys input"
-                   Margin="{StaticResource GridSpacing}"
-                   Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
-          <Button Grid.Row="1" Grid.Column="2"
-                  Content="{materialDesign:PackIcon FileLock, Size={StaticResource IconSize}}"
-                  ToolTip="Select keys File"
-                  Margin="{StaticResource GridSpacing}"/>
-
-          <CheckBox Grid.Row="2" Grid.Column="0" Style="{StaticResource MaterialDesignCheckBox}"
-                    Content="Open output"
-                    IsChecked="{Binding OpenOutputDirectoryOnFinished}"/>
-
-          <Button Grid.Row="2" Grid.Column="1"
-                  Content="{materialDesign:PackIcon Plus, Size={StaticResource IconSize}}"
-                  ToolTip="Add files"
-                  Margin="{StaticResource GridSpacing}"
-                  Command="{Binding OpenFileDialogCommand}"/>
-          <Button Grid.Row="2" Grid.Column="2"
-                  Content="{materialDesign:PackIcon Play, Size={StaticResource IconSize}}"
-                  ToolTip="Decrypt files"
-                  materialDesign:ButtonProgressAssist.IsIndeterminate="True"
-                  materialDesign:ButtonProgressAssist.IsIndicatorVisible="{Binding DecryptFilesCommand.IsRunning}"
-                  Margin="{StaticResource GridSpacing}"
-                  Command="{Binding DecryptFilesCommand}"/>
-        </Grid>
-      </StackPanel>
-
-    </Grid>
+  <Style x:Key="FileReferenceGrid"
+         TargetType="{x:Type DataGrid}"
+         BasedOn="{StaticResource {x:Type DataGrid}}">
+    <Setter Property="AutoGenerateColumns" Value="False"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="CanUserAddRows" Value="False"/>
+    <Setter Property="CanUserDeleteRows" Value="True"/>
+    <Setter Property="CanUserReorderColumns" Value="False"/>
+    <Setter Property="IsReadOnly" Value="False"/>
+    <Setter Property="SelectionMode" Value="Extended"/>
+    <Setter Property="SelectionUnit" Value="FullRow"/>
+  </Style>
+  
+  <DataTemplate DataType="{x:Type viewModels:FileReferenceCollection}">
+    <DataGrid x:Name="FileGrid"
+              Style="{StaticResource FileReferenceGrid}"
+              Margin="0,0,0,8"
+              ItemsSource="{Binding }">
+      <DataGrid.Columns>
+        <DataGridCheckBoxColumn Binding="{Binding ProcessSuccess}"
+                                Header="Success"
+                                IsReadOnly="True" />
+        <DataGridTextColumn Width="*"
+                            Binding="{Binding FileName}"
+                            Header="FileName"
+                            IsReadOnly="True" />
+      </DataGrid.Columns>
+    </DataGrid>
   </DataTemplate>
-
-
-  <DataTemplate DataType="{x:Type viewModels:SettingsPageViewModel}">
-    <DataTemplate.Resources>
-      <ObjectDataProvider x:Key="BaseThemeEnums" MethodName="GetValues" ObjectType="{x:Type system:Enum}">
-        <ObjectDataProvider.MethodParameters>
-          <x:Type TypeName="materialDesign:BaseTheme"/>
-        </ObjectDataProvider.MethodParameters>
-      </ObjectDataProvider>
-
-      <ObjectDataProvider x:Key="PrimaryColors" MethodName="GetValues" ObjectType="{x:Type system:Enum}">
-        <ObjectDataProvider.MethodParameters>
-          <x:Type TypeName="materialDesignColors:PrimaryColor"/>
-        </ObjectDataProvider.MethodParameters>
-      </ObjectDataProvider>
-
-      <ObjectDataProvider x:Key="SecondaryColors" MethodName="GetValues" ObjectType="{x:Type system:Enum}">
-        <ObjectDataProvider.MethodParameters>
-          <x:Type TypeName="materialDesignColors:SecondaryColor"/>
-        </ObjectDataProvider.MethodParameters>
-      </ObjectDataProvider>
-
-    </DataTemplate.Resources>
-    <GroupBox Header="Theme" VerticalAlignment="Top">
-      <Grid>
-        <Grid.RowDefinitions>
-          <RowDefinition/>
-          <RowDefinition/>
-          <RowDefinition/>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="Auto"/>
-          <ColumnDefinition Width="Auto"/>
-        </Grid.ColumnDefinitions>
-
-        <Label Grid.Row="0" Grid.Column="0" Margin="8">Theme variant:</Label>
-        <ComboBox Grid.Row="0" Grid.Column="1" Margin="8"
-                  ItemsSource="{Binding Source={StaticResource BaseThemeEnums}}"
-                  SelectedItem="{Binding BaseTheme}"/>
-        <Label Grid.Row="1" Grid.Column="0" Margin="8">Primary Color:</Label>
-        <ComboBox Grid.Row="1" Grid.Column="1" Margin="8"
-                  ItemsSource="{Binding Source={StaticResource PrimaryColors}}"
-                  SelectedItem="{Binding PrimaryColor}"/>
-
-        <Label Grid.Row="2" Grid.Column="0" Margin="8">Secondary Color:</Label>
-        <ComboBox Grid.Row="2" Grid.Column="1" Margin="8"
-                  ItemsSource="{Binding Source={StaticResource SecondaryColors}}"
-                  SelectedItem="{Binding SecondaryColor}"/>
-      </Grid>
-
-    </GroupBox>
-
-  </DataTemplate>
-
+  
+  
 </ResourceDictionary>

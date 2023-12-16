@@ -7,12 +7,12 @@ public static class ConfigExtensions
     public static IServiceCollection AddAppConfigs(this IServiceCollection services)
     {
         services.AddSingleton<AppConfigStore>();
-        var configBaseType = typeof(AppConfigBase);
+        Type configBaseType = typeof(AppConfigBase);
 
-        var configImplementations = typeof(App).Assembly.GetTypes()
+        IEnumerable<Type> configImplementations = typeof(App).Assembly.GetTypes()
             .Where(x => x is { IsAbstract: false, IsInterface: false } && x.IsAssignableTo(configBaseType));
 
-        foreach (var configImplementation in configImplementations)
+        foreach (Type configImplementation in configImplementations)
         {
             ServiceDescriptor service = new(configBaseType, configImplementation, ServiceLifetime.Singleton);
             services.AddSingleton(service);

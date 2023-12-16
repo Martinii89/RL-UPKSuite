@@ -1,6 +1,9 @@
 ﻿using System.Windows.Media;
+
 using MaterialDesignColors;
+
 using MaterialDesignThemes.Wpf;
+
 using RLUpkSuite.Config;
 using RLUpkSuite.Pages;
 
@@ -27,7 +30,10 @@ public class SettingsPageViewModel : PageBase
         set
         {
             if (SetProperty(_shellConfig.BaseTheme, value, _shellConfig,
-                    (config, newValue) => config.BaseTheme = newValue)) OnBaseThemeChanged(_shellConfig.BaseTheme);
+                    (config, newValue) => config.BaseTheme = newValue))
+            {
+                OnBaseThemeChanged(_shellConfig.BaseTheme);
+            }
         }
     }
 
@@ -38,7 +44,10 @@ public class SettingsPageViewModel : PageBase
         set
         {
             if (SetProperty(_shellConfig.PrimaryColor, value, _shellConfig,
-                    (config, color) => config.PrimaryColor = color)) OnPrimaryColorChanged(_shellConfig.PrimaryColor);
+                    (config, color) => config.PrimaryColor = color))
+            {
+                OnPrimaryColorChanged(_shellConfig.PrimaryColor);
+            }
         }
     }
 
@@ -49,26 +58,28 @@ public class SettingsPageViewModel : PageBase
         {
             if (SetProperty(_shellConfig.SecondaryColor, value, _shellConfig,
                     (config, color) => config.SecondaryColor = color))
+            {
                 OnSecondaryColorChanged(_shellConfig.SecondaryColor);
+            }
         }
     }
 
     private static void OnPrimaryColorChanged(PrimaryColor value)
     {
-        var color = SwatchHelper.Lookup[(MaterialDesignColor)value];
+        Color color = SwatchHelper.Lookup[(MaterialDesignColor)value];
         ChangePrimaryColor(color);
     }
 
     private void OnSecondaryColorChanged(SecondaryColor value)
     {
-        var color = SwatchHelper.Lookup[(MaterialDesignColor)value];
+        Color color = SwatchHelper.Lookup[(MaterialDesignColor)value];
         ChangeSecondaryColor(color);
     }
 
     private static void OnBaseThemeChanged(BaseTheme shellConfigBaseTheme)
     {
         PaletteHelper paletteHelper = new();
-        var theme = paletteHelper.GetTheme();
+        Theme theme = paletteHelper.GetTheme();
         theme.SetBaseTheme(shellConfigBaseTheme);
         paletteHelper.SetTheme(theme);
     }
@@ -76,7 +87,7 @@ public class SettingsPageViewModel : PageBase
     private static void ChangePrimaryColor(Color color)
     {
         PaletteHelper paletteHelper = new();
-        var theme = paletteHelper.GetTheme();
+        Theme theme = paletteHelper.GetTheme();
         theme.SetPrimaryColor(color);
         paletteHelper.SetTheme(theme);
     }
@@ -84,7 +95,7 @@ public class SettingsPageViewModel : PageBase
     public static void ChangeSecondaryColor(Color color)
     {
         PaletteHelper paletteHelper = new();
-        var theme = paletteHelper.GetTheme();
+        Theme theme = paletteHelper.GetTheme();
         theme.SetSecondaryColor(color);
         paletteHelper.SetTheme(theme);
     }

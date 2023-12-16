@@ -2,116 +2,99 @@
                  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d"
                  xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                  xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
                  xmlns:viewModels="clr-namespace:RLUpkSuite.ViewModels"
                  Title="{Binding Title}"
                  Width="1200"
                  Height="720"
-                 WindowStartupLocation="CenterScreen"
-                 FontFamily="{DynamicResource MahApps.Fonts.Family.Window.Title}"
+                 d:DataContext="{d:DesignInstance {x:Type viewModels:MainWindowViewModel}}"
                  BorderThickness="1"
+                 FontFamily="{DynamicResource MahApps.Fonts.Family.Window.Title}"
                  GlowBrush="{x:Null}"
                  NonActiveWindowTitleBrush="{DynamicResource MahApps.Brushes.WindowTitle}"
-                 WindowTransitionsEnabled="False"
                  Style="{StaticResource MaterialDesignWindow}"
-                 d:DataContext="{d:DesignInstance {x:Type viewModels:MainWindowViewModel }}">
-    <mah:MetroWindow.Resources>
-        <DataTemplate DataType="{x:Type viewModels:DecryptorPageViewModel}" x:Key="PageNavigatorTemplate">
-            <StackPanel>
-                <md:PackIcon Width="24"
-                             Height="24"
-                             HorizontalAlignment="Center"
-                             Kind="{Binding PageIcon}" />
-                <TextBlock HorizontalAlignment="Center" Text="{Binding PageName}" />
-            </StackPanel>
-        </DataTemplate>
+                 WindowStartupLocation="CenterScreen"
+                 WindowTransitionsEnabled="False"
+                 mc:Ignorable="d">
+  <mah:MetroWindow.Resources>
+    <DataTemplate x:Key="PageNavigatorTemplate" DataType="{x:Type viewModels:DecryptorPageViewModel}">
+      <StackPanel>
+        <md:PackIcon Width="24"
+                     Height="24"
+                     HorizontalAlignment="Center"
+                     Kind="{Binding PageIcon}" />
+        <TextBlock HorizontalAlignment="Center" Text="{Binding PageName}" />
+      </StackPanel>
+    </DataTemplate>
 
-        <DataTemplate DataType="{x:Type viewModels:ErrorDetailsViewModel}">
-            <Grid Margin="15">
+    <DataTemplate DataType="{x:Type viewModels:ErrorDetailsViewModel}">
+      <Grid Margin="15">
 
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-
-                <TextBlock Text="{Binding Details}" TextWrapping="Wrap" />
-
-                <Button Content="_OK" IsDefault="True" IsCancel="True" Grid.Row="1"
-                        Margin="0,10,0,0" MinWidth="100"
-                        HorizontalAlignment="Right"
-                        Command="{x:Static md:DialogHost.CloseDialogCommand}" />
-            </Grid>
-        </DataTemplate>
-
-    </mah:MetroWindow.Resources>
-    <!-- <mah:MetroWindow.RightWindowCommands> -->
-    <!--   <mah:WindowCommands> -->
-    <!--     <ToggleButton -->
-    <!--       x:Name="UseDarkTheme" -->
-    <!--       Checked="ThemeToggleChanged" -->
-    <!--       Unchecked="ThemeToggleChanged" -->
-    <!--       Style="{StaticResource MaterialDesignSwitchToggleButton}" -->
-    <!--       ToolTip="MaterialDesignSwitchToggleButton with Content and ToggleButtonAssist.OnContent"> -->
-    <!--       <md:PackIcon -->
-    <!--         Kind="WhiteBalanceSunny" -->
-    <!--         RenderTransformOrigin=".5,.5"> -->
-    <!--         <md:PackIcon.RenderTransform> -->
-    <!--           <RotateTransform -->
-    <!--             Angle="45" /> -->
-    <!--         </md:PackIcon.RenderTransform> -->
-    <!--       </md:PackIcon> -->
-    <!--       <md:ToggleButtonAssist.OnContent> -->
-    <!--         <md:PackIcon -->
-    <!--           Kind="MoonWaxingCrescent" /> -->
-    <!--       </md:ToggleButtonAssist.OnContent> -->
-    <!--     </ToggleButton> -->
-    <!--   </mah:WindowCommands> -->
-    <!-- </mah:MetroWindow.RightWindowCommands> -->
-    <mah:MetroWindow.LeftWindowCommands>
-        <mah:WindowCommands>
-            <ToggleButton Width="24" Height="24"
-                          IsChecked="{Binding IsNavigatorOpen}"
-                          Style="{StaticResource MaterialDesignHamburgerToggleButton}" />
-        </mah:WindowCommands>
-    </mah:MetroWindow.LeftWindowCommands>
-
-    <!-- main content shell -->
-    <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <md:DialogHost DialogTheme="Inherit" Identifier="Root">
-            <md:DrawerHost x:Name="ShellDrawerHost"
-                           IsLeftDrawerOpen="{Binding IsNavigatorOpen}"
-                           OpenMode="Standard">
-                <md:DrawerHost.LeftDrawerContent>
-                    <md:Card UniformCornerRadius="0" md:ElevationAssist.Elevation="Dp4">
-                        <ListBox ItemsSource="{Binding Pages}"
-                                 SelectedItem="{Binding SelectedPage}"
-                                 ItemTemplate="{StaticResource PageNavigatorTemplate}" />
-                    </md:Card>
-                </md:DrawerHost.LeftDrawerContent>
 
-                <Grid>
-                    <ContentControl x:Name="PageContentPresenter"
-                                    Margin="{Binding SelectedPage.MarginRequirement, FallbackValue=16}"
-                                    Content="{Binding SelectedPage, UpdateSourceTrigger=PropertyChanged, FallbackValue={x:Null}}" />
-                    <md:Snackbar x:Name="MainSnackbar" MessageQueue="{Binding MessageQueue}" />
-                </Grid>
+        <TextBlock Text="{Binding Details}" TextWrapping="Wrap" />
 
-            </md:DrawerHost>
-        </md:DialogHost>
+        <Button Grid.Row="1"
+                MinWidth="100"
+                Margin="0,10,0,0"
+                HorizontalAlignment="Right"
+                Command="{x:Static md:DialogHost.CloseDialogCommand}"
+                Content="_OK"
+                IsCancel="True"
+                IsDefault="True" />
+      </Grid>
+    </DataTemplate>
+
+  </mah:MetroWindow.Resources>
+  <mah:MetroWindow.LeftWindowCommands>
+    <mah:WindowCommands>
+      <ToggleButton Width="24"
+                    Height="24"
+                    IsChecked="{Binding IsNavigatorOpen}"
+                    Style="{StaticResource MaterialDesignHamburgerToggleButton}" />
+    </mah:WindowCommands>
+  </mah:MetroWindow.LeftWindowCommands>
+
+  <!-- main content shell -->
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+    <md:DialogHost DialogTheme="Inherit" Identifier="Root">
+      <md:DrawerHost x:Name="ShellDrawerHost"
+                     IsLeftDrawerOpen="{Binding IsNavigatorOpen}"
+                     OpenMode="Standard">
+        <md:DrawerHost.LeftDrawerContent>
+          <md:Card md:ElevationAssist.Elevation="Dp4" UniformCornerRadius="0">
+            <ListBox ItemTemplate="{StaticResource PageNavigatorTemplate}"
+                     ItemsSource="{Binding Pages}"
+                     SelectedItem="{Binding SelectedPage}" />
+          </md:Card>
+        </md:DrawerHost.LeftDrawerContent>
+
+        <Grid>
+          <ContentControl x:Name="PageContentPresenter"
+                          Margin="{Binding SelectedPage.MarginRequirement, FallbackValue=16}"
+                          Content="{Binding SelectedPage, UpdateSourceTrigger=PropertyChanged, FallbackValue={x:Null}}" />
+          <md:Snackbar x:Name="MainSnackbar" MessageQueue="{Binding MessageQueue}" />
+        </Grid>
+
+      </md:DrawerHost>
+    </md:DialogHost>
 
 
-        <StatusBar Grid.Row="1">
-            <StatusBarItem>
-                <TextBlock>My status is: Awesome!</TextBlock>
-            </StatusBarItem>
-        </StatusBar>
-    </Grid>
+    <StatusBar Grid.Row="1">
+      <StatusBarItem>
+        <TextBlock>My status is: Awesome!</TextBlock>
+      </StatusBarItem>
+    </StatusBar>
+  </Grid>
 
 
 </mah:MetroWindow>

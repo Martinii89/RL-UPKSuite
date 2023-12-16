@@ -15,10 +15,10 @@ public class AppConfigStore
     public string Export()
     {
         JsonObject jsonObject = new();
-        foreach ((var key, var value) in _configSections)
+        foreach ((string key, AppConfigBase value) in _configSections)
         {
-            var type = value.GetType();
-            var jsonNode = JsonSerializer.Serialize(value, type);
+            Type type = value.GetType();
+            string jsonNode = JsonSerializer.Serialize(value, type);
             jsonObject.Add(key, JsonNode.Parse(jsonNode));
         }
 
@@ -27,11 +27,17 @@ public class AppConfigStore
 
     public void Load(string jsonText)
     {
-        if (JsonNode.Parse(jsonText) is not JsonObject configs) return;
-
-        foreach ((var key, var value) in _configSections)
+        if (JsonNode.Parse(jsonText) is not JsonObject configs)
         {
-            if (!configs.ContainsKey(key)) continue;
+            return;
+        }
+
+        foreach ((string key, AppConfigBase value) in _configSections)
+        {
+            if (!configs.ContainsKey(key))
+            {
+                continue;
+            }
 
             value.UpdateFromConfig(configs[key] as JsonObject);
 

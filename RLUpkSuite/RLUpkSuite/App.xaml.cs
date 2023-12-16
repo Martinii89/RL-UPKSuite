@@ -1,12 +1,17 @@
 ﻿using System.IO;
 using System.Windows;
 using System.Windows.Threading;
+
 using CommunityToolkit.Mvvm.Messaging;
+
 using Core.RocketLeague.Decryption;
+
 using MaterialDesignThemes.Wpf;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+
 using RLUpkSuite.Config;
 using RLUpkSuite.Pages;
 using RLUpkSuite.ViewModels;
@@ -27,12 +32,12 @@ public partial class App : Application
 
     private static async Task MainAsync(string[] args)
     {
-        using var host = CreateHostBuilder(args).Build();
+        using IHost host = CreateHostBuilder(args).Build();
         await host.StartAsync().ConfigureAwait(true);
 
         App app = new();
         app.InitializeComponent();
-        var appMainWindow = host.Services.GetRequiredService<MainWindow>();
+        MainWindow appMainWindow = host.Services.GetRequiredService<MainWindow>();
         appMainWindow.InitConfig(GetAppConfigPath());
         app.MainWindow = appMainWindow;
         app.MainWindow.Visibility = Visibility.Visible;
@@ -61,7 +66,7 @@ public partial class App : Application
                 services.AddSingleton(_ => Current.Dispatcher);
                 services.AddTransient<ISnackbarMessageQueue>(provider =>
                 {
-                    var dispatcher = provider.GetRequiredService<Dispatcher>();
+                    Dispatcher dispatcher = provider.GetRequiredService<Dispatcher>();
                     return new SnackbarMessageQueue(TimeSpan.FromSeconds(3.0), dispatcher);
                 });
 
@@ -71,7 +76,7 @@ public partial class App : Application
 
                 services.AddSingleton<PageBase, DecryptorPageViewModel>();
                 services.AddSingleton<PageBase, CompressorPageViewModel>();
-                services.AddSingleton<PageBase, DummyPackageGeneratorPageViewModel>();
+                services.AddSingleton<PageBase, PackageGeneratorPageViewModel>();
                 services.AddSingleton<PageBase, SettingsPageViewModel>();
 
                 //Config
@@ -79,6 +84,7 @@ public partial class App : Application
                 services.AddAppConfig<ShellConfig>();
                 services.AddAppConfig<DecryptionConfig>();
                 services.AddAppConfig<CommonConfig>();
+                services.AddAppConfig<ConversionConfig>();
 
                 //RL upk suite stuff
                 services.AddTransient<IDecrypterProvider, DecryptionProvider>();
