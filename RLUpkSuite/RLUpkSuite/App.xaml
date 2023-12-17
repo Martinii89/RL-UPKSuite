@@ -24,6 +24,7 @@
 
 
         <ResourceDictionary Source="Pages/PageTemplates.xaml" />
+        <ResourceDictionary Source="AppUpdates/DataTemplates.xaml" />
 
       </ResourceDictionary.MergedDictionaries>
 

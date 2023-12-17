@@ -1,9 +1,7 @@
-﻿using System.Collections.ObjectModel;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
 
 using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.Mvvm.Messaging;
 
 using Core;
 using Core.RocketLeague;
@@ -11,8 +9,6 @@ using Core.RocketLeague.Decryption;
 using Core.Serialization.Default;
 
 using MaterialDesignThemes.Wpf;
-
-using Microsoft.Win32;
 
 using RLUpkSuite.Config;
 using RLUpkSuite.Pages;
@@ -79,7 +75,7 @@ public partial class DecryptorPageViewModel : PageBase
             FileReferences.Add(new FileReference(validFile));
         }
     }
-    
+
 
     [RelayCommand(CanExecute = nameof(CanDecryptFiles))]
     private async Task DecryptFiles()

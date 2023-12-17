@@ -10,7 +10,7 @@ using RLUpkSuite.Pages;
 
 namespace RLUpkSuite.ViewModels;
 
-public partial class MainWindowViewModel : ObservableObject, IRecipient<ShowError>
+public partial class MainWindowViewModel : ObservableObject, IRecipient<ShowError>, IRecipient<MessageWithDialogDetails>
 {
     private const string TitleBase = "RlUpkSuite";
 
@@ -33,14 +33,22 @@ public partial class MainWindowViewModel : ObservableObject, IRecipient<ShowErro
         IMessenger messenger)
     {
         _shellConfig = shellConfig;
-        messenger.Register(this);
-        MessageQueue = messageQueue;
         Pages = [..pages];
+
+        MessageQueue = messageQueue;
+        messenger.Register<ShowError>(this);
+        messenger.Register<MessageWithDialogDetails>(this);
     }
 
     public ObservableCollection<PageBase> Pages { get; }
 
     public ISnackbarMessageQueue MessageQueue { get; }
+
+    public void Receive(MessageWithDialogDetails message)
+    {
+        MessageQueue.Enqueue(message.Message, message.ActionMessage, OnShowDialogDetails, message, false, false,
+            message.DurationOverride);
+    }
 
     public void Receive(ShowError message)
     {
@@ -59,7 +67,7 @@ public partial class MainWindowViewModel : ObservableObject, IRecipient<ShowErro
         _shellConfig.StartPage = value.PageName;
     }
 
-    private async void OnShowErrorDetails(string? details)
+    private static async void OnShowErrorDetails(string? details)
     {
         if (string.IsNullOrEmpty(details))
         {
@@ -68,8 +76,18 @@ public partial class MainWindowViewModel : ObservableObject, IRecipient<ShowErro
 
         await DialogHost.Show(new ErrorDetailsViewModel(details), "Root");
     }
+
+    private static async void OnShowDialogDetails(MessageWithDialogDetails? dialogContent)
+    {
+        if (dialogContent != null)
+        {
+            await DialogHost.Show(dialogContent, "Root");
+        }
+    }
 }
 
 public record class ShowError(string Message, string Details);
+
+public record class MessageWithDialogDetails(string Message, string ActionMessage, object DialogContent, TimeSpan? DurationOverride);
 
 public record class ErrorDetailsViewModel(string Details);
