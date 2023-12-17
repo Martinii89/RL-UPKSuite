@@ -12,10 +12,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
+using RLUpkSuite.AppSettings;
+using RLUpkSuite.AppUpdates;
 using RLUpkSuite.Config;
 using RLUpkSuite.Pages;
 using RLUpkSuite.ViewModels;
 using RLUpkSuite.Windows;
+
+using Squirrel;
 
 namespace RLUpkSuite;
 
@@ -38,6 +42,7 @@ public partial class App : Application
         App app = new();
         app.InitializeComponent();
         MainWindow appMainWindow = host.Services.GetRequiredService<MainWindow>();
+        app.UpdateHelper = host.Services.GetService<UpdateHelper>();
         appMainWindow.InitConfig(GetAppConfigPath());
         app.MainWindow = appMainWindow;
         app.MainWindow.Visibility = Visibility.Visible;
@@ -45,6 +50,8 @@ public partial class App : Application
 
         await host.StopAsync().ConfigureAwait(true);
     }
+
+
 
     private static string GetAppConfigPath()
     {
@@ -55,8 +62,15 @@ public partial class App : Application
     public static IHostBuilder CreateHostBuilder(string[] args)
     {
         return Host.CreateDefaultBuilder(args)
-            .ConfigureAppConfiguration((hostBuilderContext, configurationBuilder)
-                => configurationBuilder.AddUserSecrets(typeof(App).Assembly))
+            .ConfigureAppConfiguration((context, configurationBuilder)
+                =>
+            {
+                configurationBuilder.SetBasePath(context.HostingEnvironment.ContentRootPath);
+#if DEBUG
+                configurationBuilder.AddJsonFile("appsettings.Development.json");
+#endif
+                // configurationBuilder.AddUserSecrets(typeof(App).Assembly);
+            })
             .ConfigureServices((hostContext, services) =>
             {
                 // Plumbing
@@ -69,6 +83,16 @@ public partial class App : Application
                     Dispatcher dispatcher = provider.GetRequiredService<Dispatcher>();
                     return new SnackbarMessageQueue(TimeSpan.FromSeconds(3.0), dispatcher);
                 });
+                services.AddSingleton<UpdateHelper>();
+
+                // services.AddOptions<Deployment>()
+                //     .Bind(hostContext.Configuration.GetSection(Deployment.Section))
+                //     .ValidateDataAnnotations();
+                
+                services.AddOptions<Deployment>()
+                    .BindConfiguration(Deployment.Section)
+                    .ValidateDataAnnotations()
+                    .ValidateOnStart();
 
                 //Windows and pages
                 services.AddSingleton<MainWindow>();
@@ -86,6 +110,9 @@ public partial class App : Application
                 services.AddAppConfig<CommonConfig>();
                 services.AddAppConfig<ConversionConfig>();
 
+                
+                
+                
                 //RL upk suite stuff
                 services.AddTransient<IDecrypterProvider, DecryptionProvider>();
             });

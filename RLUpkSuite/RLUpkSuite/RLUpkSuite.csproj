@@ -7,6 +7,7 @@
     <UseWPF>true</UseWPF>
     <StartupObject>RLUpkSuite.App</StartupObject>
     <ApplicationIcon>Resources\AppIcon.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 
   <!--
@@ -39,15 +40,23 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Clowd.Squirrel" />
     <PackageReference Include="CommunityToolkit.Mvvm"/>
-    <PackageReference Include="MaterialDesignThemes.MahApps" Version="3.0.0-ci472"/>
-    <PackageReference Include="MahApps.Metro" Version="2.4.10"/>
+    <PackageReference Include="MaterialDesignThemes.MahApps"/>
+    <PackageReference Include="MahApps.Metro"/>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection"/>
     <PackageReference Include="Microsoft.Extensions.Hosting"/>
+    <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" />
   </ItemGroup>
 
   <ItemGroup>
     <None Remove="Resources\AppIcon2.ico"/>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="appsettings.Development.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>

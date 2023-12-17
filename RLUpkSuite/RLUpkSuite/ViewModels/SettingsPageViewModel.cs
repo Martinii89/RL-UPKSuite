@@ -1,5 +1,7 @@
 ﻿using System.Windows.Media;
 
+using CommunityToolkit.Mvvm.Input;
+
 using MaterialDesignColors;
 
 using MaterialDesignThemes.Wpf;
@@ -9,17 +11,14 @@ using RLUpkSuite.Pages;
 
 namespace RLUpkSuite.ViewModels;
 
-public class SettingsPageViewModel : PageBase
+public partial class SettingsPageViewModel : PageBase
 {
-    private readonly CommonConfig _commonConfig;
-
     private readonly ShellConfig _shellConfig;
 
 
-    public SettingsPageViewModel(CommonConfig commonConfig, ShellConfig shellConfig) : base("Settings",
+    public SettingsPageViewModel(ShellConfig shellConfig) : base("Settings",
         PackIconKind.Cog)
     {
-        _commonConfig = commonConfig;
         _shellConfig = shellConfig;
     }
 
@@ -92,7 +91,7 @@ public class SettingsPageViewModel : PageBase
         paletteHelper.SetTheme(theme);
     }
 
-    public static void ChangeSecondaryColor(Color color)
+    private static void ChangeSecondaryColor(Color color)
     {
         PaletteHelper paletteHelper = new();
         Theme theme = paletteHelper.GetTheme();

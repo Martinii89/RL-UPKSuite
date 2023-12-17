@@ -9,8 +9,9 @@ public class ConversionConfig(CommonConfig commonConfig) : AppConfigBase
         get => commonConfig.KeysPath;
         set => commonConfig.KeysPath = value;
     }
-    
-    public bool OpenOutputOnFinish     {
+
+    public bool OpenOutputOnFinish
+    {
         get => commonConfig.OpenOutputOnFinish;
         set => commonConfig.OpenOutputOnFinish = value;
     }
@@ -35,22 +36,22 @@ public class ConversionConfig(CommonConfig commonConfig) : AppConfigBase
         {
             return;
         }
-        
+
         if (jsonObject.ContainsKey(nameof(ImportPackagesDirectory)))
         {
             ImportPackagesDirectory = jsonObject[nameof(ImportPackagesDirectory)]?.GetValue<string>() ?? String.Empty;
         }
-        
+
         if (jsonObject.ContainsKey(nameof(OutputDirectory)))
         {
             OutputDirectory = jsonObject[nameof(OutputDirectory)]?.GetValue<string>() ?? String.Empty;
         }
-        
+
         if (jsonObject.ContainsKey(nameof(Suffix)))
         {
             Suffix = jsonObject[nameof(Suffix)]?.GetValue<string>() ?? String.Empty;
-        } 
-        
+        }
+
         if (jsonObject.ContainsKey(nameof(Compress)))
         {
             Compress = jsonObject[nameof(Compress)]?.GetValue<bool>() ?? false;

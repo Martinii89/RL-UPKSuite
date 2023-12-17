@@ -47,9 +47,9 @@ public class FileDialogButton : Button
         set => SetValue(FileFilterProperty, value);
     }
 
-    public ICommand FileSelectedCommand
+    public ICommand? FileSelectedCommand
     {
-        get => (ICommand)GetValue(FileSelectedCommandProperty);
+        get => (ICommand?)GetValue(FileSelectedCommandProperty);
         set => SetValue(FileSelectedCommandProperty, value);
     }
 
@@ -98,7 +98,6 @@ public class FileDialogButton : Button
         else
         {
             string file = fileDialog.FileName;
-            // SetValue(FileProperty, file);
             File = file;
             FileSelectedCommand?.Execute(file);
         }

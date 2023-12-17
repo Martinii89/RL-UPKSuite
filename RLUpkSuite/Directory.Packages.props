@@ -5,17 +5,19 @@
   -->
 <Project>
   <Import Project="$([MSBuild]::GetPathOfFileAbove(Directory.Packages.props, $(MSBuildThisFileDirectory)..))" />
-
   <!-- This property enables the Central Package Management feature -->
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
-
   <!--
   This defines the set of centrally managed packages.
   This would typically list all NuGet packages used within this solution.
   -->
   <ItemGroup>
+    <PackageVersion Include="Clowd.Squirrel" Version="2.11.1" />
     <PackageVersion Include="MaterialDesignThemes" Version="4.9.0" />
+    <PackageVersion Include="MaterialDesignThemes.MahApps" Version="3.0.0-ci472" />
+    <PackageVersion Include="MahApps.Metro" Version="2.4.10" />
+    <PackageVersion Include="Microsoft.Extensions.Options.DataAnnotations" Version="8.0.0" />
   </ItemGroup>
 </Project>
