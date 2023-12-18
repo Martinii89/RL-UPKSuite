@@ -1,5 +1,6 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="clr-namespace:RLUpkSuite.Controls"
                     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
                     xmlns:system="clr-namespace:System;assembly=System.Runtime"
                     xmlns:viewModels="clr-namespace:RLUpkSuite.ViewModels">
@@ -35,6 +36,7 @@
             <RowDefinition />
             <RowDefinition />
             <RowDefinition />
+            <RowDefinition />
           </Grid.RowDefinitions>
 
           <TextBox Grid.Row="0"
@@ -45,12 +47,14 @@
                    materialDesign:TextFieldAssist.HasClearButton="true"
                    Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                    Text="{Binding OutputDirectory}" />
-          <Button Grid.Row="0"
-                  Grid.Column="2"
-                  Margin="{StaticResource GridSpacing}"
-                  Content="{materialDesign:PackIcon Folder,
-                                                    Size={StaticResource IconSize}}"
-                  ToolTip="Select output folder" />
+          <controls:FolderDialogButton Grid.Row="0"
+                                       Grid.Column="2"
+                                       Margin="{StaticResource GridSpacing}"
+                                       Content="{materialDesign:PackIcon Folder,
+                                                                         Size={StaticResource IconSize}}"
+                                       DialogTitle="Select output path"
+                                       Folder="{Binding OutputDirectory}"
+                                       ToolTip="Select output folder" />
 
           <TextBox Grid.Row="1"
                    Grid.Column="0"
@@ -60,31 +64,65 @@
                    materialDesign:TextFieldAssist.HasClearButton="true"
                    Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                    Text="{Binding KeyPath}" />
-          <Button Grid.Row="1"
-                  Grid.Column="2"
-                  Margin="{StaticResource GridSpacing}"
-                  Content="{materialDesign:PackIcon FileLock,
-                                                    Size={StaticResource IconSize}}"
-                  ToolTip="Select keys File" />
+          <controls:FileDialogButton Grid.Row="1"
+                                     Grid.Column="2"
+                                     Margin="{StaticResource GridSpacing}"
+                                     Content="{materialDesign:PackIcon FileLock,
+                                                                       Size={StaticResource IconSize}}"
+                                     DialogTitle="Select Keys file"
+                                     File="{Binding KeyPath}"
+                                     FileFilter="Keys file | *.txt"
+                                     MultiSelect="False"
+                                     ToolTip="Select keys File" />
 
-          <CheckBox Grid.Row="2"
-                    Grid.Column="0"
-                    Content="Open output"
-                    IsChecked="{Binding OpenOutputDirectoryOnFinished}"
-                    Style="{StaticResource MaterialDesignCheckBox}" />
+          <TextBox Grid.Row="2"
+                   Grid.Column="0"
+                   Grid.ColumnSpan="2"
+                   Margin="{StaticResource GridSpacing}"
+                   materialDesign:HintAssist.Hint="CookedPCConsole directory"
+                   materialDesign:TextFieldAssist.HasClearButton="true"
+                   Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                   Text="{Binding ImportPackagesDirectory}" />
+          <controls:FolderDialogButton Grid.Row="2"
+                                       Grid.Column="2"
+                                       Margin="{StaticResource GridSpacing}"
+                                       Content="{materialDesign:PackIcon Folder,
+                                                                         Size={StaticResource IconSize}}"
+                                       DialogTitle="Select your CookedPCConsole folder"
+                                       Folder="{Binding ImportPackagesDirectory}"
+                                       ToolTip="Select your CookedPCConsole where all the game packages are located" />
 
-          <Button Grid.Row="2"
-                  Grid.Column="1"
-                  Margin="{StaticResource GridSpacing}"
-                  Command="{Binding OpenFileDialogCommand}"
-                  Content="{materialDesign:PackIcon Plus,
-                                                    Size={StaticResource IconSize}}"
-                  ToolTip="Add files" />
-          <Button Grid.Row="2"
+          <Grid Grid.Row="3" Grid.Column="0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <CheckBox Grid.Column="0"
+                      Content="Open output folder"
+                      IsChecked="{Binding OpenOutputDirectoryOnFinished}"
+                      Style="{StaticResource MaterialDesignCheckBox}" />
+            <CheckBox Grid.Column="1"
+                      Content="Compress package"
+                      IsChecked="{Binding Compress}"
+                      Style="{StaticResource MaterialDesignCheckBox}" />
+          </Grid>
+
+
+          <controls:FileDialogButton Grid.Row="3"
+                                     Grid.Column="1"
+                                     Margin="{StaticResource GridSpacing}"
+                                     Content="{materialDesign:PackIcon Plus,
+                                                                       Size={StaticResource IconSize}}"
+                                     DialogTitle="Select UPK files"
+                                     FileFilter="Upk files | *.upk"
+                                     FileSelectedCommand="{Binding AddFilesCommand}"
+                                     MultiSelect="True"
+                                     ToolTip="Add files" />
+          <Button Grid.Row="3"
                   Grid.Column="2"
                   Margin="{StaticResource GridSpacing}"
                   materialDesign:ButtonProgressAssist.IsIndeterminate="True"
-                  materialDesign:ButtonProgressAssist.IsIndicatorVisible="{Binding DecryptFilesCommand.IsRunning}"
+                  materialDesign:ButtonProgressAssist.IsIndicatorVisible="{Binding ConvertFilesCommand.IsRunning}"
                   Command="{Binding ConvertFilesCommand}"
                   Content="{materialDesign:PackIcon Play,
                                                     Size={StaticResource IconSize}}"
