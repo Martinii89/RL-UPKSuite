@@ -16,11 +16,11 @@ public class ConversionConfig(CommonConfig commonConfig) : AppConfigBase
         set => commonConfig.OpenOutputOnFinish = value;
     }
 
-    public string ImportPackagesDirectory { get; set; } = string.Empty;
+    public string? ImportPackagesDirectory { get; set; } = string.Empty;
 
-    public string OutputDirectory { get; set; } = string.Empty;
+    public string? OutputDirectory { get; set; } = string.Empty;
 
-    public string Suffix { get; set; } = string.Empty;
+    public string? Suffix { get; set; } = string.Empty;
 
     public bool Compress { get; set; }
 
