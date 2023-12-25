@@ -3,9 +3,10 @@
                     xmlns:controls="clr-namespace:RLUpkSuite.Controls"
                     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
                     xmlns:system="clr-namespace:System;assembly=System.Runtime"
-                    xmlns:viewModels="clr-namespace:RLUpkSuite.ViewModels">
+                    xmlns:viewModels="clr-namespace:RLUpkSuite.ViewModels"
+                    xmlns:packageConversion="clr-namespace:RLUpkSuite.PackageConversion">
 
-  <DataTemplate DataType="{x:Type viewModels:PackageGeneratorPageViewModel}">
+  <DataTemplate DataType="{x:Type packageConversion:PackageGeneratorPageViewModel}">
     <Grid>
       <Grid.RowDefinitions>
         <RowDefinition Height="*" />

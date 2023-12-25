@@ -1,4 +1,3 @@
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 
@@ -6,7 +5,6 @@ using CommunityToolkit.Mvvm.Input;
 
 using Core;
 using Core.Classes.Compression;
-using Core.RocketLeague;
 using Core.RocketLeague.Decryption;
 using Core.Serialization;
 using Core.Serialization.Abstraction;
@@ -18,22 +16,30 @@ using Core.Utility;
 using MaterialDesignThemes.Wpf;
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 using RLUpkSuite.Config;
-using RLUpkSuite.PackageConversion;
 using RLUpkSuite.Pages;
+using RLUpkSuite.ViewModels;
 
-using ExportTableItemSerializer = Core.Serialization.RocketLeague.ExportTableItemSerializer;
-
-namespace RLUpkSuite.ViewModels;
+namespace RLUpkSuite.PackageConversion;
 
 public partial class PackageGeneratorPageViewModel : PageBase
 {
     private readonly ConversionConfig _conversionConfig;
 
-    public PackageGeneratorPageViewModel(ConversionConfig conversionConfig) : base("Generate", PackIconKind.Pencil)
+    private readonly PackageConverterFactory _packageConverterFactory;
+
+    private readonly ILogger<PackageGeneratorPageViewModel> _logger;
+
+    public PackageGeneratorPageViewModel(ConversionConfig conversionConfig,
+        PackageConverterFactory packageConverterFactory,
+        ILogger<PackageGeneratorPageViewModel> logger)
+        : base("Generate", PackIconKind.Pencil)
     {
         _conversionConfig = conversionConfig;
+        _packageConverterFactory = packageConverterFactory;
+        _logger = logger;
     }
 
     public FileReferenceCollection FileReferences { get; } = [];
@@ -120,48 +126,60 @@ public partial class PackageGeneratorPageViewModel : PageBase
 
     private void CovertFilesImpl()
     {
-        if (_conversionConfig.KeysPath is null
-            || _conversionConfig.ImportPackagesDirectory is null)
+        if (_conversionConfig.KeysPath is null || _conversionConfig.ImportPackagesDirectory is null)
         {
             return;
         }
 
-        var rlServices = GetRLSerializerCollection();
-        var udkServices = GetUdkSerializerCollection();
+        // var rlServices = _rlSerializerCollection;
+        // var udkServices = _udkSerializerCollection;
+        // var nativeFactory = new NativeClassFactory();
+        //
+        // _decrypterProvider.UseKeyFile(_conversionConfig.KeysPath);
+        // var packageUnpacker = rlServices.GetPackageUnpacker(_decrypterProvider);
+        // var cacheOptions = new PackageCacheOptions(rlServices.UnrealPackageSerializer, nativeFactory)
+        // {
+        //     SearchPaths =
+        //     {
+        //         _conversionConfig.ImportPackagesDirectory
+        //     },
+        //     GraphLinkPackages = true,
+        //     PackageUnpacker = packageUnpacker,
+        //     NativeClassFactory = nativeFactory,
+        //     ObjectSerializerFactory = rlServices.ObjectSerializerFactory,
+        //     PackageBlacklist =
+        //     {
+        //         "EngineMaterials", "EngineResources"
+        //     }
+        // };
+        // var packageCache = new PackageCache(cacheOptions);
+        //
+        // var loader = new PackageLoader(rlServices.UnrealPackageSerializer, packageCache, packageUnpacker, nativeFactory,
+        //     rlServices.ObjectSerializerFactory);
+        // var exporterFactory = udkServices.PackageExporterFactory;
 
-        var rlFileSummarySerializer = rlServices.GetRequiredService<IStreamSerializer<FileSummary>>();
-        var rlPackageSerializer = rlServices.GetRequiredService<IStreamSerializer<UnrealPackage>>();
-        var rLobjectSerializerFactory = rlServices.GetRequiredService<IObjectSerializerFactory>();
+        // var packageConverter = new PackageConverter(_conversionConfig, exporterFactory, loader,
+        //     _conversionConfig.Compress ? GetDefaultPackageCompressor() : null, null);
+        // var packageConverter = _packageConverterFactory.Create(_conversionConfig);
+        // if (packageConverter is null)
+        // {
+        //     _logger.LogError("Failed to create package converter");
+        //     return;
+        // }
 
-        var unpacker = new PackageUnpacker(rlFileSummarySerializer, new DecryptionProvider(_conversionConfig.KeysPath));
-        var nativeFactory = new NativeClassFactory();
-
-
-        var cacheOptions = new PackageCacheOptions(rlPackageSerializer, nativeFactory)
-        {
-            SearchPaths =
+        Parallel.ForEach<FileReference, PackageConverter?>(
+            FileReferences,
+             new ParallelOptions{MaxDegreeOfParallelism = 8},
+            () =>
             {
-                _conversionConfig.ImportPackagesDirectory
+                _logger.LogInformation("Creating new PackageConverter on thread {ThreadID}", Thread.CurrentThread.ManagedThreadId);
+                return _packageConverterFactory.Create(_conversionConfig);
             },
-            GraphLinkPackages = true,
-            PackageUnpacker = unpacker,
-            NativeClassFactory = nativeFactory,
-            ObjectSerializerFactory = rLobjectSerializerFactory,
-            PackageBlacklist =
+            (reference, state, packageConverter) =>
             {
-                "EngineMaterials", "EngineResources"
-            }
-        };
-        var packageCache = new PackageCache(cacheOptions);
-
-        var loader = new PackageLoader(rlPackageSerializer, packageCache, unpacker, nativeFactory,
-            rLobjectSerializerFactory);
-        var exporterFactory = udkServices.GetRequiredService<PackageExporterFactory>();
-
-        var packageConverter = new PackageConverter(_conversionConfig, exporterFactory, loader,
-            _conversionConfig.Compress ? GetDefaultPackageCompressor() : null);
-        packageConverter.SetFiles(FileReferences);
-        packageConverter.Start();
+                packageConverter?.ProcessFile(reference);
+                return packageConverter;
+            }, _ => { });
     }
 
     private IServiceProvider GetUdkSerializerCollection()
@@ -182,12 +200,13 @@ public partial class PackageGeneratorPageViewModel : PageBase
         var services = serviceCollection.BuildServiceProvider();
         return services;
     }
-    
+
     PackageCompressor GetDefaultPackageCompressor()
     {
         var headerSerializer = FileSummarySerializer.GetDefaultSerializer();
         var exportTableIteSerializer =
-            new Core.Serialization.Default.ExportTableItemSerializer(new FNameSerializer(), new ObjectIndexSerializer(), new FGuidSerializer());
+            new Core.Serialization.Default.ExportTableItemSerializer(new FNameSerializer(), new ObjectIndexSerializer(),
+                new FGuidSerializer());
         return new PackageCompressor(headerSerializer, exportTableIteSerializer, new FCompressedChunkinfoSerializer());
     }
 }
