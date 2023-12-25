@@ -287,7 +287,7 @@ public class CrossPackageDependencyGraphTests : IClassFixture<UdkPackages>
         graph.AddObjectDependencies(isAReturnValue);
 
         // Assert 
-        graph.NodeCount.Should().Be(10);
+        graph.NodeCount.Should().Be(9);
     }
 
     [Fact]
