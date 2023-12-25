@@ -3,50 +3,58 @@
 using Core;
 using Core.Classes.Compression;
 
+using Microsoft.Extensions.Logging;
+
 using RLUpkSuite.Config;
 using RLUpkSuite.ViewModels;
 
 namespace RLUpkSuite.PackageConversion;
 
-internal class PackageConverter
+public class PackageConverter
 {
     private readonly PackageCompressor? _compressor;
+
+    private readonly ILogger<PackageConverter>? _logger;
+
     private readonly ConversionConfig _options;
+
     private readonly PackageExporterFactory _packageExporterFactory;
+
     private readonly PackageLoader _packageLoader;
 
-    private IEnumerable<FileReference> _files;
-
-    public PackageConverter(ConversionConfig options, PackageExporterFactory packageExporterFactory, PackageLoader packageLoader,
-        PackageCompressor? compressor)
+    public PackageConverter(ConversionConfig options, PackageExporterFactory packageExporterFactory,
+        PackageLoader packageLoader,
+        PackageCompressor? compressor, ILogger<PackageConverter>? logger)
     {
         _options = options;
         _compressor = compressor;
+        _logger = logger;
         _packageExporterFactory = packageExporterFactory;
         _packageLoader = packageLoader;
     }
 
-    public void Start()
+    public bool ProcessFile(FileReference fileReference)
     {
-        foreach (var file in _files)
+        try
         {
-            try
+            if (ProcessFileImpl(fileReference.FilePath))
             {
-                if (ProcessFile(file.FilePath))
-                {
-                    file.ProcessSuccess = true;
-                }
+                fileReference.ProcessSuccess = true;
             }
-            catch (Exception e)
-            {
-                //TODO: log and show error to user
-                Console.WriteLine(e);
-                throw;
-            }
+
+            return true;
+        }
+        catch (Exception e)
+        {
+            fileReference.ProcessSuccess = false;
+            _logger?.LogError("Failed to convert package {PackageName}: Exception:{ExceptionMessage}",
+                fileReference.FilePath,
+                e.Message);
+            return false;
         }
     }
 
-    private bool ProcessFile(string file)
+    private bool ProcessFileImpl(string file)
     {
         var inputFileName = Path.GetFileNameWithoutExtension(file);
         using var convertedStream = new MemoryStream();
@@ -88,10 +96,5 @@ internal class PackageConverter
     {
         var fileName = Path.GetFileNameWithoutExtension(file) + _options.Suffix + Path.GetExtension(file);
         return Path.Combine(_options.OutputDirectory, fileName);
-    }
-
-    public void SetFiles(IEnumerable<FileReference> fileReferences)
-    {
-        this._files = fileReferences;
     }
 }

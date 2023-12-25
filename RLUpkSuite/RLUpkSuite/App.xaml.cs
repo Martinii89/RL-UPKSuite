@@ -10,16 +10,20 @@ using MaterialDesignThemes.Wpf;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 
 using RLUpkSuite.AppSettings;
 using RLUpkSuite.AppUpdates;
 using RLUpkSuite.Config;
+using RLUpkSuite.PackageConversion;
 using RLUpkSuite.Pages;
 using RLUpkSuite.ViewModels;
 using RLUpkSuite.Windows;
 
 using Squirrel;
+
+using PackageGeneratorPageViewModel = RLUpkSuite.PackageConversion.PackageGeneratorPageViewModel;
 
 namespace RLUpkSuite;
 
@@ -85,9 +89,7 @@ public partial class App : Application
                 });
                 services.AddSingleton<UpdateHelper>();
 
-                // services.AddOptions<Deployment>()
-                //     .Bind(hostContext.Configuration.GetSection(Deployment.Section))
-                //     .ValidateDataAnnotations();
+
                 
                 services.AddOptions<Deployment>()
                     .BindConfiguration(Deployment.Section)
@@ -114,7 +116,8 @@ public partial class App : Application
                 
                 
                 //RL upk suite stuff
-                services.AddTransient<IDecrypterProvider, DecryptionProvider>();
+                services.TryAddTransient<IDecrypterProvider, DecryptionProvider>();
+                services.AddPackageConversion();
             });
     }
 }
