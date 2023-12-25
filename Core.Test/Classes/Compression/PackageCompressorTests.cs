@@ -7,7 +7,7 @@ namespace Core.Classes.Compression.Tests;
 public class PackageCompressorTests
 {
     [Fact]
-    public void CompressFileTest()
+    public void CompressFile_ShouldNotThrow_WhenCompressingOctanePackage()
     {
         // Arrange
         var headerSerializer = FileSummarySerializer.GetDefaultSerializer();

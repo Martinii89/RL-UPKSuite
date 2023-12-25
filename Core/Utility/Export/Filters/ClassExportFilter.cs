@@ -14,6 +14,6 @@ internal class ClassExportFilter : IObjectFilter
     public bool ShouldRemove(UnrealPackage package, ExportTableItem exportTableItem)
     {
         var obj = exportTableItem.Object;
-        return obj?.Class == UClass.StaticClass;
+        return obj?.Class == package.StaticClass;
     }
 }

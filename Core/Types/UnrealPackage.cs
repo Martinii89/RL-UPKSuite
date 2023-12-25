@@ -80,6 +80,11 @@ public class UnrealPackage
     public INativeClassFactory? NativeClassFactory { get; set; }
 
     /// <summary>
+    /// Class instance used as the base for all UClass instances
+    /// </summary>
+    public UClass? StaticClass => NativeClassFactory?.StaticClass;
+
+    /// <summary>
     ///     The root. (May be removed)
     /// </summary>
     public PackageLoader? RootLoader { get; set; }
@@ -136,6 +141,8 @@ public class UnrealPackage
     ///     Wrapper for the PackageStream with additional serialization capabilities
     /// </summary>
     public IUnrealPackageStream? UnrealPackageStream { get; set; }
+
+
 
     /// <summary>
     ///     Helper constructor to create and initialize a package from a <see cref="IStreamSerializer{T}" />
@@ -196,7 +203,7 @@ public class UnrealPackage
         {
             nativeObjects.Remove(nativeClass);
 
-            var nativeUClass = new UClass(nativeClass.ObjectName, UClass.StaticClass, PackageRoot, this, objClass);
+            var nativeUClass = new UClass(nativeClass.ObjectName, StaticClass, PackageRoot, this, objClass);
             nativeClass.ImportedObject = nativeUClass;
             PackageClasses.Add(nativeUClass);
         }
@@ -435,7 +442,7 @@ public class UnrealPackage
             {
                 //most likely a native class. Stub it
                 //Debugger.Break();
-                var cls = new UClass(importTableItem.ObjectName, UClass.StaticClass, importPackage.PackageRoot, this);
+                var cls = new UClass(importTableItem.ObjectName, StaticClass, importPackage.PackageRoot, this);
                 importTableItem.ImportedObject = cls;
                 importPackage.PackageClasses.Add(cls);
                 //panic
@@ -614,7 +621,7 @@ public class UnrealPackage
         var exportOuter = FindOuter(exportItem);
         var exportArchetype = FindExportArchetype(exportItem);
         UObject exportObject;
-        if (exportClass == UClass.StaticClass)
+        if (exportClass == StaticClass)
         {
             var registeredClass = FindClass(GetName(exportItem.ObjectName));
             if (registeredClass is not null)
@@ -703,7 +710,7 @@ public class UnrealPackage
     {
         if (exportItem.ClassIndex.Index == 0)
         {
-            return UClass.StaticClass;
+            return StaticClass;
         }
 
         var classRef = GetObjectReference(exportItem.ClassIndex);

@@ -19,7 +19,7 @@ public class NativeClassFactoryTests
         {
             PackageName = "Core"
         };
-        var packageRoot = new UPackage(corePackage.GetOrAddName("Core"), UClass.StaticClass, null, corePackage);
+        var packageRoot = new UPackage(corePackage.GetOrAddName("Core"), sut.StaticClass, null, corePackage);
         corePackage.PackageRoot = packageRoot;
         // Act
 
@@ -47,7 +47,7 @@ public class NativeClassFactoryTests
         {
             PackageName = "Engine"
         };
-        var packageRoot = new UPackage(enginePackage.GetOrAddName("Engine"), UClass.StaticClass, null, enginePackage);
+        var packageRoot = new UPackage(enginePackage.GetOrAddName("Engine"), sut.StaticClass, null, enginePackage);
         enginePackage.PackageRoot = packageRoot;
         // Act
 
@@ -76,7 +76,7 @@ public class NativeClassFactoryTests
         {
             PackageName = "Engine"
         };
-        var packageRoot = new UPackage(enginePackage.GetOrAddName("Engine"), UClass.StaticClass, null, enginePackage);
+        var packageRoot = new UPackage(enginePackage.GetOrAddName("Engine"), nativeFactory.StaticClass, null, enginePackage);
         enginePackage.PackageRoot = packageRoot;
         var serializerFactory = Substitute.For<IObjectSerializerFactory>();
         enginePackage.ObjectSerializerFactory = serializerFactory;

@@ -6,4 +6,6 @@ namespace Core;
 public interface INativeClassFactory
 {
     Dictionary<string, UClass> GetNativeClasses(UnrealPackage package);
+
+    UClass? StaticClass { get; }
 }

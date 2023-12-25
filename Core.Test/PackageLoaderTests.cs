@@ -65,13 +65,13 @@ public class PackageLoaderTests
         var nativeFactory = new NativeClassFactory();
         var options = new PackageCacheOptions(packageSerializer, nativeFactory)
         {
-            SearchPaths = { @"D:\SteamLibrary\steamapps\common\rocketleague\TAGame\CookedPCConsole" }, GraphLinkPackages = false, PackageUnpacker = unpacker
+            SearchPaths = { TestConstants.CookedPCConsolePath }, GraphLinkPackages = false, PackageUnpacker = unpacker
         };
         var packageCache = new PackageCache(options);
         var loader = new PackageLoader(packageSerializer, packageCache, unpacker, nativeFactory);
 
         // Act
-        loader.LoadPackage("D:\\SteamLibrary\\steamapps\\common\\rocketleague\\TAGame\\CookedPCConsole\\TAGame.upk", "TAGame");
+        loader.LoadPackage(TestConstants.TAGamePath, "TAGame");
         var pckg = loader.GetPackage("TAGame");
         // Assert 
         pckg.ExportTable.Should().AllSatisfy(x => { x.Object.Should().NotBeNull(); });
