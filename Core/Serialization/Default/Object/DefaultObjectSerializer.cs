@@ -31,7 +31,7 @@ public class DefaultObjectSerializer : BaseObjectSerializer<UObject>
 
         obj.NetIndex = objectStream.ReadInt32();
 
-        if (obj.Class == UClass.StaticClass)
+        if (obj.Class == obj.OwnerPackage.StaticClass)
         {
             return;
         }
@@ -58,7 +58,7 @@ public class DefaultObjectSerializer : BaseObjectSerializer<UObject>
         objectStream.WriteInt32(0);
 #endif
 
-        if (obj.Class == UClass.StaticClass)
+        if (obj.Class == obj.OwnerPackage.StaticClass)
         {
             return;
         }

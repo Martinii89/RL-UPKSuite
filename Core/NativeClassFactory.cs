@@ -15,6 +15,11 @@ public class NativeClassFactory : INativeClassFactory
         _nativeClasses = FindNativeClassInfosInExecutingAssembly();
         CreateStubClasses();
     }
+    
+    /// <summary>
+    /// Class instance used as the base for all UClass instances
+    /// </summary>
+    public UClass? StaticClass { get; private set; }
 
 
     public Dictionary<string, UClass> GetNativeClasses(UnrealPackage package)
@@ -52,13 +57,13 @@ public class NativeClassFactory : INativeClassFactory
         foreach (var (key, value) in _nativeClasses)
         {
             var name = stubPackage.GetOrAddName(value.ClassName);
-            var clz = new UClass(name, UClass.StaticClass, null, stubPackage);
+            var clz = new UClass(name, StaticClass, null, stubPackage);
             clz.InstanceConstructor = (objName, outer, package, objArchetype) =>
                 (UObject) Activator.CreateInstance(value.AssemblyTypeImplementation, objName, clz, outer, package, objArchetype);
             value.RegisteredClass = clz;
             if (value.ClassName == "Class")
             {
-                UClass.StaticClass = clz;
+                StaticClass = clz;
             }
 
             var typePropertiesWithNativeAttribute = value.AssemblyTypeImplementation.GetProperties()
@@ -80,7 +85,7 @@ public class NativeClassFactory : INativeClassFactory
                 continue;
             }
 
-            value.RegisteredClass.Class = UClass.StaticClass;
+            value.RegisteredClass.Class = StaticClass;
 
             var superType = value.SuperType;
             if (superType is null)

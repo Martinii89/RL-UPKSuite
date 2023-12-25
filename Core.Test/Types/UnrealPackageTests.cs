@@ -274,7 +274,7 @@ public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamF
         // Act
 
         // Assert 
-        UClass.StaticClass.Should().NotBeNull();
+        package.StaticClass.Should().NotBeNull();
     }
 
     [Fact]
