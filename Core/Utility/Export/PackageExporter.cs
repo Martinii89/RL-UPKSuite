@@ -100,6 +100,10 @@ public class PackageExporter
 
     public void AddPackageImport(string packageName)
     {
+        if (!Package.PackageCache.IsPackageCached(packageName))
+        {
+            return;
+        }
         var package = Package.PackageCache.GetCachedPackage(packageName)?.PackageRoot;
         ArgumentNullException.ThrowIfNull(package);
         if (_exportImportTable.FirstOrDefault(x => x.ImportedObject == package) != null)
@@ -107,8 +111,10 @@ public class PackageExporter
             return;
         }
 
-        var importItem = new ImportTableItem(GetOrAddName("Core"), GetOrAddName("Package"), new ObjectIndex(0), GetOrAddName(packageName));
-        importItem.ImportedObject = package;
+        var importItem = new ImportTableItem(GetOrAddName("Core"), GetOrAddName("Package"), new ObjectIndex(0), GetOrAddName(packageName))
+        {
+            ImportedObject = package
+        };
         _exportImportTable.Add(importItem);
     }
 

@@ -4,6 +4,7 @@ using Core.Serialization;
 using Core.Serialization.Abstraction;
 using Core.Serialization.RocketLeague;
 using Core.Test.TestUtilities;
+using Core.Tests;
 using Core.Types;
 using Core.Types.PackageTables;
 using Core.Utility.Export;
@@ -229,12 +230,12 @@ public class PackageExporterTests
         var RLobjectSerializerFactory = SerializerHelper.GetService<IObjectSerializerFactory>(typeof(IObjectSerializerFactory), RocketLeagueBase.FileVersion);
         var options = new PackageCacheOptions(packageSerializer, nativeFactory)
         {
-            SearchPaths = { @"D:\SteamLibrary\steamapps\common\rocketleague\TAGame\CookedPCConsole" }, GraphLinkPackages = true, PackageUnpacker = unpacker,
+            SearchPaths = { TestConstants.CookedPCConsolePath }, GraphLinkPackages = true, PackageUnpacker = unpacker,
             NativeClassFactory = nativeFactory, ObjectSerializerFactory = RLobjectSerializerFactory
         };
         var packageCache = new PackageCache(options);
         var loader = new PackageLoader(packageSerializer, packageCache, unpacker, nativeFactory, RLobjectSerializerFactory);
-        var package = loader.LoadPackage("TestData/body_bb_SF.upk", "body_bb_SF");
+        var package = loader.LoadPackage(TestConstants.BodyBBPath, "body_bb_SF");
         var sut = GetPackageExporter(stream, package);
 
         // Act
@@ -256,15 +257,15 @@ public class PackageExporterTests
         var unpacker = new PackageUnpacker(fileSummarySerializer, new DecryptionProvider("keys.txt"));
         var packageSerializer = SerializerHelper.GetSerializerFor<UnrealPackage>(typeof(UnrealPackage), RocketLeagueBase.FileVersion);
         var nativeFactory = new NativeClassFactory();
-        var RLobjectSerializerFactory = SerializerHelper.GetService<IObjectSerializerFactory>(typeof(IObjectSerializerFactory), RocketLeagueBase.FileVersion);
+        var rLobjectSerializerFactory = SerializerHelper.GetService<IObjectSerializerFactory>(typeof(IObjectSerializerFactory), RocketLeagueBase.FileVersion);
         var options = new PackageCacheOptions(packageSerializer, nativeFactory)
         {
-            SearchPaths = { @"D:\SteamLibrary\steamapps\common\rocketleague\TAGame\CookedPCConsole" }, GraphLinkPackages = true, PackageUnpacker = unpacker,
-            NativeClassFactory = nativeFactory, ObjectSerializerFactory = RLobjectSerializerFactory
+            SearchPaths = { TestConstants.TAGamePath }, GraphLinkPackages = true, PackageUnpacker = unpacker,
+            NativeClassFactory = nativeFactory, ObjectSerializerFactory = rLobjectSerializerFactory
         };
         var packageCache = new PackageCache(options);
-        var loader = new PackageLoader(packageSerializer, packageCache, unpacker, nativeFactory, RLobjectSerializerFactory);
-        var package = loader.LoadPackage("TestData/Park_P.upk", "Park_P");
+        var loader = new PackageLoader(packageSerializer, packageCache, unpacker, nativeFactory, rLobjectSerializerFactory);
+        var package = loader.LoadPackage(TestConstants.ParkMapPath, "Park_P");
         var sut = GetPackageExporter(stream, package);
 
         // Act
