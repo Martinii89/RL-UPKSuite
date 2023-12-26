@@ -35,7 +35,7 @@ public class PackageConverter
 
     public bool ProcessFile(FileReference fileReference)
     {
-        try
+        // try
         {
             if (ProcessFileImpl(fileReference.FilePath))
             {
@@ -44,14 +44,14 @@ public class PackageConverter
 
             return true;
         }
-        catch (Exception e)
-        {
-            fileReference.ProcessSuccess = false;
-            _logger?.LogError("Failed to convert package {PackageName}: Exception:{ExceptionMessage}",
-                fileReference.FilePath,
-                e.Message);
-            return false;
-        }
+        // catch (Exception e)
+        // {
+        //     fileReference.ProcessSuccess = false;
+        //     _logger?.LogError("Failed to convert package {PackageName}: Exception:{ExceptionMessage}",
+        //         fileReference.FilePath,
+        //         e.Message);
+        //     return false;
+        // }
     }
 
     private bool ProcessFileImpl(string file)

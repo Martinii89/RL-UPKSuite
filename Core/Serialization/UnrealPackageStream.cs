@@ -1,4 +1,5 @@
 ﻿using System.Text;
+
 using Core.Classes.Core;
 using Core.Classes.Core.Structs;
 using Core.Serialization.Abstraction;
@@ -10,12 +11,14 @@ namespace Core.Serialization;
 
 public class UnrealPackageStream : IUnrealPackageStream
 {
-    protected readonly IStreamSerializer<FName> _nameSerializer;
+    private readonly IStreamSerializer<FName> _nameSerializer;
+
     protected readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
 
-    protected readonly UnrealPackage _unrealPackage;
+    private readonly UnrealPackage _unrealPackage;
 
-    public UnrealPackageStream(Stream baseStream, IStreamSerializer<ObjectIndex> objectIndexSerializer, IStreamSerializer<FName> nameSerializer,
+    public UnrealPackageStream(Stream baseStream, IStreamSerializer<ObjectIndex> objectIndexSerializer,
+        IStreamSerializer<FName> nameSerializer,
         UnrealPackage unrealPackage)
     {
         BaseStream = baseStream;
@@ -25,59 +28,71 @@ public class UnrealPackageStream : IUnrealPackageStream
     }
 
 
+    /// <inheritdoc />
     public Stream BaseStream { get; set; }
 
+    /// <inheritdoc />
     public UObject? ReadObject()
     {
         return _unrealPackage.GetObject(_objectIndexSerializer.Deserialize(BaseStream));
     }
 
+    /// <inheritdoc />
     public FName ReadFName()
     {
         return _nameSerializer.Deserialize(BaseStream);
     }
 
+    /// <inheritdoc />
     public void WriteFName(string name)
     {
         var fname = _unrealPackage.GetFName(name);
         _nameSerializer.Serialize(BaseStream, fname);
     }
 
+    /// <inheritdoc />
     public string ReadFNameStr()
     {
         return _unrealPackage.GetName(_nameSerializer.Deserialize(BaseStream));
     }
 
+    /// <inheritdoc />
     public bool ReadBool()
     {
         return BaseStream.ReadInt32() == 1;
     }
 
+    /// <inheritdoc />
     public Seek TemporarySeek(long offset = 0, SeekOrigin origin = SeekOrigin.Current)
     {
         return BaseStream.TemporarySeek(offset, origin);
     }
 
+    /// <inheritdoc />
     public uint ReadUInt32()
     {
         return BaseStream.ReadUInt32();
     }
 
+    /// <inheritdoc />
     public int ReadInt32()
     {
         return BaseStream.ReadInt32();
     }
 
+    /// <inheritdoc />
     public ushort ReadUInt16()
     {
         return BaseStream.ReadUInt16();
     }
 
+    /// <inheritdoc />
     public short ReadInt16()
     {
         return BaseStream.ReadInt16();
     }
 
+    /// <inheritdoc />
     public string ReadFString()
     {
         var length = ReadInt32();
@@ -91,11 +106,13 @@ public class UnrealPackageStream : IUnrealPackageStream
         return Encoding.UTF8.GetString(stringBytes);
     }
 
+    /// <inheritdoc />
     public void WriteFString(string value)
     {
         BaseStream.WriteFString(value);
     }
 
+    /// <inheritdoc />
     public List<T> ReadTArray<T>(Func<IUnrealPackageStream, T> readFunc)
     {
         var res = new List<T>();
@@ -108,6 +125,7 @@ public class UnrealPackageStream : IUnrealPackageStream
         return res;
     }
 
+    /// <inheritdoc />
     public void WriteTArray<T>(List<T> values, Action<IUnrealPackageStream, T> writeFunc)
     {
         WriteInt32(values.Count);
@@ -117,13 +135,16 @@ public class UnrealPackageStream : IUnrealPackageStream
         }
     }
 
+    /// <inheritdoc />
     public void BulkWriteTArray<T>(TArray<T> values, Action<IUnrealPackageStream, T> writeFunc)
     {
         WriteInt32(values.ElementSize);
         WriteTArray(values, writeFunc);
     }
 
-    public Dictionary<TKey, TVal> ReadDictionary<TKey, TVal>(Func<IUnrealPackageStream, TKey?> keyRead, Func<IUnrealPackageStream, TVal> valRead)
+    /// <inheritdoc />
+    public Dictionary<TKey, TVal> ReadDictionary<TKey, TVal>(Func<IUnrealPackageStream, TKey?> keyRead,
+        Func<IUnrealPackageStream, TVal> valRead)
         where TKey : notnull
     {
         var res = new Dictionary<TKey, TVal>();
@@ -143,7 +164,9 @@ public class UnrealPackageStream : IUnrealPackageStream
         return res;
     }
 
-    public void WriteDictionary<TKey, TVal>(Dictionary<TKey, TVal> dictionary, Action<IUnrealPackageStream, TKey?> keyWrite,
+    /// <inheritdoc />
+    public void WriteDictionary<TKey, TVal>(Dictionary<TKey, TVal> dictionary,
+        Action<IUnrealPackageStream, TKey?> keyWrite,
         Action<IUnrealPackageStream, TVal> valWrite) where TKey : notnull
     {
         WriteInt32(dictionary.Count);
@@ -154,7 +177,9 @@ public class UnrealPackageStream : IUnrealPackageStream
         }
     }
 
-    public TMultiMap<TKey, TVal> ReadTMap<TKey, TVal>(Func<IUnrealPackageStream, TKey> keyRead, Func<IUnrealPackageStream, TVal> valRead) where TKey : notnull
+    /// <inheritdoc />
+    public TMultiMap<TKey, TVal> ReadTMap<TKey, TVal>(Func<IUnrealPackageStream, TKey> keyRead,
+        Func<IUnrealPackageStream, TVal> valRead) where TKey : notnull
     {
         var res = new TMultiMap<TKey, TVal>();
 
@@ -168,13 +193,15 @@ public class UnrealPackageStream : IUnrealPackageStream
         return res;
     }
 
-    public void WriteTMap<TKey, TVal>(TMultiMap<TKey, TVal> multiMap, Action<IUnrealPackageStream, TKey> keyWrite, Action<IUnrealPackageStream, TVal> valWrite)
+    /// <inheritdoc />
+    public void WriteTMap<TKey, TVal>(TMultiMap<TKey, TVal> multiMap, Action<IUnrealPackageStream, TKey> keyWrite,
+        Action<IUnrealPackageStream, TVal> valWrite)
         where TKey : notnull
     {
         WriteInt32(multiMap.Count);
-        foreach (var (key, valuelist) in multiMap.Data)
+        foreach ((TKey key, List<TVal> valueList) in multiMap.Data)
         {
-            foreach (var val in valuelist)
+            foreach (var val in valueList)
             {
                 keyWrite(this, key);
                 valWrite(this, val);
@@ -182,36 +209,43 @@ public class UnrealPackageStream : IUnrealPackageStream
         }
     }
 
+    /// <inheritdoc />
     public byte ReadByte()
     {
-        return (byte) BaseStream.ReadByte();
+        return (byte)BaseStream.ReadByte();
     }
 
+    /// <inheritdoc />
     public ulong ReadUInt64()
     {
         return BaseStream.ReadUInt64();
     }
 
+    /// <inheritdoc />
     public long ReadInt64()
     {
         return BaseStream.ReadInt64();
     }
 
+    /// <inheritdoc />
     public float ReadSingle()
     {
         return BaseStream.ReadSingle();
     }
 
+    /// <inheritdoc />
     public byte[] ReadBytes(int count)
     {
         return BaseStream.ReadBytes(count);
     }
 
+    /// <inheritdoc />
     public ushort[] ReadUInt16s(int count)
     {
         return BaseStream.ReadUInt16s(count);
     }
 
+    /// <inheritdoc />
     public TArray<T> BulkReadTArray<T>(Func<IUnrealPackageStream, T> readFunc)
     {
         var res = new TArray<T>
@@ -270,31 +304,37 @@ public class UnrealPackageStream : IUnrealPackageStream
         BaseStream.WriteByte(value);
     }
 
+    /// <inheritdoc />
     public void WriteUInt32(uint value)
     {
         BaseStream.WriteUInt32(value);
     }
 
+    /// <inheritdoc />
     public void WriteBool(bool value)
     {
         WriteInt32(value ? 1 : 0);
     }
 
+    /// <inheritdoc />
     public void WriteSingle(float value)
     {
         BaseStream.WriteSingle(value);
     }
 
+    /// <inheritdoc />
     public void WriteBytes(byte[] bytes)
     {
         BaseStream.WriteBytes(bytes);
     }
 
+    /// <inheritdoc />
     public void WriteUInt16(ushort value)
     {
         BaseStream.WriteUInt16(value);
     }
 
+    /// <inheritdoc />
     public void WriteInt16(short value)
     {
         BaseStream.WriteInt16(value);

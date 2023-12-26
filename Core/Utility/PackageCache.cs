@@ -73,6 +73,8 @@ public class PackageCache : IPackageCache
     private readonly ConcurrentDictionary<string, UnrealPackage> _cachedPackages = new(StringComparer.CurrentCultureIgnoreCase);
     private readonly PackageCacheOptions _options;
 
+    private Dictionary<string, string> _fileSearchCache = new (StringComparer.OrdinalIgnoreCase);
+
     /// <summary>
     ///     Constructs a configured PackageCache
     /// </summary>
@@ -80,6 +82,23 @@ public class PackageCache : IPackageCache
     public PackageCache(PackageCacheOptions options)
     {
         _options = options;
+        InitFileSearchCache();
+    }
+
+    private void InitFileSearchCache()
+    {
+        Matcher matcher = new();
+        matcher.AddIncludePatterns(_options.Extensions.Select(ext => $"*.{ext}")); 
+        var matchedFiles = new List<string>();
+        foreach (var searchPath in _options.SearchPaths)
+        {
+            matchedFiles.AddRange(matcher.GetResultsInFullPath(searchPath));
+        }
+
+        foreach (string file in matchedFiles)
+        {
+            _fileSearchCache[Path.GetFileNameWithoutExtension(file)] = file;
+        }
     }
 
     /// <summary>
@@ -101,24 +120,13 @@ public class PackageCache : IPackageCache
         }
 
 
-        Matcher matcher = new();
-        matcher.AddIncludePatterns(_options.Extensions.Select(ext => $"{packageName}.{ext}"));
-        var matchedFiles = new List<string>();
-        foreach (var searchPath in _options.SearchPaths)
+        if (!_fileSearchCache.TryGetValue(packageName, out var packagePath))
         {
-            matchedFiles.AddRange(matcher.GetResultsInFullPath(searchPath));
-        }
-
-        switch (matchedFiles.Count)
-        {
-            case 0:
-                return null;
-            case > 1:
-                throw new InvalidDataException($"Too many matches packages found: {string.Join(',', matchedFiles)}");
+            return null;
         }
 
         Console.WriteLine($"[PackageCache]: Reading package {packageName}");
-        var packageStream = new MemoryStream(File.ReadAllBytes(matchedFiles[0]));
+        var packageStream = new MemoryStream(File.ReadAllBytes(packagePath));
 
         UnrealPackage unrealPackage;
         var loadOptions = new UnrealPackageOptions(_options.UnrealPackageSerializer, packageName, _options.NativeClassFactory, this,

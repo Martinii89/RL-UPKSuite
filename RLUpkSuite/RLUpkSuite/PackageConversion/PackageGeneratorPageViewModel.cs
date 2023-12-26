@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
 
@@ -117,14 +119,14 @@ public partial class PackageGeneratorPageViewModel : PageBase
     [RelayCommand]
     private async Task ConvertFiles()
     {
-        await Task.Run(CovertFilesImpl);
+        await CovertFilesImpl();
         if (_conversionConfig.OpenOutputOnFinish && OutputDirectory != null)
         {
             Process.Start("explorer.exe", OutputDirectory);
         }
     }
 
-    private void CovertFilesImpl()
+    private async Task CovertFilesImpl()
     {
         if (_conversionConfig.KeysPath is null || _conversionConfig.ImportPackagesDirectory is null)
         {
@@ -167,46 +169,77 @@ public partial class PackageGeneratorPageViewModel : PageBase
         //     return;
         // }
 
-        Parallel.ForEach<FileReference, PackageConverter?>(
-            FileReferences,
-             new ParallelOptions{MaxDegreeOfParallelism = 8},
-            () =>
+
+        ConcurrentQueue<FileReference> processQueue = new(FileReferences);
+
+        var sw = Stopwatch.StartNew();
+        
+        var processTasks = Enumerable.Range(0, 8).Select(i =>
+        {
+            return Task.Run(() =>
             {
-                _logger.LogInformation("Creating new PackageConverter on thread {ThreadID}", Thread.CurrentThread.ManagedThreadId);
-                return _packageConverterFactory.Create(_conversionConfig);
-            },
-            (reference, state, packageConverter) =>
-            {
-                packageConverter?.ProcessFile(reference);
-                return packageConverter;
-            }, _ => { });
+                var converter = _packageConverterFactory.Create(_conversionConfig);
+                while (processQueue.TryDequeue(out var file))
+                {
+                    converter!.ProcessFile(file);
+                }
+            });
+        });
+        await Task.WhenAll(processTasks);
+
+        // var filePartitions = Split(FileReferences, 8).ToList();
+        // var counts = filePartitions.Sum(x => x.Count());
+        // var conversionTasks = new List<Task>();
+
+        // foreach (var files in filePartitions)
+        // {
+        //     var task = Task.Run(() =>
+        //     {
+        //         var converter = _packageConverterFactory.Create(_conversionConfig);
+        //         foreach (var file in files)
+        //         {
+        //             converter!.ProcessFile(file);
+        //         }
+        //     });
+        //     conversionTasks.Add(task);
+        // }
+
+        sw.Stop();
+        _logger.LogInformation("Processed {FileCount} in {Duration} s", FileReferences.Count, sw.Elapsed.TotalSeconds);
+
+
+
+        // _packageConverterFactory.PreloadCommonPackages(_conversionConfig);
+
+        // Parallel.ForEach(filePartitions, new ParallelOptions{MaxDegreeOfParallelism = 32}, (source, state) =>
+        // {
+        //     var converter = _packageConverterFactory.Create(_conversionConfig);
+        //     foreach (var file in source)
+        //     {
+        //         converter!.ProcessFile(file);
+        //     }
+        // });
+
+
+        //     Parallel.ForEach<FileReference, PackageConverter?>(
+        //         FileReferences,
+        //          new ParallelOptions{MaxDegreeOfParallelism = 16},
+        //         () =>
+        //         {
+        //             _logger.LogInformation("Creating new PackageConverter on thread {ThreadID}", Environment.CurrentManagedThreadId);
+        //             return _packageConverterFactory.Create(_conversionConfig);
+        //         },
+        //         (reference, state, packageConverter) =>
+        //         {
+        //             packageConverter?.ProcessFile(reference);
+        //             return packageConverter;
+        //         }, _ => { });
     }
 
-    private IServiceProvider GetUdkSerializerCollection()
+    public static IEnumerable<IEnumerable<T>> Split<T>(IEnumerable<T> list, int parts)
     {
-        var serviceCollection = new ServiceCollection();
-        serviceCollection.UseSerializers(typeof(UnrealPackage), new SerializerOptions());
-        serviceCollection.AddSingleton<IObjectSerializerFactory, ObjectSerializerFactory>();
-        serviceCollection.AddSingleton<PackageExporterFactory>();
-        var services = serviceCollection.BuildServiceProvider();
-        return services;
-    }
-
-    private IServiceProvider GetRLSerializerCollection()
-    {
-        var serviceCollection = new ServiceCollection();
-        serviceCollection.UseSerializers(typeof(UnrealPackage), new SerializerOptions(RocketLeagueBase.FileVersion));
-        serviceCollection.AddSingleton<IObjectSerializerFactory, ObjectSerializerFactory>();
-        var services = serviceCollection.BuildServiceProvider();
-        return services;
-    }
-
-    PackageCompressor GetDefaultPackageCompressor()
-    {
-        var headerSerializer = FileSummarySerializer.GetDefaultSerializer();
-        var exportTableIteSerializer =
-            new Core.Serialization.Default.ExportTableItemSerializer(new FNameSerializer(), new ObjectIndexSerializer(),
-                new FGuidSerializer());
-        return new PackageCompressor(headerSerializer, exportTableIteSerializer, new FCompressedChunkinfoSerializer());
+        int i = 0;
+        var splits = list.GroupBy(item => i++ % parts).Select(part => part.AsEnumerable());
+        return splits;
     }
 }
