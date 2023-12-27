@@ -1,7 +1,9 @@
 ﻿using System.Collections.Concurrent;
+
 using Core.Serialization;
 using Core.Serialization.Abstraction;
 using Core.Types;
+
 using Microsoft.Extensions.FileSystemGlobbing;
 
 namespace Core.Utility;
@@ -16,7 +18,8 @@ public class PackageCacheOptions
     /// </summary>
     /// <param name="unrealPackageSerializer"></param>
     /// <param name="nativeClassFactory"></param>
-    public PackageCacheOptions(IStreamSerializer<UnrealPackage> unrealPackageSerializer, INativeClassFactory nativeClassFactory)
+    public PackageCacheOptions(IStreamSerializer<UnrealPackage> unrealPackageSerializer,
+        INativeClassFactory nativeClassFactory)
     {
         UnrealPackageSerializer = unrealPackageSerializer;
         NativeClassFactory = nativeClassFactory;
@@ -35,7 +38,10 @@ public class PackageCacheOptions
     /// <summary>
     ///     The file extensions to search for. Do not include the dot, just the extension
     /// </summary>
-    public List<string> Extensions { get; init; } = new() { "u", "upk" };
+    public List<string> Extensions { get; init; } = new()
+    {
+        "u", "upk"
+    };
 
     /// <summary>
     ///     If the loader should auto link all packages or not
@@ -70,10 +76,12 @@ public class PackageCacheOptions
 /// </summary>
 public class PackageCache : IPackageCache
 {
-    private readonly ConcurrentDictionary<string, UnrealPackage> _cachedPackages = new(StringComparer.CurrentCultureIgnoreCase);
+    private readonly ConcurrentDictionary<string, UnrealPackage> _cachedPackages =
+        new(StringComparer.CurrentCultureIgnoreCase);
+
     private readonly PackageCacheOptions _options;
 
-    private Dictionary<string, string> _fileSearchCache = new (StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, string> _fileSearchCache = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     ///     Constructs a configured PackageCache
@@ -88,7 +96,7 @@ public class PackageCache : IPackageCache
     private void InitFileSearchCache()
     {
         Matcher matcher = new();
-        matcher.AddIncludePatterns(_options.Extensions.Select(ext => $"*.{ext}")); 
+        matcher.AddIncludePatterns(_options.Extensions.Select(ext => $"*.{ext}"));
         var matchedFiles = new List<string>();
         foreach (var searchPath in _options.SearchPaths)
         {
@@ -126,22 +134,14 @@ public class PackageCache : IPackageCache
         }
 
         Console.WriteLine($"[PackageCache]: Reading package {packageName}");
-        var packageStream = new MemoryStream(File.ReadAllBytes(packagePath));
 
-        UnrealPackage unrealPackage;
-        var loadOptions = new UnrealPackageOptions(_options.UnrealPackageSerializer, packageName, _options.NativeClassFactory, this,
+        var packageBuffer = GetBufferForPackage(packagePath);
+        var packageStream = new MemoryStream(packageBuffer);
+
+        var loadOptions = new UnrealPackageOptions(_options.UnrealPackageSerializer, packageName,
+            _options.NativeClassFactory, this,
             _options.ObjectSerializerFactory);
-        if (_options.PackageUnpacker.IsPackagePacked(packageStream))
-        {
-            var unpackedStream = new MemoryStream();
-            _options.PackageUnpacker.Unpack(packageStream, unpackedStream);
-            unpackedStream.Position = 0;
-            unrealPackage = UnrealPackage.DeserializeAndInitialize(unpackedStream, loadOptions);
-        }
-        else
-        {
-            unrealPackage = UnrealPackage.DeserializeAndInitialize(packageStream, loadOptions);
-        }
+        var unrealPackage = UnrealPackage.DeserializeAndInitialize(packageStream, loadOptions);
 
         // Add to cache before linking to avoid infinite recursive loop
         var added = _cachedPackages.TryAdd(packageName, unrealPackage);
@@ -162,6 +162,25 @@ public class PackageCache : IPackageCache
 
 
         return unrealPackage;
+    }
+    
+
+    private byte[] GetBufferForPackage(string path)
+    {
+        Console.WriteLine($"[PackageCache]: Reading bytes for package {path}");
+        byte[] fileBytes = File.ReadAllBytes(path);
+        var packageStream = new MemoryStream(fileBytes);
+        if (_options.PackageUnpacker.IsPackagePacked(packageStream))
+        {
+            var unpackedStream = new MemoryStream();
+            _options.PackageUnpacker.Unpack(packageStream, unpackedStream);
+            unpackedStream.Position = 0;
+            return unpackedStream.GetBuffer();
+        }
+        else
+        {
+            return fileBytes;
+        }
     }
 
     /// <inheritdoc />

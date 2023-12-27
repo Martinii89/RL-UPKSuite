@@ -174,7 +174,7 @@ public partial class PackageGeneratorPageViewModel : PageBase
 
         var sw = Stopwatch.StartNew();
         
-        var processTasks = Enumerable.Range(0, 8).Select(i =>
+        var processTasks = Enumerable.Range(0, 2).Select(i =>
         {
             return Task.Run(() =>
             {
