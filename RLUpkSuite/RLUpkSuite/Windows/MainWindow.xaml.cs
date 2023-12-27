@@ -44,14 +44,14 @@ public partial class MainWindow
             _configStore.Load(str);
         }
 
-        var viewModelPages = _viewModel.Pages;
-        _viewModel.SelectedPage = viewModelPages.FirstOrDefault(x => x.PageName == _shellConfig.StartPage) ?? viewModelPages.FirstOrDefault();
+        ObservableCollection<PageBase> viewModelPages = _viewModel.Pages;
+        _viewModel.SelectedPage = viewModelPages.FirstOrDefault(x => x.PageName == _shellConfig.StartPage) ??
+                                  viewModelPages.FirstOrDefault();
         InitThemeFromConfig();
     }
 
     private void InitStartPageFromConfig()
     {
-        
     }
 
     private void InitThemeFromConfig()

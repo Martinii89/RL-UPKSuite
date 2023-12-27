@@ -10,7 +10,7 @@ public class UdkSerializerCollection
 {
     public UdkSerializerCollection()
     {
-        ServiceCollection serviceCollection = new ServiceCollection();
+        ServiceCollection serviceCollection = new();
         serviceCollection.UseSerializers(typeof(UnrealPackage), new SerializerOptions());
         serviceCollection.AddSingleton<IObjectSerializerFactory, ObjectSerializerFactory>();
         serviceCollection.AddSingleton<PackageExporterFactory>();

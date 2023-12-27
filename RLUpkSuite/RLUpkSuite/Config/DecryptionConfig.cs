@@ -4,14 +4,14 @@ namespace RLUpkSuite.Config;
 
 public class DecryptionConfig(CommonConfig commonConfig) : AppConfigBase
 {
-    
     public string? KeysPath
     {
         get => commonConfig.KeysPath;
         set => commonConfig.KeysPath = value;
     }
 
-    public bool OpenOutputOnFinish     {
+    public bool OpenOutputOnFinish
+    {
         get => commonConfig.OpenOutputOnFinish;
         set => commonConfig.OpenOutputOnFinish = value;
     }

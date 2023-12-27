@@ -1,10 +1,10 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:controls="clr-namespace:RLUpkSuite.Controls"
+                    xmlns:controls="clr-namespace:RLUpkSuite.UI.Controls"
                     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+                    xmlns:packageConversion="clr-namespace:RLUpkSuite.PackageConversion"
                     xmlns:system="clr-namespace:System;assembly=System.Runtime"
-                    xmlns:viewModels="clr-namespace:RLUpkSuite.ViewModels"
-                    xmlns:packageConversion="clr-namespace:RLUpkSuite.PackageConversion">
+                    xmlns:validation="clr-namespace:RLUpkSuite.UI.Validation">
 
   <DataTemplate DataType="{x:Type packageConversion:PackageGeneratorPageViewModel}">
     <Grid>
@@ -97,6 +97,7 @@
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="Auto" />
               <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <CheckBox Grid.Column="0"
                       Content="Open output folder"
@@ -106,6 +107,20 @@
                       Content="Compress package"
                       IsChecked="{Binding Compress}"
                       Style="{StaticResource MaterialDesignCheckBox}" />
+            <TextBox Grid.Column="2"
+                     Margin="4"
+                     VerticalAlignment="Center"
+                     materialDesign:HintAssist.Hint="Threads"
+                     materialDesign:ValidationAssist.UsePopup="True"
+                     Style="{StaticResource MaterialDesignFloatingHintTextBox}">
+              <TextBox.Text>
+                <Binding Path="Threads" UpdateSourceTrigger="PropertyChanged">
+                  <Binding.ValidationRules>
+                    <validation:IntRangeRule Max="16" Min="1" />
+                  </Binding.ValidationRules>
+                </Binding>
+              </TextBox.Text>
+            </TextBox>
           </Grid>
 
 
@@ -127,7 +142,7 @@
                   Command="{Binding ConvertFilesCommand}"
                   Content="{materialDesign:PackIcon Play,
                                                     Size={StaticResource IconSize}}"
-                  ToolTip="Decrypt files" />
+                  ToolTip="Convert files" />
         </Grid>
       </StackPanel>
 

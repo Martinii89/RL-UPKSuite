@@ -1,8 +1,4 @@
-﻿using System.IO;
-
-using CommunityToolkit.Mvvm.Messaging;
-
-using MaterialDesignThemes.Wpf;
+﻿using CommunityToolkit.Mvvm.Messaging;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -17,11 +13,11 @@ namespace RLUpkSuite.AppUpdates;
 
 public class UpdateHelper
 {
+    private readonly Deployment _deployment;
+
     private readonly ILogger<UpdateHelper> _logger;
 
     private readonly IMessenger _messenger;
-
-    private readonly Deployment _deployment;
 
     public UpdateHelper(ILogger<UpdateHelper> logger, IMessenger messenger, IOptions<Deployment> deploymentOptions)
     {
@@ -45,34 +41,35 @@ public class UpdateHelper
     {
         _logger.LogInformation("Checking for update");
 
-        using var mgr = CreateUpdateManager();
+        using UpdateManager? mgr = CreateUpdateManager();
         if (mgr is null)
         {
             _logger.LogInformation("UpdateManager null");
             return;
         }
 
-        var updateInfo = await mgr.CheckForUpdate().ConfigureAwait(false);
+        UpdateInfo? updateInfo = await mgr.CheckForUpdate().ConfigureAwait(false);
         if (updateInfo is null)
         {
             return;
         }
-        var updates = updateInfo.ReleasesToApply;
+
+        List<ReleaseEntry>? updates = updateInfo.ReleasesToApply;
         if (updates is null || updates.Count == 0)
         {
             _logger.LogInformation("No new updates");
             return;
         }
 
-        
-        var currentVersion = mgr.CurrentlyInstalledVersion();
-        var futureVersion = updateInfo.FutureReleaseEntry.Version;
+
+        SemanticVersion? currentVersion = mgr.CurrentlyInstalledVersion();
+        SemanticVersion? futureVersion = updateInfo.FutureReleaseEntry.Version;
         if (currentVersion != null && currentVersion >= futureVersion)
         {
             _logger.LogInformation("No new updates");
             return;
         }
-        
+
 
         _logger.LogInformation("New version available: {CurrentVersion} -> {NewVersion}",
             currentVersion, futureVersion);
@@ -81,21 +78,24 @@ public class UpdateHelper
 
     private void SendUpdateNotification()
     {
-        _messenger.Send(new MessageWithDialogDetails("New version available", "Update", new UpdateDialogViewModel(this), TimeSpan.FromSeconds(10)));
+        _messenger.Send(new MessageWithDialogDetails("New version available", "Update", new UpdateDialogViewModel(this),
+            TimeSpan.FromSeconds(10)));
     }
 
     public async Task StartUpdate(Action<int> updateReporting)
     {
-        using var mgr = CreateUpdateManager();
+        using UpdateManager? mgr = CreateUpdateManager();
         if (mgr is null)
         {
             _logger.LogInformation("UpdateManager null");
             return;
         }
-        var newVersion = await mgr.UpdateApp(updateReporting);
-   
+
+        ReleaseEntry? newVersion = await mgr.UpdateApp(updateReporting);
+
         // optionally restart the app automatically, or ask the user if/when they want to restart
-        if (newVersion != null) {
+        if (newVersion != null)
+        {
             UpdateManager.RestartApp();
         }
     }

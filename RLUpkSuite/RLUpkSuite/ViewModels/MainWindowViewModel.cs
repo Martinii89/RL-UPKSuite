@@ -88,6 +88,10 @@ public partial class MainWindowViewModel : ObservableObject, IRecipient<ShowErro
 
 public record class ShowError(string Message, string Details);
 
-public record class MessageWithDialogDetails(string Message, string ActionMessage, object DialogContent, TimeSpan? DurationOverride);
+public record class MessageWithDialogDetails(
+    string Message,
+    string ActionMessage,
+    object DialogContent,
+    TimeSpan? DurationOverride);
 
 public record class ErrorDetailsViewModel(string Details);

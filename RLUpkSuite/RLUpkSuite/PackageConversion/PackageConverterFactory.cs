@@ -1,10 +1,7 @@
-﻿using System.IO;
-
-using Core;
+﻿using Core;
 using Core.Classes.Compression;
 using Core.RocketLeague.Decryption;
 using Core.Serialization.Default;
-using Core.Types.PackageTables;
 using Core.Utility;
 
 using Microsoft.Extensions.Logging;
@@ -15,15 +12,15 @@ namespace RLUpkSuite.PackageConversion;
 
 public class PackageConverterFactory
 {
+    private readonly Func<IDecrypterProvider> _decrypterFactory;
+
     private readonly ILogger<PackageConverter> _logger;
 
     private readonly PackageCompressor _packageCompressor;
 
-    private readonly UdkSerializerCollection _udkSerializerCollection;
-
     private readonly RlSerializerCollection _rlSerializerCollection;
 
-    private readonly Func<IDecrypterProvider> _decrypterFactory;
+    private readonly UdkSerializerCollection _udkSerializerCollection;
 
 
     public PackageConverterFactory(ILogger<PackageConverter> logger, UdkSerializerCollection udkSerializerCollection,
@@ -38,8 +35,8 @@ public class PackageConverterFactory
 
     private PackageCompressor GetDefaultPackageCompressor()
     {
-        var headerSerializer = FileSummarySerializer.GetDefaultSerializer();
-        var exportTableIteSerializer =
+        FileSummarySerializer headerSerializer = FileSummarySerializer.GetDefaultSerializer();
+        ExportTableItemSerializer exportTableIteSerializer =
             new ExportTableItemSerializer(new FNameSerializer(), new ObjectIndexSerializer(),
                 new FGuidSerializer());
         return new PackageCompressor(headerSerializer, exportTableIteSerializer, new FCompressedChunkinfoSerializer());
@@ -87,22 +84,22 @@ public class PackageConverterFactory
             return null;
         }
 
-        var decrypter = _decrypterFactory();
+        IDecrypterProvider decrypter = _decrypterFactory();
         decrypter.UseKeyFile(config.KeysPath);
-        var nativeClassFactory = new NativeClassFactory();
-        var packageCache = new PackageCache(CreateCacheOptions(config, decrypter, nativeClassFactory));
+        NativeClassFactory nativeClassFactory = new NativeClassFactory();
+        PackageCache packageCache = new PackageCache(CreateCacheOptions(config, decrypter, nativeClassFactory));
 
         // foreach (string cachedPackageName in PreloadPackageCache.GetCachedPackageNames())
         // {
         //     packageCache.AddPackage(PreloadPackageCache.GetCachedPackage(cachedPackageName));
         // }
 
-        var loader = new PackageLoader(_rlSerializerCollection.UnrealPackageSerializer, packageCache,
+        PackageLoader loader = new PackageLoader(_rlSerializerCollection.UnrealPackageSerializer, packageCache,
             _rlSerializerCollection.GetPackageUnpacker(decrypter), nativeClassFactory,
             _rlSerializerCollection.ObjectSerializerFactory);
-        var exporterFactory = _udkSerializerCollection.PackageExporterFactory;
+        PackageExporterFactory exporterFactory = _udkSerializerCollection.PackageExporterFactory;
 
-        var packageConverter = new PackageConverter(config, exporterFactory, loader,
+        PackageConverter packageConverter = new PackageConverter(config, exporterFactory, loader,
             config.Compress ? GetDefaultPackageCompressor() : null, _logger);
 
         return packageConverter;

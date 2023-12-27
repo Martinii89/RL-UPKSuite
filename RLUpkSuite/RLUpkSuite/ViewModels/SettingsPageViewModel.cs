@@ -1,7 +1,5 @@
 ﻿using System.Windows.Media;
 
-using CommunityToolkit.Mvvm.Input;
-
 using MaterialDesignColors;
 
 using MaterialDesignThemes.Wpf;
@@ -11,7 +9,7 @@ using RLUpkSuite.Pages;
 
 namespace RLUpkSuite.ViewModels;
 
-public partial class SettingsPageViewModel : PageBase
+public class SettingsPageViewModel : PageBase
 {
     private readonly ShellConfig _shellConfig;
 

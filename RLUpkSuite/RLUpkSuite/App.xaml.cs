@@ -21,8 +21,6 @@ using RLUpkSuite.Pages;
 using RLUpkSuite.ViewModels;
 using RLUpkSuite.Windows;
 
-using Squirrel;
-
 using PackageGeneratorPageViewModel = RLUpkSuite.PackageConversion.PackageGeneratorPageViewModel;
 
 namespace RLUpkSuite;
@@ -54,7 +52,6 @@ public partial class App : Application
 
         await host.StopAsync().ConfigureAwait(true);
     }
-
 
 
     private static string GetAppConfigPath()
@@ -90,7 +87,6 @@ public partial class App : Application
                 services.AddSingleton<UpdateHelper>();
 
 
-                
                 services.AddOptions<Deployment>()
                     .BindConfiguration(Deployment.Section)
                     .ValidateDataAnnotations()
@@ -112,9 +108,7 @@ public partial class App : Application
                 services.AddAppConfig<CommonConfig>();
                 services.AddAppConfig<ConversionConfig>();
 
-                
-                
-                
+
                 //RL upk suite stuff
                 services.TryAddTransient<IDecrypterProvider, DecryptionProvider>();
                 services.AddPackageConversion();

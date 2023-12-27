@@ -24,6 +24,8 @@ public class ConversionConfig(CommonConfig commonConfig) : AppConfigBase
 
     public bool Compress { get; set; }
 
+    public int Threads { get; set; } = 2;
+
 
     public override string GetKey()
     {
@@ -55,6 +57,11 @@ public class ConversionConfig(CommonConfig commonConfig) : AppConfigBase
         if (jsonObject.ContainsKey(nameof(Compress)))
         {
             Compress = jsonObject[nameof(Compress)]?.GetValue<bool>() ?? false;
+        }
+
+        if (jsonObject.ContainsKey(nameof(Threads)))
+        {
+            Threads = jsonObject[nameof(Threads)]!.GetValue<int>();
         }
     }
 }

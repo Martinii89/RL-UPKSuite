@@ -2,29 +2,29 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:viewModels="clr-namespace:RLUpkSuite.ViewModels">
   <ResourceDictionary.MergedDictionaries>
-    <ResourceDictionary Source="DecryptionPage.xaml"/>
-    <ResourceDictionary Source="SettingsPage.xaml"/>
-    <ResourceDictionary Source="ConversionPage.xaml"/>
+    <ResourceDictionary Source="DecryptionPage.xaml" />
+    <ResourceDictionary Source="SettingsPage.xaml" />
+    <ResourceDictionary Source="ConversionPage.xaml" />
   </ResourceDictionary.MergedDictionaries>
 
   <Style x:Key="FileReferenceGrid"
          TargetType="{x:Type DataGrid}"
          BasedOn="{StaticResource {x:Type DataGrid}}">
-    <Setter Property="AutoGenerateColumns" Value="False"/>
-    <Setter Property="BorderThickness" Value="1"/>
-    <Setter Property="CanUserAddRows" Value="False"/>
-    <Setter Property="CanUserDeleteRows" Value="True"/>
-    <Setter Property="CanUserReorderColumns" Value="False"/>
-    <Setter Property="IsReadOnly" Value="False"/>
-    <Setter Property="SelectionMode" Value="Extended"/>
-    <Setter Property="SelectionUnit" Value="FullRow"/>
+    <Setter Property="AutoGenerateColumns" Value="False" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CanUserAddRows" Value="False" />
+    <Setter Property="CanUserDeleteRows" Value="True" />
+    <Setter Property="CanUserReorderColumns" Value="False" />
+    <Setter Property="IsReadOnly" Value="False" />
+    <Setter Property="SelectionMode" Value="Extended" />
+    <Setter Property="SelectionUnit" Value="FullRow" />
   </Style>
-  
+
   <DataTemplate DataType="{x:Type viewModels:FileReferenceCollection}">
     <DataGrid x:Name="FileGrid"
-              Style="{StaticResource FileReferenceGrid}"
               Margin="0,0,0,8"
-              ItemsSource="{Binding }">
+              ItemsSource="{Binding}"
+              Style="{StaticResource FileReferenceGrid}">
       <DataGrid.Columns>
         <DataGridCheckBoxColumn Binding="{Binding ProcessSuccess}"
                                 Header="Success"
@@ -36,6 +36,6 @@
       </DataGrid.Columns>
     </DataGrid>
   </DataTemplate>
-  
-  
+
+
 </ResourceDictionary>

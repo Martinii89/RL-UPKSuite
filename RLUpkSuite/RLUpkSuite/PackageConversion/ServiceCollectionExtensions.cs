@@ -14,7 +14,7 @@ public static class ServiceCollectionExtensions
         services.TryAddTransient<IDecrypterProvider, DecryptionProvider>();
 
         // services.AddSingleton<Func<NativeClassFactory>>(() => new NativeClassFactory());
-        services.AddSingleton<Func<IDecrypterProvider>>((provider => provider.GetRequiredService<IDecrypterProvider>));
+        services.AddSingleton<Func<IDecrypterProvider>>(provider => provider.GetRequiredService<IDecrypterProvider>);
         services.TryAddSingleton<PackageConverterFactory>();
 
         return services;

@@ -1,23 +1,11 @@
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
 
 using CommunityToolkit.Mvvm.Input;
 
-using Core;
-using Core.Classes.Compression;
-using Core.RocketLeague.Decryption;
-using Core.Serialization;
-using Core.Serialization.Abstraction;
-using Core.Serialization.Default;
-using Core.Serialization.RocketLeague;
-using Core.Types;
-using Core.Utility;
-
 using MaterialDesignThemes.Wpf;
 
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 using RLUpkSuite.Config;
@@ -30,9 +18,9 @@ public partial class PackageGeneratorPageViewModel : PageBase
 {
     private readonly ConversionConfig _conversionConfig;
 
-    private readonly PackageConverterFactory _packageConverterFactory;
-
     private readonly ILogger<PackageGeneratorPageViewModel> _logger;
+
+    private readonly PackageConverterFactory _packageConverterFactory;
 
     public PackageGeneratorPageViewModel(ConversionConfig conversionConfig,
         PackageConverterFactory packageConverterFactory,
@@ -98,6 +86,13 @@ public partial class PackageGeneratorPageViewModel : PageBase
             (config, b) => config.Compress = b);
     }
 
+    public int Threads
+    {
+        get => _conversionConfig.Threads;
+        set => SetProperty(_conversionConfig.Threads, value, _conversionConfig,
+            (config, b) => config.Threads = b);
+    }
+
     public bool OpenOutputDirectoryOnFinished
     {
         get => _conversionConfig.OpenOutputOnFinish;
@@ -133,113 +128,30 @@ public partial class PackageGeneratorPageViewModel : PageBase
             return;
         }
 
-        // var rlServices = _rlSerializerCollection;
-        // var udkServices = _udkSerializerCollection;
-        // var nativeFactory = new NativeClassFactory();
-        //
-        // _decrypterProvider.UseKeyFile(_conversionConfig.KeysPath);
-        // var packageUnpacker = rlServices.GetPackageUnpacker(_decrypterProvider);
-        // var cacheOptions = new PackageCacheOptions(rlServices.UnrealPackageSerializer, nativeFactory)
-        // {
-        //     SearchPaths =
-        //     {
-        //         _conversionConfig.ImportPackagesDirectory
-        //     },
-        //     GraphLinkPackages = true,
-        //     PackageUnpacker = packageUnpacker,
-        //     NativeClassFactory = nativeFactory,
-        //     ObjectSerializerFactory = rlServices.ObjectSerializerFactory,
-        //     PackageBlacklist =
-        //     {
-        //         "EngineMaterials", "EngineResources"
-        //     }
-        // };
-        // var packageCache = new PackageCache(cacheOptions);
-        //
-        // var loader = new PackageLoader(rlServices.UnrealPackageSerializer, packageCache, packageUnpacker, nativeFactory,
-        //     rlServices.ObjectSerializerFactory);
-        // var exporterFactory = udkServices.PackageExporterFactory;
-
-        // var packageConverter = new PackageConverter(_conversionConfig, exporterFactory, loader,
-        //     _conversionConfig.Compress ? GetDefaultPackageCompressor() : null, null);
-        // var packageConverter = _packageConverterFactory.Create(_conversionConfig);
-        // if (packageConverter is null)
-        // {
-        //     _logger.LogError("Failed to create package converter");
-        //     return;
-        // }
-
-
         ConcurrentQueue<FileReference> processQueue = new(FileReferences);
+        Stopwatch sw = Stopwatch.StartNew();
 
-        var sw = Stopwatch.StartNew();
-        
-        var processTasks = Enumerable.Range(0, 2).Select(i =>
+        IEnumerable<Task> processTasks = Enumerable.Range(0, _conversionConfig.Threads).Select(i =>
         {
             return Task.Run(() =>
             {
-                var converter = _packageConverterFactory.Create(_conversionConfig);
-                while (processQueue.TryDequeue(out var file))
+                PackageConverter? converter = _packageConverterFactory.Create(_conversionConfig);
+                while (processQueue.TryDequeue(out FileReference? file))
                 {
                     converter!.ProcessFile(file);
                 }
             });
         });
         await Task.WhenAll(processTasks);
-
-        // var filePartitions = Split(FileReferences, 8).ToList();
-        // var counts = filePartitions.Sum(x => x.Count());
-        // var conversionTasks = new List<Task>();
-
-        // foreach (var files in filePartitions)
-        // {
-        //     var task = Task.Run(() =>
-        //     {
-        //         var converter = _packageConverterFactory.Create(_conversionConfig);
-        //         foreach (var file in files)
-        //         {
-        //             converter!.ProcessFile(file);
-        //         }
-        //     });
-        //     conversionTasks.Add(task);
-        // }
-
         sw.Stop();
-        _logger.LogInformation("Processed {FileCount} in {Duration} s", FileReferences.Count, sw.Elapsed.TotalSeconds);
-
-
-
-        // _packageConverterFactory.PreloadCommonPackages(_conversionConfig);
-
-        // Parallel.ForEach(filePartitions, new ParallelOptions{MaxDegreeOfParallelism = 32}, (source, state) =>
-        // {
-        //     var converter = _packageConverterFactory.Create(_conversionConfig);
-        //     foreach (var file in source)
-        //     {
-        //         converter!.ProcessFile(file);
-        //     }
-        // });
-
-
-        //     Parallel.ForEach<FileReference, PackageConverter?>(
-        //         FileReferences,
-        //          new ParallelOptions{MaxDegreeOfParallelism = 16},
-        //         () =>
-        //         {
-        //             _logger.LogInformation("Creating new PackageConverter on thread {ThreadID}", Environment.CurrentManagedThreadId);
-        //             return _packageConverterFactory.Create(_conversionConfig);
-        //         },
-        //         (reference, state, packageConverter) =>
-        //         {
-        //             packageConverter?.ProcessFile(reference);
-        //             return packageConverter;
-        //         }, _ => { });
+        _logger.LogInformation("Processed {FileCount} files in {Duration} s", FileReferences.Count,
+            sw.Elapsed.TotalSeconds);
     }
 
     public static IEnumerable<IEnumerable<T>> Split<T>(IEnumerable<T> list, int parts)
     {
         int i = 0;
-        var splits = list.GroupBy(item => i++ % parts).Select(part => part.AsEnumerable());
+        IEnumerable<IEnumerable<T>> splits = list.GroupBy(item => i++ % parts).Select(part => part.AsEnumerable());
         return splits;
     }
 }

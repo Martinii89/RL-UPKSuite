@@ -1,65 +1,69 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net8.0-windows</TargetFramework>
 
-    <UseWPF>true</UseWPF>
-    <StartupObject>RLUpkSuite.App</StartupObject>
-    <ApplicationIcon>Resources\AppIcon.ico</ApplicationIcon>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
-  </PropertyGroup>
+        <UseWPF>true</UseWPF>
+        <StartupObject>RLUpkSuite.App</StartupObject>
+        <ApplicationIcon>Resources\AppIcon.ico</ApplicationIcon>
+        <ApplicationManifest>app.manifest</ApplicationManifest>
+    </PropertyGroup>
 
-  <!--
-  Uncomment to enable single file exe publishing
-  https://learn.microsoft.com/dotnet/core/deploying/single-file/overview
-  
-  The Condition on PublishSingleFile is to prevent debugging issues while running as a single file.
-  Many debugging tools (Snoop, Visual Studio's UI debugging tools for XAML) will not function with PublishSingleFile set to true.
-  https://github.com/dotnet/runtime/issues/3773
-  -->
-  <!--
-  <PropertyGroup>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-    <PublishSingleFile Condition="'$(Configuration)' != 'Debug'">true</PublishSingleFile>
-    <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
-    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
-    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
-    <SelfContained>true</SelfContained>
-  </PropertyGroup>
-  -->
+    <!--
+    Uncomment to enable single file exe publishing
+    https://learn.microsoft.com/dotnet/core/deploying/single-file/overview
+    
+    The Condition on PublishSingleFile is to prevent debugging issues while running as a single file.
+    Many debugging tools (Snoop, Visual Studio's UI debugging tools for XAML) will not function with PublishSingleFile set to true.
+    https://github.com/dotnet/runtime/issues/3773
+    -->
+    <!--
+    <PropertyGroup>
+      <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+      <PublishSingleFile Condition="'$(Configuration)' != 'Debug'">true</PublishSingleFile>
+      <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
+      <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+      <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+      <SelfContained>true</SelfContained>
+    </PropertyGroup>
+    -->
 
-  <ItemGroup>
-    <ApplicationDefinition Remove="App.xaml"/>
-    <Page Include="App.xaml"/>
-    <Page Update="Windows\MainWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <XamlRuntime>Wpf</XamlRuntime>
-      <SubType>Designer</SubType>
-    </Page>
-  </ItemGroup>
+    <ItemGroup>
+        <ApplicationDefinition Remove="App.xaml"/>
+        <Page Include="App.xaml"/>
+        <Page Update="Windows\MainWindow.xaml">
+            <Generator>MSBuild:Compile</Generator>
+            <XamlRuntime>Wpf</XamlRuntime>
+            <SubType>Designer</SubType>
+        </Page>
+    </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Clowd.Squirrel" />
-    <PackageReference Include="CommunityToolkit.Mvvm"/>
-    <PackageReference Include="MaterialDesignThemes.MahApps"/>
-    <PackageReference Include="MahApps.Metro"/>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection"/>
-    <PackageReference Include="Microsoft.Extensions.Hosting"/>
-    <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Clowd.Squirrel"/>
+        <PackageReference Include="CommunityToolkit.Mvvm"/>
+        <PackageReference Include="MaterialDesignThemes.MahApps"/>
+        <PackageReference Include="MahApps.Metro"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection"/>
+        <PackageReference Include="Microsoft.Extensions.Hosting"/>
+        <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations"/>
+    </ItemGroup>
 
-  <ItemGroup>
-    <None Remove="Resources\AppIcon2.ico"/>
-    <None Update="appsettings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="appsettings.Development.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+    <ItemGroup>
+        <None Remove="Resources\AppIcon2.ico"/>
+        <None Update="appsettings.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="appsettings.Development.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\Core\Core.csproj"/>
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\Core\Core.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Folder Include="UI\"/>
+    </ItemGroup>
 </Project>

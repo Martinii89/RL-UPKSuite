@@ -22,7 +22,7 @@ public partial class UpdateDialogViewModel : ObservableObject
     {
         await _updateHelper.StartUpdate(UpdateProgress);
     }
-    
+
     private void UpdateProgress(int p)
     {
         Application.Current.Dispatcher.BeginInvoke(() => { Progress = p; });
