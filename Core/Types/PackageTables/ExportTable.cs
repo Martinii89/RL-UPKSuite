@@ -6,7 +6,7 @@ namespace Core.Types.PackageTables;
 /// <summary>
 ///     The Export table contains a <see cref="ExportTableItem" /> for every exported object in a package
 /// </summary>
-public class ExportTable : List<ExportTableItem>
+public sealed class ExportTable : List<ExportTableItem>
 {
     /// <summary>
     ///     Initialize a empty table
@@ -32,7 +32,7 @@ public class ExportTable : List<ExportTableItem>
 ///     type, outer object and serialization size\offset is stored here. It does not track it's own index in the export
 ///     table.
 /// </summary>
-public class ExportTableItem : IObjectResource
+public sealed class ExportTableItem : IObjectResource
 {
     /// <summary>
     ///     All fields have their default values. Used to construct a default object that you can later call deserialize on

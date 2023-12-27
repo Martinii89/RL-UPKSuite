@@ -323,6 +323,8 @@ public class UnrealPackage
         return PackageClasses.FirstOrDefault(x => x.Name == className);
     }
 
+    private readonly Dictionary<IObjectResource, string> _nameCache = new();
+
     /// <summary>
     ///     Constructs the full name of a object. The full name of an object consists of the object name prepended with all the
     ///     outer object separated by a dot
@@ -331,6 +333,10 @@ public class UnrealPackage
     /// <returns></returns>
     public string GetFullName(IObjectResource objectResource)
     {
+        if (_nameCache.TryGetValue(objectResource, out var name))
+        {
+            return name;
+        }
         var stringBuilder = new StringBuilder();
         stringBuilder.Append(GetName(objectResource.ObjectName));
         var outer = GetObjectReference(objectResource.OuterIndex);
@@ -349,7 +355,9 @@ public class UnrealPackage
             stringBuilder.Insert(0, PackageName);
         }
 
-        return stringBuilder.ToString();
+        string fullName = stringBuilder.ToString();
+        _nameCache[objectResource] = fullName;
+        return fullName;
     }
 
 

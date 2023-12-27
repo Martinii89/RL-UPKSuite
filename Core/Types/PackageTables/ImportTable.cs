@@ -9,7 +9,7 @@ namespace Core.Types.PackageTables;
 ///     These could be among other things: Classes, structs, textures, meshes.
 ///     Pretty much anything required to fully construct a instance of a export.
 /// </summary>
-public class ImportTable : List<ImportTableItem>
+public sealed class ImportTable : List<ImportTableItem>
 {
     /// <summary>
     ///     Initialized the table with a empty list
@@ -34,7 +34,7 @@ public class ImportTable : List<ImportTableItem>
 ///     A ImportTableItem contains the metadata about a import object. It's name, type, outer, and which package it is
 ///     exported from. It does not track it's own index in the import table.
 /// </summary>
-public class ImportTableItem : IObjectResource
+public sealed class ImportTableItem : IObjectResource
 {
     /// <summary>
     ///     A empty import item. It's main use is to have something to populate with Deserialize
