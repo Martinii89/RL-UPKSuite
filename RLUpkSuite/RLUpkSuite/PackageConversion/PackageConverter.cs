@@ -2,6 +2,8 @@
 
 using Core;
 using Core.Classes.Compression;
+using Core.Types;
+using Core.Utility.Export;
 
 using Microsoft.Extensions.Logging;
 
@@ -35,7 +37,7 @@ public class PackageConverter
 
     public bool ProcessFile(FileReference fileReference)
     {
-        // try
+        try
         {
             if (ProcessFileImpl(fileReference.FilePath))
             {
@@ -44,41 +46,41 @@ public class PackageConverter
 
             return true;
         }
-        // catch (Exception e)
-        // {
-        //     fileReference.ProcessSuccess = false;
-        //     _logger?.LogError("Failed to convert package {PackageName}: Exception:{ExceptionMessage}",
-        //         fileReference.FilePath,
-        //         e.Message);
-        //     return false;
-        // }
+        catch (Exception e)
+        {
+            fileReference.ProcessSuccess = false;
+            _logger?.LogError("Failed to convert package {PackageName}: Exception:{ExceptionMessage}",
+                fileReference.FilePath,
+                e.Message);
+            return false;
+        }
     }
 
     private bool ProcessFileImpl(string file)
     {
-        var inputFileName = Path.GetFileNameWithoutExtension(file);
-        using var convertedStream = new MemoryStream();
-        var package = _packageLoader.LoadPackage(file, inputFileName);
+        string inputFileName = Path.GetFileNameWithoutExtension(file);
+        using MemoryStream convertedStream = new();
+        UnrealPackage? package = _packageLoader.LoadPackage(file, inputFileName);
         if (package is null)
         {
-            Console.WriteLine($"Failed to load package {inputFileName}");
+            _logger?.LogError("Failed to load package {InputFileName}", inputFileName);
             return false;
         }
 
-        var exporter = _packageExporterFactory.Create(package, convertedStream);
+        PackageExporter exporter = _packageExporterFactory.Create(package, convertedStream);
         exporter.ExportPackage();
         convertedStream.Position = 0;
-        var outputFilePath = GetOutputFilePath(file);
-        var fileInfo = new FileInfo(outputFilePath);
+        string outputFilePath = GetOutputFilePath(file);
+        FileInfo fileInfo = new(outputFilePath);
         if (!fileInfo.Exists)
         {
             fileInfo.Directory?.Create();
         }
 
-        using var outputFile = File.Create(outputFilePath);
+        using FileStream outputFile = File.Create(outputFilePath);
         if (_options.Compress && _compressor is not null)
         {
-            var compressedStream = new MemoryStream();
+            MemoryStream compressedStream = new();
             _compressor.CompressFile(convertedStream, compressedStream);
             compressedStream.Position = 0;
             compressedStream.CopyTo(outputFile);
@@ -94,7 +96,7 @@ public class PackageConverter
 
     private string GetOutputFilePath(string file)
     {
-        var fileName = Path.GetFileNameWithoutExtension(file) + _options.Suffix + Path.GetExtension(file);
+        string fileName = Path.GetFileNameWithoutExtension(file) + _options.Suffix + Path.GetExtension(file);
         return Path.Combine(_options.OutputDirectory, fileName);
     }
 }

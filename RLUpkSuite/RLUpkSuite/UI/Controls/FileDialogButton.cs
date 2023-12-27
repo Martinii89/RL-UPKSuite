@@ -4,7 +4,7 @@ using System.Windows.Input;
 
 using Microsoft.Win32;
 
-namespace RLUpkSuite.Controls;
+namespace RLUpkSuite.UI.Controls;
 
 public class FileDialogButton : Button
 {
@@ -29,16 +29,27 @@ public class FileDialogButton : Button
         nameof(Files), typeof(IEnumerable<string>), typeof(FileDialogButton),
         new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
+    static FileDialogButton()
+    {
+        DefaultStyleKeyProperty.OverrideMetadata(typeof(FileDialogButton),
+            new FrameworkPropertyMetadata(typeof(FileDialogButton)));
+    }
+
+    public FileDialogButton()
+    {
+        Click += OnClick;
+    }
+
     public IEnumerable<string> Files
     {
-        get { return (IEnumerable<string>)GetValue(FilesProperty); }
-        set { SetValue(FilesProperty, value); }
+        get => (IEnumerable<string>)GetValue(FilesProperty);
+        set => SetValue(FilesProperty, value);
     }
 
     public string File
     {
-        get { return (string)GetValue(FileProperty); }
-        set { SetValue(FileProperty, value); }
+        get => (string)GetValue(FileProperty);
+        set => SetValue(FileProperty, value);
     }
 
     public string FileFilter
@@ -63,17 +74,6 @@ public class FileDialogButton : Button
     {
         get => (bool)GetValue(MultiSelectProperty);
         set => SetValue(MultiSelectProperty, value);
-    }
-
-    static FileDialogButton()
-    {
-        DefaultStyleKeyProperty.OverrideMetadata(typeof(FileDialogButton),
-            new FrameworkPropertyMetadata(typeof(FileDialogButton)));
-    }
-
-    public FileDialogButton()
-    {
-        Click += OnClick;
     }
 
 

@@ -22,5 +22,4 @@ public partial class FileReference(string filePath) : ObservableObject
 
 public class FileReferenceCollection : ObservableCollection<FileReference>
 {
-    
 }

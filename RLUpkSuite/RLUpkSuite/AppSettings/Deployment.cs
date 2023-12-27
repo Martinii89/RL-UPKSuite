@@ -6,8 +6,7 @@ public class Deployment
 {
     public const string Section = "Deployment";
 
-    [Required]
-    public string Source { get; set; } = null!;
+    [Required] public string Source { get; set; } = null!;
 
     [Required]
     [AllowedValues("github", "local")]

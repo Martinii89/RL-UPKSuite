@@ -1,10 +1,9 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 
 using Microsoft.Win32;
 
-namespace RLUpkSuite.Controls;
+namespace RLUpkSuite.UI.Controls;
 
 public class FolderDialogButton : Button
 {
@@ -16,12 +15,6 @@ public class FolderDialogButton : Button
         nameof(Folder), typeof(string), typeof(FolderDialogButton),
         new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
-    public string Folder
-    {
-        get { return (string)GetValue(FolderProperty); }
-        set { SetValue(FolderProperty, value); }
-    }
-
     static FolderDialogButton()
     {
         DefaultStyleKeyProperty.OverrideMetadata(typeof(FolderDialogButton),
@@ -31,6 +24,12 @@ public class FolderDialogButton : Button
     public FolderDialogButton()
     {
         Click += OnClick;
+    }
+
+    public string Folder
+    {
+        get => (string)GetValue(FolderProperty);
+        set => SetValue(FolderProperty, value);
     }
 
     public string DialogTitle

@@ -3,22 +3,22 @@ This file allow for customizing your build process.
 See: https://learn.microsoft.com/visualstudio/msbuild/customize-your-build
 -->
 <Project>
-  <!--
-  Uncomment if you need to enable inclusion of another Directory.Build.props file from a parent directory
-  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
-  -->
-
-  <PropertyGroup>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <LangVersion>12</LangVersion>
-    <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
-    <!-- 
-    If you you like to see source generated files saved to disk you can enable the following:
-    https://learn.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/source-generators-overview
+    <!--
+    Uncomment if you need to enable inclusion of another Directory.Build.props file from a parent directory
+    <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
     -->
-    <!--<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>-->
-  </PropertyGroup>
+
+    <PropertyGroup>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <LangVersion>12</LangVersion>
+        <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
+        <!-- 
+        If you you like to see source generated files saved to disk you can enable the following:
+        https://learn.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/source-generators-overview
+        -->
+        <!--<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>-->
+    </PropertyGroup>
 
 
 </Project>

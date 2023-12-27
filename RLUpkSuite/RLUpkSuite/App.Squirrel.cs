@@ -16,11 +16,11 @@ public partial class App
     {
         base.OnStartup(e);
         SquirrelAwareApp.HandleEvents(
-            onInitialInstall: OnAppInstall,
+            OnAppInstall,
             onAppUninstall: OnAppUninstall,
             onEveryRun: OnAppRun);
 
-        
+
         if (UpdateHelper != null)
         {
             await UpdateHelper.CheckUpdate();
