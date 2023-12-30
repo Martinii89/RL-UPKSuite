@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Buffers;
+using System.Diagnostics;
 using System.IO.Compression;
 using Core.Flags;
 using Core.Serialization;
@@ -117,8 +118,10 @@ public class PackageCompressor
             while (remaining > 0)
             {
                 var toCompress = Math.Min(compressionChunkSize, remaining);
-                var uncompressedData = srcStream.ReadBytes(toCompress);
-                var uncompressedStream = new MemoryStream(uncompressedData);
+                var buffer = ArrayPool<byte>.Shared.Rent(toCompress);
+                
+                srcStream.ReadExactly(buffer, 0, toCompress);
+                var uncompressedStream = new MemoryStream(buffer, 0, toCompress);
                 var start = outputStream.Position;
                 {
                     using var zlibStream = new ZLibStream(outputStream, CompressionMode.Compress, true);
@@ -132,6 +135,8 @@ public class PackageCompressor
 
                 chunkIndex++;
                 remaining -= compressionChunkSize;
+                
+                ArrayPool<byte>.Shared.Return(buffer);
             }
         }
 
