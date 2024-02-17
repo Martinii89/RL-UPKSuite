@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Buffers;
+using System.Diagnostics;
 using System.IO.Compression;
 using System.Security.Cryptography;
 using Core.RocketLeague.Decryption;
@@ -85,9 +86,12 @@ public class RLPackageUnpacker
 
     private void ProcessCompressedData(Stream outputStream, Stream inputBinaryReader)
     {
-        var uncompressedDataBuffer = new byte[FileSummary.CompressedChunks.Sum(info => info.UncompressedSize)];
-        var uncompressOutputStream = new MemoryStream(uncompressedDataBuffer);
+        // var uncompressedDataBuffer = new byte[FileSummary.CompressedChunks.Sum(info => info.UncompressedSize)];
+        // var uncompressOutputStream = new MemoryStream(uncompressedDataBuffer);
+
         var firstUncompressedOffset = FileSummary.CompressedChunks.First().UncompressedOffset;
+        outputStream.Position = firstUncompressedOffset;
+
         var uncompressProgress = 0L;
         // Decompress compressed chunks
         foreach (var chunk in FileSummary.CompressedChunks)
@@ -107,20 +111,26 @@ public class RLPackageUnpacker
 
             foreach (var block in blocks)
             {
-                var compressedData = inputBinaryReader.ReadBytes(block.CompressedSize);
-                using var zlibStream = new ZLibStream(new MemoryStream(compressedData), CompressionMode.Decompress);
-                zlibStream.CopyTo(uncompressOutputStream);
+                var buffer = ArrayPool<byte>.Shared.Rent(block.CompressedSize);
+                var read = 0;
+                while (read != block.CompressedSize)
+                {
+                    read += inputBinaryReader.Read(buffer, read, block.CompressedSize);
+                }
+                using var zlibStream = new ZLibStream(new MemoryStream(buffer, 0, block.CompressedSize), CompressionMode.Decompress);
+                zlibStream.CopyTo(outputStream);
+                
+                ArrayPool<byte>.Shared.Return(buffer);
             }
 
-            Debug.Assert(uncompressOutputStream.Position == uncompressProgress + chunk.UncompressedSize);
+            // Debug.Assert(uncompressOutputStream.Position == uncompressProgress + chunk.UncompressedSize);
             uncompressProgress += chunk.UncompressedSize;
         }
 
         UnpackResult |= UnpackResult.Inflated;
 
-        Debug.Assert(uncompressOutputStream.Position == uncompressOutputStream.Length);
-        outputStream.Position = firstUncompressedOffset;
-        outputStream.Write(uncompressedDataBuffer);
+        // Debug.Assert(uncompressOutputStream.Position == uncompressOutputStream.Length);
+        // outputStream.Write(uncompressedDataBuffer);
 
         // Reset the compression flag to indicate this package is no longer compressed.
         outputStream.Position = FileSummary.CompressionFlagsOffset;

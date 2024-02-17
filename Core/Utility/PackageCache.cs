@@ -4,6 +4,8 @@ using Core.Serialization;
 using Core.Serialization.Abstraction;
 using Core.Types;
 
+using LazyCache;
+
 using Microsoft.Extensions.FileSystemGlobbing;
 
 namespace Core.Utility;
@@ -82,6 +84,8 @@ public class PackageCache : IPackageCache
     private readonly PackageCacheOptions _options;
 
     private readonly Dictionary<string, string> _fileSearchCache = new(StringComparer.OrdinalIgnoreCase);
+    
+    IAppCache cache = new CachingService();
 
     /// <summary>
     ///     Constructs a configured PackageCache
@@ -135,7 +139,7 @@ public class PackageCache : IPackageCache
 
         Console.WriteLine($"[PackageCache]: Reading package {packageName}");
 
-        var packageBuffer = GetBufferForPackage(packagePath);
+        var packageBuffer = cache.GetOrAdd(packagePath, () => GetBufferForPackage(packagePath));
         var packageStream = new MemoryStream(packageBuffer);
 
         var loadOptions = new UnrealPackageOptions(_options.UnrealPackageSerializer, packageName,
@@ -158,6 +162,7 @@ public class PackageCache : IPackageCache
         if (_options.GraphLinkPackages)
         {
             unrealPackage.GraphLink();
+            cache.Remove(packagePath);
         }
 
 
@@ -168,19 +173,20 @@ public class PackageCache : IPackageCache
     private byte[] GetBufferForPackage(string path)
     {
         Console.WriteLine($"[PackageCache]: Reading bytes for package {path}");
-        byte[] fileBytes = File.ReadAllBytes(path);
-        var packageStream = new MemoryStream(fileBytes);
-        if (_options.PackageUnpacker.IsPackagePacked(packageStream))
+        // byte[] fileBytes = File.ReadAllBytes(path);
+        // var packageStream = new MemoryStream(fileBytes);
+        using var fileStream = File.OpenRead(path);
+        if (!_options.PackageUnpacker.IsPackagePacked(fileStream))
         {
-            var unpackedStream = new MemoryStream();
-            _options.PackageUnpacker.Unpack(packageStream, unpackedStream);
-            unpackedStream.Position = 0;
-            return unpackedStream.GetBuffer();
+            return File.ReadAllBytes(path);
         }
-        else
-        {
-            return fileBytes;
-        }
+
+        var unpackedStream = new MemoryStream();
+        _options.PackageUnpacker.Unpack(fileStream, unpackedStream);
+        unpackedStream.Position = 0;
+        byte[] bufferForPackage = unpackedStream.GetBuffer();
+        return bufferForPackage;
+
     }
 
     /// <inheritdoc />
@@ -205,5 +211,10 @@ public class PackageCache : IPackageCache
     public bool IsPackageCached(string packageName)
     {
         return _cachedPackages.ContainsKey(packageName);
+    }
+
+    public void RemoveCachedPackage(UnrealPackage package)
+    {
+        _cachedPackages.Remove(package.PackageName, out var removedPackage);
     }
 }

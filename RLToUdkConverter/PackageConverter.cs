@@ -1,6 +1,8 @@
 ﻿using Core;
 using Core.Classes.Compression;
 
+using Microsoft.Extensions.FileSystemGlobbing;
+
 namespace RLToUdkConverter;
 
 internal class PackageConverter
@@ -9,7 +11,7 @@ internal class PackageConverter
     private readonly PackageConversionOptions _options;
     private readonly PackageExporterFactory _packageExporterFactory;
     private readonly PackageLoader _packageLoader;
-
+    
     public PackageConverter(PackageConversionOptions options, PackageExporterFactory packageExporterFactory, PackageLoader packageLoader,
         PackageCompressor? compressor)
     {
@@ -19,19 +21,11 @@ internal class PackageConverter
         _packageLoader = packageLoader;
     }
 
-    public void Start()
-    {
-        foreach (var file in _options.Files)
-        {
-            ProcessFile(file);
-        }
-    }
-
-    private void ProcessFile(string file)
+    public void ProcessFile(string file)
     {
         var inputFileName = Path.GetFileNameWithoutExtension(file);
         using var convertedStream = new MemoryStream();
-        var package = _packageLoader.LoadPackage(file, inputFileName);
+        var package = _packageLoader.LoadPackage(file, inputFileName, false);
         if (package is null)
         {
             Console.WriteLine($"Failed to load package {inputFileName}");

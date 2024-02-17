@@ -115,12 +115,13 @@ public class PackageCompressor
         var remaining = dataSize;
         var chunkIndex = 1;
         {
+            var buffer = ArrayPool<byte>.Shared.Rent(compressionChunkSize);
             while (remaining > 0)
             {
                 var toCompress = Math.Min(compressionChunkSize, remaining);
-                var buffer = ArrayPool<byte>.Shared.Rent(toCompress);
                 
                 srcStream.ReadExactly(buffer, 0, toCompress);
+                // var uncompressedData = srcStream.ReadBytes(toCompress);
                 var uncompressedStream = new MemoryStream(buffer, 0, toCompress);
                 var start = outputStream.Position;
                 {
@@ -136,8 +137,9 @@ public class PackageCompressor
                 chunkIndex++;
                 remaining -= compressionChunkSize;
                 
-                ArrayPool<byte>.Shared.Return(buffer);
             }
+            ArrayPool<byte>.Shared.Return(buffer);
+
         }
 
 

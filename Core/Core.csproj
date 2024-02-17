@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="LazyCache" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions"/>
     <PackageReference Include="Microsoft.Extensions.FileSystemGlobbing" Version="8.0.0"/>
     <PackageReference Include="Syroot.BinaryData" Version="5.2.2"/>

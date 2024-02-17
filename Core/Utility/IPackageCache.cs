@@ -41,4 +41,6 @@ public interface IPackageCache
     /// <param name="packageName"></param>
     /// <returns></returns>
     bool IsPackageCached(string packageName);
+
+    void RemoveCachedPackage(UnrealPackage package);
 }

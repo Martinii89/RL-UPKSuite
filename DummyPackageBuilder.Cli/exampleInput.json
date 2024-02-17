@@ -1,0 +1,13 @@
+﻿{
+  "PackageName": "Test",
+  "PackageObjects" : [
+    {
+      "ObjectFullName" : "Group.Obj",
+      "ClassFullName" : "projectx.FXActorEvent_X"
+    },
+    {
+      "ObjectFullName" : "Group2.Obj2",
+      "ClassFullName" : "projectx.FXActorEvent_X"
+    }
+  ]
+}

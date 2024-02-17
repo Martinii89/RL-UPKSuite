@@ -54,15 +54,16 @@ public class PackageLoader
     /// </summary>
     /// <param name="packagePath"></param>
     /// <param name="packageName"></param>
+    /// <param name="cachePackage"></param>
     /// <returns></returns>
-    public UnrealPackage? LoadPackage(string packagePath, string packageName)
+    public UnrealPackage? LoadPackage(string packagePath, string packageName, bool cachePackage = true)
     {
         if (_packageCache.IsPackageCached(packageName))
         {
             return _packageCache.GetCachedPackage(packageName);
         }
 
-        Console.WriteLine($"[PackageLoader]: Loading package {packageName}");
+        // Console.WriteLine($"[PackageLoader]: Loading package {packageName}");
 
         var packageStream = new MemoryStream(File.ReadAllBytes(packagePath));
         var unrealPackage = DeserializePackage(packageName, packageStream);
@@ -95,6 +96,11 @@ public class PackageLoader
             {
                 package!.CreateObject(obj);
             }
+        }
+
+        if (!cachePackage)
+        {
+            _packageCache.RemoveCachedPackage(unrealPackage);
         }
 
         return unrealPackage;

@@ -28,7 +28,7 @@ public class PackageExporter
     public PackageExporter(UnrealPackage package, Stream exportStream, IStreamSerializer<FileSummary> fileSummarySerializer,
         IStreamSerializer<NameTableItem> nameTableItemSerializer, IStreamSerializer<ImportTableItem> importTableItemSerializer,
         IStreamSerializer<ExportTableItem> exportTableItemSerializer, IStreamSerializer<ObjectIndex> objectIndexSerializer,
-        IStreamSerializer<FName> nameSerializer, IObjectSerializerFactory objectSerializerFactory)
+        IStreamSerializer<FName> nameSerializer, IObjectSerializerFactory objectSerializerFactory, bool skipFilters = false)
     {
         _fileSummarySerializer = fileSummarySerializer;
         _nameTableItemSerializer = nameTableItemSerializer;
@@ -50,7 +50,10 @@ public class PackageExporter
         //_filters.Add(new ExportIndexFilter(1760)); // crash
         //_filters.Add(new ExportIndexFilter(0, 2500)); // maybe ok
         //_filters.Add(new ExportIndexFilter(2000));
-        FilterObjects(_exportImportTable, _exportExportTable);
+        if (!skipFilters)
+        {
+            FilterObjects(_exportImportTable, _exportExportTable);
+        }
 
         // Do not do this before FilterObjects!
         var materialUtils = new MaterialExportUtils(this);
