@@ -1,4 +1,6 @@
-﻿using Core.Serialization;
+﻿using System.Diagnostics;
+
+using Core.Serialization;
 
 namespace Core.Types.PackageTables;
 
@@ -8,12 +10,36 @@ namespace Core.Types.PackageTables;
 /// </summary>
 public class NameTable : List<NameTableItem>
 {
+
+    private Dictionary<string, int> _NameToIndex = new Dictionary<string, int>();
+    
     /// <summary>
     ///     Construct a empty name table
     /// </summary>
     public NameTable()
     {
     }
+
+    public int FindIndex(string name)
+    {
+        if (_NameToIndex.Count == 0)
+        {
+            for (int index = 0; index < this.Count; index++)
+            {
+                NameTableItem item = this[index];
+                _NameToIndex[item.Name] = index;
+            }
+        }
+
+        return _NameToIndex.GetValueOrDefault(name, -1);
+    }
+
+    public void AddName(NameTableItem item)
+    {
+        Add(item);
+        _NameToIndex[item.Name] = Count - 1;
+    }
+    
 
     /// <summary>
     ///     Uses a given serializer to deserialize the names in the stream
@@ -31,6 +57,7 @@ public class NameTable : List<NameTableItem>
 /// <summary>
 ///     A NameTableItem contains a name as a string and some related flag data. I don't know what the flags are used for
 /// </summary>
+[DebuggerDisplay("{Name}")]
 public readonly struct NameTableItem
 {
     /// <summary>

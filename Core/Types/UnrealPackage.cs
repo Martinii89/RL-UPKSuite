@@ -512,33 +512,38 @@ public class UnrealPackage
         return obj;
     }
 
-    internal UObject? FindObject(string importFullName)
+    private Dictionary<string, ExportTableItem> _exportTableItemsLookup = new ();
+    private Dictionary<string, ImportTableItem> _importTableItemsLookup = new ();
+
+    private void InitImportExportTableItemLookups()
     {
-        var nameParts = importFullName.Split('.');
         foreach (var exportItem in ExportTable)
         {
-            if (GetName(exportItem.ObjectName) != nameParts[^1])
-            {
-                continue;
-            }
-
-            if (GetFullName(exportItem) == importFullName)
-            {
-                return exportItem.Object;
-            }
+            _exportTableItemsLookup[GetFullName(exportItem)] = exportItem;
         }
 
-        foreach (var importTableItem in ImportTable)
+        foreach (var importItem in ImportTable)
         {
-            if (GetName(importTableItem.ObjectName) != nameParts[^1])
-            {
-                continue;
-            }
+            _importTableItemsLookup[GetFullName(importItem)] = importItem;
+        }
+    }
+    
+    
+    private UObject? FindObject(string importFullName)
+    {
+        if (_exportTableItemsLookup.Count + _importTableItemsLookup.Count == 0)
+        {
+            InitImportExportTableItemLookups();
+        }
 
-            if (GetFullName(importTableItem) == importFullName)
-            {
-                return importTableItem.ImportedObject;
-            }
+        if (_exportTableItemsLookup.TryGetValue(importFullName, out var export))
+        {
+            return export.Object;
+        }
+
+        if (_importTableItemsLookup.TryGetValue(importFullName, out var import))
+        {
+            return import.ImportedObject;
         }
 
         return null;
@@ -596,13 +601,13 @@ public class UnrealPackage
     /// <returns></returns>
     public FName GetOrAddName(string name)
     {
-        var registeredName = NameTable.FindIndex(x => x.Name == name);
+        var registeredName = NameTable.FindIndex(name);
         if (registeredName != -1)
         {
             return new FName(registeredName);
         }
 
-        NameTable.Add(new NameTableItem(name, 0x7001000000000)); //flag might be wrong, but all the flags seems to be set to this in the packages I've looked at
+        NameTable.AddName(new NameTableItem(name, 0x7001000000000)); //flag might be wrong, but all the flags seems to be set to this in the packages I've looked at
         return new FName(NameTable.Count - 1);
     }
 
@@ -782,7 +787,7 @@ public class UnrealPackage
 
     public FName GetFName(string name)
     {
-        var registeredName = NameTable.FindIndex(x => x.Name == name);
+        var registeredName = NameTable.FindIndex(name);
         if (registeredName != -1)
         {
             return new FName(registeredName);

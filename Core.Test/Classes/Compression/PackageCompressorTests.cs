@@ -20,7 +20,14 @@ public class PackageCompressorTests
 
         var act = () => sut.CompressFile(testPackage, outputPackage);
 
+        
         // Assert 
         act.Should().NotThrow();
+        
+        outputPackage.Dispose();
+        var result = File.ReadAllBytes("TestData/Body_Octane_SF_exported_zlib.upk");
+        var target = File.ReadAllBytes("TestData/Body_Octane_SF_exported_zlib_valid.upk");
+
+        result.Should().BeEquivalentTo(target);
     }
 }

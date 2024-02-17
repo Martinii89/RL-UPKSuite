@@ -144,4 +144,20 @@ public class FileSummary
     ///     Textures stored in this package
     /// </summary>
     public List<FTextureType> TextureAllocations { get; set; } = new();
+
+    public static FileSummary CreateWithDefaults()
+    {
+        return new FileSummary()
+        {
+            Tag = FileSummary.PackageFileTag,
+            FileVersion = 868,
+            FolderName = "None",
+            Generations = [new FGenerationInfo()
+            {
+                ExportCount = 1,
+                NameCount = 7,
+                NetObjectCount = 1
+            }]
+        };
+    }
 }
