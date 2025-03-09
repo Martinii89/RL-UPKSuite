@@ -176,7 +176,6 @@ public static class StreamSerializerForExtension
     /// <param name="stream"></param>
     /// <param name="serializer"></param>
     /// <param name="values"></param>
-    /// <param name="sizeOtion"></param>
     public static void BulkWriteTArray<T>(this IStreamSerializer<T> serializer, Stream stream, TArray<T> values)
     {
         stream.WriteInt32(values.ElementSize);
