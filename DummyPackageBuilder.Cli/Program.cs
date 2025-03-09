@@ -7,6 +7,7 @@ using CommandLine;
 using Core;
 using Core.Serialization;
 using Core.Serialization.Abstraction;
+using Core.Serialization.RocketLeague;
 using Core.Types;
 using Core.Utility;
 
@@ -14,8 +15,53 @@ using DummyPackageBuilderCli;
 
 using Microsoft.Extensions.DependencyInjection;
 
+// var rlServices = GetRLSerializerCollection();
+//
+// var rlFileSummarySerializer = rlServices.GetRequiredService<IStreamSerializer<FileSummary>>();
+// var rlPackageSerializer = rlServices.GetRequiredService<IStreamSerializer<UnrealPackage>>();
+// var rLobjectSerializerFactory = rlServices.GetRequiredService<IObjectSerializerFactory>();
+//
+// var unpacker = new PackageUnpacker(rlFileSummarySerializer, new DecryptionProvider("Keys.txt"));
+//
+// var tagame = @"C:\Users\m4rti\OneDrive\RL\packages\tagame.upk";
+// await using var input = new FileStream(tagame, FileMode.Open);
+// var output = new MemoryStream();
+//
+// unpacker.Unpack(input, output);
+// var sw = Stopwatch.StartNew();
+// output.Position = 0;
+// var package = rlPackageSerializer.Deserialize(output);
+//
+// var actorEventsPackage = package.ExportTable.FirstOrDefault(x => package.GetName(x.ObjectName) == "FXActorEvents");
+//
+//
+// var fxActorEventsChildren = package.ExportTable.Where(x =>
+// {
+//     var outerIndex = x.OuterIndex;
+//     var outer = package.GetObjectReference(outerIndex);
+//     while (outer != null)
+//     {
+//         if (outer == actorEventsPackage)
+//         {
+//             return true;
+//         }
+//         var newOuterIndex = outer.OuterIndex;
+//         outer = package.GetObjectReference(newOuterIndex);
+//     }
+//
+//     return false;
+// }).Select(x =>
+// {
+//     var clz = package.GetObjectReference(x.ClassIndex);
+//     var name = package.GetFullName(clz);
+//     return $"'{name}'{package.GetFullName(x)}";
+// }).ToList();
+// sw.Stop();
+// Console.WriteLine(sw.Elapsed.TotalMilliseconds);
+
 var parseResult = Parser.Default.ParseArguments<DummyPacakgeBuilderOptions>(args);
 await parseResult.WithParsedAsync(BatchProcess);
+return;
 
 async Task BatchProcess(DummyPacakgeBuilderOptions options)
 {
@@ -29,10 +75,7 @@ async Task BatchProcess(DummyPacakgeBuilderOptions options)
     IObjectSerializerFactory objectSerializerFactory = udkServices.GetRequiredService<IObjectSerializerFactory>();
     var packageCacheOptions = new PackageCacheOptions(serializer, nativeFactory)
     {
-        SearchPaths =
-        {
-            options.ScriptsDirectory
-        },
+        SearchPaths = { options.ScriptsDirectory },
         GraphLinkPackages = true,
         ObjectSerializerFactory = objectSerializerFactory
     };
@@ -46,16 +89,17 @@ async Task BatchProcess(DummyPacakgeBuilderOptions options)
 
         foreach (ObjectDefinition objectDefinition in def.PackageObjects)
         {
-            builder.AddObject(objectDefinition.GetGroup(), objectDefinition.GetObjectName(), objectDefinition.ClassFullName);
+            builder.AddObject(objectDefinition.GetGroup(), objectDefinition.GetObjectName(),
+                objectDefinition.ClassFullName);
         }
 
         var package = builder.BuildPackage();
         var info = new DirectoryInfo(options.OutputDirectory);
         info.Create();
-        await using var output = new FileStream(Path.Combine(options.OutputDirectory, $"{def.PackageName}.upk"), FileMode.OpenOrCreate);
+        await using var output = new FileStream(Path.Combine(options.OutputDirectory, $"{def.PackageName}.upk"),
+            FileMode.OpenOrCreate);
         var exporter = exportFactory.Create(package, output);
         exporter.ExportPackage();
-        
     }
 }
 
@@ -73,13 +117,21 @@ async IAsyncEnumerable<PackageDefinition> ReadPackageDefinitions(IEnumerable<str
 }
 
 
-
 IServiceProvider GetUdkSerializerCollection()
 {
     var serviceCollection = new ServiceCollection();
     serviceCollection.UseSerializers(typeof(UnrealPackage), new SerializerOptions());
     serviceCollection.AddSingleton<IObjectSerializerFactory, ObjectSerializerFactory>();
     serviceCollection.AddSingleton<PackageExporterFactory>();
+    var services = serviceCollection.BuildServiceProvider();
+    return services;
+}
+
+IServiceProvider GetRLSerializerCollection()
+{
+    var serviceCollection = new ServiceCollection();
+    serviceCollection.UseSerializers(typeof(UnrealPackage), new SerializerOptions(RocketLeagueBase.FileVersion));
+    serviceCollection.AddSingleton<IObjectSerializerFactory, ObjectSerializerFactory>();
     var services = serviceCollection.BuildServiceProvider();
     return services;
 }

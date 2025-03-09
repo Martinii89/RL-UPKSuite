@@ -14,7 +14,6 @@ public class DefaultStructSerializer : BaseObjectSerializer<UStruct>
     ///     Construct a DefaultStructSerializer with the required field serializers
     /// </summary>
     /// <param name="fieldSerializer"></param>
-    /// <param name="objectIndexSerialiser"></param>
     public DefaultStructSerializer(IObjectSerializer<UField> fieldSerializer)
     {
         _fieldSerializer = fieldSerializer;

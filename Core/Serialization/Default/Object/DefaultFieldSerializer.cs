@@ -15,7 +15,6 @@ public class DefaultFieldSerializer : BaseObjectSerializer<UField>
     ///     DefaultFieldSerializer constructor taking in the required field serializers
     /// </summary>
     /// <param name="objectSerializer"></param>
-    /// <param name="objectIndexSerialiser"></param>
     public DefaultFieldSerializer(IObjectSerializer<UObject> objectSerializer)
     {
         _objectSerializer = objectSerializer;

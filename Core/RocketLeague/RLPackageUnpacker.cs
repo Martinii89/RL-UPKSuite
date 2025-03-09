@@ -160,11 +160,11 @@ public class RLPackageUnpacker
         UnpackResult |= UnpackResult.Decrypted;
     }
 
-    private void ProcessFileSummary(Stream outputStream, Stream inpuutStream)
+    private void ProcessFileSummary(Stream outputStream, Stream inputStream)
     {
-        FileCompressionMetaData = FileCompressionMetaData.Deserialize(inpuutStream);
-        inpuutStream.Position = 0;
-        var fileSummaryBytes = inpuutStream.ReadBytes(FileSummary.NameOffset);
+        FileCompressionMetaData = FileCompressionMetaData.Deserialize(inputStream);
+        inputStream.Position = 0;
+        var fileSummaryBytes = inputStream.ReadBytes(FileSummary.NameOffset);
         outputStream.Write(fileSummaryBytes);
 
         UnpackResult |= UnpackResult.Header;

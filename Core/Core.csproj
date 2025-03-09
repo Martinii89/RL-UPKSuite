@@ -1,22 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Classes\Compression\"/>
-    <Folder Include="Types\PackageTables\"/>
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="LazyCache" />
+    <PackageReference Include="LazyCache"/>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions"/>
-    <PackageReference Include="Microsoft.Extensions.FileSystemGlobbing" Version="8.0.0"/>
-    <PackageReference Include="Syroot.BinaryData" Version="5.2.2"/>
+    <PackageReference Include="Microsoft.Extensions.FileSystemGlobbing"/>
+    <PackageReference Include="Syroot.BinaryData"/>
   </ItemGroup>
 
   <ItemGroup>
