@@ -11,7 +11,7 @@ public class UdkSerializerCollection
     public UdkSerializerCollection()
     {
         ServiceCollection serviceCollection = new();
-        serviceCollection.UseSerializers(typeof(UnrealPackage), new SerializerOptions());
+        serviceCollection.AddSerializers(typeof(UnrealPackage), new SerializerOptions());
         serviceCollection.AddSingleton<IObjectSerializerFactory, ObjectSerializerFactory>();
         serviceCollection.AddSingleton<PackageExporterFactory>();
         Services = serviceCollection.BuildServiceProvider();

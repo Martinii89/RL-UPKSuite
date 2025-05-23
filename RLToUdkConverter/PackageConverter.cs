@@ -5,34 +5,24 @@ using Microsoft.Extensions.FileSystemGlobbing;
 
 namespace RLToUdkConverter;
 
-internal class PackageConverter
+internal class PackageConverter(
+    PackageConversionOptions options,
+    PackageExporterFactory packageExporterFactory,
+    PackageLoader packageLoader,
+    PackageCompressor? compressor)
 {
-    private readonly PackageCompressor? _compressor;
-    private readonly PackageConversionOptions _options;
-    private readonly PackageExporterFactory _packageExporterFactory;
-    private readonly PackageLoader _packageLoader;
-    
-    public PackageConverter(PackageConversionOptions options, PackageExporterFactory packageExporterFactory, PackageLoader packageLoader,
-        PackageCompressor? compressor)
-    {
-        _options = options;
-        _compressor = compressor;
-        _packageExporterFactory = packageExporterFactory;
-        _packageLoader = packageLoader;
-    }
-
     public void ProcessFile(string file)
     {
         var inputFileName = Path.GetFileNameWithoutExtension(file);
         using var convertedStream = new MemoryStream();
-        var package = _packageLoader.LoadPackage(file, inputFileName, false);
+        var package = packageLoader.LoadPackage(file, inputFileName, false);
         if (package is null)
         {
             Console.WriteLine($"Failed to load package {inputFileName}");
             return;
         }
 
-        var exporter = _packageExporterFactory.Create(package, convertedStream);
+        var exporter = packageExporterFactory.Create(package, convertedStream);
         exporter.ExportPackage();
         convertedStream.Position = 0;
         var outputFilePath = GetOutputFilePath(file);
@@ -43,10 +33,10 @@ internal class PackageConverter
         }
 
         using var outputFile = File.Create(outputFilePath);
-        if (_options.Compress && _compressor is not null)
+        if (options.Compress && compressor is not null)
         {
             var compressedStream = new MemoryStream();
-            _compressor.CompressFile(convertedStream, compressedStream);
+            compressor.CompressFile(convertedStream, compressedStream);
             compressedStream.Position = 0;
             compressedStream.CopyTo(outputFile);
         }
@@ -59,7 +49,7 @@ internal class PackageConverter
 
     private string GetOutputFilePath(string file)
     {
-        var fileName = Path.GetFileNameWithoutExtension(file) + _options.Suffix + Path.GetExtension(file);
-        return Path.Combine(_options.OutputDirectory, fileName);
+        var fileName = Path.GetFileNameWithoutExtension(file) + options.Suffix + Path.GetExtension(file);
+        return Path.Combine(options.OutputDirectory, fileName);
     }
 }

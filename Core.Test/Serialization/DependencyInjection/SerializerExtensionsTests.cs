@@ -20,7 +20,7 @@ public class SerializerExtensionsTests
         // Arrange
         var serviceColection = new ServiceCollection();
         // Act
-        serviceColection.UseSerializers(typeof(SerializerExtensionsTests), new SerializerOptions());
+        serviceColection.AddSerializers(typeof(SerializerExtensionsTests), new SerializerOptions());
         var services = serviceColection.BuildServiceProvider();
         var testSerializer = services.GetRequiredService<IStreamSerializer<MySerializableTestOnlyDefault>>();
         // Assert
@@ -33,7 +33,7 @@ public class SerializerExtensionsTests
         // Arrange
         var serviceColection = new ServiceCollection();
         // Act
-        serviceColection.UseSerializers(typeof(SerializerExtensionsTests), new SerializerOptions("MyTag", SerializerOptions.DefaultSerializers.No));
+        serviceColection.AddSerializers(typeof(SerializerExtensionsTests), new SerializerOptions("MyTag", SerializerOptions.DefaultSerializers.No));
         var services = serviceColection.BuildServiceProvider();
         var testSerializer = services.GetRequiredService<IStreamSerializer<MySerializableTest>>();
         // Assert
@@ -47,7 +47,7 @@ public class SerializerExtensionsTests
         // Arrange
         var serviceColection = new ServiceCollection();
         // Act
-        serviceColection.UseSerializers(typeof(SerializerExtensionsTests), new SerializerOptions("MyTag"));
+        serviceColection.AddSerializers(typeof(SerializerExtensionsTests), new SerializerOptions("MyTag"));
         var services = serviceColection.BuildServiceProvider();
         var testSerializer = services.GetRequiredService<IStreamSerializer<MySerializableTest>>();
         var testSerializer2 = services.GetRequiredService<IStreamSerializer<MySerializableTestOnlyDefault>>();
@@ -65,7 +65,7 @@ public class SerializerExtensionsTests
         // Arrange
         var serviceColection = new ServiceCollection();
         // Act
-        serviceColection.UseSerializers(typeof(FileSummarySerializer),
+        serviceColection.AddSerializers(typeof(FileSummarySerializer),
             new SerializerOptions());
         var services = serviceColection.BuildServiceProvider();
         var testSerializer = services.GetRequiredService<IStreamSerializer<FileSummary>>();
@@ -79,7 +79,7 @@ public class SerializerExtensionsTests
         // Arrange
         var serviceColection = new ServiceCollection();
         // Act
-        serviceColection.UseSerializers(typeof(DefaultObjectSerializer),
+        serviceColection.AddSerializers(typeof(DefaultObjectSerializer),
             new SerializerOptions());
         var services = serviceColection.BuildServiceProvider();
         var testSerializer1 = services.GetService<IObjectSerializer<UObject>>();
@@ -97,7 +97,7 @@ public class SerializerExtensionsTests
         // Arrange
         var serviceColection = new ServiceCollection();
         // Act
-        serviceColection.UseSerializers(typeof(DefaultObjectSerializer),
+        serviceColection.AddSerializers(typeof(DefaultObjectSerializer),
             new SerializerOptions());
         var services = serviceColection.BuildServiceProvider();
         var testSerializer1 = services.GetServices<IObjectSerializer>().ToList();
@@ -112,7 +112,7 @@ public class SerializerExtensionsTests
         // Arrange
         var serviceColection = new ServiceCollection();
         // Act
-        serviceColection.UseSerializers(typeof(DefaultObjectSerializer),
+        serviceColection.AddSerializers(typeof(DefaultObjectSerializer),
             new SerializerOptions());
         serviceColection.AddSingleton<IObjectSerializerFactory, ObjectSerializerFactory>();
         var services = serviceColection.BuildServiceProvider();
@@ -130,7 +130,7 @@ public class SerializerExtensionsTests
         // Arrange
         var serviceColection = new ServiceCollection();
         // Act
-        serviceColection.UseSerializers(typeof(DefaultObjectSerializer),
+        serviceColection.AddSerializers(typeof(DefaultObjectSerializer),
             new SerializerOptions { FileVersion = RocketLeagueBase.FileVersion });
         serviceColection.AddSingleton<IObjectSerializerFactory, ObjectSerializerFactory>();
         var services = serviceColection.BuildServiceProvider();

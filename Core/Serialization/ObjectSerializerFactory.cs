@@ -24,6 +24,6 @@ public class ObjectSerializerFactory : IObjectSerializerFactory
     /// <inheritdoc />
     public IObjectSerializer? GetSerializer(Type type)
     {
-        return _serializers.ContainsKey(type) ? _serializers[type] : null;
+        return _serializers.GetValueOrDefault(type);
     }
 }

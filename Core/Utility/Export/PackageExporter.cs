@@ -19,7 +19,7 @@ public class PackageExporter
     private readonly IStreamSerializer<ExportTableItem> _exportTableItemSerializer;
     private readonly IStreamSerializer<FileSummary> _fileSummarySerializer;
 
-    private readonly List<IObjectFilter> _filters = new();
+    private readonly List<IObjectFilter> _filters = [];
     private readonly IStreamSerializer<ImportTableItem> _importTableItemSerializer;
     private readonly IStreamSerializer<NameTableItem> _nameTableItemSerializer;
     private readonly IObjectSerializerFactory _objectSerializerFactory;

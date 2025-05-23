@@ -209,10 +209,15 @@ public class CrossPackageDependencyGraph
     private PackageObjectReference ResolveImportClassReference(ImportTableItem import, UnrealPackage objPackage)
     {
         var fullName = objPackage.GetFullName(import);
-        if (_fullNameToReferenceCache.ContainsKey(fullName))
+        if (fullName == "None")
+        {
+            // null reference
+            return new PackageObjectReference();
+        }
+        if (_fullNameToReferenceCache.TryGetValue(fullName, out PackageObjectReference reference))
         {
             CacheHits++;
-            return _fullNameToReferenceCache[fullName];
+            return reference;
         }
 
         CacheMisses++;

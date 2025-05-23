@@ -31,7 +31,7 @@ IEnumerable<string> FindGlobFiles(string folder, IEnumerable<string> optionsGlob
     return fileMatches;
 }
 
- string FindDependantPackageDirectory(PackageConversionOptions options)
+string FindDependantPackageDirectory(PackageConversionOptions options)
 {
     if (!string.IsNullOrEmpty(options.ImportPackagesDirectory))
     {
@@ -124,7 +124,7 @@ IEnumerable<string> FindGlobFiles(string folder, IEnumerable<string> optionsGlob
      IServiceProvider GetRLSerializerCollection()
      {
          var serviceCollection = new ServiceCollection();
-         serviceCollection.UseSerializers(typeof(UnrealPackage), new SerializerOptions(RocketLeagueBase.FileVersion));
+         serviceCollection.AddSerializers(typeof(UnrealPackage), new SerializerOptions(RocketLeagueBase.FileVersion));
          serviceCollection.AddSingleton<IObjectSerializerFactory, ObjectSerializerFactory>();
          var services = serviceCollection.BuildServiceProvider();
          return services;
@@ -133,7 +133,7 @@ IEnumerable<string> FindGlobFiles(string folder, IEnumerable<string> optionsGlob
      IServiceProvider GetUdkSerializerCollection()
      {
          var serviceCollection = new ServiceCollection();
-         serviceCollection.UseSerializers(typeof(UnrealPackage), new SerializerOptions());
+         serviceCollection.AddSerializers(typeof(UnrealPackage), new SerializerOptions());
          serviceCollection.AddSingleton<IObjectSerializerFactory, ObjectSerializerFactory>();
          serviceCollection.AddSingleton<PackageExporterFactory>();
          var services = serviceCollection.BuildServiceProvider();

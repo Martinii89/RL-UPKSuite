@@ -6,28 +6,29 @@
     <NoWarn>$(NoWarn);NU1507</NoWarn>
   </PropertyGroup>
   <ItemGroup>
+    <PackageVersion Include="BenchmarkDotNet" Version="0.15.0" />
     <PackageVersion Include="CommandLineParser" Version="2.9.1" />
-    <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.*" />
+    <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageVersion Include="FluentAssertions" Version="[7.2.0,8)" />
     <PackageVersion Include="LazyCache" Version="2.4.0" />
     <PackageVersion Include="MahApps.Metro" Version="2.4.10" />
     <PackageVersion Include="MaterialDesignThemes" Version="5.2.1" />
     <PackageVersion Include="MaterialDesignThemes.MahApps" Version="5.2.1" />
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="*" />
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="*" />
-    <PackageVersion Include="Microsoft.Extensions.FileSystemGlobbing" Version="*" />
-    <PackageVersion Include="Microsoft.Extensions.Options.DataAnnotations" Version="*" />
-    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="*" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
-    <PackageVersion Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.*" />
-    <PackageVersion Include="NSubstitute" Version="5.*" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.5" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.5" />
+    <PackageVersion Include="Microsoft.Extensions.FileSystemGlobbing" Version="9.0.5" />
+    <PackageVersion Include="Microsoft.Extensions.Options.DataAnnotations" Version="9.0.5" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.5" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.0" />
+    <PackageVersion Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
+    <PackageVersion Include="NSubstitute" Version="5.3.0" />
     <PackageVersion Include="Syroot.BinaryData" Version="5.2.2" />
     <PackageVersion Include="coverlet.collector" Version="6.0.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageVersion>
     <PackageVersion Include="xunit" Version="2.9.3" />
-    <PackageVersion Include="xunit.runner.visualstudio" Version="3.0.2">
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageVersion>
