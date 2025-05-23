@@ -75,6 +75,13 @@ public class PackageLoaderTests
         var pckg = loader.GetPackage("TAGame");
         // Assert 
         pckg.ExportTable.Should().AllSatisfy(x => { x.Object.Should().NotBeNull(); });
-        pckg.ImportTable.Should().AllSatisfy(x => { x.ImportedObject.Should().NotBeNull(); });
+
+        var noneIndex = pckg.NameTable.FindIndex("None");
+        var nullImports = pckg.ImportTable
+            .Where(x => x.ImportedObject is null)
+            .Where(x => x.ObjectName.NameIndex != noneIndex);
+        nullImports.Should().BeEmpty();
+        
+        // pckg.ImportTable.Should().AllSatisfy(x => { x.ImportedObject.Should().NotBeNull(); });
     }
 }

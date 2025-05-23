@@ -9,7 +9,7 @@ public class SerializerHelper
     private static IServiceProvider GetSerializersCollection(Type assembly, string tag = "")
     {
         var serviceCollection = new ServiceCollection();
-        serviceCollection.UseSerializers(assembly, new SerializerOptions(tag));
+        serviceCollection.AddSerializers(assembly, new SerializerOptions(tag));
         serviceCollection.AddSingleton<IObjectSerializerFactory, ObjectSerializerFactory>();
         var services = serviceCollection.BuildServiceProvider();
         return services;

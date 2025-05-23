@@ -16,7 +16,7 @@ public class UnrealPackageSerializerTests
         // Arrange
         var serviceColection = new ServiceCollection();
         // Act
-        serviceColection.UseSerializers(typeof(UnrealPackageSerializer), new SerializerOptions());
+        serviceColection.AddSerializers(typeof(UnrealPackageSerializer), new SerializerOptions());
         var services = serviceColection.BuildServiceProvider();
         var testSerializer = services.GetRequiredService<IStreamSerializer<UnrealPackage>>();
         // Assert
@@ -29,7 +29,7 @@ public class UnrealPackageSerializerTests
         // Arrange
         var serviceColection = new ServiceCollection();
         var inputTest = File.OpenRead(@"TestData/RocketPass_Premium_T_SF_decrypted.upk");
-        serviceColection.UseSerializers(typeof(UnrealPackageSerializer), new SerializerOptions(RocketLeagueBase.FileVersion));
+        serviceColection.AddSerializers(typeof(UnrealPackageSerializer), new SerializerOptions(RocketLeagueBase.FileVersion));
         var services = serviceColection.BuildServiceProvider();
         var testSerializer = services.GetRequiredService<IStreamSerializer<UnrealPackage>>();
         // Act
@@ -58,7 +58,7 @@ public class UnrealPackageSerializerTests
         // Arrange
         var serviceColection = new ServiceCollection();
         var inputTest = File.OpenRead(@"TestData/UDK/UDKTestPackage.upk");
-        serviceColection.UseSerializers(typeof(UnrealPackageSerializer), new SerializerOptions());
+        serviceColection.AddSerializers(typeof(UnrealPackageSerializer), new SerializerOptions());
         var services = serviceColection.BuildServiceProvider();
         var testSerializer = services.GetRequiredService<IStreamSerializer<UnrealPackage>>();
         // Act
@@ -90,7 +90,7 @@ public class UnrealPackageSerializerTests
         // Arrange
         var serviceColection = new ServiceCollection();
         var inputTest = File.OpenRead(@"TestData/UDK/UDKTestPackage.upk");
-        serviceColection.UseSerializers(typeof(UnrealPackageSerializer), new SerializerOptions());
+        serviceColection.AddSerializers(typeof(UnrealPackageSerializer), new SerializerOptions());
         var services = serviceColection.BuildServiceProvider();
         var testSerializer = services.GetRequiredService<IStreamSerializer<UnrealPackage>>();
 
@@ -115,7 +115,7 @@ public class UnrealPackageSerializerTests
         // Arrange
         var serviceColection = new ServiceCollection();
         var inputTest = File.OpenRead(@"TestData/UDK/Core.u");
-        serviceColection.UseSerializers(typeof(UnrealPackageSerializer), new SerializerOptions());
+        serviceColection.AddSerializers(typeof(UnrealPackageSerializer), new SerializerOptions());
         var services = serviceColection.BuildServiceProvider();
         var testSerializer = services.GetRequiredService<IStreamSerializer<UnrealPackage>>();
         // Act
@@ -139,7 +139,7 @@ public class UnrealPackageSerializerTests
         // Arrange
         var serviceColection = new ServiceCollection();
         var inputTest = File.OpenRead(@"TestData/UDK/Engine.u");
-        serviceColection.UseSerializers(typeof(UnrealPackageSerializer), new SerializerOptions());
+        serviceColection.AddSerializers(typeof(UnrealPackageSerializer), new SerializerOptions());
         var services = serviceColection.BuildServiceProvider();
         var testSerializer = services.GetRequiredService<IStreamSerializer<UnrealPackage>>();
 

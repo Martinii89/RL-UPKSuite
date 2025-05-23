@@ -24,7 +24,6 @@ public class NativeClassFactory : INativeClassFactory
 
     public Dictionary<string, UClass> GetNativeClasses(UnrealPackage package)
     {
-        var packageName = package.PackageName;
         Dictionary<string, UClass> result = new();
 
         var packageNatives = _nativeClasses.Where(x => x.Value.PackageName == package.PackageName);
@@ -46,7 +45,6 @@ public class NativeClassFactory : INativeClassFactory
 
     private void CreateStubClasses()
     {
-        var stubName = new FName(0);
         UnrealPackage stubPackage = new()
         {
             PackageName = "Natives"
@@ -99,7 +97,7 @@ public class NativeClassFactory : INativeClassFactory
         }
     }
 
-    private Dictionary<string, NativeClassInfo> FindNativeClassInfosInExecutingAssembly()
+    private static Dictionary<string, NativeClassInfo> FindNativeClassInfosInExecutingAssembly()
     {
         Dictionary<string, NativeClassInfo> result = new();
         var nativeTypes = Assembly.GetExecutingAssembly().GetExportedTypes()
@@ -115,27 +113,16 @@ public class NativeClassFactory : INativeClassFactory
         return result;
     }
 
-    internal class NativeClassInfo
+    private class NativeClassInfo(Type assemblyTypeImplementation, NativeOnlyClassAttribute attribute)
     {
-        public NativeClassInfo(Type assemblyTypeImplementation, NativeOnlyClassAttribute attribute)
-
-        {
-            PackageName = attribute.PackageName;
-            ClassName = attribute.ClassName;
-            AssemblyTypeImplementation = assemblyTypeImplementation;
-            RegisteredClass = null;
-            SuperClassName = attribute.SuperClass;
-            SuperType = attribute.SuperType;
-        }
-
         internal string ClassFullName => $"{PackageName}.{ClassName}";
-        internal string ClassName { get; set; }
-        internal string PackageName { get; set; }
-        internal string SuperClassName { get; set; }
+        internal string ClassName { get; set; } = attribute.ClassName;
+        internal string PackageName { get; set; } = attribute.PackageName;
+        internal string SuperClassName { get; set; } = attribute.SuperClass;
 
-        internal Type? SuperType { get; set; }
+        internal Type? SuperType { get; set; } = attribute.SuperType;
 
-        internal UClass? RegisteredClass { get; set; }
-        internal Type AssemblyTypeImplementation { get; set; }
+        internal UClass? RegisteredClass { get; set; } = null;
+        internal Type AssemblyTypeImplementation { get; set; } = assemblyTypeImplementation;
     }
 }

@@ -120,7 +120,7 @@ async IAsyncEnumerable<PackageDefinition> ReadPackageDefinitions(IEnumerable<str
 IServiceProvider GetUdkSerializerCollection()
 {
     var serviceCollection = new ServiceCollection();
-    serviceCollection.UseSerializers(typeof(UnrealPackage), new SerializerOptions());
+    serviceCollection.AddSerializers(typeof(UnrealPackage), new SerializerOptions());
     serviceCollection.AddSingleton<IObjectSerializerFactory, ObjectSerializerFactory>();
     serviceCollection.AddSingleton<PackageExporterFactory>();
     var services = serviceCollection.BuildServiceProvider();
@@ -130,7 +130,7 @@ IServiceProvider GetUdkSerializerCollection()
 IServiceProvider GetRLSerializerCollection()
 {
     var serviceCollection = new ServiceCollection();
-    serviceCollection.UseSerializers(typeof(UnrealPackage), new SerializerOptions(RocketLeagueBase.FileVersion));
+    serviceCollection.AddSerializers(typeof(UnrealPackage), new SerializerOptions(RocketLeagueBase.FileVersion));
     serviceCollection.AddSingleton<IObjectSerializerFactory, ObjectSerializerFactory>();
     var services = serviceCollection.BuildServiceProvider();
     return services;
@@ -156,22 +156,4 @@ public record ObjectDefinition(string ObjectFullName, string ClassFullName)
         var groupSep = ObjectFullName.LastIndexOf('.');
         return ObjectFullName[(groupSep + 1)..];
     }
-
-    // public string? ClassPackage
-    // {
-    //     get
-    //     {
-    //         var groupSep = ClassFullName.LastIndexOf('.');
-    //         return groupSep == -1 ? null : ClassFullName[..groupSep];
-    //     }
-    // }
-    //
-    // public string ClassName
-    // {
-    //     get
-    //     {
-    //         var groupSep = ClassFullName.LastIndexOf('.');
-    //         return ClassFullName[(groupSep + 1)..];
-    //     }
-    // }
 };

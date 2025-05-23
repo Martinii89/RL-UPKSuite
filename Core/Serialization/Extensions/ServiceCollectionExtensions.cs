@@ -51,7 +51,7 @@ public class SerializerOptions
     /// <summary>
     ///     Filter the serializers by this file version
     /// </summary>
-    public string FileVersion { get; set; } = string.Empty;
+    public string FileVersion { get; init; } = string.Empty;
 
     /// <summary>
     ///     If default serializers should be included for the types where one tagged with FileVersion is found
@@ -169,7 +169,7 @@ public static class SerializerExtensions
     /// <param name="assembly">The assembly to scan</param>
     /// <param name="options">Configure FileVersion and DefaultSerializer options</param>
     /// <returns></returns>
-    public static IServiceCollection UseSerializers(this IServiceCollection services, Assembly assembly, SerializerOptions options)
+    public static IServiceCollection AddSerializers(this IServiceCollection services, Assembly assembly, SerializerOptions options)
     {
         var serializersToAdd = GetSerializersFromAssembly(assembly, options.FileVersion);
         Dictionary<Type, Type> interfaceImplementationMap = new();
@@ -228,9 +228,9 @@ public static class SerializerExtensions
     /// <param name="typeInAssembly">A type in the assembly to scan</param>
     /// <param name="options">Configure FileVersion and DefaultSerializer options</param>
     /// <returns></returns>
-    public static IServiceCollection UseSerializers(this IServiceCollection services, Type typeInAssembly, SerializerOptions options)
+    public static IServiceCollection AddSerializers(this IServiceCollection services, Type typeInAssembly, SerializerOptions options)
     {
-        return services.UseSerializers(typeInAssembly.Assembly, options);
+        return services.AddSerializers(typeInAssembly.Assembly, options);
     }
 
     private class AssemblySearchResult

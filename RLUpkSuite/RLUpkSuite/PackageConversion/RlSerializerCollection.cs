@@ -23,7 +23,7 @@ public class RlSerializerCollection
         // These needs to be resolved from a clean service collection
         // populated with the right serializers based on the UseSerializers call
         ServiceCollection serviceCollection = new ServiceCollection();
-        serviceCollection.UseSerializers(typeof(UnrealPackage), new SerializerOptions(RocketLeagueBase.FileVersion));
+        serviceCollection.AddSerializers(typeof(UnrealPackage), new SerializerOptions(RocketLeagueBase.FileVersion));
         serviceCollection.AddSingleton<IObjectSerializerFactory, ObjectSerializerFactory>();
         _services = serviceCollection.BuildServiceProvider();
 

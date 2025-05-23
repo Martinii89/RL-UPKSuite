@@ -9,51 +9,42 @@ using Core.Types.PackageTables;
 
 namespace Core.Serialization;
 
-public class UnrealPackageStream : IUnrealPackageStream
+public class UnrealPackageStream(
+    Stream baseStream,
+    IStreamSerializer<ObjectIndex> objectIndexSerializer,
+    IStreamSerializer<FName> nameSerializer,
+    UnrealPackage unrealPackage)
+    : IUnrealPackageStream
 {
-    private readonly IStreamSerializer<FName> _nameSerializer;
-
-    protected readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer;
-
-    private readonly UnrealPackage _unrealPackage;
-
-    public UnrealPackageStream(Stream baseStream, IStreamSerializer<ObjectIndex> objectIndexSerializer,
-        IStreamSerializer<FName> nameSerializer,
-        UnrealPackage unrealPackage)
-    {
-        BaseStream = baseStream;
-        _objectIndexSerializer = objectIndexSerializer;
-        _nameSerializer = nameSerializer;
-        _unrealPackage = unrealPackage;
-    }
+    protected readonly IStreamSerializer<ObjectIndex> _objectIndexSerializer = objectIndexSerializer;
 
 
     /// <inheritdoc />
-    public Stream BaseStream { get; set; }
+    public Stream BaseStream { get; set; } = baseStream;
 
     /// <inheritdoc />
     public UObject? ReadObject()
     {
-        return _unrealPackage.GetObject(_objectIndexSerializer.Deserialize(BaseStream));
+        return unrealPackage.GetObject(_objectIndexSerializer.Deserialize(BaseStream));
     }
 
     /// <inheritdoc />
     public FName ReadFName()
     {
-        return _nameSerializer.Deserialize(BaseStream);
+        return nameSerializer.Deserialize(BaseStream);
     }
 
     /// <inheritdoc />
     public void WriteFName(string name)
     {
-        var fname = _unrealPackage.GetFName(name);
-        _nameSerializer.Serialize(BaseStream, fname);
+        var fname = unrealPackage.GetFName(name);
+        nameSerializer.Serialize(BaseStream, fname);
     }
 
     /// <inheritdoc />
     public string ReadFNameStr()
     {
-        return _unrealPackage.GetName(_nameSerializer.Deserialize(BaseStream));
+        return unrealPackage.GetName(nameSerializer.Deserialize(BaseStream));
     }
 
     /// <inheritdoc />
