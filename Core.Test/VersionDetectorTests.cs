@@ -41,7 +41,7 @@ public class VersionDetectorTests
         0x00, 0xF1, 0x3F, 0x00, 0x00, 0xA3, 0xA5, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00
     };
 
-    private readonly string RLUnCompressedFile = @"TestData\RocketPass_Premium_T_SF_decrypted.upk";
+    private readonly string RLUnCompressedFile = "TestData/RocketPass_Premium_T_SF_decrypted.upk";
 
     private readonly string UDKCoreFile = @"TestData/UDK/Core.u";
 
