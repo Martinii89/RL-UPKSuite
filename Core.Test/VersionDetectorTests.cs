@@ -12,7 +12,7 @@ namespace RlUpk.Core.Test;
 public class VersionDetectorTests
 {
     private readonly IStreamSerializer<FileSummary> _serializer;
-    private readonly string RLCompressedFile = @"TestData\RocketPass_Premium_T_SF.upk";
+    private readonly string RLCompressedFile = "TestData/RocketPass_Premium_T_SF.upk";
 
     private readonly byte[] RLCoreHeader =
     {
