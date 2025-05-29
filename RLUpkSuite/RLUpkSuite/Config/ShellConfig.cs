@@ -4,7 +4,7 @@ using MaterialDesignColors;
 
 using MaterialDesignThemes.Wpf;
 
-namespace RLUpkSuite.Config;
+namespace RlUpk.RLUpkSuite.Config;
 
 public class ShellConfig : AppConfigBase
 {

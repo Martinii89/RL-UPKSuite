@@ -1,4 +1,4 @@
-﻿namespace Core.Serialization;
+﻿namespace RlUpk.Core.Serialization.Abstraction;
 
 /// <summary>
 ///     A IStreamSerializer implements serialization and deserialization from a <see cref="Stream" />

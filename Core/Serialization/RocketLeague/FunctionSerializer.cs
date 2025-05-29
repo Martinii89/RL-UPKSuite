@@ -1,8 +1,8 @@
-﻿using Core.Classes;
-using Core.Flags;
-using Core.Serialization.Abstraction;
+﻿using RlUpk.Core.Classes.Core;
+using RlUpk.Core.Flags;
+using RlUpk.Core.Serialization.Abstraction;
 
-namespace Core.Serialization.RocketLeague;
+namespace RlUpk.Core.Serialization.RocketLeague;
 
 [FileVersion(RocketLeagueBase.FileVersion)]
 public class FunctionSerializer : BaseObjectSerializer<UFunction>

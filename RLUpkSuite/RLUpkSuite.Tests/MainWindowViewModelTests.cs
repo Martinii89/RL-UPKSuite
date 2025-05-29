@@ -1,6 +1,4 @@
-using RLUpkSuite.ViewModels;
-
-namespace RLUpkSuite.Tests;
+namespace RlUpk.RLUpkSuite.Tests;
 
 public partial class MainWindowViewModelTests
 {

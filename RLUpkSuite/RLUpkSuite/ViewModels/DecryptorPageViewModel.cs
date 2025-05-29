@@ -3,17 +3,16 @@ using System.IO;
 
 using CommunityToolkit.Mvvm.Input;
 
-using Core;
-using Core.RocketLeague;
-using Core.RocketLeague.Decryption;
-using Core.Serialization.Default;
-
 using MaterialDesignThemes.Wpf;
 
-using RLUpkSuite.Config;
-using RLUpkSuite.Pages;
+using RlUpk.Core;
+using RlUpk.Core.RocketLeague;
+using RlUpk.Core.RocketLeague.Decryption;
+using RlUpk.Core.Serialization.Default;
+using RlUpk.RLUpkSuite.Config;
+using RlUpk.RLUpkSuite.Pages;
 
-namespace RLUpkSuite.ViewModels;
+namespace RlUpk.RLUpkSuite.ViewModels;
 
 public partial class DecryptorPageViewModel : PageBase
 {
@@ -112,7 +111,7 @@ public partial class DecryptorPageViewModel : PageBase
                 return;
             }
 
-            string inputFileName = Path.GetFileNameWithoutExtension(fileReference.FilePath);
+            string inputFileName = Path.GetFileNameWithoutExtension((string?)fileReference.FilePath);
             string outputFilePath = Path.Combine(OutputDirectory, inputFileName + "_decrypted.upk");
             DirectoryInfo? directoryInfo = new FileInfo(outputFilePath).Directory;
             Debug.Assert(directoryInfo != null);

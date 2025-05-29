@@ -5,10 +5,10 @@ using CommunityToolkit.Mvvm.Messaging;
 
 using MaterialDesignThemes.Wpf;
 
-using RLUpkSuite.Config;
-using RLUpkSuite.Pages;
+using RlUpk.RLUpkSuite.Config;
+using RlUpk.RLUpkSuite.Pages;
 
-namespace RLUpkSuite.ViewModels;
+namespace RlUpk.RLUpkSuite.ViewModels;
 
 public partial class MainWindowViewModel : ObservableObject, IRecipient<ShowError>, IRecipient<MessageWithDialogDetails>
 {

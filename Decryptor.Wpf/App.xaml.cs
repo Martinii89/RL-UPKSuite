@@ -1,6 +1,6 @@
 ﻿using Application = System.Windows.Application;
 
-namespace Decryptor.Wpf;
+namespace RlUpk.Decryptor.Wpf;
 /// <summary>
 /// Interaction logic for App.xaml
 /// </summary>

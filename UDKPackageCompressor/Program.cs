@@ -1,7 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
-using Core.Classes.Compression;
-using Core.Serialization.Default;
+using RlUpk.Core.Classes.Compression;
+using RlUpk.Core.Serialization.Default;
 
 if (args.Length < 1)
 {

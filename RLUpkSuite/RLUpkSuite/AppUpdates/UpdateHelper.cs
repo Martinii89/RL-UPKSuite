@@ -3,13 +3,13 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-using RLUpkSuite.AppSettings;
-using RLUpkSuite.ViewModels;
+using RlUpk.RLUpkSuite.AppSettings;
+using RlUpk.RLUpkSuite.ViewModels;
 
 using Squirrel;
 using Squirrel.Sources;
 
-namespace RLUpkSuite.AppUpdates;
+namespace RlUpk.RLUpkSuite.AppUpdates;
 
 public class UpdateHelper
 {

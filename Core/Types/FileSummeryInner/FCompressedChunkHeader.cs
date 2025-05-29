@@ -1,4 +1,4 @@
-﻿namespace Core.Types.FileSummeryInner;
+﻿namespace RlUpk.Core.Types.FileSummeryInner;
 
 internal class FCompressedChunkHeader
 {

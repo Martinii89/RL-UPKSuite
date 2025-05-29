@@ -1,4 +1,6 @@
-﻿namespace Core.Serialization;
+﻿using RlUpk.Core.Serialization.Abstraction;
+
+namespace RlUpk.Core.Serialization;
 
 /// <summary>
 ///     A <see cref="FileVersionAttribute" /> is a tag used to mark <see cref="IStreamSerializer{T}" /> implementations.

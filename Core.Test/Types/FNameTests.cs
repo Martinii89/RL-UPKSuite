@@ -1,9 +1,13 @@
-﻿using Core.Serialization;
-using Core.Test.TestUtilities;
-using FluentAssertions;
+﻿using FluentAssertions;
+
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Serialization.Extensions;
+using RlUpk.Core.Types;
+using RlUpk.TestUtils.TestUtilities;
+
 using Xunit;
 
-namespace Core.Types.Tests;
+namespace RlUpk.Core.Test.Types;
 
 public class FNameTests
 {

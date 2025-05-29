@@ -1,13 +1,17 @@
-﻿using Core.RocketLeague;
-using Core.RocketLeague.Decryption;
-using Core.Serialization.RocketLeague;
-using Core.Test.TestUtilities;
-using Core.Types;
-using Core.Utility;
-using FluentAssertions;
+﻿using FluentAssertions;
+
+using RlUpk.Core.Classes;
+using RlUpk.Core.RocketLeague;
+using RlUpk.Core.RocketLeague.Decryption;
+using RlUpk.Core.Serialization.RocketLeague;
+using RlUpk.Core.Types;
+using RlUpk.Core.Utility;
+using RlUpk.TestUtils;
+using RlUpk.TestUtils.TestUtilities;
+
 using Xunit;
 
-namespace Core.Tests;
+namespace RlUpk.Core.Test;
 
 public class PackageLoaderTests
 {

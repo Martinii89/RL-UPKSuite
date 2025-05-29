@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Nodes;
 
-namespace RLUpkSuite.Config;
+namespace RlUpk.RLUpkSuite.Config;
 
 public class AppConfigStore
 {

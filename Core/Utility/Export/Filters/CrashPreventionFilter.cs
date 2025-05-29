@@ -1,8 +1,8 @@
-﻿using Core.Classes.Core;
-using Core.Types;
-using Core.Types.PackageTables;
+﻿using RlUpk.Core.Classes.Core;
+using RlUpk.Core.Types;
+using RlUpk.Core.Types.PackageTables;
 
-namespace Core.Utility.Export.Filters;
+namespace RlUpk.Core.Utility.Export.Filters;
 
 /// <summary>
 ///     A CrashPreventionFilter will remove any objects that are known to crash udk if included in the export

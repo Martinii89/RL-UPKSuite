@@ -1,13 +1,13 @@
 ﻿using System.Text;
 
-using Core.Classes.Core;
-using Core.Classes.Core.Structs;
-using Core.Serialization.Abstraction;
-using Core.Serialization.Extensions;
-using Core.Types;
-using Core.Types.PackageTables;
+using RlUpk.Core.Classes.Core;
+using RlUpk.Core.Classes.Core.Structs;
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Serialization.Extensions;
+using RlUpk.Core.Types;
+using RlUpk.Core.Types.PackageTables;
 
-namespace Core.Serialization;
+namespace RlUpk.Core.Serialization;
 
 public class UnrealPackageStream(
     Stream baseStream,

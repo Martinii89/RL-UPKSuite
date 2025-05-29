@@ -1,10 +1,9 @@
-﻿using Core.Serialization;
-using Core.Serialization.Abstraction;
-using Core.Types;
-using Core.Types.PackageTables;
-using Core.Utility.Export;
+﻿using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Types;
+using RlUpk.Core.Types.PackageTables;
+using RlUpk.Core.Utility.Export;
 
-namespace RLToUdkConverter;
+namespace RlUpk.RLToUdkConverter;
 
 public class PackageExporterFactory
 {

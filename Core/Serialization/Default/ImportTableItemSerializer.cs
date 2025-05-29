@@ -1,7 +1,8 @@
-﻿using Core.Types;
-using Core.Types.PackageTables;
+﻿using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Types;
+using RlUpk.Core.Types.PackageTables;
 
-namespace Core.Serialization.Default;
+namespace RlUpk.Core.Serialization.Default;
 
 /// <summary>
 ///     Serializer for the items in the import table

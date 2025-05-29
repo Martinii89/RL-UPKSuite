@@ -1,4 +1,4 @@
-﻿namespace Core.Types.FileSummeryInner;
+﻿namespace RlUpk.Core.Types.FileSummeryInner;
 
 /// <summary>
 ///     Compressed data info

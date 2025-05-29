@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace Core.Utility;
+namespace RlUpk.Core.Utility;
 
 public static class DictionaryExtensions
 {

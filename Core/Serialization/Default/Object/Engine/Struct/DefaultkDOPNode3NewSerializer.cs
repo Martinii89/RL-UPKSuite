@@ -1,7 +1,9 @@
 ﻿using System.Diagnostics;
-using Core.Classes.Engine.Structs;
 
-namespace Core.Serialization.Default.Object.Engine.Struct;
+using RlUpk.Core.Classes.Engine.Structs;
+using RlUpk.Core.Serialization.Abstraction;
+
+namespace RlUpk.Core.Serialization.Default.Object.Engine.Struct;
 
 public class DefaultkDOPNode3NewSerializer : IStreamSerializer<FkDOPNode>
 {

@@ -1,4 +1,4 @@
-﻿namespace Core.Types.FileSummeryInner;
+﻿namespace RlUpk.Core.Types.FileSummeryInner;
 
 /// <summary>
 ///     A FGenerationInfo is a member of a <see cref="FileSummary" /> If present it will give information about previous

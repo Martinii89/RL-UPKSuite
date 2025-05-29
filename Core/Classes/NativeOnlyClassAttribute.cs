@@ -1,4 +1,4 @@
-﻿namespace Core.Classes;
+﻿namespace RlUpk.Core.Classes;
 
 /// <summary>
 ///     Marks a class for injection into it's owning package as a native only class

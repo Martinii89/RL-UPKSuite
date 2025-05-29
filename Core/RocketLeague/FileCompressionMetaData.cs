@@ -1,7 +1,6 @@
-﻿using Core.Classes.Core.Structs;
-using Core.Types.FileSummeryInner;
+﻿using RlUpk.Core.Types.FileSummeryInner;
 
-namespace Core.RocketLeague;
+namespace RlUpk.Core.RocketLeague;
 
 /// <summary>
 ///     Compression data about where to find the compressed chunks in the compressed rocket league package

@@ -1,8 +1,7 @@
-﻿using Core.Classes.Core;
-using Core.Types;
-using Core.Types.PackageTables;
+﻿using RlUpk.Core.Types;
+using RlUpk.Core.Types.PackageTables;
 
-namespace Core.Utility.Export.Filters;
+namespace RlUpk.Core.Utility.Export.Filters;
 
 internal class ClassExportFilter : IObjectFilter
 {

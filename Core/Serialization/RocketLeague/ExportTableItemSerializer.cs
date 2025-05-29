@@ -1,10 +1,11 @@
-﻿using System.Buffers.Binary;
+﻿using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Serialization.Extensions;
+using RlUpk.Core.Types;
+using RlUpk.Core.Types.PackageTables;
 
-using Core.Serialization.Extensions;
-using Core.Types;
-using Core.Types.PackageTables;
+using StreamExtensions = RlUpk.Core.Serialization.Extensions.StreamExtensions;
 
-namespace Core.Serialization.RocketLeague;
+namespace RlUpk.Core.Serialization.RocketLeague;
 
 /// <summary>
 ///     Serializer for the items in the export table in rocket league packages. Difference is that SerialOffset is a 64bit

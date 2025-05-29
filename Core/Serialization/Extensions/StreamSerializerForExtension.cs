@@ -1,7 +1,7 @@
-﻿using Core.Classes.Core.Structs;
-using Core.Serialization.Abstraction;
+﻿using RlUpk.Core.Classes.Core.Structs;
+using RlUpk.Core.Serialization.Abstraction;
 
-namespace Core.Serialization;
+namespace RlUpk.Core.Serialization.Extensions;
 
 /// <summary>
 ///     Extensions for using the serializers to read and write arrays

@@ -1,11 +1,13 @@
 ﻿using System.Diagnostics;
-using Core.Classes.Core;
-using Core.Classes.Core.Structs;
-using Core.Classes.Engine;
-using Core.Classes.Engine.Structs;
-using Core.Serialization.Abstraction;
 
-namespace Core.Serialization.Default.Object.Engine;
+using RlUpk.Core.Classes.Core;
+using RlUpk.Core.Classes.Core.Structs;
+using RlUpk.Core.Classes.Engine;
+using RlUpk.Core.Classes.Engine.Structs;
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Serialization.Extensions;
+
+namespace RlUpk.Core.Serialization.Default.Object.Engine;
 
 public class DefaultSkeletalMeshSerializer : BaseObjectSerializer<USkeletalMesh>
 {

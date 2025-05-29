@@ -4,10 +4,10 @@ using MaterialDesignColors;
 
 using MaterialDesignThemes.Wpf;
 
-using RLUpkSuite.Config;
-using RLUpkSuite.Pages;
+using RlUpk.RLUpkSuite.Config;
+using RlUpk.RLUpkSuite.Pages;
 
-namespace RLUpkSuite.ViewModels;
+namespace RlUpk.RLUpkSuite.ViewModels;
 
 public class SettingsPageViewModel : PageBase
 {

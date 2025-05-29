@@ -3,17 +3,20 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Data;
+
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core;
-using Core.RocketLeague;
-using Core.RocketLeague.Decryption;
-using Core.Serialization.Default;
-using Decryptor.Wpf.MVVM.Model;
+
+using RlUpk.Core;
+using RlUpk.Core.RocketLeague;
+using RlUpk.Core.RocketLeague.Decryption;
+using RlUpk.Core.Serialization.Default;
+using RlUpk.Decryptor.Wpf.MVVM.Model;
+
 using MessageBox = System.Windows.MessageBox;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 
-namespace Decryptor.Wpf.MVVM.ViewModel;
+namespace RlUpk.Decryptor.Wpf.MVVM.ViewModel;
 
 public partial class MainWindowViewModel : ObservableObject
 {
@@ -170,6 +173,6 @@ public partial class MainWindowViewModel : ObservableObject
         StatusText = "Done";
         DecryptFilesCommand.NotifyCanExecuteChanged();
         FilesAddedView.Refresh();
-        Process.Start("explorer.exe", OutputDirectory);
+        Process.Start((string)"explorer.exe", (string)OutputDirectory);
     }
 }

@@ -1,9 +1,9 @@
-﻿using Core.Classes.Core;
-using Core.Classes.Core.Properties;
-using Core.Serialization.Abstraction;
-using Core.Types.PackageTables;
+﻿using RlUpk.Core.Classes.Core;
+using RlUpk.Core.Classes.Core.Properties;
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Types.PackageTables;
 
-namespace Core.Serialization.Default.Properties;
+namespace RlUpk.Core.Serialization.Default.Properties;
 
 public class DefaultClassPropertySerializer : BaseObjectSerializer<UClassProperty>
 {

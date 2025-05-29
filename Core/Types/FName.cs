@@ -1,6 +1,6 @@
-﻿using Core.Types.PackageTables;
+﻿using RlUpk.Core.Types.PackageTables;
 
-namespace Core.Types;
+namespace RlUpk.Core.Types;
 
 /// <summary>
 ///     A name stored as a index and a instance number. the index maps to a item in the <see cref="NameTable" /> of the

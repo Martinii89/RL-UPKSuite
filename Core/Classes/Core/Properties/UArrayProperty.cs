@@ -1,8 +1,9 @@
 ﻿using System.Diagnostics;
-using Core.Serialization.Abstraction;
-using Core.Types;
 
-namespace Core.Classes.Core.Properties;
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Types;
+
+namespace RlUpk.Core.Classes.Core.Properties;
 
 /// <summary>
 ///     Property representing an array of values

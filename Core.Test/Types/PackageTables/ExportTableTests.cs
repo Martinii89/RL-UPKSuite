@@ -1,10 +1,15 @@
-﻿using Core.Serialization;
-using Core.Serialization.RocketLeague;
-using Core.Test.TestUtilities;
-using FluentAssertions;
+﻿using FluentAssertions;
+
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Serialization.Extensions;
+using RlUpk.Core.Serialization.RocketLeague;
+using RlUpk.Core.Types;
+using RlUpk.Core.Types.PackageTables;
+using RlUpk.TestUtils.TestUtilities;
+
 using Xunit;
 
-namespace Core.Types.PackageTables.Tests;
+namespace RlUpk.Core.Test.Types.PackageTables;
 
 public class ExportTableTests
 {

@@ -3,7 +3,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
-namespace RLUpkSuite.AppUpdates;
+namespace RlUpk.RLUpkSuite.AppUpdates;
 
 public partial class UpdateDialogViewModel : ObservableObject
 {

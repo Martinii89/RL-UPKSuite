@@ -2,7 +2,7 @@
 using System.Windows.Data;
 using System.Windows.Markup;
 
-namespace Decryptor.Wpf.Converters;
+namespace RlUpk.Decryptor.Wpf.Converters;
 
 public abstract class ConverterMarkupExtension<T> : MarkupExtension, IValueConverter where T: class, new()
 {

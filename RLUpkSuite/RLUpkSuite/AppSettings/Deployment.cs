@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace RLUpkSuite.AppSettings;
+namespace RlUpk.RLUpkSuite.AppSettings;
 
 public class Deployment
 {

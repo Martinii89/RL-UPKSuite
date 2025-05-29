@@ -1,8 +1,8 @@
 ﻿using MaterialDesignThemes.Wpf;
 
-using RLUpkSuite.Pages;
+using RlUpk.RLUpkSuite.Pages;
 
-namespace RLUpkSuite.ViewModels;
+namespace RlUpk.RLUpkSuite.ViewModels;
 
 public class CompressorPageViewModel : PageBase
 {

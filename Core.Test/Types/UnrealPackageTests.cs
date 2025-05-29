@@ -1,17 +1,21 @@
-﻿using Core.Classes.Core;
-using Core.RocketLeague;
-using Core.RocketLeague.Decryption;
-using Core.Serialization;
-using Core.Serialization.Abstraction;
-using Core.Serialization.RocketLeague;
-using Core.Test.TestUtilities;
-using Core.Utility;
-using FluentAssertions;
+﻿using FluentAssertions;
+
 using NSubstitute;
+
+using RlUpk.Core.Classes;
+using RlUpk.Core.Classes.Core;
+using RlUpk.Core.RocketLeague;
+using RlUpk.Core.RocketLeague.Decryption;
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Serialization.RocketLeague;
+using RlUpk.Core.Types;
+using RlUpk.Core.Utility;
+using RlUpk.TestUtils.TestUtilities;
+
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Core.Types.Tests;
+namespace RlUpk.Core.Test.Types;
 
 public class UnrealPackageTests : SerializerHelper, IClassFixture<PackageStreamFixture>
 {

@@ -1,6 +1,6 @@
-﻿using Core.Types;
+﻿using RlUpk.Core.Types;
 
-namespace Core.Utility;
+namespace RlUpk.Core.Utility;
 
 /// <summary>
 ///     A IPackageCache is able to find related packages. This is required when resolving import objects

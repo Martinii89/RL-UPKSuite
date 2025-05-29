@@ -1,7 +1,8 @@
-﻿using Core.Serialization.Extensions;
-using Core.Types;
+﻿using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Serialization.Extensions;
+using RlUpk.Core.Types;
 
-namespace Core.Serialization.Default;
+namespace RlUpk.Core.Serialization.Default;
 
 /// <inheritdoc />
 public class FStringSerializer : IStreamSerializer<FString>

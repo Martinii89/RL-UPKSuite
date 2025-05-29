@@ -1,16 +1,15 @@
 ﻿using System.IO;
 
-using Core;
-using Core.Classes.Compression;
-using Core.Types;
-using Core.Utility.Export;
-
 using Microsoft.Extensions.Logging;
 
-using RLUpkSuite.Config;
-using RLUpkSuite.ViewModels;
+using RlUpk.Core;
+using RlUpk.Core.Classes.Compression;
+using RlUpk.Core.Types;
+using RlUpk.Core.Utility.Export;
+using RlUpk.RLUpkSuite.Config;
+using RlUpk.RLUpkSuite.ViewModels;
 
-namespace RLUpkSuite.PackageConversion;
+namespace RlUpk.RLUpkSuite.PackageConversion;
 
 public class PackageConverter
 {

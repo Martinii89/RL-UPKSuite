@@ -1,6 +1,6 @@
-﻿using Core.Types;
+﻿using RlUpk.Core.Types;
 
-namespace Core.Classes.Engine;
+namespace RlUpk.Core.Classes.Engine;
 
 public class FStaticParameterSet
 {

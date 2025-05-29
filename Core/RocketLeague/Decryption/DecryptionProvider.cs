@@ -1,9 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.Security.Cryptography;
 
-namespace Core.RocketLeague.Decryption;
+namespace RlUpk.Core.RocketLeague.Decryption;
 
 /// <summary>
 ///     Interface for providing decryption keys and <see cref="ICryptoTransform" /> instances for decrypting rocket league

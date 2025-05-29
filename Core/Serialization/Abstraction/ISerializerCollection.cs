@@ -1,4 +1,4 @@
-﻿namespace Core.Serialization;
+﻿namespace RlUpk.Core.Serialization.Abstraction;
 
 /// <summary>
 ///     A ISerializerCollection provides a type safe retrieval of <see cref="IStreamSerializer{T}" /> instances.

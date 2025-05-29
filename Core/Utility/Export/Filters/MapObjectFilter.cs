@@ -1,8 +1,8 @@
-﻿using Core.Classes.Engine;
-using Core.Types;
-using Core.Types.PackageTables;
+﻿using RlUpk.Core.Classes.Engine;
+using RlUpk.Core.Types;
+using RlUpk.Core.Types.PackageTables;
 
-namespace Core.Utility.Export.Filters;
+namespace RlUpk.Core.Utility.Export.Filters;
 
 /// <summary>
 ///     A MapObjectFilter will remove any objects that has a UWorld object in it's outer chain. It will also remove the

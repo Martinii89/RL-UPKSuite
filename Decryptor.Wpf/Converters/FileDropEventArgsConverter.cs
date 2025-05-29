@@ -1,9 +1,10 @@
 ﻿using System.Globalization;
 using System.Windows.Data;
+
 using DataFormats = System.Windows.DataFormats;
 using DragEventArgs = System.Windows.DragEventArgs;
 
-namespace Decryptor.Wpf.Converters;
+namespace RlUpk.Decryptor.Wpf.Converters;
 
 public class FileDropEventArgsConverter: IValueConverter
 {

@@ -1,8 +1,9 @@
 ﻿using System.Diagnostics;
 
-using Core.Serialization;
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Serialization.Extensions;
 
-namespace Core.Types.PackageTables;
+namespace RlUpk.Core.Types.PackageTables;
 
 /// <summary>
 ///     A name table contains all the names for a package. The index for <see cref="FName" /> objects are referencing the

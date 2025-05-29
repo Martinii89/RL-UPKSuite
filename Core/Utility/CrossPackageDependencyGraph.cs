@@ -1,8 +1,9 @@
 ﻿using System.Diagnostics;
-using Core.Types;
-using Core.Types.PackageTables;
 
-namespace Core.Utility;
+using RlUpk.Core.Types;
+using RlUpk.Core.Types.PackageTables;
+
+namespace RlUpk.Core.Utility;
 
 /// <summary>
 ///     Helper class to construct a complete dependency graph, including all required objects from imported packages

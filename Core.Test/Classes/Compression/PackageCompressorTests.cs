@@ -1,8 +1,11 @@
-﻿using Core.Serialization.Default;
-using FluentAssertions;
+﻿using FluentAssertions;
+
+using RlUpk.Core.Classes.Compression;
+using RlUpk.Core.Serialization.Default;
+
 using Xunit;
 
-namespace Core.Classes.Compression.Tests;
+namespace RlUpk.Core.Test.Classes.Compression;
 
 public class PackageCompressorTests
 {

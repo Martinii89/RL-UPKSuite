@@ -1,7 +1,9 @@
-﻿using Core.Types;
-using Core.Types.PackageTables;
+﻿using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Serialization.Extensions;
+using RlUpk.Core.Types;
+using RlUpk.Core.Types.PackageTables;
 
-namespace Core.Serialization.Default;
+namespace RlUpk.Core.Serialization.Default;
 
 /// <summary>
 ///     Serializes the UnrealPackage data. It does not link up or create any objects, just the header and table data is

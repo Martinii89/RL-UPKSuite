@@ -1,7 +1,7 @@
-﻿using Core.Classes.Engine;
-using Core.Serialization.Abstraction;
+﻿using RlUpk.Core.Classes.Engine;
+using RlUpk.Core.Serialization.Abstraction;
 
-namespace Core.Serialization.Default.Object.Engine;
+namespace RlUpk.Core.Serialization.Default.Object.Engine;
 
 public class DefaultLightMapTexture2DSerializer : BaseObjectSerializer<ULightMapTexture2D>
 {

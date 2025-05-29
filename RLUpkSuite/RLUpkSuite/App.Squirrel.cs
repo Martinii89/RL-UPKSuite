@@ -1,10 +1,10 @@
 ﻿using System.Windows;
 
-using RLUpkSuite.AppUpdates;
+using RlUpk.RLUpkSuite.AppUpdates;
 
 using Squirrel;
 
-namespace RLUpkSuite;
+namespace RlUpk.RLUpkSuite;
 
 public partial class App
 {

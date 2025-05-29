@@ -1,10 +1,11 @@
 ﻿using System.Diagnostics;
-using Core.Flags;
-using Core.Serialization.Abstraction;
-using Core.Serialization.Default.Object;
-using Core.Types;
 
-namespace Core.Classes.Core.Properties;
+using RlUpk.Core.Flags;
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Serialization.Default.Object;
+using RlUpk.Core.Types;
+
+namespace RlUpk.Core.Classes.Core.Properties;
 
 /// <summary>
 ///     Property for a UStruct value

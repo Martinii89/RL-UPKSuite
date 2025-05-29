@@ -1,4 +1,4 @@
-﻿namespace Core.Types;
+﻿namespace RlUpk.Core.Types;
 
 /// <summary>
 ///     Unreal specific GUID struct.

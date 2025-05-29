@@ -1,9 +1,10 @@
 ﻿using System.Diagnostics;
-using Core.Classes.Core;
-using Core.Classes.Core.Properties;
-using Core.Serialization.Abstraction;
 
-namespace Core.Serialization.RocketLeague;
+using RlUpk.Core.Classes.Core;
+using RlUpk.Core.Classes.Core.Properties;
+using RlUpk.Core.Serialization.Abstraction;
+
+namespace RlUpk.Core.Serialization.RocketLeague;
 
 [FileVersion(RocketLeagueBase.FileVersion)]
 public class InterfacePropertySerializer : BaseObjectSerializer<UInterfaceProperty>

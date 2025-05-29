@@ -1,4 +1,4 @@
-﻿namespace Core.Types.PackageTables;
+﻿namespace RlUpk.Core.Types.PackageTables;
 
 /// <summary>
 ///     Common data for items in the import and export table

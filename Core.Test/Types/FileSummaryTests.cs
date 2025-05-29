@@ -1,11 +1,14 @@
-﻿using Core.Serialization;
-using Core.Serialization.RocketLeague;
-using Core.Test.TestUtilities;
-using Core.Types.FileSummeryInner;
-using FluentAssertions;
+﻿using FluentAssertions;
+
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Serialization.RocketLeague;
+using RlUpk.Core.Types;
+using RlUpk.Core.Types.FileSummeryInner;
+using RlUpk.TestUtils.TestUtilities;
+
 using Xunit;
 
-namespace Core.Types.Tests;
+namespace RlUpk.Core.Test.Types;
 
 public class FileSummaryTests
 {

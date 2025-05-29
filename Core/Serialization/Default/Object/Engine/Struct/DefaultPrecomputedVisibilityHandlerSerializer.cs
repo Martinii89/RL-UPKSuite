@@ -1,8 +1,10 @@
 ﻿using System.Diagnostics;
-using Core.Classes.Core.Structs;
-using Core.Classes.Engine;
 
-namespace Core.Serialization.Default.Object.Engine.Struct;
+using RlUpk.Core.Classes.Core.Structs;
+using RlUpk.Core.Classes.Engine;
+using RlUpk.Core.Serialization.Abstraction;
+
+namespace RlUpk.Core.Serialization.Default.Object.Engine.Struct;
 
 public class DefaultPrecomputedVisibilityHandlerSerializer : IStreamSerializer<FPrecomputedVisibilityHandler>
 {

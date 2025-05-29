@@ -1,12 +1,17 @@
-﻿using Core.Test.TestUtilities;
-using Core.Types;
-using Core.Types.PackageTables;
-using FluentAssertions;
+﻿using FluentAssertions;
+
 using NSubstitute;
+
+using RlUpk.Core.Classes;
+using RlUpk.Core.Types;
+using RlUpk.Core.Types.PackageTables;
+using RlUpk.Core.Utility;
+using RlUpk.TestUtils.TestUtilities;
+
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Core.Utility.Tests;
+namespace RlUpk.Core.Test.Utility;
 
 public class UdkPackages
 {

@@ -1,6 +1,7 @@
-﻿using Core.Types.FileSummeryInner;
+﻿using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Types.FileSummeryInner;
 
-namespace Core.Serialization.RocketLeague;
+namespace RlUpk.Core.Serialization.RocketLeague;
 
 /// <inheritdoc />
 [FileVersion(RocketLeagueBase.FileVersion)]

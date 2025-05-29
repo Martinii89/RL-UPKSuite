@@ -1,6 +1,6 @@
-﻿using Core.Types.PackageTables;
+﻿using RlUpk.Core.Types.PackageTables;
 
-namespace Core.Utility;
+namespace RlUpk.Core.Utility;
 
 internal readonly struct Edge
 {

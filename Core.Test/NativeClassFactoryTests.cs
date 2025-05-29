@@ -1,12 +1,15 @@
-﻿using Core.Classes;
-using Core.Classes.Core;
-using Core.Serialization.Abstraction;
-using Core.Types;
-using FluentAssertions;
+﻿using FluentAssertions;
+
 using NSubstitute;
+
+using RlUpk.Core.Classes;
+using RlUpk.Core.Classes.Core;
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Types;
+
 using Xunit;
 
-namespace Core.Tests;
+namespace RlUpk.Core.Test;
 
 public class NativeClassFactoryTests
 {

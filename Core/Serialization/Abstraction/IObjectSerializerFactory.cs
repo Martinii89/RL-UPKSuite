@@ -1,4 +1,4 @@
-﻿namespace Core.Serialization.Abstraction;
+﻿namespace RlUpk.Core.Serialization.Abstraction;
 
 /// <summary>
 ///     A IObjectSerializerFactory can return a ObjectSerializer for a given type

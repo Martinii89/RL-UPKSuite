@@ -1,5 +1,7 @@
 ﻿using CommandLine;
 
+namespace RlUpk.RLToUdkConverter;
+
 public class PackageConversionOptions
 {
     //[Option('f', "folder", Required = true, HelpText = "Path to the folder containing the packages")]

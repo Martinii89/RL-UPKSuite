@@ -1,7 +1,8 @@
-﻿using Core.Classes.Engine;
-using Core.Classes.Engine.Structs;
+﻿using RlUpk.Core.Classes.Engine;
+using RlUpk.Core.Classes.Engine.Structs;
+using RlUpk.Core.Serialization.Abstraction;
 
-namespace Core.Serialization.RocketLeague;
+namespace RlUpk.Core.Serialization.RocketLeague;
 
 [FileVersion(RocketLeagueBase.FileVersion)]
 public class ByteBulkDataSerializer : IStreamSerializer<FByteBulkData>

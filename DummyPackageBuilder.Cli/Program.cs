@@ -4,16 +4,17 @@ using System.Text.Json;
 
 using CommandLine;
 
-using Core;
-using Core.Serialization;
-using Core.Serialization.Abstraction;
-using Core.Serialization.RocketLeague;
-using Core.Types;
-using Core.Utility;
-
 using DummyPackageBuilderCli;
 
 using Microsoft.Extensions.DependencyInjection;
+
+using RlUpk.Core.Classes;
+using RlUpk.Core.Serialization;
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Serialization.Extensions;
+using RlUpk.Core.Serialization.RocketLeague;
+using RlUpk.Core.Types;
+using RlUpk.Core.Utility;
 
 // var rlServices = GetRLSerializerCollection();
 //
@@ -136,24 +137,27 @@ IServiceProvider GetRLSerializerCollection()
     return services;
 }
 
-public class PackageDefinition
+namespace DummyPackageBuilderCli
 {
-    public string PackageName { get; set; }
+    public class PackageDefinition
+    {
+        public string PackageName { get; set; }
 
-    public List<ObjectDefinition> PackageObjects { get; set; }
+        public List<ObjectDefinition> PackageObjects { get; set; }
+    }
+
+    public record ObjectDefinition(string ObjectFullName, string ClassFullName)
+    {
+        public string? GetGroup()
+        {
+            var groupSep = ObjectFullName.LastIndexOf('.');
+            return groupSep == -1 ? null : ObjectFullName[..groupSep];
+        }
+
+        public string GetObjectName()
+        {
+            var groupSep = ObjectFullName.LastIndexOf('.');
+            return ObjectFullName[(groupSep + 1)..];
+        }
+    };
 }
-
-public record ObjectDefinition(string ObjectFullName, string ClassFullName)
-{
-    public string? GetGroup()
-    {
-        var groupSep = ObjectFullName.LastIndexOf('.');
-        return groupSep == -1 ? null : ObjectFullName[..groupSep];
-    }
-
-    public string GetObjectName()
-    {
-        var groupSep = ObjectFullName.LastIndexOf('.');
-        return ObjectFullName[(groupSep + 1)..];
-    }
-};

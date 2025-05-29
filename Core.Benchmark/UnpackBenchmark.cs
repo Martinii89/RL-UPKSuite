@@ -1,13 +1,13 @@
 ﻿using BenchmarkDotNet.Attributes;
 
-using Core.RocketLeague;
-using Core.RocketLeague.Decryption;
-using Core.Serialization;
-using Core.Serialization.RocketLeague;
-using Core.Test.TestUtilities;
-using Core.Types;
+using RlUpk.Core.RocketLeague;
+using RlUpk.Core.RocketLeague.Decryption;
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Serialization.RocketLeague;
+using RlUpk.Core.Types;
+using RlUpk.TestUtils.TestUtilities;
 
-namespace Core.Benchmark;
+namespace RlUpk.Core.Benchmark;
 
 
 // [ShortRunJob]

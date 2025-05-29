@@ -4,7 +4,7 @@ using System.Windows.Input;
 
 using Microsoft.Win32;
 
-namespace RLUpkSuite.UI.Controls;
+namespace RlUpk.RLUpkSuite.UI.Controls;
 
 public class FileDialogButton : Button
 {

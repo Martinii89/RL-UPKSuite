@@ -1,7 +1,7 @@
-﻿using Core.Classes.Core;
-using Core.Types;
+﻿using RlUpk.Core.Classes.Core;
+using RlUpk.Core.Types;
 
-namespace Core;
+namespace RlUpk.Core;
 
 public interface INativeClassFactory
 {

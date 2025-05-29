@@ -1,8 +1,8 @@
-﻿using Core.Classes;
-using Core.Classes.Core.Properties;
-using Core.Serialization.Abstraction;
+﻿using RlUpk.Core.Classes.Core;
+using RlUpk.Core.Classes.Core.Properties;
+using RlUpk.Core.Serialization.Abstraction;
 
-namespace Core.Serialization.Default.Properties;
+namespace RlUpk.Core.Serialization.Default.Properties;
 
 public class DefaultDelegatePropertySerializer : BaseObjectSerializer<UDelegateProperty>
 {

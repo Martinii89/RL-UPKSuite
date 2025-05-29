@@ -5,7 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 using MaterialDesignThemes.Wpf;
 
-namespace RLUpkSuite.Pages;
+namespace RlUpk.RLUpkSuite.Pages;
 
 public abstract partial class PageBase : ObservableObject
 {

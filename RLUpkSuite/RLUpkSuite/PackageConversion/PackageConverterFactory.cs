@@ -1,14 +1,14 @@
-﻿using Core;
-using Core.Classes.Compression;
-using Core.RocketLeague.Decryption;
-using Core.Serialization.Default;
-using Core.Utility;
+﻿using Microsoft.Extensions.Logging;
 
-using Microsoft.Extensions.Logging;
+using RlUpk.Core;
+using RlUpk.Core.Classes;
+using RlUpk.Core.Classes.Compression;
+using RlUpk.Core.RocketLeague.Decryption;
+using RlUpk.Core.Serialization.Default;
+using RlUpk.Core.Utility;
+using RlUpk.RLUpkSuite.Config;
 
-using RLUpkSuite.Config;
-
-namespace RLUpkSuite.PackageConversion;
+namespace RlUpk.RLUpkSuite.PackageConversion;
 
 public class PackageConverterFactory
 {

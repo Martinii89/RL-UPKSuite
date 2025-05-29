@@ -3,21 +3,25 @@ using System.Diagnostics;
 using System.Runtime.InteropServices.ComTypes;
 
 using CommandLine;
-using Core;
-using Core.Classes.Compression;
-using Core.RocketLeague;
-using Core.RocketLeague.Decryption;
-using Core.Serialization;
-using Core.Serialization.Abstraction;
-using Core.Serialization.Default;
-using Core.Serialization.RocketLeague;
-using Core.Types;
-using Core.Utility;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileSystemGlobbing;
 
-using RLToUdkConverter;
-using ExportTableItemSerializer = Core.Serialization.Default.ExportTableItemSerializer;
+using RlUpk.Core;
+using RlUpk.Core.Classes;
+using RlUpk.Core.Classes.Compression;
+using RlUpk.Core.RocketLeague;
+using RlUpk.Core.RocketLeague.Decryption;
+using RlUpk.Core.Serialization;
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Serialization.Default;
+using RlUpk.Core.Serialization.Extensions;
+using RlUpk.Core.Serialization.RocketLeague;
+using RlUpk.Core.Types;
+using RlUpk.Core.Utility;
+using RlUpk.RLToUdkConverter;
+
+using ExportTableItemSerializer = RlUpk.Core.Serialization.Default.ExportTableItemSerializer;
 
 var parseResult = Parser.Default.ParseArguments<PackageConversionOptions>(args);
 await parseResult.WithParsedAsync(BatchProcess);

@@ -1,12 +1,11 @@
-﻿using System.Buffers;
-using System.Buffers.Binary;
+﻿using System.Buffers.Binary;
 using System.IO.Pipelines;
 
 using BenchmarkDotNet.Attributes;
 
 using Syroot.BinaryData;
 
-namespace Core.Benchmark;
+namespace RlUpk.Core.Benchmark;
 
 public class IOBenchmark
 {

@@ -1,16 +1,20 @@
-﻿using Core.Classes;
-using Core.Classes.Core;
-using Core.Serialization.Abstraction;
-using Core.Serialization.Default;
-using Core.Serialization.Default.Object;
-using Core.Serialization.RocketLeague;
-using Core.Serialization.Tests.TestClasses;
-using Core.Types;
-using FluentAssertions;
+﻿using FluentAssertions;
+
 using Microsoft.Extensions.DependencyInjection;
+
+using RlUpk.Core.Classes.Core;
+using RlUpk.Core.Serialization;
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Serialization.Default;
+using RlUpk.Core.Serialization.Default.Object;
+using RlUpk.Core.Serialization.Extensions;
+using RlUpk.Core.Serialization.RocketLeague;
+using RlUpk.Core.Test.Serialization.TestClasses;
+using RlUpk.Core.Types;
+
 using Xunit;
 
-namespace Core.Serialization.DependencyInjection.Tests;
+namespace RlUpk.Core.Test.Serialization.DependencyInjection;
 
 public class SerializerExtensionsTests
 {

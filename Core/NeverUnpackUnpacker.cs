@@ -1,4 +1,4 @@
-﻿namespace Core;
+﻿namespace RlUpk.Core;
 
 /// <summary>
 ///     Default implementation for when you know the package never requires unpacking

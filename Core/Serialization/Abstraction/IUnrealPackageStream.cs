@@ -1,8 +1,8 @@
-﻿using Core.Classes.Core;
-using Core.Classes.Core.Structs;
-using Core.Types;
+﻿using RlUpk.Core.Classes.Core;
+using RlUpk.Core.Classes.Core.Structs;
+using RlUpk.Core.Types;
 
-namespace Core.Serialization.Abstraction;
+namespace RlUpk.Core.Serialization.Abstraction;
 
 public interface IUnrealPackageStream
 {

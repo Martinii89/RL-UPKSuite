@@ -1,9 +1,9 @@
-﻿using Core.Classes.Core.Properties;
-using Core.Classes.Engine;
-using Core.Flags;
-using Core.Types;
+﻿using RlUpk.Core.Classes.Core.Properties;
+using RlUpk.Core.Classes.Engine;
+using RlUpk.Core.Flags;
+using RlUpk.Core.Types;
 
-namespace Core.Utility.Export;
+namespace RlUpk.Core.Utility.Export;
 
 /// <summary>
 ///     Utility class for modifying and fixing up cooked materials before export

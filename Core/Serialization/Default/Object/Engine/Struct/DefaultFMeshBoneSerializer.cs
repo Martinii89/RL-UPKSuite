@@ -1,8 +1,9 @@
-﻿using Core.Classes.Core.Structs;
-using Core.Classes.Engine.Structs;
-using Core.Types;
+﻿using RlUpk.Core.Classes.Core.Structs;
+using RlUpk.Core.Classes.Engine.Structs;
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Types;
 
-namespace Core.Serialization.Default.Object.Engine.Struct;
+namespace RlUpk.Core.Serialization.Default.Object.Engine.Struct;
 
 public class DefaultFMeshBoneSerializer : IStreamSerializer<FMeshBone>
 {

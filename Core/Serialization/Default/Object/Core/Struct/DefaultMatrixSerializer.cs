@@ -1,6 +1,7 @@
-﻿using Core.Classes.Core.Structs;
+﻿using RlUpk.Core.Classes.Core.Structs;
+using RlUpk.Core.Serialization.Abstraction;
 
-namespace Core.Serialization.Default.Object.Core.Struct;
+namespace RlUpk.Core.Serialization.Default.Object.Core.Struct;
 
 public class DefaultMatrixSerializer : IStreamSerializer<FMatrix>
 {

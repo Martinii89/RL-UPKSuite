@@ -1,12 +1,20 @@
-﻿using Core.Serialization.RocketLeague;
-using Core.Types;
-using Core.Utility;
-using FluentAssertions;
+﻿using FluentAssertions;
+
 using Microsoft.Extensions.DependencyInjection;
+
 using NSubstitute;
+
+using RlUpk.Core.Classes;
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Serialization.Default;
+using RlUpk.Core.Serialization.Extensions;
+using RlUpk.Core.Serialization.RocketLeague;
+using RlUpk.Core.Types;
+using RlUpk.Core.Utility;
+
 using Xunit;
 
-namespace Core.Serialization.Default.Tests;
+namespace RlUpk.Core.Test.Serialization.Default;
 
 public class UnrealPackageSerializerTests
 {

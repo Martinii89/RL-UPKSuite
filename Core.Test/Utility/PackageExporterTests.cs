@@ -1,19 +1,25 @@
-﻿using Core.RocketLeague;
-using Core.RocketLeague.Decryption;
-using Core.Serialization;
-using Core.Serialization.Abstraction;
-using Core.Serialization.RocketLeague;
-using Core.Test.TestUtilities;
-using Core.Tests;
-using Core.Types;
-using Core.Types.PackageTables;
-using Core.Utility.Export;
-using FluentAssertions;
+﻿using FluentAssertions;
+
 using NSubstitute;
+
+using RlUpk.Core.Classes;
+using RlUpk.Core.RocketLeague;
+using RlUpk.Core.RocketLeague.Decryption;
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Serialization.Extensions;
+using RlUpk.Core.Serialization.RocketLeague;
+using RlUpk.Core.Types;
+using RlUpk.Core.Types.PackageTables;
+using RlUpk.Core.Utility;
+using RlUpk.Core.Utility.Export;
+using RlUpk.TestUtils;
+using RlUpk.TestUtils.TestUtilities;
+
 using Syroot.BinaryData;
+
 using Xunit;
 
-namespace Core.Utility.Tests;
+namespace RlUpk.Core.Test.Utility;
 
 public class PackageExporterTests
 {

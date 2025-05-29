@@ -1,10 +1,14 @@
 ﻿using System.Text;
-using Core.Serialization.Extensions;
+
 using FluentAssertions;
+
+using RlUpk.Core.Serialization.Extensions;
+
 using Syroot.BinaryData;
+
 using Xunit;
 
-namespace Core.UnrealStream.Tests;
+namespace RlUpk.Core.Test.StreamExtensions;
 
 public class StreamExtensionsTests
 {

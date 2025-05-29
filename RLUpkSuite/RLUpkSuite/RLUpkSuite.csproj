@@ -4,7 +4,7 @@
         <OutputType>WinExe</OutputType>
         <TargetFramework>net9.0-windows</TargetFramework>
         <UseWPF>true</UseWPF>
-        <StartupObject>RLUpkSuite.App</StartupObject>
+        <StartupObject>RlUpk.RLUpkSuite.App</StartupObject>
         <ApplicationIcon>Resources\AppIcon.ico</ApplicationIcon>
         <ApplicationManifest>app.manifest</ApplicationManifest>
     </PropertyGroup>

@@ -1,8 +1,7 @@
-﻿using Core.Classes.Core;
-using Core.Flags;
-using Core.Types;
+﻿using RlUpk.Core.Flags;
+using RlUpk.Core.Types;
 
-namespace Core.Classes;
+namespace RlUpk.Core.Classes.Core;
 
 /// <summary>
 ///     A Unreal script function

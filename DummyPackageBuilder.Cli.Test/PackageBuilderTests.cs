@@ -1,13 +1,13 @@
-﻿using Core;
-using Core.Serialization;
-using Core.Serialization.Abstraction;
-using Core.Test.TestUtilities;
-using Core.Types;
-using Core.Types.PackageTables;
-using Core.Utility;
-using Core.Utility.Export;
+﻿using FluentAssertions;
 
-using FluentAssertions;
+using RlUpk.Core;
+using RlUpk.Core.Classes;
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Types;
+using RlUpk.Core.Types.PackageTables;
+using RlUpk.Core.Utility;
+using RlUpk.Core.Utility.Export;
+using RlUpk.TestUtils.TestUtilities;
 
 namespace DummyPackageBuilder.Test;
 

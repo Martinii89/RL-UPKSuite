@@ -1,7 +1,8 @@
 ﻿using System.Diagnostics;
-using Core.Classes.Core;
 
-namespace Core.Serialization.Abstraction;
+using RlUpk.Core.Classes.Core;
+
+namespace RlUpk.Core.Serialization.Abstraction;
 
 /// <summary>
 ///     A IObjectSerializer reads and writes the serial data of an object

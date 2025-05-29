@@ -1,11 +1,13 @@
 ﻿using System.Reflection;
-using Core.Serialization;
-using Core.Serialization.Abstraction;
+
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+
+using RlUpk.Core.Serialization.Abstraction;
 
 
 // MS recommends placing extensions methods into this namespace: Source https://docs.microsoft.com/en-us/dotnet/core/extensions/dependency-injection-usage
-namespace Microsoft.Extensions.DependencyInjection;
+namespace RlUpk.Core.Serialization.Extensions;
 
 /// <summary>
 ///     Options object for SerializerExtensions.UseSerializers where you can defined the serializer.

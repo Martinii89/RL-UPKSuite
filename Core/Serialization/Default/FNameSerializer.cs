@@ -1,6 +1,7 @@
-﻿using Core.Types;
+﻿using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Types;
 
-namespace Core.Serialization.Default;
+namespace RlUpk.Core.Serialization.Default;
 
 /// <summary>
 ///     Serializer for FNames

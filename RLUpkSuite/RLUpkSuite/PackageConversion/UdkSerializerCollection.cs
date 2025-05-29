@@ -1,10 +1,11 @@
-﻿using Core.Serialization;
-using Core.Serialization.Abstraction;
-using Core.Types;
+﻿using Microsoft.Extensions.DependencyInjection;
 
-using Microsoft.Extensions.DependencyInjection;
+using RlUpk.Core.Serialization;
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Serialization.Extensions;
+using RlUpk.Core.Types;
 
-namespace RLUpkSuite.PackageConversion;
+namespace RlUpk.RLUpkSuite.PackageConversion;
 
 public class UdkSerializerCollection
 {

@@ -1,7 +1,7 @@
-﻿using Core.Serialization.Abstraction;
-using Core.Types;
+﻿using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Types;
 
-namespace Core.Classes.Core.Properties;
+namespace RlUpk.Core.Classes.Core.Properties;
 
 /// <summary>
 ///     A property for a FName value

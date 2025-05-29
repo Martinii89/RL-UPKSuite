@@ -1,10 +1,10 @@
 ﻿using System.Reflection;
-using Core.Classes;
-using Core.Classes.Core;
-using Core.Classes.Engine;
-using Core.Types;
 
-namespace Core;
+using RlUpk.Core.Classes.Core;
+using RlUpk.Core.Classes.Engine;
+using RlUpk.Core.Types;
+
+namespace RlUpk.Core.Classes;
 
 public class NativeClassFactory : INativeClassFactory
 {

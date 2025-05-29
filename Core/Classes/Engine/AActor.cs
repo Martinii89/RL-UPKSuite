@@ -1,7 +1,7 @@
-﻿using Core.Classes.Core;
-using Core.Types;
+﻿using RlUpk.Core.Classes.Core;
+using RlUpk.Core.Types;
 
-namespace Core.Classes.Engine;
+namespace RlUpk.Core.Classes.Engine;
 
 [NativeOnlyClass("Engine", "Actor", typeof(UObject))]
 public class AActor : UObject

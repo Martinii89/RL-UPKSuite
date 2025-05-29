@@ -1,6 +1,6 @@
-﻿using Core.Types.FileSummeryInner;
+﻿using RlUpk.Core.Types.FileSummeryInner;
 
-namespace Core.Types;
+namespace RlUpk.Core.Types;
 
 /// <summary>
 ///     A FileSummary represents the first part of a unreal package.

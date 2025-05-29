@@ -1,14 +1,18 @@
-﻿using Core.Classes;
-using Core.Classes.Core;
-using Core.Classes.Core.Properties;
-using Core.Serialization;
-using Core.Test.TestUtilities;
-using Core.Utility;
-using FluentAssertions;
+﻿using FluentAssertions;
+
 using NSubstitute;
+
+using RlUpk.Core.Classes;
+using RlUpk.Core.Classes.Core;
+using RlUpk.Core.Classes.Core.Properties;
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Types;
+using RlUpk.Core.Utility;
+using RlUpk.TestUtils.TestUtilities;
+
 using Xunit;
 
-namespace Core.Types.Tests;
+namespace RlUpk.Core.Test.Types;
 
 public class ObjectFactoryTests : IClassFixture<PackageStreamFixture>
 {

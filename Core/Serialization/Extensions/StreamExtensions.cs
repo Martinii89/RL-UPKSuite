@@ -1,8 +1,9 @@
 ﻿using System.Text;
-using Core.Classes.Core.Structs;
-using Core.Types;
 
-namespace Core.Serialization.Extensions;
+using RlUpk.Core.Classes.Core.Structs;
+using RlUpk.Core.Types;
+
+namespace RlUpk.Core.Serialization.Extensions;
 
 /// <summary>
 ///     Extension methods for reading and writing strings from streams in the format of a FString

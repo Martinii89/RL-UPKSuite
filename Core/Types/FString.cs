@@ -1,4 +1,4 @@
-﻿namespace Core.Types;
+﻿namespace RlUpk.Core.Types;
 
 /// <summary>
 ///     Wrapper for strings stored in unreal packages.

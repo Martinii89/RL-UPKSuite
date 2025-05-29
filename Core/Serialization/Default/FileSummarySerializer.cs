@@ -1,8 +1,9 @@
-﻿using Core.Serialization.Extensions;
-using Core.Types;
-using Core.Types.FileSummeryInner;
+﻿using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Serialization.Extensions;
+using RlUpk.Core.Types;
+using RlUpk.Core.Types.FileSummeryInner;
 
-namespace Core.Serialization.Default;
+namespace RlUpk.Core.Serialization.Default;
 
 /// <summary>
 ///     Serializer for FileSummary

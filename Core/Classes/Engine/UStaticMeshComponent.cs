@@ -1,9 +1,9 @@
-﻿using Core.Classes.Core;
-using Core.Classes.Core.Structs;
-using Core.Classes.Engine.Structs;
-using Core.Types;
+﻿using RlUpk.Core.Classes.Core;
+using RlUpk.Core.Classes.Core.Structs;
+using RlUpk.Core.Classes.Engine.Structs;
+using RlUpk.Core.Types;
 
-namespace Core.Classes.Engine;
+namespace RlUpk.Core.Classes.Engine;
 
 [NativeOnlyClass("Engine", "StaticMeshComponent", typeof(UPrimitiveComponent))]
 public class UStaticMeshComponent : UPrimitiveComponent

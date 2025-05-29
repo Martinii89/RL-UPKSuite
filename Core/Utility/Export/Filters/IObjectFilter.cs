@@ -1,7 +1,7 @@
-﻿using Core.Types;
-using Core.Types.PackageTables;
+﻿using RlUpk.Core.Types;
+using RlUpk.Core.Types.PackageTables;
 
-namespace Core.Utility.Export.Filters;
+namespace RlUpk.Core.Utility.Export.Filters;
 
 /// <summary>
 ///     A IObjectFilter should have the responsibility of deciding if a object should be included in a package export or

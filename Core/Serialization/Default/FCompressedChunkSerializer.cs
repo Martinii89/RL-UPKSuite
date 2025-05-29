@@ -1,6 +1,7 @@
-﻿using Core.Types.FileSummeryInner;
+﻿using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Types.FileSummeryInner;
 
-namespace Core.Serialization.Default;
+namespace RlUpk.Core.Serialization.Default;
 
 /// <inheritdoc />
 public class FCompressedChunkSerializer : IStreamSerializer<FCompressedChunk>

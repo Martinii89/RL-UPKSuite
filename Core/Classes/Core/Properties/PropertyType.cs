@@ -1,4 +1,4 @@
-﻿namespace Core.Classes.Core.Properties;
+﻿namespace RlUpk.Core.Classes.Core.Properties;
 
 public enum PropertyType : byte
 {

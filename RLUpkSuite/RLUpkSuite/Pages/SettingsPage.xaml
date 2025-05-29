@@ -4,8 +4,8 @@
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
     xmlns:system="clr-namespace:System;assembly=System.Runtime"
-    xmlns:viewModels="clr-namespace:RLUpkSuite.ViewModels">
-    <DataTemplate DataType="{x:Type viewModels:SettingsPageViewModel}">
+    xmlns:viewModels1="clr-namespace:RlUpk.RLUpkSuite.ViewModels">
+    <DataTemplate DataType="{x:Type viewModels1:SettingsPageViewModel}">
         <DataTemplate.Resources>
             <ObjectDataProvider
                 x:Key="BaseThemeEnums"

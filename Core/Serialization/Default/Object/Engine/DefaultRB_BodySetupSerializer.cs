@@ -1,9 +1,10 @@
-﻿using Core.Classes.Core;
-using Core.Classes.Engine;
-using Core.Classes.Engine.Structs;
-using Core.Serialization.Abstraction;
+﻿using RlUpk.Core.Classes.Core;
+using RlUpk.Core.Classes.Engine;
+using RlUpk.Core.Classes.Engine.Structs;
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Serialization.Extensions;
 
-namespace Core.Serialization.Default.Object.Engine;
+namespace RlUpk.Core.Serialization.Default.Object.Engine;
 
 public class DefaultRB_BodySetupSerializer : BaseObjectSerializer<URB_BodySetup>
 {

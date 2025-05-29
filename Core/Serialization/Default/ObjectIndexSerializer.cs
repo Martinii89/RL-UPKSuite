@@ -1,6 +1,7 @@
-﻿using Core.Types.PackageTables;
+﻿using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Types.PackageTables;
 
-namespace Core.Serialization.Default;
+namespace RlUpk.Core.Serialization.Default;
 
 /// <summary>
 ///     Reads a object index as a int32 value

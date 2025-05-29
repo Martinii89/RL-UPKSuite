@@ -1,4 +1,4 @@
-﻿namespace Core.Tests;
+﻿namespace RlUpk.TestUtils;
 
 public static class TestConstants
 {

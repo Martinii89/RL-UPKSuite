@@ -1,6 +1,6 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:viewModels="clr-namespace:RLUpkSuite.ViewModels">
+                    xmlns:viewModels1="clr-namespace:RlUpk.RLUpkSuite.ViewModels">
   <ResourceDictionary.MergedDictionaries>
     <ResourceDictionary Source="DecryptionPage.xaml" />
     <ResourceDictionary Source="SettingsPage.xaml" />
@@ -20,7 +20,7 @@
     <Setter Property="SelectionUnit" Value="FullRow" />
   </Style>
 
-  <DataTemplate DataType="{x:Type viewModels:FileReferenceCollection}">
+  <DataTemplate DataType="{x:Type viewModels1:FileReferenceCollection}">
     <DataGrid x:Name="FileGrid"
               Margin="0,0,0,8"
               ItemsSource="{Binding}"

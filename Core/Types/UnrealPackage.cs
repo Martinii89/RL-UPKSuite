@@ -1,14 +1,14 @@
 ﻿using System.Diagnostics;
 using System.Text;
-using Core.Classes;
-using Core.Classes.Core;
-using Core.Serialization;
-using Core.Serialization.Abstraction;
-using Core.Serialization.Default;
-using Core.Types.PackageTables;
-using Core.Utility;
 
-namespace Core.Types;
+using RlUpk.Core.Classes.Core;
+using RlUpk.Core.Serialization;
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Serialization.Default;
+using RlUpk.Core.Types.PackageTables;
+using RlUpk.Core.Utility;
+
+namespace RlUpk.Core.Types;
 
 public class UnrealPackageOptions
 {

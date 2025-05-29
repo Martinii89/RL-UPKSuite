@@ -3,15 +3,17 @@ using System.Diagnostics;
 using System.IO.Compression;
 using System.Security.Cryptography;
 
-using Core.Flags;
-using Core.RocketLeague.Decryption;
-using Core.Serialization;
-using Core.Serialization.Default;
-using Core.Types;
-using Core.Types.FileSummeryInner;
-using FCompressedChunkSerializer = Core.Serialization.RocketLeague.FCompressedChunkSerializer;
+using RlUpk.Core.Flags;
+using RlUpk.Core.RocketLeague.Decryption;
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Serialization.Default;
+using RlUpk.Core.Serialization.Extensions;
+using RlUpk.Core.Types;
+using RlUpk.Core.Types.FileSummeryInner;
 
-namespace Core.RocketLeague;
+using FCompressedChunkSerializer = RlUpk.Core.Serialization.RocketLeague.FCompressedChunkSerializer;
+
+namespace RlUpk.Core.RocketLeague;
 
 /// <summary>
 ///     Unpacks a Rocket League encrypted and compressed UnrealPackage.

@@ -1,11 +1,13 @@
-﻿using Core.Serialization;
-using Core.Serialization.RocketLeague;
-using Core.Test.TestUtilities;
-using Core.Types;
-using FluentAssertions;
+﻿using FluentAssertions;
+
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Serialization.RocketLeague;
+using RlUpk.Core.Types;
+using RlUpk.TestUtils.TestUtilities;
+
 using Xunit;
 
-namespace Core.Tests;
+namespace RlUpk.Core.Test;
 
 public class VersionDetectorTests
 {

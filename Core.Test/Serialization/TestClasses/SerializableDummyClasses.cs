@@ -1,4 +1,4 @@
-﻿namespace Core.Serialization.Tests.TestClasses;
+﻿namespace RlUpk.Core.Test.Serialization.TestClasses;
 
 public class MySerializableTest
 {

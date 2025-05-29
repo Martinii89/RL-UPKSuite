@@ -1,4 +1,4 @@
-﻿namespace Core.Flags;
+﻿namespace RlUpk.Core.Flags;
 
 /// <summary>
 ///     Flags describing an function instance.

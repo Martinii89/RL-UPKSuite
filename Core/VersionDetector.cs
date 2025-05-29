@@ -1,6 +1,6 @@
-﻿using Core.Serialization.RocketLeague;
+﻿using RlUpk.Core.Serialization.RocketLeague;
 
-namespace Core;
+namespace RlUpk.Core;
 
 /// <summary>
 ///     Helper class to detect the build of a package

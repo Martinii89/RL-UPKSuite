@@ -1,4 +1,4 @@
-﻿namespace Core.Types.FileSummeryInner;
+﻿namespace RlUpk.Core.Types.FileSummeryInner;
 
 /// <summary>
 ///     Flag used in <see cref="FileSummary.CompressionFlags" /> to indicate the compression of a package

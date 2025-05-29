@@ -1,4 +1,4 @@
-﻿namespace Core.Types.PackageTables;
+﻿namespace RlUpk.Core.Types.PackageTables;
 
 /// <summary>
 ///     A Thumbnail table contains metadata about all the allocated textures in a package. This will not be present in a

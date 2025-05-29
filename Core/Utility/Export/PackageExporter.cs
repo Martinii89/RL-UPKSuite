@@ -1,14 +1,13 @@
-﻿using Core.Classes;
-using Core.Classes.Core;
-using Core.Classes.Engine;
-using Core.Flags;
-using Core.Serialization;
-using Core.Serialization.Abstraction;
-using Core.Types;
-using Core.Types.PackageTables;
-using Core.Utility.Export.Filters;
+﻿using RlUpk.Core.Classes.Core;
+using RlUpk.Core.Classes.Engine;
+using RlUpk.Core.Flags;
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Serialization.Extensions;
+using RlUpk.Core.Types;
+using RlUpk.Core.Types.PackageTables;
+using RlUpk.Core.Utility.Export.Filters;
 
-namespace Core.Utility.Export;
+namespace RlUpk.Core.Utility.Export;
 
 public class PackageExporter
 {

@@ -1,6 +1,6 @@
-﻿using Core.Classes.Engine;
+﻿using RlUpk.Core.Classes.Engine;
 
-namespace Core.Utility.Export;
+namespace RlUpk.Core.Utility.Export;
 
 public class Texture2DExportUtils
 {

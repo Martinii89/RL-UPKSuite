@@ -1,6 +1,6 @@
-﻿using Core.Serialization.Abstraction;
+﻿using RlUpk.Core.Serialization.Abstraction;
 
-namespace Core.Serialization;
+namespace RlUpk.Core.Serialization;
 
 /// <summary>
 ///     Basic implementation of a IObjectSerializerFactory

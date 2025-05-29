@@ -1,8 +1,8 @@
-﻿using Core.Classes.Core;
-using Core.Classes.Core.Structs;
-using Core.Types;
+﻿using RlUpk.Core.Classes.Core;
+using RlUpk.Core.Classes.Core.Structs;
+using RlUpk.Core.Types;
 
-namespace Core.Classes.Engine;
+namespace RlUpk.Core.Classes.Engine;
 
 [NativeOnlyClass("Engine", "StaticLightCollectionActor", typeof(ALight))]
 public class AStaticLightCollectionActor : ALight

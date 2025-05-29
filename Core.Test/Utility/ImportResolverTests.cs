@@ -1,10 +1,14 @@
-﻿using Core.Serialization;
-using Core.Test.TestUtilities;
-using Core.Types;
-using FluentAssertions;
+﻿using FluentAssertions;
+
+using RlUpk.Core.Classes;
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Types;
+using RlUpk.Core.Utility;
+using RlUpk.TestUtils.TestUtilities;
+
 using Xunit;
 
-namespace Core.Utility.Tests;
+namespace RlUpk.Core.Test.Utility;
 
 public class ImportResolverTests : SerializerHelper
 {

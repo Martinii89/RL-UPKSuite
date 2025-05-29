@@ -1,6 +1,8 @@
 ﻿using System.Reflection;
 
-namespace Core.Serialization;
+using RlUpk.Core.Serialization.Abstraction;
+
+namespace RlUpk.Core.Serialization;
 
 // https://stackoverflow.com/a/29379834/3079571
 internal static class TypeLoaderExtensions

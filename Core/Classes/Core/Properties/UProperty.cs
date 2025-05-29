@@ -1,8 +1,8 @@
-﻿using Core.Flags;
-using Core.Serialization.Abstraction;
-using Core.Types;
+﻿using RlUpk.Core.Flags;
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Types;
 
-namespace Core.Classes.Core.Properties;
+namespace RlUpk.Core.Classes.Core.Properties;
 
 /// <summary>
 ///     The base class of all unreal script object properties

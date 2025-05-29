@@ -1,11 +1,12 @@
 ﻿using System.Runtime.CompilerServices;
-using Core.Classes.Core;
-using Core.Classes.Core.Properties;
-using Core.Classes.Core.Structs;
-using Core.Classes.Engine.Structs;
-using Core.Types;
 
-namespace Core.Classes.Engine;
+using RlUpk.Core.Classes.Core;
+using RlUpk.Core.Classes.Core.Properties;
+using RlUpk.Core.Classes.Core.Structs;
+using RlUpk.Core.Classes.Engine.Structs;
+using RlUpk.Core.Types;
+
+namespace RlUpk.Core.Classes.Engine;
 
 [AttributeUsage(AttributeTargets.Property)]
 public class NativeProperty : Attribute

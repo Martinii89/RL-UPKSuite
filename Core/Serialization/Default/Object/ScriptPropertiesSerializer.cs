@@ -1,10 +1,10 @@
 ﻿using System.Diagnostics;
-using Core.Classes;
-using Core.Classes.Core;
-using Core.Classes.Core.Properties;
-using Core.Serialization.Abstraction;
 
-namespace Core.Serialization.Default.Object;
+using RlUpk.Core.Classes.Core;
+using RlUpk.Core.Classes.Core.Properties;
+using RlUpk.Core.Serialization.Abstraction;
+
+namespace RlUpk.Core.Serialization.Default.Object;
 
 public class ScriptPropertiesSerializer
 {

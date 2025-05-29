@@ -1,20 +1,18 @@
-﻿using System.IO.MemoryMappedFiles;
-
-using Core.RocketLeague;
-using Core.RocketLeague.Decryption;
-using Core.Serialization;
-using Core.Serialization.RocketLeague;
-using Core.Test.TestUtilities;
-using Core.Types;
-using Core.Types.FileSummeryInner;
-
-using FluentAssertions;
+﻿using FluentAssertions;
 
 using NSubstitute;
 
+using RlUpk.Core.RocketLeague;
+using RlUpk.Core.RocketLeague.Decryption;
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Serialization.RocketLeague;
+using RlUpk.Core.Types;
+using RlUpk.Core.Types.FileSummeryInner;
+using RlUpk.TestUtils.TestUtilities;
+
 using Xunit;
 
-namespace Core.Test.RocketLeague;
+namespace RlUpk.Core.Test.RocketLeague;
 
 public class PackageUnpackerTestsV2
 {

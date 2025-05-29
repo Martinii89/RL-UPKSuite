@@ -1,7 +1,7 @@
-﻿using Core;
-using Core.Types;
-using Core.Types.PackageTables;
-using Core.Utility;
+﻿using RlUpk.Core.Classes;
+using RlUpk.Core.Types;
+using RlUpk.Core.Types.PackageTables;
+using RlUpk.Core.Utility;
 
 namespace DummyPackageBuilderCli
 {

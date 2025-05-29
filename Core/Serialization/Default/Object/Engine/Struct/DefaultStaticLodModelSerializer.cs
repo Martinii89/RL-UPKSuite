@@ -1,10 +1,11 @@
 ﻿using System.Diagnostics;
-using Core.Classes.Core.Structs;
-using Core.Classes.Engine.Structs;
-using Core.Serialization.Abstraction;
-using Core.Serialization.Extensions;
 
-namespace Core.Serialization.Default.Object.Engine.Struct;
+using RlUpk.Core.Classes.Core.Structs;
+using RlUpk.Core.Classes.Engine.Structs;
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Serialization.Extensions;
+
+namespace RlUpk.Core.Serialization.Default.Object.Engine.Struct;
 
 public class DefaultStaticLodModelSerializer : BaseObjectSerializer<FStaticLodModel>
 {

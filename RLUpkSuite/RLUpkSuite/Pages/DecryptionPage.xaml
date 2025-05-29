@@ -1,11 +1,11 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:controls="clr-namespace:RLUpkSuite.UI.Controls"
                     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
                     xmlns:system="clr-namespace:System;assembly=System.Runtime"
-                    xmlns:viewModels="clr-namespace:RLUpkSuite.ViewModels">
+                    xmlns:viewModels1="clr-namespace:RlUpk.RLUpkSuite.ViewModels"
+                    xmlns:controls="clr-namespace:RlUpk.RLUpkSuite.UI.Controls">
 
-  <DataTemplate DataType="{x:Type viewModels:DecryptorPageViewModel}">
+  <DataTemplate DataType="{x:Type viewModels1:DecryptorPageViewModel}">
     <Grid>
       <Grid.RowDefinitions>
         <RowDefinition Height="*" />

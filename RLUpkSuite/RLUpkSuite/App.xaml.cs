@@ -4,8 +4,6 @@ using System.Windows.Threading;
 
 using CommunityToolkit.Mvvm.Messaging;
 
-using Core.RocketLeague.Decryption;
-
 using MaterialDesignThemes.Wpf;
 
 using Microsoft.Extensions.Configuration;
@@ -13,17 +11,18 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 
-using RLUpkSuite.AppSettings;
-using RLUpkSuite.AppUpdates;
-using RLUpkSuite.Config;
-using RLUpkSuite.PackageConversion;
-using RLUpkSuite.Pages;
-using RLUpkSuite.ViewModels;
-using RLUpkSuite.Windows;
+using RlUpk.Core.RocketLeague.Decryption;
+using RlUpk.RLUpkSuite.AppSettings;
+using RlUpk.RLUpkSuite.AppUpdates;
+using RlUpk.RLUpkSuite.Config;
+using RlUpk.RLUpkSuite.PackageConversion;
+using RlUpk.RLUpkSuite.Pages;
+using RlUpk.RLUpkSuite.ViewModels;
+using RlUpk.RLUpkSuite.Windows;
 
-using PackageGeneratorPageViewModel = RLUpkSuite.PackageConversion.PackageGeneratorPageViewModel;
+using PackageGeneratorPageViewModel = RlUpk.RLUpkSuite.PackageConversion.PackageGeneratorPageViewModel;
 
-namespace RLUpkSuite;
+namespace RlUpk.RLUpkSuite;
 
 /// <summary>
 ///     Interaction logic for App.xaml

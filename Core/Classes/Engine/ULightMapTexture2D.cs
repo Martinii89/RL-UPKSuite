@@ -1,7 +1,7 @@
-﻿using Core.Classes.Core;
-using Core.Types;
+﻿using RlUpk.Core.Classes.Core;
+using RlUpk.Core.Types;
 
-namespace Core.Classes.Engine;
+namespace RlUpk.Core.Classes.Engine;
 
 [NativeOnlyClass("Engine", "LightMapTexture2D", typeof(UTexture2D))]
 public class ULightMapTexture2D : UTexture2D

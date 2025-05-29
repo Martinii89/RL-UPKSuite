@@ -7,11 +7,11 @@ using MaterialDesignColors;
 
 using MaterialDesignThemes.Wpf;
 
-using RLUpkSuite.Config;
-using RLUpkSuite.Pages;
-using RLUpkSuite.ViewModels;
+using RlUpk.RLUpkSuite.Config;
+using RlUpk.RLUpkSuite.Pages;
+using RlUpk.RLUpkSuite.ViewModels;
 
-namespace RLUpkSuite.Windows;
+namespace RlUpk.RLUpkSuite.Windows;
 
 /// <summary>
 ///     Interaction logic for MainWindow.xaml

@@ -3,7 +3,7 @@ using System.Windows.Controls;
 
 using Microsoft.Win32;
 
-namespace RLUpkSuite.UI.Controls;
+namespace RlUpk.RLUpkSuite.UI.Controls;
 
 public class FolderDialogButton : Button
 {

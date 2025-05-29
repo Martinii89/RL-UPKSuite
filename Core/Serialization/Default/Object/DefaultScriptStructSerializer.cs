@@ -1,9 +1,8 @@
-﻿using Core.Classes;
-using Core.Classes.Core;
-using Core.Classes.Core.Properties;
-using Core.Serialization.Abstraction;
+﻿using RlUpk.Core.Classes.Core;
+using RlUpk.Core.Classes.Core.Properties;
+using RlUpk.Core.Serialization.Abstraction;
 
-namespace Core.Serialization.Default.Object;
+namespace RlUpk.Core.Serialization.Default.Object;
 
 public class DefaultScriptStructSerializer : BaseObjectSerializer<UScriptStruct>
 {

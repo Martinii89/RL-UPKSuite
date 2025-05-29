@@ -1,4 +1,4 @@
-﻿namespace Core.Types.PackageTables;
+﻿namespace RlUpk.Core.Types.PackageTables;
 
 /// <summary>
 ///     References either a import or export object.

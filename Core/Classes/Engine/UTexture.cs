@@ -1,8 +1,8 @@
-﻿using Core.Classes.Core;
-using Core.Classes.Engine.Structs;
-using Core.Types;
+﻿using RlUpk.Core.Classes.Core;
+using RlUpk.Core.Classes.Engine.Structs;
+using RlUpk.Core.Types;
 
-namespace Core.Classes.Engine;
+namespace RlUpk.Core.Classes.Engine;
 
 [NativeOnlyClass("Engine", "Texture", typeof(USurface))]
 public class UTexture : USurface

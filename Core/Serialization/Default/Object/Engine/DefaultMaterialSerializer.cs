@@ -1,9 +1,10 @@
-﻿using Core.Classes.Core;
-using Core.Classes.Engine;
-using Core.Serialization.Abstraction;
-using Core.Types;
+﻿using RlUpk.Core.Classes.Core;
+using RlUpk.Core.Classes.Engine;
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Serialization.Extensions;
+using RlUpk.Core.Types;
 
-namespace Core.Serialization.Default.Object.Engine;
+namespace RlUpk.Core.Serialization.Default.Object.Engine;
 
 public class DefaultMaterialSerializer : BaseObjectSerializer<UMaterial>
 {

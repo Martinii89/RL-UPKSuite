@@ -1,17 +1,18 @@
-﻿using Core.Classes.Compression;
-using Core.RocketLeague;
-using Core.RocketLeague.Decryption;
-using Core.Serialization;
-using Core.Serialization.Abstraction;
-using Core.Serialization.Default;
-using Core.Serialization.RocketLeague;
-using Core.Types;
+﻿using Microsoft.Extensions.DependencyInjection;
 
-using Microsoft.Extensions.DependencyInjection;
+using RlUpk.Core.Classes.Compression;
+using RlUpk.Core.RocketLeague;
+using RlUpk.Core.RocketLeague.Decryption;
+using RlUpk.Core.Serialization;
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Serialization.Default;
+using RlUpk.Core.Serialization.Extensions;
+using RlUpk.Core.Serialization.RocketLeague;
+using RlUpk.Core.Types;
 
-using ExportTableItemSerializer = Core.Serialization.Default.ExportTableItemSerializer;
+using ExportTableItemSerializer = RlUpk.Core.Serialization.Default.ExportTableItemSerializer;
 
-namespace RLUpkSuite.PackageConversion;
+namespace RlUpk.RLUpkSuite.PackageConversion;
 
 public class RlSerializerCollection
 {

@@ -1,7 +1,6 @@
-﻿using Core.Classes.Core;
-using Core.Types;
+﻿using RlUpk.Core.Types;
 
-namespace Core.Classes;
+namespace RlUpk.Core.Classes.Core;
 
 /// <summary>
 ///     A text buffer object?

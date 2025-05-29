@@ -1,6 +1,6 @@
 ﻿using CommandLine;
 
-namespace Decryptor;
+namespace RlUpk.Decryptor;
 
 
 class BatchProcessOptions

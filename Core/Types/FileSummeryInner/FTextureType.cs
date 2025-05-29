@@ -1,4 +1,4 @@
-﻿namespace Core.Types.FileSummeryInner;
+﻿namespace RlUpk.Core.Types.FileSummeryInner;
 
 /// <summary>
 ///     A FTextureType contains metadata about a texture stored in a package.

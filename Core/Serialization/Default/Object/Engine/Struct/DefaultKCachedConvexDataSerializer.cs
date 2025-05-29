@@ -1,7 +1,8 @@
-﻿using Core.Classes.Engine.Structs;
-using Core.Serialization.Extensions;
+﻿using RlUpk.Core.Classes.Engine.Structs;
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Serialization.Extensions;
 
-namespace Core.Serialization.Default.Object.Engine.Struct;
+namespace RlUpk.Core.Serialization.Default.Object.Engine.Struct;
 
 public class DefaultKCachedConvexDataSerializer : IStreamSerializer<FKCachedConvexData>
 {

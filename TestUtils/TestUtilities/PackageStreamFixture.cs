@@ -1,4 +1,4 @@
-﻿namespace Core.Test.TestUtilities;
+﻿namespace RlUpk.TestUtils.TestUtilities;
 
 public class PackageStreamFixture
 {

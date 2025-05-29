@@ -1,7 +1,8 @@
-﻿using Core.Classes.Core;
-using Core.Serialization;
+﻿using RlUpk.Core.Classes.Core;
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Serialization.Extensions;
 
-namespace Core.Types.PackageTables;
+namespace RlUpk.Core.Types.PackageTables;
 
 /// <summary>
 ///     The Export table contains a <see cref="ExportTableItem" /> for every exported object in a package

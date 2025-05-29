@@ -1,4 +1,4 @@
-﻿namespace Core.Types.PackageTables;
+﻿namespace RlUpk.Core.Types.PackageTables;
 
 /// <summary>
 ///     A Depends table contains a array of ints for every exported item.

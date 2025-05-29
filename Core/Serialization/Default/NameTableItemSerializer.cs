@@ -1,7 +1,8 @@
-﻿using Core.Serialization.Extensions;
-using Core.Types.PackageTables;
+﻿using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Serialization.Extensions;
+using RlUpk.Core.Types.PackageTables;
 
-namespace Core.Serialization.Default;
+namespace RlUpk.Core.Serialization.Default;
 
 /// <summary>
 ///     Serializers for the items in the NameTable

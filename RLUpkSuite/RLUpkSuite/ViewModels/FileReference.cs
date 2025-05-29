@@ -3,7 +3,7 @@ using System.IO;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace RLUpkSuite.ViewModels;
+namespace RlUpk.RLUpkSuite.ViewModels;
 
 public partial class FileReference(string filePath) : ObservableObject
 {
@@ -17,7 +17,7 @@ public partial class FileReference(string filePath) : ObservableObject
     [ObservableProperty]
     private bool _processSuccess;
 
-    public string FileName => Path.GetFileName(FilePath);
+    public string FileName => Path.GetFileName((string?)FilePath);
 }
 
 public class FileReferenceCollection : ObservableCollection<FileReference>

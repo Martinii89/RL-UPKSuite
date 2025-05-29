@@ -1,8 +1,10 @@
-﻿using Core.Serialization;
-using Core.Serialization.Abstraction;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace Core.Test.TestUtilities;
+using RlUpk.Core.Serialization;
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Serialization.Extensions;
+
+namespace RlUpk.TestUtils.TestUtilities;
 
 public class SerializerHelper
 {

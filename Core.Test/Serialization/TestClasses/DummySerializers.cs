@@ -1,4 +1,7 @@
-﻿namespace Core.Serialization.Tests.TestClasses;
+﻿using RlUpk.Core.Serialization;
+using RlUpk.Core.Serialization.Abstraction;
+
+namespace RlUpk.Core.Test.Serialization.TestClasses;
 
 internal class MySerializeTestOnlyDefaultSerializer : IStreamSerializer<MySerializableTestOnlyDefault>
 {

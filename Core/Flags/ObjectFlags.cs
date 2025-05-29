@@ -1,4 +1,4 @@
-﻿namespace Core.Flags;
+﻿namespace RlUpk.Core.Flags;
 
 public enum ObjectFlagsLO : ulong // 32bit aligned, see ObjectFlags64
 {

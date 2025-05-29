@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace RLUpkSuite.Config;
+namespace RlUpk.RLUpkSuite.Config;
 
 public static class ConfigExtensions
 {

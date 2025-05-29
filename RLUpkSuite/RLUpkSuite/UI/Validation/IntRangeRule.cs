@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using System.Windows.Controls;
 
-namespace RLUpkSuite.UI.Validation;
+namespace RlUpk.RLUpkSuite.UI.Validation;
 
 public class IntRangeRule : ValidationRule
 {

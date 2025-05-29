@@ -1,4 +1,4 @@
-﻿namespace Core;
+﻿namespace RlUpk.Core;
 
 /// <summary>
 ///     Interface for classes able to unpack packages

@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace Core.Classes.Core.Structs;
+namespace RlUpk.Core.Classes.Core.Structs;
 
 [DebuggerDisplay("(Pitch:{Pitch}, Yaw:{Yaw}, Roll:{Roll})")]
 public class FRotator

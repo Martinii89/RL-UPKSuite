@@ -1,6 +1,6 @@
-﻿using Core.Classes.Core.Structs;
+﻿using RlUpk.Core.Classes.Core.Structs;
 
-namespace Core.Classes.Engine.Structs;
+namespace RlUpk.Core.Classes.Engine.Structs;
 
 public class FStaticMeshLODModel
 {

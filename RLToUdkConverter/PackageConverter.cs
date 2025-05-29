@@ -1,9 +1,7 @@
-﻿using Core;
-using Core.Classes.Compression;
+﻿using RlUpk.Core;
+using RlUpk.Core.Classes.Compression;
 
-using Microsoft.Extensions.FileSystemGlobbing;
-
-namespace RLToUdkConverter;
+namespace RlUpk.RLToUdkConverter;
 
 internal class PackageConverter(
     PackageConversionOptions options,

@@ -1,9 +1,9 @@
-﻿using Core.RocketLeague.Decryption;
-using Core.Serialization;
-using Core.Types;
-using Core.Types.FileSummeryInner;
+﻿using RlUpk.Core.RocketLeague.Decryption;
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Types;
+using RlUpk.Core.Types.FileSummeryInner;
 
-namespace Core.RocketLeague;
+namespace RlUpk.Core.RocketLeague;
 
 /// <summary>
 ///     Unpack compressed and encrypted RL packages

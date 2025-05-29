@@ -1,7 +1,4 @@
-using System;
-using System.IO;
-
-namespace UPKSuite.Core.IO
+namespace RlUpk.Core.IO
 {
     /// <summary>
     /// Provides a view over a portion of a stream with a specified length.

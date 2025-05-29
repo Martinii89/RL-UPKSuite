@@ -1,4 +1,4 @@
-﻿namespace Core.Classes.Engine.Structs;
+﻿namespace RlUpk.Core.Classes.Engine.Structs;
 
 public class FSkeletalMeshVertexInfluences
 {

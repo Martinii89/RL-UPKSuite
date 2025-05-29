@@ -1,6 +1,7 @@
-﻿using Core.Classes.Engine.Structs;
+﻿using RlUpk.Core.Classes.Engine.Structs;
+using RlUpk.Core.Serialization.Abstraction;
 
-namespace Core.Serialization.Default.Object.Engine.Struct;
+namespace RlUpk.Core.Serialization.Default.Object.Engine.Struct;
 
 public class MipSerializer : IStreamSerializer<Mip>
 {

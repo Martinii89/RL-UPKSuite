@@ -14,6 +14,8 @@ See: https://learn.microsoft.com/visualstudio/msbuild/customize-your-build
         <Nullable>enable</Nullable>
         <LangVersion>latest</LangVersion>
         <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
+        <ProjectName>RlUpk</ProjectName>
+        <RootNamespace>$(ProjectName).$([System.IO.Path]::GetFileNameWithoutExtension('$(MSBuildProjectFile)'))</RootNamespace>
         <NoWarn>1591</NoWarn>
     </PropertyGroup>
 

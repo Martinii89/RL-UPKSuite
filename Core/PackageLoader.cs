@@ -1,10 +1,9 @@
-﻿using Core.Serialization;
-using Core.Serialization.Abstraction;
-using Core.Types;
-using Core.Types.PackageTables;
-using Core.Utility;
+﻿using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Types;
+using RlUpk.Core.Types.PackageTables;
+using RlUpk.Core.Utility;
 
-namespace Core;
+namespace RlUpk.Core;
 
 /// <summary>
 ///     Use this instead of loading <see cref="UnrealPackage" /> directly. This can resolve cross package dependencies

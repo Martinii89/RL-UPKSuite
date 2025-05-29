@@ -1,4 +1,4 @@
-﻿namespace Core.Classes.Core.Structs;
+﻿namespace RlUpk.Core.Classes.Core.Structs;
 
 public class FVector2D
 {

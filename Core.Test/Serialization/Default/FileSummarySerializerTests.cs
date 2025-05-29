@@ -1,9 +1,12 @@
-﻿using Core.Types;
-using Core.Types.FileSummeryInner;
-using FluentAssertions;
+﻿using FluentAssertions;
+
+using RlUpk.Core.Serialization.Default;
+using RlUpk.Core.Types;
+using RlUpk.Core.Types.FileSummeryInner;
+
 using Xunit;
 
-namespace Core.Serialization.Default.Tests;
+namespace RlUpk.Core.Test.Serialization.Default;
 
 public class FileSummarySerializerTests
 {

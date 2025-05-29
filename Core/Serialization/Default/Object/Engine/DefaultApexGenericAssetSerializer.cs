@@ -1,8 +1,8 @@
-﻿using Core.Classes.Core;
-using Core.Classes.Engine;
-using Core.Serialization.Abstraction;
+﻿using RlUpk.Core.Classes.Core;
+using RlUpk.Core.Classes.Engine;
+using RlUpk.Core.Serialization.Abstraction;
 
-namespace Core.Serialization.Default.Object.Engine;
+namespace RlUpk.Core.Serialization.Default.Object.Engine;
 
 public class DefaultApexGenericAssetSerializer : BaseObjectSerializer<UApexGenericAsset>
 {

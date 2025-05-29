@@ -1,13 +1,14 @@
 ﻿using System.Buffers;
 using System.Diagnostics;
 using System.IO.Compression;
-using Core.Flags;
-using Core.Serialization;
-using Core.Types;
-using Core.Types.FileSummeryInner;
-using Core.Types.PackageTables;
 
-namespace Core.Classes.Compression;
+using RlUpk.Core.Flags;
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Types;
+using RlUpk.Core.Types.FileSummeryInner;
+using RlUpk.Core.Types.PackageTables;
+
+namespace RlUpk.Core.Classes.Compression;
 
 public class PackageCompressor
 {

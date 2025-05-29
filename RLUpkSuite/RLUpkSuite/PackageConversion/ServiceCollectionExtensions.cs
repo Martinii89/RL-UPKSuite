@@ -1,9 +1,9 @@
-﻿using Core.RocketLeague.Decryption;
-
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace RLUpkSuite.PackageConversion;
+using RlUpk.Core.RocketLeague.Decryption;
+
+namespace RlUpk.RLUpkSuite.PackageConversion;
 
 public static class ServiceCollectionExtensions
 {

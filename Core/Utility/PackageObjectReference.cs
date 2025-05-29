@@ -1,7 +1,7 @@
-﻿using Core.Classes.Core;
-using Core.Types.PackageTables;
+﻿using RlUpk.Core.Classes.Core;
+using RlUpk.Core.Types.PackageTables;
 
-namespace Core.Utility;
+namespace RlUpk.Core.Utility;
 
 /// <summary>
 ///     A PackageObjectReference points to a unique object in a package, or a native only class for self imported

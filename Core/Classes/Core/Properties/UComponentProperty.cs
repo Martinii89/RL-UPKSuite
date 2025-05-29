@@ -1,6 +1,6 @@
-﻿using Core.Types;
+﻿using RlUpk.Core.Types;
 
-namespace Core.Classes.Core.Properties;
+namespace RlUpk.Core.Classes.Core.Properties;
 
 /// <summary>
 ///     A Component property

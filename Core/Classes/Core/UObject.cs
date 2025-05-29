@@ -1,13 +1,14 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
-using Core.Classes.Core.Properties;
-using Core.Flags;
-using Core.Serialization.Abstraction;
-using Core.Types;
-using Core.Types.PackageTables;
 
-namespace Core.Classes.Core;
+using RlUpk.Core.Classes.Core.Properties;
+using RlUpk.Core.Flags;
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Types;
+using RlUpk.Core.Types.PackageTables;
+
+namespace RlUpk.Core.Classes.Core;
 
 /// <summary>
 ///     The base for all unreal engine objects

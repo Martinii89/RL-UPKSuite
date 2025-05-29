@@ -1,8 +1,11 @@
-﻿using Core.Serialization.Tests.TestClasses;
-using FluentAssertions;
+﻿using FluentAssertions;
+
+using RlUpk.Core.Serialization;
+using RlUpk.Core.Test.Serialization.TestClasses;
+
 using Xunit;
 
-namespace Core.Serialization.Tests;
+namespace RlUpk.Core.Test.Serialization;
 
 public class SerializerCollectionTests
 {

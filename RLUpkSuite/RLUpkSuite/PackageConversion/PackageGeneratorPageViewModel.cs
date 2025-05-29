@@ -8,11 +8,11 @@ using MaterialDesignThemes.Wpf;
 
 using Microsoft.Extensions.Logging;
 
-using RLUpkSuite.Config;
-using RLUpkSuite.Pages;
-using RLUpkSuite.ViewModels;
+using RlUpk.RLUpkSuite.Config;
+using RlUpk.RLUpkSuite.Pages;
+using RlUpk.RLUpkSuite.ViewModels;
 
-namespace RLUpkSuite.PackageConversion;
+namespace RlUpk.RLUpkSuite.PackageConversion;
 
 public partial class PackageGeneratorPageViewModel : PageBase
 {

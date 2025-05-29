@@ -1,9 +1,10 @@
-﻿using Core.Classes.Core;
-using Core.Serialization;
-using Core.Types;
-using Core.Types.PackageTables;
+﻿using RlUpk.Core.Classes.Core;
+using RlUpk.Core.Serialization;
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Types;
+using RlUpk.Core.Types.PackageTables;
 
-namespace Core.Utility.Export;
+namespace RlUpk.Core.Utility.Export;
 
 public class ExportUnrealPackageStream : UnrealPackageStream
 {

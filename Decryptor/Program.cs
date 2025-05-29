@@ -2,10 +2,11 @@
 
 using System.Diagnostics;
 using CommandLine;
-using Core.RocketLeague;
-using Core.RocketLeague.Decryption;
-using Core.Serialization.Default;
-using Decryptor;
+
+using RlUpk.Core.RocketLeague;
+using RlUpk.Core.RocketLeague.Decryption;
+using RlUpk.Core.Serialization.Default;
+using RlUpk.Decryptor;
 
 var parseResult = Parser.Default.ParseArguments<BatchProcessOptions>(args);
 parseResult.WithParsed(BatchProcess);

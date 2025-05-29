@@ -1,7 +1,8 @@
 ﻿using System.IO;
+
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace Decryptor.Wpf.MVVM.Model;
+namespace RlUpk.Decryptor.Wpf.MVVM.Model;
 
 /// <summary>
 /// Model used for the main window holding a reference to a file we want to unpack and the unpack result

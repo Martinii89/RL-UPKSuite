@@ -1,8 +1,8 @@
-﻿using Core.Classes.Core.Properties;
-using Core.Serialization.Abstraction;
-using Core.Types;
+﻿using RlUpk.Core.Classes.Core.Properties;
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Types;
 
-namespace Core.Classes.Core;
+namespace RlUpk.Core.Classes.Core;
 
 /// <summary>
 ///     The Unreal script class object. The type of every UObject is controlled by it's UClass member.

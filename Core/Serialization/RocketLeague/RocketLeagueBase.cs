@@ -1,4 +1,4 @@
-﻿namespace Core.Serialization.RocketLeague;
+﻿namespace RlUpk.Core.Serialization.RocketLeague;
 
 /// <summary>
 ///     Base for rocket league specific serializers. It's only purpose is to place the correct FileVersion attribute

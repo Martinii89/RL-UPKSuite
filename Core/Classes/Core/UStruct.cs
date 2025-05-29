@@ -1,9 +1,8 @@
-﻿using Core.Classes.Core;
-using Core.Classes.Core.Properties;
-using Core.Classes.Engine;
-using Core.Types;
+﻿using RlUpk.Core.Classes.Core.Properties;
+using RlUpk.Core.Classes.Engine;
+using RlUpk.Core.Types;
 
-namespace Core.Classes;
+namespace RlUpk.Core.Classes.Core;
 
 /// <summary>
 ///     Base type for all unreal script objects with fields

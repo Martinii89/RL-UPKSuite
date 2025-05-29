@@ -1,8 +1,9 @@
-﻿using Decryptor.Wpf.MVVM.ViewModel;
+﻿using RlUpk.Decryptor.Wpf.MVVM.ViewModel;
+
 using DataFormats = System.Windows.DataFormats;
 using DragEventArgs = System.Windows.DragEventArgs;
 
-namespace Decryptor.Wpf;
+namespace RlUpk.Decryptor.Wpf;
 
 
 public partial class MainWindow : Window

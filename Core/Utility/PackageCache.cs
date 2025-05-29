@@ -1,14 +1,13 @@
 ﻿using System.Collections.Concurrent;
 
-using Core.Serialization;
-using Core.Serialization.Abstraction;
-using Core.Types;
-
 using LazyCache;
 
 using Microsoft.Extensions.FileSystemGlobbing;
 
-namespace Core.Utility;
+using RlUpk.Core.Serialization.Abstraction;
+using RlUpk.Core.Types;
+
+namespace RlUpk.Core.Utility;
 
 /// <summary>
 ///     Configuration object for the <see cref="PackageCache" />

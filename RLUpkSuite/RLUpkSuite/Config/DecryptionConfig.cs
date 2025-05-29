@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Nodes;
 
-namespace RLUpkSuite.Config;
+namespace RlUpk.RLUpkSuite.Config;
 
 public class DecryptionConfig(CommonConfig commonConfig) : AppConfigBase
 {
