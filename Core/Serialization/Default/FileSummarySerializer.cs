@@ -45,7 +45,7 @@ public class FileSummarySerializer : IStreamSerializer<FileSummary>
             var streamPos = stream.Position;
             stream.Seek(0, SeekOrigin.Begin);
             var bytes = new byte[100];
-            stream.ReadExactly(bytes, 0, sizeof(uint));
+            stream.ReadExactly(bytes, 0, bytes.Length);
             throw new Exception($"Not a valid Unreal Engine package: {fileSummary.Tag} != {FileSummary.PackageFileTag}. Pos: {streamPos}, bytes: {string.Join(", ", bytes)}");
         }
 
