@@ -42,7 +42,11 @@ public class FileSummarySerializer : IStreamSerializer<FileSummary>
         fileSummary.Tag = stream.ReadUInt32();
         if (fileSummary.Tag != FileSummary.PackageFileTag)
         {
-            throw new Exception($"Not a valid Unreal Engine package: {fileSummary.Tag} != {FileSummary.PackageFileTag}");
+            var streamPos = stream.Position;
+            stream.Seek(0, SeekOrigin.Begin);
+            var bytes = new byte[sizeof(uint)];
+            stream.ReadExactly(bytes, 0, sizeof(uint));
+            throw new Exception($"Not a valid Unreal Engine package: {fileSummary.Tag} != {FileSummary.PackageFileTag}. Pos: {streamPos}, bytes: {string.Join(", ", bytes)}");
         }
 
         fileSummary.FileVersion = stream.ReadUInt16();
