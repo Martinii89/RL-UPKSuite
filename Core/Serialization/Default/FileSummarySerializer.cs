@@ -37,22 +37,18 @@ public class FileSummarySerializer : IStreamSerializer<FileSummary>
     /// <inheritdoc />
     public FileSummary Deserialize(Stream stream)
     {
-        using (stream.TemporarySeek(stream.Position, SeekOrigin.Begin))
-        {
-            var tag = stream.ReadUInt32();
-            if (tag != FileSummary.PackageFileTag)
-            {
-                throw new Exception("Not a valid Unreal Engine package");
-            }
-        }
-
-
         var fileSummary = new FileSummary();
         fileSummary.Tag = stream.ReadUInt32();
+        if (fileSummary.Tag != FileSummary.PackageFileTag)
+        {
+            throw new Exception("Not a valid Unreal Engine package");
+        }
+
         fileSummary.FileVersion = stream.ReadUInt16();
         fileSummary.LicenseeVersion = stream.ReadUInt16();
         fileSummary.TotalHeaderSize = stream.ReadInt32();
         fileSummary.FolderName = stream.ReadFString();
+        fileSummary.PackageFlagsFlagsOffset = (int) stream.Position;
         fileSummary.PackageFlags = stream.ReadUInt32();
         fileSummary.NameCount = stream.ReadInt32();
         fileSummary.NameOffset = stream.ReadInt32();

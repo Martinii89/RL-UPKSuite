@@ -115,6 +115,7 @@ public static class StreamExtensions
     {
         var res = new List<T>();
         var count = stream.ReadInt32();
+        res.EnsureCapacity(count);
         for (var i = 0; i < count; i++)
         {
             res.Add(readFunc(stream));

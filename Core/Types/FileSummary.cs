@@ -47,6 +47,8 @@ public class FileSummary
     ///     BitFlag defining some properties for this package. No clue what they actually mean in psyonix cooked packages.
     /// </summary>
     public uint PackageFlags { get; internal set; }
+    
+    public int PackageFlagsFlagsOffset { get; set; }
 
     /// <summary>
     ///     The number of names in the names table

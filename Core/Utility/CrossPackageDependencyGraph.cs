@@ -45,7 +45,7 @@ public class CrossPackageDependencyGraph
             return;
         }
 
-        _adj[node] = new HashSet<Edge>();
+        _adj[node] = [];
     }
 
     private static bool ImportIsNative(ImportTableItem importItem, UnrealPackage package)
@@ -67,17 +67,18 @@ public class CrossPackageDependencyGraph
 
         var objName = objPackage.GetName(import.ObjectName);
         var fullName = objPackage.GetFullName(import);
-        if (_fullNameToReferenceCache.ContainsKey(fullName))
+        if (_fullNameToReferenceCache.TryGetValue(fullName, out PackageObjectReference reference))
         {
             CacheHits++;
-            return _fullNameToReferenceCache[fullName];
+            return reference;
         }
 
         CacheMisses++;
 
-        for (var index = 0; index < importPackage.ExportTable.Count; index++)
+        ExportTable importPackageExportTable = importPackage.ExportTable;
+        for (var index = 0; index < importPackageExportTable.Count; index++)
         {
-            var exportTableItem = importPackage.ExportTable[index];
+            var exportTableItem = importPackageExportTable[index];
             if (importPackage.GetName(exportTableItem.ObjectName) != objName || importPackage.GetFullName(exportTableItem) != fullName)
             {
                 continue;
@@ -89,9 +90,10 @@ public class CrossPackageDependencyGraph
             return resolveImportObjectReference;
         }
 
-        for (var index = 0; index < importPackage.ImportTable.Count; index++)
+        ImportTable importPackageImportTable = importPackage.ImportTable;
+        for (var index = 0; index < importPackageImportTable.Count; index++)
         {
-            var x = importPackage.ImportTable[index];
+            var x = importPackageImportTable[index];
             if (importPackage.GetName(x.ObjectName) != objName || importPackage.GetFullName(x) != fullName)
             {
                 continue;
@@ -235,9 +237,10 @@ public class CrossPackageDependencyGraph
         }
 
 
-        for (var index = 0; index < importPackage.ExportTable.Count; index++)
+        ExportTable importPackageExportTable = importPackage.ExportTable;
+        for (var index = 0; index < importPackageExportTable.Count; index++)
         {
-            var exportTableItem = importPackage.ExportTable[index];
+            var exportTableItem = importPackageExportTable[index];
             if (exportTableItem.ClassIndex.Index != 0 || importPackage.GetName(exportTableItem.ObjectName) != className)
             {
                 continue;
@@ -326,7 +329,7 @@ public class CrossPackageDependencyGraph
     }
 
     // A recursive function used by topologicalSort
-    private void TopologicalSortUtil(PackageObjectReference v, ISet<PackageObjectReference> visited,
+    private void TopologicalSortUtil(PackageObjectReference v, HashSet<PackageObjectReference> visited,
         Stack<PackageObjectReference> stack)
     {
         // Mark the current node as visited.
@@ -430,15 +433,8 @@ public class CrossPackageDependencyGraph
             throw new ArgumentException("Can't create a edge between the same two nodes");
         }
 
-        if (!_adj.ContainsKey(from))
-        {
-            AddNode(from);
-        }
-
-        if (!_adj.ContainsKey(to))
-        {
-            AddNode(to);
-        }
+        AddNode(from);
+        AddNode(to);
 
         _adj[from].Add(new Edge(to));
     }
@@ -454,14 +450,9 @@ public class CrossPackageDependencyGraph
         return _adj[node].Select(x => x.Dest).ToList();
     }
 
-    internal readonly struct Edge : IEquatable<Edge>
+    internal readonly struct Edge(PackageObjectReference dest) : IEquatable<Edge>
     {
-        public readonly PackageObjectReference Dest;
-
-        public Edge(PackageObjectReference dest)
-        {
-            Dest = dest;
-        }
+        public readonly PackageObjectReference Dest = dest;
 
         public bool Equals(Edge other)
         {

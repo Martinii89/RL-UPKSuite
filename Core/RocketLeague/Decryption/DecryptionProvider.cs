@@ -28,6 +28,8 @@ public interface IDecrypterProvider
     /// </summary>
     /// <param name="keysPath"></param>
     void UseKeyFile(string keysPath);
+
+    (ICryptoTransform transform, Aes aes) GetAes(byte[] key);
 }
 
 /// <summary>
@@ -44,8 +46,9 @@ public class DecryptionProvider : IDecrypterProvider
         0x93, 0xE2, 0xF2, 0x4E, 0x6B, 0x17, 0xE7, 0x79
     };
 
-    private readonly ConcurrentDictionary<byte[], ICryptoTransform> _decryptorCache =
+    private readonly ConcurrentDictionary<byte[], (ICryptoTransform transform, Aes aes)> _decryptorCache =
         new(new ByteArrayEqualityComparer());
+    
 
     /// <summary>
     /// Constructs the decryption provider. Using only the default decryption key
@@ -96,19 +99,23 @@ public class DecryptionProvider : IDecrypterProvider
     /// <returns></returns>
     public ICryptoTransform GetCryptoTransform(byte[] key)
     {
-        if (_decryptorCache.TryGetValue(key, out var cacheTransform)) return cacheTransform;
+        return GetAes(key).transform;
+    }
 
+    private static (ICryptoTransform transform, Aes aes) Create(byte[] key)
+    {
         var decryptor = Aes.Create();
-        // var decryptor = Aes.Create("AesManaged");
-        Debug.Assert(decryptor != null, nameof(decryptor) + " != null");
         decryptor.KeySize = 256;
         decryptor.Key = key;
         decryptor.Mode = CipherMode.ECB;
         decryptor.Padding = PaddingMode.None;
-
-        var cryptoTransform = decryptor.CreateDecryptor();
-        _decryptorCache.TryAdd(key, cryptoTransform);
-        return cryptoTransform;
+        return (decryptor.CreateDecryptor(), decryptor);
+    }
+    
+    public (ICryptoTransform transform, Aes aes) GetAes(byte[] key)
+    {
+        var result = _decryptorCache.GetOrAdd(key, Create);
+        return result;
     }
 
 

@@ -1,4 +1,7 @@
-﻿namespace Core.RocketLeague;
+﻿using Core.Classes.Core.Structs;
+using Core.Types.FileSummeryInner;
+
+namespace Core.RocketLeague;
 
 /// <summary>
 ///     Compression data about where to find the compressed chunks in the compressed rocket league package
@@ -8,7 +11,9 @@ internal class FileCompressionMetaData
     // Number of bytes of (pos % 0xFF) at the end of the decrypted data, I don't know why it's needed
     internal int GarbageSize { get; set; }
 
-    // Offset to TArray<FCompressedChunk> in decrypted data
+    /// <summary>
+    /// Offset to a list of <see cref="FCompressedChunk"/>s in decrypted data
+    /// </summary>
     internal int CompressedChunksffset { get; set; }
 
     // Size of the last AES block in the encrypted data

@@ -113,6 +113,16 @@ public readonly struct ObjectIndex : IEquatable<ObjectIndex>
     /// <inheritdoc />
     public override int GetHashCode()
     {
-        return Index;
+        return Index.GetHashCode();
+    }
+
+    public static bool operator ==(ObjectIndex left, ObjectIndex right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(ObjectIndex left, ObjectIndex right)
+    {
+        return !(left == right);
     }
 }

@@ -2,6 +2,8 @@
 using System.Diagnostics;
 using System.IO.Compression;
 using System.Security.Cryptography;
+
+using Core.Flags;
 using Core.RocketLeague.Decryption;
 using Core.Serialization;
 using Core.Serialization.Default;
@@ -90,6 +92,8 @@ public class RLPackageUnpacker
         // var uncompressOutputStream = new MemoryStream(uncompressedDataBuffer);
 
         var firstUncompressedOffset = FileSummary.CompressedChunks.First().UncompressedOffset;
+        var finalSize = FileSummary.CompressedChunks.Last().UncompressedOffset + FileSummary.CompressedChunks.Last().UncompressedSize;
+        outputStream.SetLength(finalSize);
         outputStream.Position = firstUncompressedOffset;
 
         var uncompressProgress = 0L;
@@ -109,19 +113,18 @@ public class RLPackageUnpacker
                 sumUncompressedSize += block.UncompressedSize;
             }
 
+            var largestBlock = blocks.Max(x => x.CompressedSize);
+            var buffer = ArrayPool<byte>.Shared.Rent(largestBlock);
+
             foreach (var block in blocks)
             {
-                var buffer = ArrayPool<byte>.Shared.Rent(block.CompressedSize);
-                var read = 0;
-                while (read != block.CompressedSize)
-                {
-                    read += inputBinaryReader.Read(buffer, read, block.CompressedSize);
-                }
+                var blockSlize = buffer.AsSpan()[..block.CompressedSize];
+                inputBinaryReader.ReadExactly(blockSlize);
                 using var zlibStream = new ZLibStream(new MemoryStream(buffer, 0, block.CompressedSize), CompressionMode.Decompress);
                 zlibStream.CopyTo(outputStream);
                 
-                ArrayPool<byte>.Shared.Return(buffer);
             }
+            ArrayPool<byte>.Shared.Return(buffer);
 
             // Debug.Assert(uncompressOutputStream.Position == uncompressProgress + chunk.UncompressedSize);
             uncompressProgress += chunk.UncompressedSize;
@@ -132,6 +135,12 @@ public class RLPackageUnpacker
         // Debug.Assert(uncompressOutputStream.Position == uncompressOutputStream.Length);
         // outputStream.Write(uncompressedDataBuffer);
 
+
+        // Reset the Cooked package flag so UModel won't try to decrypt it again
+        outputStream.Position = FileSummary.PackageFlagsFlagsOffset;
+        var notCooked = ((PackageFlags)FileSummary.PackageFlags) & ~PackageFlags.PKG_Cooked;
+        outputStream.Write((uint)notCooked);
+        
         // Reset the compression flag to indicate this package is no longer compressed.
         outputStream.Position = FileSummary.CompressionFlagsOffset;
         outputStream.Write((int) ECompressionFlags.CompressNone);
@@ -149,11 +158,11 @@ public class RLPackageUnpacker
             return;
         }
 
-        var decryptedDataReader = new BinaryReader(new MemoryStream(decryptedData));
+        var decryptedDataReader = new MemoryStream(decryptedData);
 
-        decryptedDataReader.BaseStream.Position = FileCompressionMetaData.CompressedChunksffset;
+        decryptedDataReader.Position = FileCompressionMetaData.CompressedChunksffset;
 
-        _compressedChunkSerializer.ReadTArrayToList(decryptedDataReader.BaseStream, FileSummary.CompressedChunks);
+        _compressedChunkSerializer.ReadTArrayToList(decryptedDataReader, FileSummary.CompressedChunks);
         // The depends table is always empty. So The depends table marks the start of where the uncompressed data should go.
         Debug.Assert(FileSummary.CompressedChunks.First().UncompressedOffset == FileSummary.DependsOffset);
         outputStream.Write(decryptedData);
@@ -190,7 +199,6 @@ public class RLPackageUnpacker
             Console.WriteLine("Unknown Decryption key");
             throw new InvalidDataException("Unknown Decryption key");
         }
-
         return validDecryptor.TransformFinalBlock(encryptedData, 0, EncryptedSize);
     }
 

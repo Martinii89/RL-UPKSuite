@@ -1,4 +1,6 @@
-﻿using Core.Serialization.Extensions;
+﻿using System.Buffers.Binary;
+
+using Core.Serialization.Extensions;
 using Core.Types;
 using Core.Types.PackageTables;
 
@@ -42,7 +44,7 @@ public class ExportTableItemSerializer : RocketLeagueBase, IStreamSerializer<Exp
         item.SerialSize = stream.ReadInt32();
         item.SerialOffset = stream.ReadInt64();
         item.ExportFlags = stream.ReadInt32();
-        item.NetObjects = stream.ReadTarray(stream1 => stream1.ReadInt32());
+        item.NetObjects = stream.ReadTarray(static stream1 => stream1.ReadInt32());
         item.PackageGuid = _guidSerializer.Deserialize(stream);
         item.PackageFlags = stream.ReadInt32();
         return item;

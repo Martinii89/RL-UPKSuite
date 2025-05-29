@@ -1,7 +1,10 @@
-﻿using BenchmarkDotNet.Attributes;
+﻿using System.Diagnostics;
+
+using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
 
 using Core;
+using Core.Benchmark;
 using Core.RocketLeague;
 using Core.RocketLeague.Decryption;
 using Core.Serialization;
@@ -11,7 +14,33 @@ using Core.Tests;
 using Core.Types;
 using Core.Utility;
 
-BenchmarkRunner.Run<PackageLoadingBenchmark>();
+// BenchmarkRunner.Run<UnpackBenchmark>();
+BenchmarkRunner.Run<IOBenchmark>();
+// BenchmarkRunner.Run<PackageLoadingBenchmark>();
+
+// for (int i = 0; i < 1; i++)
+// {
+//     var test = new PackageLoadingBenchmark();
+//     test.Setup();
+//     var pckg = test.LoadTAGamePackage();
+//     Console.WriteLine(pckg.PackageName);
+// }
+
+
+// string testPackage = "TestData/RocketPass_Premium_T_SF.upk";
+// var test = new UnpackBenchmark { InputFilePath = testPackage };
+// test.Setup();
+// var test2 = new UnpackBenchmark { InputFilePath = testPackage };
+// test2.Setup();
+// var s = 0L;
+// var sw = Stopwatch.StartNew();
+// while (sw.Elapsed.Seconds < 30)
+// {
+//     var pckg = test.UnpackV2();
+//     var pckg2= test2.Unpack();
+//     s += pckg.Length + pckg2.Length;
+// }
+// Console.WriteLine(s);
 
 // [MemoryDiagnoser]
 public class PackageLoadingBenchmark

@@ -1,4 +1,6 @@
-﻿using Core.Types;
+﻿using System.Buffers.Binary;
+
+using Core.Types;
 
 namespace Core.Serialization.Default;
 
@@ -8,12 +10,14 @@ public class FGuidSerializer : IStreamSerializer<FGuid>
     /// <inheritdoc />
     public FGuid Deserialize(Stream stream)
     {
+        Span<byte> buffer = stackalloc byte[sizeof(uint) * 4];
+        stream.ReadExactly(buffer);
         return new FGuid
         {
-            A = stream.ReadUInt32(),
-            B = stream.ReadUInt32(),
-            C = stream.ReadUInt32(),
-            D = stream.ReadUInt32()
+            A = BinaryPrimitives.ReadUInt32LittleEndian(buffer),
+            B = BinaryPrimitives.ReadUInt32LittleEndian(buffer[4..]),
+            C = BinaryPrimitives.ReadUInt32LittleEndian(buffer[8..]),
+            D =  BinaryPrimitives.ReadUInt32LittleEndian(buffer[12..])
         };
     }
 

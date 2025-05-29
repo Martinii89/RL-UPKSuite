@@ -1,5 +1,8 @@
-﻿namespace Core.Classes.Core.Structs;
+﻿using System.Diagnostics;
 
+namespace Core.Classes.Core.Structs;
+
+[DebuggerDisplay("(Pitch:{Pitch}, Yaw:{Yaw}, Roll:{Roll})")]
 public class FRotator
 {
     public int Pitch { get; set; }
