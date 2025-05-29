@@ -7,6 +7,7 @@
         <StartupObject>RlUpk.RLUpkSuite.App</StartupObject>
         <ApplicationIcon>Resources\AppIcon.ico</ApplicationIcon>
         <ApplicationManifest>app.manifest</ApplicationManifest>
+        <EnableWindowsTargeting>true</EnableWindowsTargeting>
     </PropertyGroup>
 
     <!--

@@ -3,6 +3,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net9.0-windows</TargetFramework>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
     <PackageIcon>wizard-unlock.png</PackageIcon>
