@@ -27,7 +27,7 @@ public class PackageLoaderTests
         // Arrange
         var serializer = SerializerHelper.GetSerializerFor<UnrealPackage>(typeof(UnrealPackage));
         var nativeFactory = new NativeClassFactory();
-        var options = new PackageCacheOptions(serializer, nativeFactory) { SearchPaths = { @"TestData/UDK/" }, GraphLinkPackages = false };
+        var options = new PackageCacheOptions(serializer, nativeFactory) { SearchPaths = { "TestData/UDK/" }, GraphLinkPackages = false };
         var packageCache = new PackageCache(options);
         var loader = new PackageLoader(serializer, packageCache, new NeverUnpackUnpacker(), nativeFactory);
 
@@ -53,7 +53,7 @@ public class PackageLoaderTests
         var loader = new PackageLoader(packageSerializer, packageCache, unpacker, nativeFactory);
 
         // Act
-        var action = () => loader.LoadPackage("TestData\\RocketPass_Premium_T_SF.upk", "RocketPass_Premium_T_SF");
+        var action = () => loader.LoadPackage("TestData/RocketPass_Premium_T_SF.upk", "RocketPass_Premium_T_SF");
         var pckg = loader.GetPackage("RocketPass_Premium_T_SF");
         // Assert 
         action.Should().NotThrow();

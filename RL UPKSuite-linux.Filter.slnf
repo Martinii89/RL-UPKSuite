@@ -1,0 +1,16 @@
+﻿{
+  "solution": {
+    "path": "RL UPKSuite.sln",
+    "projects": [
+      "Core.Benchmark\\Core.Benchmark.csproj",
+      "Core.Test\\Core.Test.csproj",
+      "Core\\Core.csproj",
+      "Decryptor\\Decryptor.csproj",
+      "DummyPackageBuilder.Cli.Test\\DummyPackageBuilder.Cli.Test.csproj",
+      "DummyPackageBuilder.Cli\\DummyPackageBuilder.Cli.csproj",
+      "RLToUdkConverter\\RLToUdkConverter.csproj",
+      "TestUtils\\TestUtils.csproj",
+      "UDKPackageCompressor\\UDKPackageCompressor.csproj"
+    ]
+  }
+}
