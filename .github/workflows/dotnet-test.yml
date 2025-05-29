@@ -8,6 +8,7 @@ on:
 
 env:
   DOTNET_VERSION: '9.x'
+  SLN_FILE: 'RL UPKSuite-linux.Filter.slnf'
 
 jobs:
   build-and-test:
@@ -31,10 +32,10 @@ jobs:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
     - name: Install dependencies
-      run: dotnet restore
+      run: dotnet restore ${{env.SLN_FILE}}
       
     - name: Build
-      run: dotnet build --no-restore
-      
+      run: dotnet build --no-restore ${{env.SLN_FILE}}
+
     - name: Test with the dotnet CLI
-      run: dotnet test --no-build
+      run: dotnet test --no-build ${{env.SLN_FILE}}
