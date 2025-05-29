@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO.Compression;
 using System.Security.Cryptography;
 
+using RlUpk.Core.Flags;
 using RlUpk.Core.IO;
 using RlUpk.Core.RocketLeague.Decryption;
 using RlUpk.Core.Serialization.Abstraction;
@@ -122,6 +123,11 @@ public class RLPackageUnpackerV2
                 zlibStream.CopyTo(outputStream);
             }
         }
+        
+        // Reset the Cooked package flag so UModel won't try to decrypt it again
+        outputStream.Position = fileSummary.PackageFlagsFlagsOffset;
+        var notCooked = ((PackageFlags)fileSummary.PackageFlags) & ~PackageFlags.PKG_Cooked;
+        outputStream.Write((uint)notCooked);
 
         // Reset the compression flag to indicate this package is no longer compressed.
         outputStream.Position = fileSummary.CompressionFlagsOffset;

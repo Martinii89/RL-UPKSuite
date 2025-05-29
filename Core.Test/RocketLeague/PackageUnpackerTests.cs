@@ -2,6 +2,7 @@
 
 using NSubstitute;
 
+using RlUpk.Core.Flags;
 using RlUpk.Core.RocketLeague;
 using RlUpk.Core.RocketLeague.Decryption;
 using RlUpk.Core.Serialization.Abstraction;
@@ -9,6 +10,8 @@ using RlUpk.Core.Serialization.RocketLeague;
 using RlUpk.Core.Types;
 using RlUpk.Core.Types.FileSummeryInner;
 using RlUpk.TestUtils.TestUtilities;
+
+using Syroot.BinaryData;
 
 using Xunit;
 
@@ -26,8 +29,8 @@ public class PackageUnpackerTests
         var outputStream = new MemoryStream();
         var outputExpected = File.ReadAllBytes("TestData/RocketPass_Premium_T_SF_decrypted.upk");
         var decryptionProvider = new DecryptionProvider("keys.txt");
+        
         // Act
-
         var packedFile = new RLPackageUnpacker(inputTest, decryptionProvider, _serializer);
         packedFile.Unpack(outputStream);
         var outputBuffer = outputStream.ToArray();

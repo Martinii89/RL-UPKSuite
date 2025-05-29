@@ -59,7 +59,7 @@ public class PackageLoaderTests
         action.Should().NotThrow();
     }
 
-    [Fact]
+    [Fact(Skip = "Requires the full suite of the Core packages. not required for github action tests")]
     public void LoadPackageTest_FullyLoad_CompressedPackageTAGAMESANITYCHECK()
     {
         // Arrange

@@ -24,24 +24,7 @@ public class PackageUnpackerTestsV2
     {
         _sut = new RLPackageUnpackerV2(_decryptionProvider, _serializer);
     }
-
-    [Fact]
-    public void PackageUnpackerTest_UnpackLarge()
-    {
-        // Arrange
-        var inputTest = File.OpenRead("TestData/TAGame.upk");
-        var outputStream = new MemoryStream();
-        // var outputExpected = File.ReadAllBytes("TestData/RocketPass_Premium_T_SF_decrypted.upk");
-        
-        // Act
-        var result = _sut.Unpack(inputTest, outputStream);
-        var outputBuffer = outputStream.ToArray();
-
-        // Assert 
-        // outputBuffer.Length.Should().Be(outputExpected.Length);
-        // result.Should().Be(UnpackResult.Success);
-        // outputBuffer.Should().Equal(outputExpected);
-    }
+    
     
     [Fact]
     public void PackageUnpackerTest_UnpackKnownPackage_BinaryEqualToKnownOutput()

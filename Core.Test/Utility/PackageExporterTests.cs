@@ -222,7 +222,7 @@ public class PackageExporterTests
         act.Should().NotThrow();
     }
 
-    [Fact]
+    [Fact(Skip = "The test for the map package is sufficient")]
     public void ExportRLPackage_ExportPackage_ShouldNotThrow()
     {
         // Arrange
@@ -271,15 +271,15 @@ public class PackageExporterTests
         };
         var packageCache = new PackageCache(options);
         var loader = new PackageLoader(packageSerializer, packageCache, unpacker, nativeFactory, rLobjectSerializerFactory);
-        var package = loader.LoadPackage(TestConstants.ParkMapPath, "Park_P");
+        var package = loader.LoadPackage(TestConstants.MapPackagePath, "ThrowbackStadium_P");
         var sut = GetPackageExporter(stream, package);
 
         // Act
         var act = () => sut.ExportPackage();
         // Assert
         act.Should().NotThrow();
-        var exportBuffer = new ArraySegment<byte>(stream.GetBuffer(), 0, (int) stream.Length);
-        File.WriteAllBytes("TestData/Park_P_exported.upk", exportBuffer.ToArray());
+        // var exportBuffer = new ArraySegment<byte>(stream.GetBuffer(), 0, (int) stream.Length);
+        // File.WriteAllBytes("TestData/ThrowbackStadium_P_exported.upk", exportBuffer.ToArray());
     }
 
     private PackageExporter GetPackageExporter(Stream stream, UnrealPackage package)
