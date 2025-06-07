@@ -19,7 +19,7 @@ void BatchProcess(BatchProcessOptions options)
     var inputFolder = options.InputDirectory;
     var outputFolder = options.OutputDirectory;
     var files = Directory.EnumerateFiles(inputFolder, options.GlobPattern);
-    var decryptionProvider = new DecryptionProvider("keys.txt");
+    var decryptionProvider = new DecryptionProvider(options.KeysPath);
 
 
     Parallel.ForEach(files, file =>
