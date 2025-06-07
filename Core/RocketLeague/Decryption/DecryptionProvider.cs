@@ -64,7 +64,7 @@ public class DecryptionProvider : IDecrypterProvider
     {
         if (!File.Exists(keyFilePath))
         {
-            throw new FileNotFoundException("Failed to load the key file");
+            throw new FileNotFoundException($"Failed to load the key file: {keyFilePath}");
         }
 
         var stringKeys = File.ReadAllLines(keyFilePath);
