@@ -111,6 +111,8 @@ public class PackageCache : IPackageCache
             _fileSearchCache[Path.GetFileNameWithoutExtension(file)] = file;
         }
     }
+    
+    static HashSet<string> s_missingPackages = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     ///     Returns a cached package if previously loaded. If not it will search for the package and return it if found.
@@ -133,6 +135,10 @@ public class PackageCache : IPackageCache
 
         if (!_fileSearchCache.TryGetValue(packageName, out var packagePath))
         {
+            if (s_missingPackages.Add(packageName))
+            {
+                Console.WriteLine($"Missing package: {packageName}");
+            }
             return null;
         }
 

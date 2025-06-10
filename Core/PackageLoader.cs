@@ -65,6 +65,34 @@ public class PackageLoader
         // Console.WriteLine($"[PackageLoader]: Loading package {packageName}");
 
         var packageStream = new MemoryStream(File.ReadAllBytes(packagePath));
+        return LoadPackageFromStream(packageStream, packageName, cachePackage);
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="packageStream"></param>
+    /// <param name="packageName"></param>
+    /// <param name="cachePackage"></param>
+    /// <param name="copyStream"></param>
+    /// <returns></returns>
+    public UnrealPackage? LoadPackageFromStream(Stream packageStream, string packageName, bool cachePackage, bool copyStream = false)
+    {
+        if (_packageCache.IsPackageCached(packageName))
+        {
+            return _packageCache.GetCachedPackage(packageName);
+        }
+
+        // Since we might cache the package, we offer to create a copy to take ownership of the data. 
+        if (copyStream)
+        {
+            packageStream.Position = 0;
+            var copy = new MemoryStream();
+            packageStream.CopyTo(copy);
+            copy.Position = 0;
+            packageStream = copy;
+        }
+        
         var unrealPackage = DeserializePackage(packageName, packageStream);
         if (unrealPackage is null)
         {

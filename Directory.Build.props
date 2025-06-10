@@ -17,6 +17,8 @@ See: https://learn.microsoft.com/visualstudio/msbuild/customize-your-build
         <ProjectName>RlUpk</ProjectName>
         <RootNamespace>$(ProjectName).$([System.IO.Path]::GetFileNameWithoutExtension('$(MSBuildProjectFile)'))</RootNamespace>
         <NoWarn>1591</NoWarn>
+        <RepositoryUrl>https://github.com/Martinii89/RL-UPKSuite</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
     </PropertyGroup>
 
 
