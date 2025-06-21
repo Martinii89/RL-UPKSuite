@@ -79,7 +79,10 @@
         <None Update="TestData\RocketPass_Premium_T_SF_decrypted.upk">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="TestData\ThrowbackStadium_P.upk">
+        <None Update="TestData\TAGame.upk">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="TestData\IpDrv.upk">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>
