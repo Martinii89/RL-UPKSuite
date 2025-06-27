@@ -45,6 +45,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Benchmark", "Core.Benc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapBuilder.Cli", "MapBuilder.Cli\MapBuilder.Cli.csproj", "{1B12FD04-6DEF-48DC-B320-8AB012B7FF6B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapBuilder.Tests", "MapBuilder.Tests\MapBuilder.Tests.csproj", "{DD331161-9E07-4168-AEF1-4D1316FADDD6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -107,6 +109,10 @@ Global
 		{1B12FD04-6DEF-48DC-B320-8AB012B7FF6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1B12FD04-6DEF-48DC-B320-8AB012B7FF6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1B12FD04-6DEF-48DC-B320-8AB012B7FF6B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD331161-9E07-4168-AEF1-4D1316FADDD6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD331161-9E07-4168-AEF1-4D1316FADDD6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD331161-9E07-4168-AEF1-4D1316FADDD6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD331161-9E07-4168-AEF1-4D1316FADDD6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -125,6 +131,7 @@ Global
 		{E11EB7E8-157C-4A2A-B848-04A73DFA7F5F} = {EA4940AA-B36C-46D5-A2C5-09C9B74F54C8}
 		{53607139-26EA-4D72-8603-EA416754266E} = {780D507A-9D87-4DCF-B13A-7371EBDBF52B}
 		{1B12FD04-6DEF-48DC-B320-8AB012B7FF6B} = {4B87C889-9CF4-4A86-AE9D-CDB09B0C7FA2}
+		{DD331161-9E07-4168-AEF1-4D1316FADDD6} = {4B87C889-9CF4-4A86-AE9D-CDB09B0C7FA2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {49DFFAEA-1DF7-4C8D-B122-711B0719E7EC}

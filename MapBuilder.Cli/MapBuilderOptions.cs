@@ -15,6 +15,9 @@ public class MapBuilderOptions
     [Option("decrypted-folder", Required = false, HelpText = "Folder to store decrypted packages that UModel needs to rip the assets")]
     public string DecryptedFolder { get; set; } = "./decrypted/";
     
+    [Option('o', "output", Required = false, HelpText = "Path to the output folder")]
+    public string OutputFolder { get; set; } = "./output/";
+    
 
     [Option('f', "files", Required = false, HelpText = "List of files")]
     public IEnumerable<string>? Files { get; set; }

@@ -68,13 +68,13 @@ async Task BatchProcess(MapBuilderOptions options)
 
     MapBuilderProcessor mapBuilderProcessor = CreateMapBuilderProcessor(options);
     IEnumerable<string> distinctFiles = files.Distinct().ToList();
-    await Parallel.ForEachAsync(distinctFiles, async (file, _) => await mapBuilderProcessor.ExportAssets(file, options.DecryptedFolder, options.AssetsFolder));
+    await Parallel.ForEachAsync(distinctFiles, async (file, _) => await mapBuilderProcessor.ExportAssets(file, options.DecryptedFolder, options.AssetsFolder, options.OutputFolder));
     foreach (var file in distinctFiles)
     {
         try
         {
             var sw = Stopwatch.StartNew();
-            mapBuilderProcessor.ProcessFile(file, options.AssetsFolder);
+            mapBuilderProcessor.ProcessFile(file, options.AssetsFolder, options.OutputFolder);
             sw.Stop();
             Console.WriteLine($"Processed: {file} in {sw.Elapsed.TotalMilliseconds} ms");
         }
