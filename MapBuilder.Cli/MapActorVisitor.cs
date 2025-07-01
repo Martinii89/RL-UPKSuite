@@ -30,41 +30,51 @@ internal class MapActorVisitor
             yield break;
         }
 
-        // if (clz.IsA("StaticMeshActor"))
-        // {
-        //     MeshComponentData? data = VisitStaticMeshActor(actor);
-        //     if (data is not null)
-        //     {
-        //         yield return data;
-        //     }
-        //
-        //     yield break;
-        // }
+        if (TryVisitActor(actor, out var actorData))
+        {
+            yield return actorData;
+            yield break;
+        }
 
         if (!UnhandledTypes.TryAdd(clz.Name, 1))
         {
             UnhandledTypes[clz.Name]++;
         }
+        else
+        {
+            actor.Deserialize();
+            clz.Deserialize();
+        }
     }
 
-    private MeshComponentData? VisitStaticMeshActor(AActor actor)
+    private bool TryVisitActor(AActor actor, [NotNullWhen(true)]out MeshComponentData? meshComponentData)
     {
         actor.Deserialize();
-        foreach (var obj in actor.ScriptProperties.Select(x => x.Value).OfType<UObject>())
-        {
-            obj.Deserialize();
-        }
-
+        
         var location = GetScriptVector(actor, "Location", FVector.One);
+        var scale3d = GetScriptVector(actor, "DrawScale3D", FVector.One);
+        var scale = actor.ScriptProperties.FirstOrDefault(x => x.Name == "DrawScale");
+        if (scale?.Value is float scaleFactor)
+        {
+            scale3d *= scaleFactor;
+        }
+        var rotation = GetScriptRotator(actor, "Rotation");
         var meshProp = GetScriptProperty<UStaticMeshComponent?>(actor, "StaticMeshComponent", null);
         if (meshProp is null)
         {
-            return null;
+            meshComponentData = null;
+            return false;
         }
 
         var meshData = VisitMeshComponent(meshProp);
+        if (meshData is null)
+        {
+            meshComponentData = null;
+            return false;
+        }
 
-        return null;
+        meshComponentData = meshData with{ Rotation = rotation , Scale3d = scale3d, Translation = location};
+        return true;
     }
 
     private IEnumerable<MeshComponentData> VisitMeshCollector(AActor obj)
@@ -160,14 +170,4 @@ internal class MapActorVisitor
     }
 }
 
-// struct RotationAngles(FRotator rotator)
-// {
-//     public double PitchAngles { get; } = rotator.Pitch * 0.00549316540360483;
-//     public double YawAngles { get; } = rotator.Yaw * 0.00549316540360483;
-//     public double RollAngles { get; } = rotator.Roll * 0.00549316540360483;
-// }
-
-internal record MeshComponentData(string StaticMeshName, bool Hidden, FVector Scale3d, FVector Translation, FRotator Rotation)
-{
-    // public RotationAngles RotationAngles { get; } = new(Rotation);
-}
+internal record MeshComponentData(string StaticMeshName, bool Hidden, FVector Scale3d, FVector Translation, FRotator Rotation);
