@@ -33,14 +33,8 @@ public class UMaterial : UMaterialInterface
         {
             return;
         }
-
-        foreach (var o in expressionsList)
-        {
-            if (o is UMaterialExpression expr)
-            {
-                Expressions.Add(expr);
-            }
-        }
+        
+        Expressions.AddRange(expressionsList.OfType<UMaterialExpression>());
     }
 
     /// <summary>
@@ -52,7 +46,10 @@ public class UMaterial : UMaterialInterface
     {
         InitMateralExpressionsList();
         return Expressions.Where(x =>
-            x.Class != null && (x.Class.IsA("MaterialExpressionParameter") || x.Class.IsA("MaterialExpressionTextureSampleParameter"))).ToList();
+            x.Class != null 
+            && (x.Class.IsA("MaterialExpressionParameter") || x.Class.IsA("MaterialExpressionTextureSampleParameter"))
+            && !x.Class.Name.Contains("Static"))
+            .ToList();
     }
 }
 

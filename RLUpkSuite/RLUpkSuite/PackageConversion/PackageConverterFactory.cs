@@ -41,42 +41,7 @@ public class PackageConverterFactory
                 new FGuidSerializer());
         return new PackageCompressor(headerSerializer, exportTableIteSerializer, new FCompressedChunkinfoSerializer());
     }
-
-    // public void PreloadCommonPackages(ConversionConfig config)
-    // {
-    //     if (config.KeysPath is null || config.ImportPackagesDirectory is null)
-    //     {
-    //         return;
-    //     }
-    //     
-    //     var decrypter = _decrypterFactory();
-    //     decrypter.UseKeyFile(config.KeysPath);
-    //     this.PreloadPackageCache = new PackageCache(CreateCacheOptions(config, decrypter));
-    //     var rlServices = new RlSerializerCollection(); // _rlSerializerCollection;
-    //     var packageUnpacker = rlServices.GetPackageUnpacker(decrypter);
-    //     var nativeFactory = new NativeClassFactory();
-    //     var loader = new PackageLoader(rlServices.UnrealPackageSerializer, PreloadPackageCache, packageUnpacker, nativeFactory,
-    //         rlServices.ObjectSerializerFactory);
-    //
-    //     loader.LoadPackage( Path.Combine(config.ImportPackagesDirectory, "tagame.upk"), "tagame");
-    //     // foreach (string cachedPackageName in PreloadPackageCache.GetCachedPackageNames())
-    //     // {
-    //     //     var package = PreloadPackageCache.GetCachedPackage(cachedPackageName);
-    //     //     foreach (ImportTableItem import in package.ImportTable)
-    //     //     {
-    //     //         import.ImportedObject?.Deserialize();
-    //     //     }
-    //     //
-    //     //     foreach (ExportTableItem exportTableItem in package.ExportTable)
-    //     //     {
-    //     //         exportTableItem.Object?.Deserialize();
-    //     //     }
-    //     // }
-    // }
-
-    // private PackageCache PreloadPackageCache { get; set; }
-
-
+    
     public PackageConverter? Create(ConversionConfig config)
     {
         if (config.KeysPath is null || config.ImportPackagesDirectory is null)
@@ -88,11 +53,7 @@ public class PackageConverterFactory
         decrypter.UseKeyFile(config.KeysPath);
         NativeClassFactory nativeClassFactory = new NativeClassFactory();
         PackageCache packageCache = new PackageCache(CreateCacheOptions(config, decrypter, nativeClassFactory));
-
-        // foreach (string cachedPackageName in PreloadPackageCache.GetCachedPackageNames())
-        // {
-        //     packageCache.AddPackage(PreloadPackageCache.GetCachedPackage(cachedPackageName));
-        // }
+        
 
         PackageLoader loader = new PackageLoader(_rlSerializerCollection.UnrealPackageSerializer, packageCache,
             _rlSerializerCollection.GetPackageUnpacker(decrypter), nativeClassFactory,

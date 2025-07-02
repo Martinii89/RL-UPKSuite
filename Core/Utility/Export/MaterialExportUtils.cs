@@ -8,26 +8,14 @@ namespace RlUpk.Core.Utility.Export;
 /// <summary>
 ///     Utility class for modifying and fixing up cooked materials before export
 /// </summary>
-public class MaterialExportUtils
+public class MaterialExportUtils(PackageExporter packageExporter)
 {
-    private readonly PackageExporter _packageExporter;
-
-    /// <summary>
-    ///     Constructs the PackageExporter. It requires the PackageExporter for the functionality to add new names, classes and
-    ///     objects
-    /// </summary>
-    /// <param name="packageExporter"></param>
-    public MaterialExportUtils(PackageExporter packageExporter)
-    {
-        _packageExporter = packageExporter;
-    }
-
     /// <summary>
     ///     Removes the script property for the blend mode. This should make it default to opaque.
     ///     We do this to for the randomly colored diffuse material
     /// </summary>
     /// <param name="material"></param>
-    public static void RemoveBlendMode(UMaterial material)
+    private static void RemoveBlendMode(UMaterial material)
     {
         material.ScriptProperties.RemoveAll(x => x.Name == "BlendMode");
     }
@@ -37,7 +25,7 @@ public class MaterialExportUtils
     ///     We do this to for the randomly colored diffuse material
     /// </summary>
     /// <param name="material"></param>
-    public static void RemoveLightingModel(UMaterial material)
+    private static void RemoveLightingModel(UMaterial material)
     {
         material.ScriptProperties.RemoveAll(x => x.Name == "LightingModel");
     }
@@ -51,19 +39,23 @@ public class MaterialExportUtils
     /// <param name="materialExports"></param>
     public void AddDummyNodesToMaterials(List<UMaterial> materialExports)
     {
-        var customNodeClass = _packageExporter.AddClassImport("Engine", "MaterialExpressionCustom");
+        if (materialExports.Count == 0)
+        {
+            return;
+        }
+        var customNodeClass = packageExporter.AddClassImport("Engine", "MaterialExpressionCustom");
         customNodeClass.Deserialize();
         customNodeClass.InitProperties();
-        var customName = _packageExporter.GetOrAddName("WizardNode");
+        var customName = packageExporter.GetOrAddName("WizardNode");
         foreach (var material in materialExports)
         {
             material.Deserialize();
             var materialParameterExpressions = material.GetMaterialParams();
             if (materialParameterExpressions.Count > 0)
             {
-                var customNode = new UMaterialExpression(customName, customNodeClass, material, _packageExporter.Package);
+                var customNode = new UMaterialExpression(customName, customNodeClass, material, packageExporter.Package);
                 customName = new FName(customName.NameIndex, customName.InstanceNumber + 1);
-                _packageExporter.AddExport(customNode);
+                packageExporter.AddExport(customNode);
                 material.Expressions.Add(customNode);
 
                 ConnectToSubsurfaceScatteringRadiusProperty(material, customNode);
@@ -87,7 +79,7 @@ public class MaterialExportUtils
     ///     Positions the materialExpressions in a grid in the material editor
     /// </summary>
     /// <param name="expressions"></param>
-    public void SpreadOutExpressions(List<UMaterialExpression> expressions)
+    private void SpreadOutExpressions(List<UMaterialExpression> expressions)
     {
         if (expressions.Count == 0)
         {
@@ -99,8 +91,8 @@ public class MaterialExportUtils
         var startingX = 300;
         var x = startingX;
         var y = 0;
-        _packageExporter.GetOrAddName("MaterialExpressionEditorX");
-        _packageExporter.GetOrAddName("MaterialExpressionEditorY");
+        packageExporter.GetOrAddName("MaterialExpressionEditorX");
+        packageExporter.GetOrAddName("MaterialExpressionEditorY");
         var editorXProperty = expressions.First().Class?.GetProperty("MaterialExpressionEditorX");
         var editorYProperty = expressions.First().Class?.GetProperty("MaterialExpressionEditorY");
         ArgumentNullException.ThrowIfNull(editorXProperty);
@@ -126,10 +118,10 @@ public class MaterialExportUtils
     /// <param name="material"></param>
     public void ConnectRandomColorToDiffuseColorProperty(UMaterial material)
     {
-        _packageExporter.GetOrAddName("DiffuseColor");
-        _packageExporter.GetOrAddName("LinearColor");
-        _packageExporter.GetOrAddName("Expression");
-        _packageExporter.GetOrAddName("ScalarMaterialInput");
+        packageExporter.GetOrAddName("DiffuseColor");
+        packageExporter.GetOrAddName("LinearColor");
+        packageExporter.GetOrAddName("Expression");
+        packageExporter.GetOrAddName("ScalarMaterialInput");
 
         ArgumentNullException.ThrowIfNull(material.Class);
         if (material.Class.GetProperty("DiffuseColor") is not UStructProperty diffuseColorProperty)
@@ -137,17 +129,17 @@ public class MaterialExportUtils
             return;
         }
 
-        var vectorNodeClass = _packageExporter.AddClassImport("Engine", "MaterialExpressionVectorParameter");
+        var vectorNodeClass = packageExporter.AddClassImport("Engine", "MaterialExpressionVectorParameter");
         vectorNodeClass.Deserialize();
         vectorNodeClass.InitProperties();
-        var vectorNodeName = _packageExporter.GetOrAddName("EditorColorVector");
+        var vectorNodeName = packageExporter.GetOrAddName("EditorColorVector");
 
-        var vectorNode = new UMaterialExpression(vectorNodeName, vectorNodeClass, material, _packageExporter.Package);
-        _packageExporter.AddExport(vectorNode);
+        var vectorNode = new UMaterialExpression(vectorNodeName, vectorNodeClass, material, packageExporter.Package);
+        packageExporter.AddExport(vectorNode);
         material.Expressions.Add(vectorNode);
 
         ArgumentNullException.ThrowIfNull(vectorNode.Class);
-        _packageExporter.GetOrAddName("DefaultValue");
+        packageExporter.GetOrAddName("DefaultValue");
         var defaultValue = vectorNode.Class.GetProperty("DefaultValue") as UStructProperty;
         ArgumentNullException.ThrowIfNull(defaultValue?.Struct);
         defaultValue.Deserialize();
@@ -161,11 +153,12 @@ public class MaterialExportUtils
             ["A"] = 1f
         };
 
-        _packageExporter.GetOrAddName("ParameterName");
+        packageExporter.GetOrAddName("ParameterName");
         var paramName = vectorNode.Class.GetProperty("ParameterName");
         ArgumentNullException.ThrowIfNull(paramName);
         paramName.Deserialize();
-        _packageExporter.GetOrAddName("EditorColor");
+        packageExporter.GetOrAddName("EditorColor");
+        packageExporter.GetOrAddName("NameProperty");
 
         var defaultValueIsImmutable = defaultValue.Struct.HasFlag(StructFlag.Immutable);
         // Temporarily remove the immutable flag so that we can create a FProperty from it
@@ -178,7 +171,7 @@ public class MaterialExportUtils
             defaultValue.Struct.StructFlags |= (int) StructFlag.Immutable;
         }
 
-        _packageExporter.GetOrAddName("OutputIndex");
+        packageExporter.GetOrAddName("OutputIndex");
         var valueObject = new Dictionary<string, object>
         {
             ["Expression"] = vectorNode,
@@ -213,9 +206,9 @@ public class MaterialExportUtils
     /// <param name="expression"></param>
     public void ConnectToSubsurfaceScatteringRadiusProperty(UMaterial material, UMaterialExpression expression)
     {
-        _packageExporter.GetOrAddName("SubsurfaceScatteringRadius");
-        _packageExporter.GetOrAddName("Expression");
-        _packageExporter.GetOrAddName("ExpressionInput");
+        packageExporter.GetOrAddName("SubsurfaceScatteringRadius");
+        packageExporter.GetOrAddName("Expression");
+        packageExporter.GetOrAddName("ExpressionInput");
         var valueObject = new Dictionary<string, object>
         {
             ["Expression"] = expression
@@ -236,8 +229,8 @@ public class MaterialExportUtils
     /// <param name="customNode">Should be of type MaterialExpressionCustom</param>
     public void ConnectMaterialParamsToCustomNode(List<UMaterialExpression> materialParameterExpressions, UMaterialExpression customNode)
     {
-        _packageExporter.GetOrAddName("Inputs");
-        _packageExporter.GetOrAddName("Input");
+        packageExporter.GetOrAddName("Inputs");
+        packageExporter.GetOrAddName("Input");
         var inputsParams = customNode.Class?.GetProperty("Inputs");
         ArgumentNullException.ThrowIfNull(inputsParams);
         inputsParams.Deserialize();
