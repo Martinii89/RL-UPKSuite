@@ -25,13 +25,13 @@ jobs:
           global-json-file: global.json
 
       - name: Restore dependencies
-        run: dotnet restore RLUpkSuite.sln
+        run: dotnet restore "RL UPKSuite.sln"
 
       - name: Build solution
-        run: dotnet build RLUpkSuite.sln --configuration Release --no-restore
+        run: dotnet build "RL UPKSuite.sln" --configuration Release --no-restore
 
       - name: Run tests
-        run: dotnet test RLUpkSuite.sln --configuration Release --no-build
+        run: dotnet test "RL UPKSuite.sln" --configuration Release --no-build
 
       - name: Determine release version
         id: version
