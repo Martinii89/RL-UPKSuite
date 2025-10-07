@@ -13,7 +13,6 @@ using Microsoft.Extensions.Hosting;
 
 using RlUpk.Core.RocketLeague.Decryption;
 using RlUpk.RLUpkSuite.AppSettings;
-using RlUpk.RLUpkSuite.AppUpdates;
 using RlUpk.RLUpkSuite.Config;
 using RlUpk.RLUpkSuite.PackageConversion;
 using RlUpk.RLUpkSuite.Pages;
@@ -43,7 +42,6 @@ public partial class App : Application
         App app = new();
         app.InitializeComponent();
         MainWindow appMainWindow = host.Services.GetRequiredService<MainWindow>();
-        app.UpdateHelper = host.Services.GetService<UpdateHelper>();
         appMainWindow.InitConfig(GetAppConfigPath());
         app.MainWindow = appMainWindow;
         app.MainWindow.Visibility = Visibility.Visible;
@@ -83,7 +81,6 @@ public partial class App : Application
                     Dispatcher dispatcher = provider.GetRequiredService<Dispatcher>();
                     return new SnackbarMessageQueue(TimeSpan.FromSeconds(3.0), dispatcher);
                 });
-                services.AddSingleton<UpdateHelper>();
 
 
                 services.AddOptions<Deployment>()

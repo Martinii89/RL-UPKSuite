@@ -39,7 +39,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Clowd.Squirrel"/>
         <PackageReference Include="CommunityToolkit.Mvvm"/>
         <PackageReference Include="MaterialDesignThemes.MahApps"/>
         <PackageReference Include="MaterialDesignThemes"/>

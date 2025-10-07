@@ -363,3 +363,5 @@ MigrationBackup/
 FodyWeavers.xsd
 /UDKPackageCompressor/Properties/launchSettings.json
 /RLToUdkConverter/Properties/launchSettings.json
+.idea
+*.dll

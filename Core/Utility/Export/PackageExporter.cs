@@ -1,4 +1,6 @@
-﻿using RlUpk.Core.Classes.Core;
+﻿using System.Diagnostics;
+
+using RlUpk.Core.Classes.Core;
 using RlUpk.Core.Classes.Engine;
 using RlUpk.Core.Flags;
 using RlUpk.Core.Serialization.Abstraction;
@@ -419,6 +421,12 @@ public class PackageExporter
             if (!obj.FullyDeserialized)
             {
                 obj.Deserialize();
+            }
+
+            if (obj is { FullyDeserialized: false, ExportTableItem.SerialSize: > 0 })
+            {
+                Console.WriteLine($"Failed to fully deserialize {obj.ToString()}");
+                Debugger.Break();
             }
 
             if (obj.HasObjectFlag(ObjectFlagsLO.HasStack))

@@ -1,0 +1,82 @@
+name: Build and Release RLUpkSuite
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    env:
+      PROJECT_PATH: RLUpkSuite/RLUpkSuite/RLUpkSuite.csproj
+      ARTIFACT_ROOT: ${{ github.workspace }}/artifacts
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.0
+
+      - name: Restore dependencies
+        run: dotnet restore RLUpkSuite.sln
+
+      - name: Build solution
+        run: dotnet build RLUpkSuite.sln --configuration Release --no-restore
+
+      - name: Run tests
+        run: dotnet test RLUpkSuite.sln --configuration Release --no-build
+
+      - name: Determine release version
+        id: version
+        shell: pwsh
+        run: |
+          $tag = "${{ github.ref_name }}"
+          if (-not $tag.StartsWith('v')) {
+            Write-Error "Expected a tag beginning with 'v', got '$tag'"
+          }
+          $version = $tag.Substring(1)
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "tag=$tag" >> $env:GITHUB_OUTPUT
+
+      - name: Publish RLUpkSuite
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path "${{ env.ARTIFACT_ROOT }}" -Force | Out-Null
+          dotnet publish "${{ env.PROJECT_PATH }}" `
+            --configuration Release `
+            -p:Version=${{ steps.version.outputs.version }} `
+            --no-build `
+            -o "${{ env.ARTIFACT_ROOT }}/publish"
+
+      - name: Create release archive
+        id: package
+        shell: pwsh
+        run: |
+          $zipPath = Join-Path "${{ env.ARTIFACT_ROOT }}" "RLUpkSuite-${{ steps.version.outputs.version }}.zip"
+          if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
+          Compress-Archive -Path "${{ env.ARTIFACT_ROOT }}/publish/*" -DestinationPath $zipPath
+          $normalized = $zipPath -replace '\\','/'
+          "zipPath=$normalized" >> $env:GITHUB_OUTPUT
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: RLUpkSuite-${{ steps.version.outputs.version }}
+          path: ${{ steps.package.outputs.zipPath }}
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: RL UPKSuite ${{ steps.version.outputs.tag }}
+          files: ${{ steps.package.outputs.zipPath }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

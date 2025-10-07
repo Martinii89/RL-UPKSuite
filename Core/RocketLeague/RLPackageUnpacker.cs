@@ -194,8 +194,8 @@ public class RLPackageUnpacker
             throw new InvalidDataException("Failed to read the encrypted data from the stream");
         }
 
-        var validDecryptor = decrypterProvider.DecryptionKeys.Select(decrypterProvider.GetCryptoTransform)
-            .FirstOrDefault(x => VerifyDecryptor(x, encryptedData));
+        var validDecryptor = decrypterProvider.DecryptionKeys.Select(x => (x, decrypterProvider.GetCryptoTransform(x)))
+            .FirstOrDefault(x => VerifyDecryptor(x, encryptedData)).Item2;
         if (validDecryptor == null)
         {
             Console.WriteLine("Unknown Decryption key");
@@ -211,17 +211,22 @@ public class RLPackageUnpacker
     /// <param name="decryptor"></param>
     /// <param name="encryptedData"></param>
     /// <returns></returns>
-    private bool VerifyDecryptor(ICryptoTransform decryptor, byte[] encryptedData)
+    private bool VerifyDecryptor((byte[] x, ICryptoTransform decrypt) decryptor, byte[] encryptedData)
     {
         var blockOffset = FileCompressionMetaData.CompressedChunksffset % 16;
         var blockStart = FileCompressionMetaData.CompressedChunksffset - blockOffset;
         var chunkInfoBytes = new byte[32];
 
-        decryptor.TransformBlock(encryptedData, blockStart, 32, chunkInfoBytes, 0);
+        decryptor.decrypt.TransformBlock(encryptedData, blockStart, 32, chunkInfoBytes, 0);
 
         var binaryReader = new BinaryReader(new MemoryStream(new Span<byte>(chunkInfoBytes)[blockOffset..].ToArray()));
         var chunkInfoLength = binaryReader.ReadInt32();
         var uncompressedOffsetFirstChunk = binaryReader.ReadInt32();
-        return chunkInfoLength >= 1 && uncompressedOffsetFirstChunk == FileSummary.DependsOffset;
+        bool valid = chunkInfoLength >= 1 && uncompressedOffsetFirstChunk == FileSummary.DependsOffset;
+        if (valid)
+        {
+            Console.WriteLine($"Valid key: {Convert.ToBase64String(decryptor.x)}");
+        }
+        return valid;
     }
 }
