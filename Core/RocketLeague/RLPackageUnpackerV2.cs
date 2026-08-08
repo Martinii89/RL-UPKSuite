@@ -75,6 +75,7 @@ public class RLPackageUnpackerV2
     {
         var result = UnpackResult.None;
         var fileSummary = _fileSummarySerializer.Deserialize(inputStream);
+        _compressedChunkSerializer.LicenseeVersion = fileSummary.LicenseeVersion;
         if (!ProcessFileSummary(fileSummary, outputStream, inputStream))
         {
             return result;

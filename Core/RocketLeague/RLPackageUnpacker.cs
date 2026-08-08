@@ -41,6 +41,7 @@ public class RLPackageUnpacker
         // TODO: use DI
         _compressedChunkHeaderSerializer = new FCompressedChunkHeaderSerializer(_blockSerializer);
         FileSummary = fileSummarySerializer.Deserialize(inputStream);
+        _compressedChunkSerializer.LicenseeVersion = FileSummary.LicenseeVersion;
     }
 
     /// <summary>
