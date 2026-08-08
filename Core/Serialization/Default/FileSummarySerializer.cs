@@ -47,6 +47,11 @@ public class FileSummarySerializer : IStreamSerializer<FileSummary>
 
         fileSummary.FileVersion = stream.ReadUInt16();
         fileSummary.LicenseeVersion = stream.ReadUInt16();
+        if (_compressedChunkSerializer is ILicenseeVersionAwareSerializer versionAwareSerializer)
+        {
+            versionAwareSerializer.LicenseeVersion = fileSummary.LicenseeVersion;
+        }
+
         fileSummary.TotalHeaderSize = stream.ReadInt32();
         fileSummary.FolderName = stream.ReadFString();
         fileSummary.PackageFlagsFlagsOffset = (int) stream.Position;
@@ -82,6 +87,11 @@ public class FileSummarySerializer : IStreamSerializer<FileSummary>
         stream.WriteUInt32(value.Tag);
         stream.WriteUInt16(value.FileVersion);
         stream.WriteUInt16(value.LicenseeVersion);
+        if (_compressedChunkSerializer is ILicenseeVersionAwareSerializer versionAwareSerializer)
+        {
+            versionAwareSerializer.LicenseeVersion = value.LicenseeVersion;
+        }
+
         stream.WriteInt32(value.TotalHeaderSize);
         stream.WriteFString(value.FolderName);
         stream.WriteUInt32(value.PackageFlags);
